@@ -3,7 +3,8 @@ import "@tamagui/core/reset.css";
 import "expo-dev-client";
 import { useFonts } from "expo-font";
 import { ToastProvider, ToastViewport } from "@tamagui/toast";
-import { SplashScreen, Stack, usePathname } from "expo-router";
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import { SplashScreen, Stack, usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Appearance, ColorSchemeName } from "react-native";
 import {
@@ -15,10 +16,10 @@ import {
 } from "tamagui";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { BookPlus, Menu } from "@tamagui/lucide-icons";
+import { ArrowLeft, Menu, Search } from "@tamagui/lucide-icons";
 
 import appConfig from "../tamagui.config";
-import { Toast } from "../components/toast";
+import { Provider } from "jotai/react";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -63,66 +64,86 @@ export default function RootLayout() {
   }
 
   return (
-    <TamaguiProvider defaultTheme={theme ? theme : "dark"} config={appConfig}>
-      <ToastProvider>
-        <Stack initialRouteName="home" screenOptions={{ header: Header }}>
-          <Stack.Screen name="home" />
-        </Stack>
-        <ToastViewport
-          w={"100%"}
-          pt={"$6"}
-          display="flex"
-          alignContent="center"
-        />
-      </ToastProvider>
-    </TamaguiProvider>
+    <Provider>
+      <TamaguiProvider defaultTheme={theme ? theme : "dark"} config={appConfig}>
+        <ToastProvider>
+          <Stack
+            screenOptions={{
+              header: Header,
+              animation: "none",
+            }}
+          >
+            <Stack.Screen name="(root)/index" />
+          </Stack>
+
+          <ToastViewport
+            w={"100%"}
+            pt={"$6"}
+            display="flex"
+            alignContent="center"
+          />
+        </ToastProvider>
+      </TamaguiProvider>
+    </Provider>
   );
 }
-
-const Header = () => {
+const Header = ({
+  navigation,
+  route,
+  options,
+  back,
+}: NativeStackHeaderProps) => {
+  const router = useRouter();
   const path = usePathname();
   const theme = Appearance.getColorScheme();
 
-  useEffect(() => {
-    console.log(theme);
-  }, [theme]);
-
-  let route = "/";
-
   if (path === "/") {
-    route = "Login";
     return null;
   }
 
-  if (path === "/home") {
-    route = "Library";
+  if (path.startsWith("/reader")) {
+    return null;
   }
 
   return (
-    <TStack height={"$7"} bg={"$background"} pos={"relative"} w={"100%"}>
+    <TStack height={"$8"} bg={"$background"} pos={"relative"} w={"100%"}>
       <XStack
-        alignItems="center"
-        px={"$2"}
         pos={"absolute"}
-        justifyContent="space-between"
-        bottom={4}
         w={"100%"}
+        px={"$2"}
+        bottom={4}
+        alignItems="center"
       >
-        <Button
-          size={"$2"}
-          icon={<Menu size={"$1"} />}
-          onPress={() => {
-            Appearance.setColorScheme(theme === "dark" ? "light" : "dark");
-          }}
-        />
-        <Text fontSize={"$9"} fontWeight={"600"}>
+        <XStack w={"50%"}>
+          {path.startsWith("/item/") && (
+            <Button
+              size={"$2"}
+              icon={<ArrowLeft size={"$1"} />}
+              onPress={() => {
+                router.back();
+              }}
+            />
+          )}
+        </XStack>
+        <XStack w={"50%"} space={"$space.2"} justifyContent="flex-end">
+          <Button
+            size={"$2"}
+            icon={<Search size={"$1"} />}
+            onPress={() => {
+              Appearance.setColorScheme(theme === "dark" ? "light" : "dark");
+            }}
+          />
+          <Button
+            size={"$2"}
+            icon={<Menu size={"$1"} />}
+            onPress={() => {
+              Appearance.setColorScheme(theme === "dark" ? "light" : "dark");
+            }}
+          />
+        </XStack>
+        {/* <Text px={20} fontSize={"$9"} fontWeight={"600"}>
           {route}
-        </Text>
-        <Button
-          size={"$2"}
-          icon={<BookPlus size={"$1"} />}
-          onPress={() => {}}
-        />
+        </Text> */}
       </XStack>
     </TStack>
   );

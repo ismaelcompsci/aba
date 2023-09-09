@@ -1,8 +1,5 @@
 {
-    "SERVER": {
-        "SETTINGS_PREFIX": "settings-"
-    },
-    "LIBRARY": {
-        "CURRENT_LIBRARY": "current-library-"
+    "SETTINGS": {
+        "GENERAL_PREFIX": "settings-"
     }
 }

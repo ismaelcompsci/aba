@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Button, Input, Label, Spinner, Stack, Text } from "tamagui";
+import { Button, Input, Label, Spinner, Stack, Text, View } from "tamagui";
 import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,18 +18,27 @@ const loginSchema = z.object({
 
 export type LoginSchema = z.infer<typeof loginSchema>;
 
-export type ServerConfig = LoginSchema & {
-  userId?: string;
-  token?: string;
-  id?: string;
+export type ServerConfig = {
+  serverAddress: string;
+  username: string;
+  userId: string;
+  token: string;
+  index: number;
+  name: string;
+  id: string;
 };
 
 interface LoginFormProps {
-  makeConnection: (values: LoginServerResponse) => void;
+  makeConnection: (values: LoginServerResponse, config?: ServerConfig) => void;
   pingServer: (serverAddr: string) => any;
+  toastShow: (title: string, options: any) => void;
 }
 
-const LoginForm = ({ makeConnection, pingServer }: LoginFormProps) => {
+const LoginForm = ({
+  makeConnection,
+  pingServer,
+  toastShow,
+}: LoginFormProps) => {
   const [loading, setLoading] = useState(false);
 
   const {
@@ -50,19 +59,19 @@ const LoginForm = ({ makeConnection, pingServer }: LoginFormProps) => {
   const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
     try {
       setLoading(true);
-      // setServerConfig(data);
       const success = pingServer(data.serverAddress);
 
       if (!success) {
-        // toast.show("Error", {
-        //   message: "Falied to ping server",
-        // });
+        toastShow("Error", {
+          message: "Falied to ping server",
+        });
         return;
       }
 
       const payload = await requestServerLogin(data);
       if (payload) {
-        makeConnection(payload);
+        // @ts-ignore TODO fix
+        makeConnection(payload, data);
       }
     } catch (error) {
       console.error("[ONSUBMIT_INDEX] ", error);
@@ -111,7 +120,7 @@ const LoginForm = ({ makeConnection, pingServer }: LoginFormProps) => {
   };
 
   return (
-    <>
+    <View space={"$4"}>
       <Controller
         control={control}
         name="serverAddress"
@@ -186,7 +195,7 @@ const LoginForm = ({ makeConnection, pingServer }: LoginFormProps) => {
           <Text color={"$color12"}>Connect</Text>
         )}
       </Button>
-    </>
+    </View>
   );
 };
 

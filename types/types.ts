@@ -1,7 +1,8 @@
-import { ServerConfig } from "../app";
+import { ServerConfig } from "../components/login/login-form";
 
 export enum GeneralSetting {
-  ServerConfig = "ServerConfig",
+  CurrentUser = "CurrentUser",
+  CurrentServerConfig = "CurrentServerConfig",
   CurrentLibrary = "CurrentLibrary",
   DeviceData = "DeviceData",
   ServerSettings = "ServerSettings",
