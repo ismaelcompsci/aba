@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { ReaderContext, ReaderContextProps } from '../context';
+import { useContext } from "react";
+import { ReaderContext, ReaderContextProps } from "../context";
 
 export function useReader() {
   const {
@@ -25,6 +25,7 @@ export function useReader() {
     isLoading,
     key,
     searchResults,
+    changePageFlow,
   } = useContext(ReaderContext);
 
   return {
@@ -50,29 +51,31 @@ export function useReader() {
     isLoading,
     key,
     searchResults,
+    changePageFlow,
   } as Pick<
     ReaderContextProps,
-    | 'changeFontSize'
-    | 'changeFontFamily'
-    | 'changeTheme'
-    | 'goToLocation'
-    | 'goPrevious'
-    | 'goNext'
-    | 'getLocations'
-    | 'getCurrentLocation'
-    | 'getMeta'
-    | 'search'
-    | 'addMark'
-    | 'removeMark'
-    | 'theme'
-    | 'atStart'
-    | 'atEnd'
-    | 'totalLocations'
-    | 'currentLocation'
-    | 'progress'
-    | 'locations'
-    | 'isLoading'
-    | 'key'
-    | 'searchResults'
+    | "changeFontSize"
+    | "changeFontFamily"
+    | "changeTheme"
+    | "goToLocation"
+    | "goPrevious"
+    | "goNext"
+    | "getLocations"
+    | "getCurrentLocation"
+    | "getMeta"
+    | "search"
+    | "addMark"
+    | "removeMark"
+    | "theme"
+    | "atStart"
+    | "atEnd"
+    | "totalLocations"
+    | "currentLocation"
+    | "progress"
+    | "locations"
+    | "isLoading"
+    | "key"
+    | "searchResults"
+    | "changePageFlow"
   >;
 }

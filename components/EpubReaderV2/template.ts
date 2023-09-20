@@ -5,8 +5,8 @@ export default `
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EPUB.js</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+    <script id="jszip"></script>
+    <script id="epubjs"></script>
 
     <style type="text/css">
       body {
@@ -52,6 +52,8 @@ export default `
       rendition = book.renderTo("viewer", {
         width: "100%",
         height: "100%",
+        manager: "continuous",
+        flow:"scrolled",
       });
 
       window.ReactNativeWebView.postMessage(JSON.stringify({ type: "onStarted" }));

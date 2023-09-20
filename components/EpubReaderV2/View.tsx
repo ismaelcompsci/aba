@@ -1,26 +1,30 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from "react";
 import {
   TouchableWithoutFeedback,
   I18nManager,
   View as RNView,
-} from 'react-native';
+} from "react-native";
 import {
   Directions,
   FlingGestureHandler,
+  Gesture,
+  GestureDetector,
   GestureHandlerRootView,
   State,
-} from 'react-native-gesture-handler';
-import { WebView, WebViewMessageEvent } from 'react-native-webview';
-import { defaultTheme as initialTheme, ReaderContext } from './context';
-import type { ReaderProps } from './types';
-import { OpeningBook } from './utils/OpeningBook';
+} from "react-native-gesture-handler";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
+import { defaultTheme as initialTheme, ReaderContext } from "./context";
+import type { ReaderProps } from "./types";
+import { OpeningBook } from "./utils/OpeningBook";
 
-export type ViewProps = Omit<ReaderProps, 'src' | 'fileSystem'> & {
-  template: string;
+export type ViewProps = Omit<ReaderProps, "src" | "fileSystem"> & {
+  templateUri: string;
+  allowedUris: string;
 };
 
 export function View({
-  template,
+  templateUri,
+  allowedUris,
   onStarted = () => {},
   onReady = () => {},
   onDisplayError = () => {},
@@ -77,12 +81,16 @@ export function View({
 
     delete parsedEvent.type;
 
-    if (type === 'meta') {
+    if (type === "epubjs") {
+      console.log(parsedEvent.message);
+    }
+
+    if (type === "meta") {
       const { metadata } = parsedEvent;
       setMeta(metadata);
     }
 
-    if (type === 'onStarted') {
+    if (type === "onStarted") {
       setIsRendering(true);
 
       changeTheme(defaultTheme);
@@ -90,7 +98,7 @@ export function View({
       return onStarted();
     }
 
-    if (type === 'onReady') {
+    if (type === "onReady") {
       const { totalLocations, currentLocation, progress } = parsedEvent;
       setIsRendering(false);
       setTotalLocations(totalLocations);
@@ -104,20 +112,20 @@ export function View({
       return onReady(totalLocations, currentLocation, progress);
     }
 
-    if (type === 'onDisplayError') {
+    if (type === "onDisplayError") {
       const { reason } = parsedEvent;
       setIsRendering(false);
 
       return onDisplayError(reason);
     }
 
-    if (type === 'onResized') {
+    if (type === "onResized") {
       const { layout } = parsedEvent;
 
       return onResized(layout);
     }
 
-    if (type === 'onLocationChange') {
+    if (type === "onLocationChange") {
       const { totalLocations, currentLocation, progress } = parsedEvent;
       setTotalLocations(totalLocations);
       setCurrentLocation(currentLocation);
@@ -132,14 +140,14 @@ export function View({
       return onLocationChange(totalLocations, currentLocation, progress);
     }
 
-    if (type === 'onSearch') {
+    if (type === "onSearch") {
       const { results } = parsedEvent;
       setSearchResults(results);
 
       return onSearch(results);
     }
 
-    if (type === 'onLocationsReady') {
+    if (type === "onLocationsReady") {
       const { epubKey } = parsedEvent;
       setLocations(parsedEvent.locations);
       setKey(epubKey);
@@ -147,49 +155,49 @@ export function View({
       return onLocationsReady(epubKey, parsedEvent.locations);
     }
 
-    if (type === 'onSelected') {
+    if (type === "onSelected") {
       const { cfiRange, text } = parsedEvent;
 
       return onSelected(text, cfiRange);
     }
 
-    if (type === 'onMarkPressed') {
+    if (type === "onMarkPressed") {
       const { cfiRange, text } = parsedEvent;
 
       return onMarkPressed(cfiRange, text);
     }
 
-    if (type === 'onOrientationChange') {
+    if (type === "onOrientationChange") {
       const { orientation } = parsedEvent;
 
       return onOrientationChange(orientation);
     }
 
-    if (type === 'onBeginning') {
+    if (type === "onBeginning") {
       setAtStart(true);
 
       return onBeginning();
     }
 
-    if (type === 'onFinish') {
+    if (type === "onFinish") {
       setAtEnd(true);
 
       return onFinish();
     }
 
-    if (type === 'onRendered') {
+    if (type === "onRendered") {
       const { section, currentSection } = parsedEvent;
 
       return onRendered(section, currentSection);
     }
 
-    if (type === 'onLayout') {
+    if (type === "onLayout") {
       const { layout } = parsedEvent;
 
       return onLayout(layout);
     }
 
-    if (type === 'onNavigationLoaded') {
+    if (type === "onNavigationLoaded") {
       const { toc } = parsedEvent;
 
       return onNavigationLoaded(toc);
@@ -220,82 +228,87 @@ export function View({
     }
   };
 
+  const leftFlingGesture = Gesture.Fling()
+    .direction(I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT)
+    .onStart(() => {
+      if (enableSwipe) {
+        goPrevious();
+        onSwipeRight();
+      }
+    });
+
+  const rightFlingGesture = Gesture.Fling()
+    .direction(I18nManager.isRTL ? Directions.RIGHT : Directions.LEFT)
+    .onStart(() => {
+      if (enableSwipe) {
+        goNext();
+        onSwipeLeft();
+      }
+    });
+
+  const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
+    onPress();
+  });
+
   return (
-    <GestureHandlerRootView style={{ width, height }}>
-      <FlingGestureHandler
-        direction={I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT}
-        onHandlerStateChange={({ nativeEvent }) => {
-          if (nativeEvent.state === State.ACTIVE && enableSwipe) {
-            goPrevious();
-            onSwipeRight();
-          }
+    <GestureDetector
+      gesture={Gesture.Exclusive(
+        leftFlingGesture,
+        rightFlingGesture,
+        tapGesture
+      )}
+    >
+      <RNView
+        style={{
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
-        <FlingGestureHandler
-          direction={I18nManager.isRTL ? Directions.RIGHT : Directions.LEFT}
-          onHandlerStateChange={({ nativeEvent }) => {
-            if (nativeEvent.state === State.ACTIVE && enableSwipe) {
-              goNext();
-              onSwipeLeft();
-            }
-          }}
-        >
+        {isRendering && (
           <RNView
             style={{
-              height: '100%',
-              justifyContent: 'center',
-              alignItems: 'center',
+              width: "100%",
+              height: "100%",
+              position: "absolute",
+              top: 0,
+              zIndex: 2,
             }}
           >
-            {isRendering && (
-              <RNView
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  position: 'absolute',
-                  top: 0,
-                  zIndex: 2,
-                }}
-              >
-                {renderOpeningBookComponent()}
-              </RNView>
-            )}
-
-            <TouchableWithoutFeedback onPress={handleDoublePress}>
-              <WebView
-                ref={book}
-                source={{ html: template, baseUrl: 'file:///' }}
-                showsVerticalScrollIndicator={false}
-                javaScriptEnabled
-                originWhitelist={['*']}
-                scrollEnabled={false}
-                mixedContentMode="compatibility"
-                onMessage={onMessage}
-                allowUniversalAccessFromFileURLs
-                allowFileAccessFromFileURLs
-                allowFileAccess
-                onShouldStartLoadWithRequest={(request) => {
-                  if (
-                    !isRendering &&
-                    request.mainDocumentURL &&
-                    request.url !== request.mainDocumentURL
-                  ) {
-                    goToLocation(
-                      request.url.replace(request.mainDocumentURL, '')
-                    );
-                  }
-                  return true;
-                }}
-                style={{
-                  width,
-                  backgroundColor: theme.body.background,
-                  height,
-                }}
-              />
-            </TouchableWithoutFeedback>
+            {renderOpeningBookComponent()}
           </RNView>
-        </FlingGestureHandler>
-      </FlingGestureHandler>
-    </GestureHandlerRootView>
+        )}
+
+        <WebView
+          ref={book}
+          source={{ uri: templateUri }}
+          showsVerticalScrollIndicator={false}
+          javaScriptEnabled
+          originWhitelist={["*"]}
+          scrollEnabled={false}
+          mixedContentMode="compatibility"
+          onMessage={onMessage}
+          allowingReadAccessToURL={allowedUris}
+          allowUniversalAccessFromFileURLs
+          allowFileAccessFromFileURLs
+          allowFileAccess
+          onShouldStartLoadWithRequest={(request) => {
+            if (
+              !isRendering &&
+              request.mainDocumentURL &&
+              request.url !== request.mainDocumentURL
+            ) {
+              goToLocation(request.url.replace(request.mainDocumentURL, ""));
+            }
+            return true;
+          }}
+          style={{
+            width,
+            backgroundColor: defaultTheme.body.background,
+            height,
+          }}
+        />
+      </RNView>
+    </GestureDetector>
   );
 }

@@ -25,7 +25,7 @@ export type Location = {
   };
 };
 
-export type Mark = 'highlight' | 'underline';
+export type Mark = "highlight" | "underline";
 
 export type FontSize = string;
 
@@ -70,9 +70,7 @@ type FileSystem = {
     fromUrl: string,
     toFile: string
   ) => Promise<{ uri: string | null; mimeType: string | null }>;
-  getFileInfo: (
-    fileUri: string
-  ) => Promise<{
+  getFileInfo: (fileUri: string) => Promise<{
     uri: string;
     exists: boolean;
     isDirectory: boolean;
@@ -168,7 +166,7 @@ export interface ReaderProps {
    * @param {string} orientation
    * @returns {void} void
    */
-  onOrientationChange?: (orientation: '-90' | '0' | '90') => void;
+  onOrientationChange?: (orientation: "-90" | "0" | "90") => void;
   /**
    * Called when the book is on the homepage
    * @returns {void} void

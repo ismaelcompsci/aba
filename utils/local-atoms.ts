@@ -4,10 +4,12 @@ import { atom } from "jotai/vanilla";
 import { ServerConfig } from "../components/login/login-form";
 import { ServerSettings, User } from "../types/server";
 
-const storage = new MMKV();
+export const storage = new MMKV();
 
 export function getItem<T>(key: string): T | null {
+  if (!key) return null;
   const value = storage.getString(key);
+
   return value ? JSON.parse(value) : null;
 }
 
@@ -32,10 +34,11 @@ const atomWithLocalStorage = <Value>(key: string, initialValue: Value) => {
     return initialValue;
   };
   const baseAtom = atom(getInitialValue());
+
   const derivedAtom = atom(
     (get) => get(baseAtom) as Value,
     (get, set, update) => {
-      const nextValue =
+      const nextValue: Value =
         typeof update === "function" ? update(get(baseAtom)) : update;
       set(baseAtom, nextValue);
       setItem(key, JSON.stringify(nextValue));
@@ -72,4 +75,9 @@ export const currentLibraryAtom = atomWithLocalStorage<string>(
 export const currentServerConfigAtom = atomWithLocalStorage<ServerConfig>(
   GeneralSetting.CurrentServerConfig,
   {} as ServerConfig
+);
+
+export const tempBookFilesAtom = atomWithLocalStorage<string[]>(
+  GeneralSetting.TempBookFiles,
+  []
 );

@@ -3,7 +3,7 @@ export interface User {
   username: string;
   type: string;
   token: string;
-  mediaProgress: any;
+  mediaProgress: MediaProgress[];
   seriesHideFromContinueListening: any[];
   bookmarks: any;
   isActive: boolean;
@@ -104,6 +104,21 @@ export interface Book {
   chapters: BookChapter[];
   missingParts: number[];
   ebookFile: EbookFile;
+}
+
+export interface MediaProgress {
+  id: string;
+  libraryItemId: string;
+  episodeId: string;
+  duration: number;
+  progress: number;
+  currentTime: number;
+  isFinished: boolean;
+  hideFromContinueListening: boolean;
+  lastUpdate: number;
+  startedAt: number;
+  finishedAt: number | null;
+  ebookLocation: string | null | undefined;
 }
 
 export interface Podcast {

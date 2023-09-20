@@ -16,10 +16,13 @@ import {
 } from "tamagui";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { ArrowLeft, Menu, Search } from "@tamagui/lucide-icons";
+import { ArrowLeft, ChevronLeft, Menu, Search } from "@tamagui/lucide-icons";
 
 import appConfig from "../tamagui.config";
-import { Provider } from "jotai/react";
+import { Provider, useAtom, useSetAtom } from "jotai/react";
+import { MMKV } from "react-native-mmkv";
+import { currentServerConfigAtom } from "../utils/local-atoms";
+import { IconButton } from "../components/ui/button";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -28,7 +31,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "index",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -71,6 +74,7 @@ export default function RootLayout() {
             screenOptions={{
               header: Header,
               animation: "none",
+              gestureEnabled: false,
             }}
           >
             <Stack.Screen name="(root)/index" />
@@ -78,7 +82,7 @@ export default function RootLayout() {
 
           <ToastViewport
             w={"100%"}
-            pt={"$6"}
+            pt={"$8"}
             display="flex"
             alignContent="center"
           />
@@ -106,7 +110,7 @@ const Header = ({
   }
 
   return (
-    <TStack height={"$8"} bg={"$background"} pos={"relative"} w={"100%"}>
+    <TStack height={"$9"} bg={"$background"} pos={"relative"} w={"100%"}>
       <XStack
         pos={"absolute"}
         w={"100%"}
@@ -116,26 +120,21 @@ const Header = ({
       >
         <XStack w={"50%"}>
           {path.startsWith("/item/") && (
-            <Button
-              size={"$2"}
-              icon={<ArrowLeft size={"$1"} />}
-              onPress={() => {
-                router.back();
-              }}
+            <IconButton
+              icon={<ChevronLeft size={"$1"} color={"$blue10Dark"} />}
+              onPress={() => router.back()}
             />
           )}
         </XStack>
         <XStack w={"50%"} space={"$space.2"} justifyContent="flex-end">
-          <Button
-            size={"$2"}
-            icon={<Search size={"$1"} />}
+          <IconButton
+            icon={<Search size={"$1"} color={"$blue10Dark"} />}
             onPress={() => {
               Appearance.setColorScheme(theme === "dark" ? "light" : "dark");
             }}
           />
-          <Button
-            size={"$2"}
-            icon={<Menu size={"$1"} />}
+          <IconButton
+            icon={<Menu size={"$1"} color={"$blue10Dark"} />}
             onPress={() => {
               Appearance.setColorScheme(theme === "dark" ? "light" : "dark");
             }}

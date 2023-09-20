@@ -31,22 +31,31 @@ const BookCard = ({ item, token, currentServerConfig }: BookCardProps) => {
   return (
     <Card
       onPress={handlePress}
+      mb={"$2"}
       pressStyle={{ scale: 0.98 }}
       justifyContent="center"
       key={item.id}
-      w={150}
+      w={150} // change this to make compact book covers
       px={"$2"}
     >
       {cover ? (
-        <Image
-          borderRadius={"$4"}
+        <Stack
+          aspectRatio={"1/1.5"}
+          overflow="hidden"
           h={200}
-          w={142}
-          resizeMode="cover"
-          source={{
-            uri: cover,
-          }}
-        />
+          w={150}
+          p={0}
+          m={0}
+          borderRadius={"$4"}
+        >
+          <Image
+            flex={1}
+            resizeMode="cover"
+            source={{
+              uri: cover,
+            }}
+          />
+        </Stack>
       ) : (
         <Card
           h={200}

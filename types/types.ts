@@ -6,6 +6,7 @@ export enum GeneralSetting {
   CurrentLibrary = "CurrentLibrary",
   DeviceData = "DeviceData",
   ServerSettings = "ServerSettings",
+  TempBookFiles = "TempBookFiles",
 }
 
 export type DeviceData = {

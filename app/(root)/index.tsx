@@ -1,14 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Button, Card, Stack, Text, YStack } from "tamagui";
+import { Button, Card, Spinner, Stack, Text, YStack } from "tamagui";
 
 import { useToastController } from "@tamagui/toast";
 import { useRouter } from "expo-router";
+import { useAtom, useSetAtom } from "jotai/react";
 import { KeyboardAvoidingView, Platform } from "react-native";
 import LoginForm, { ServerConfig } from "../../components/login/login-form";
 import { Toast } from "../../components/toast";
 import { LoginServerResponse } from "../../types/server";
-import { useAtom, useSetAtom } from "jotai/react";
 import {
   currentLibraryAtom,
   currentServerConfigAtom,
@@ -16,15 +16,20 @@ import {
   deviceDataAtom,
   serverSettingsAtom,
 } from "../../utils/local-atoms";
+import { IconButton } from "../../components/ui/button";
+import { ChevronLeft } from "@tamagui/lucide-icons";
 
 global.Buffer = require("buffer").Buffer;
 
 const IndexPage = () => {
+  const [load, setLoad] = useState(false);
   const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentUser = useSetAtom(currentUserAtom);
   const setCurrentLibrary = useSetAtom(currentLibraryAtom);
-  const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
+  const [currentServerConfig, setCurrentServerConfig] = useAtom(
+    currentServerConfigAtom
+  );
 
   const [showAddServer, setShowAddServer] = useState(false);
   const toast = useToastController();
@@ -34,33 +39,33 @@ const IndexPage = () => {
 
   const makeConnection = (
     { user, userDefaultLibraryId, serverSettings }: LoginServerResponse,
-    config?: ServerConfig
+    config: ServerConfig
   ) => {
-    if (!user) return;
+    if (!user || !config) return;
 
-    if (config) {
-      const c = config;
-      if (!c) return;
+    config.userId = user.id;
+    config.token = user.token;
 
-      c.userId = user.id;
-      c.token = user.token;
+    setCurrentLibrary(userDefaultLibraryId);
+    setServerSettings(serverSettings);
+    setCurrentUser(user);
+    const ssc = saveServerConfig(config);
+    setCurrentServerConfig(ssc);
 
-      setCurrentLibrary(userDefaultLibraryId);
-      setServerSettings(serverSettings);
-      setCurrentUser(user);
-      const ssc = saveServerConfig(c);
-      setCurrentServerConfig(ssc);
-
-      console.log("Successfully logged in", user.username);
-      router.push("/home/");
-    }
+    console.log("Successfully logged in", user.username);
+    setLoad(false);
+    router.push("/home/");
   };
 
   const connectToServer = async (config: ServerConfig) => {
-    const success = pingServer(config.serverAddress);
+    const success = await pingServer(config.serverAddress);
+
     if (!success) {
+      setLoad(false);
+      clearLastServerConnectionConfig();
       return;
     }
+
     const payload = await authenticateToken(config);
 
     if (!payload) {
@@ -86,9 +91,6 @@ const IndexPage = () => {
 
         console.error("[AUTH_TOKEN] ", errorMsg);
 
-        // setError("root.unknownError", {
-        //   message: errorMsg as string,
-        // });
         toast.show("Unknown Error");
         return null;
       });
@@ -98,7 +100,6 @@ const IndexPage = () => {
 
   const pingServer = async (addr: string) => {
     const options = { timeout: 3000 };
-
     return axios
       .get(`${addr}/ping`, options)
       .then((data) => {
@@ -107,7 +108,6 @@ const IndexPage = () => {
       })
       .catch((error) => {
         console.error("Server check failed", error);
-        // setError("serverAddress", { message: "Failed to ping server" });
         toast.show("Error", {
           message: "Failed to ping server",
         });
@@ -116,19 +116,26 @@ const IndexPage = () => {
   };
 
   useEffect(() => {
-    if (!deviceData) return;
-    if (deviceData.lastServerConnectionConfigId) {
-      const config = deviceData.serverConnectionConfigs.find(
-        (s) => s.userId == deviceData.lastServerConnectionConfigId
-      );
-      if (!config) return;
-      console.log("[AUTH] login in with token for user ", config.username);
-      connectToServer(config);
-    }
+    if (!deviceData.lastServerConnectionConfigId) return;
+
+    const config = deviceData.serverConnectionConfigs.find(
+      (s) => s.id == deviceData.lastServerConnectionConfigId
+    );
+
+    if (!config) return;
+    setLoad(true);
+
+    connectToServer(config);
   }, []);
 
+  const clearLastServerConnectionConfig = () => {
+    const newData = deviceData;
+    newData.lastServerConnectionConfigId = "";
+
+    setDeviceData(newData);
+  };
+
   const saveServerConfig = (serverConfig: ServerConfig) => {
-    console.log(deviceData);
     var sc = deviceData?.serverConnectionConfigs?.find(
       (s) => s.id == serverConfig.id
     );
@@ -148,7 +155,6 @@ const IndexPage = () => {
     }
     if (sc) {
       // sc.password = serverConfig.password;
-      console.log("NOT NEW NOT ADDING");
       sc.name = `${sc.serverAddress} (${serverConfig.username})`;
       sc.userId = serverConfig.userId;
       sc.name = serverConfig.name;
@@ -202,35 +208,46 @@ const IndexPage = () => {
             style={{ width: "100%" }}
             behavior={Platform.OS === "ios" ? "position" : "height"}
           >
-            <Stack px={"$4"}>
-              <Card bordered w={"100%"} space={"$4"} padded>
-                {!showAddServer ? (
-                  <YStack space="$2">
-                    {deviceServerConfigs?.map((config) => (
-                      <Button
-                        onPress={() => connectToServer(config)}
-                        key={`${config.id}${config.index}`}
-                      >
-                        <Text>{config.serverAddress}</Text>
-                      </Button>
-                    ))}
-                  </YStack>
-                ) : (
-                  <>
-                    <LoginForm
-                      toastShow={toast.show}
-                      makeConnection={makeConnection}
-                      pingServer={pingServer}
+            {load ? (
+              <Spinner />
+            ) : (
+              <Stack px={"$4"}>
+                <Card bordered w={"100%"} space={"$4"} padded>
+                  {showAddServer && (
+                    <IconButton
+                      onPress={() => setShowAddServer(false)}
+                      w={"$4"}
+                      icon={<ChevronLeft size={"$1"} color={"$blue10Dark"} />}
                     />
-                  </>
-                )}
-                {!showAddServer && (
-                  <Button onPress={() => setShowAddServer(true)}>
-                    <Text>Add new server</Text>
-                  </Button>
-                )}
-              </Card>
-            </Stack>
+                  )}
+                  {!showAddServer ? (
+                    <YStack space="$2">
+                      {deviceServerConfigs?.map((config) => (
+                        <Button
+                          onPress={() => connectToServer(config)}
+                          key={`${config.id}${config.index}`}
+                        >
+                          <Text>{config.serverAddress}</Text>
+                        </Button>
+                      ))}
+                    </YStack>
+                  ) : (
+                    <>
+                      <LoginForm
+                        toastShow={toast.show}
+                        makeConnection={makeConnection}
+                        pingServer={pingServer}
+                      />
+                    </>
+                  )}
+                  {!showAddServer && (
+                    <Button onPress={() => setShowAddServer(true)}>
+                      <Text>Add new server</Text>
+                    </Button>
+                  )}
+                </Card>
+              </Stack>
+            )}
           </KeyboardAvoidingView>
         </Stack>
       </YStack>

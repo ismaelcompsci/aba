@@ -16,6 +16,7 @@ const authInterceptor = (req: InternalAxiosRequestConfig) => {
     console.info("ADDED TOKEN");
     req.headers.Authorization = `Bearer ${serverConfig.token}`;
   }
+
   return req;
 };
 

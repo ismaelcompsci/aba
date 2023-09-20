@@ -29,7 +29,7 @@ export type ServerConfig = {
 };
 
 interface LoginFormProps {
-  makeConnection: (values: LoginServerResponse, config?: ServerConfig) => void;
+  makeConnection: (values: LoginServerResponse, config: ServerConfig) => void;
   pingServer: (serverAddr: string) => any;
   toastShow: (title: string, options: any) => void;
 }
@@ -50,21 +50,21 @@ const LoginForm = ({
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      serverAddress: "http://192.168.1.160:54932",
-      username: "owner_ismael",
-      password: "olvera608",
+      serverAddress: "http://192.168.1.160:54932", // TODO REMOVE
+      username: "owner_ismael", // TODO REMOVE
+      password: "olvera608", // TODO REMOVE
     },
   });
 
   const onSubmit: SubmitHandler<LoginSchema> = async (data) => {
     try {
       setLoading(true);
-      const success = pingServer(data.serverAddress);
-
+      const success = await pingServer(data.serverAddress);
       if (!success) {
         toastShow("Error", {
           message: "Falied to ping server",
         });
+        setLoading(false);
         return;
       }
 

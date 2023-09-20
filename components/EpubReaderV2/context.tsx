@@ -4,8 +4,8 @@ import React, {
   useMemo,
   useReducer,
   useRef,
-} from 'react';
-import type WebView from 'react-native-webview';
+} from "react";
+import type WebView from "react-native-webview";
 import type {
   ePubCfi,
   FontSize,
@@ -13,7 +13,7 @@ import type {
   Mark,
   SearchResult,
   Theme,
-} from './types';
+} from "./types";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -27,20 +27,20 @@ type ActionMap<M extends { [index: string]: any }> = {
 };
 
 enum Types {
-  CHANGE_THEME = 'CHANGE_THEME',
-  CHANGE_FONT_SIZE = 'CHANGE_FONT_SIZE',
-  CHANGE_FONT_FAMILY = 'CHANGE_FONT_FAMILY',
-  SET_AT_START = 'SET_AT_START',
-  SET_AT_END = 'SET_AT_END',
-  SET_KEY = 'SET_KEY',
-  SET_TOTAL_LOCATIONS = 'SET_TOTAL_LOCATIONS',
-  SET_CURRENT_LOCATION = 'SET_CURRENT_LOCATION',
-  SET_META = 'SET_META',
-  SET_PROGRESS = 'SET_PROGRESS',
-  SET_LOCATIONS = 'SET_LOCATIONS',
-  SET_IS_LOADING = 'SET_IS_LOADING',
-  SET_IS_RENDERING = 'SET_IS_RENDERING',
-  SET_SEARCH_RESULTS = 'SET_SEARCH_RESULTS',
+  CHANGE_THEME = "CHANGE_THEME",
+  CHANGE_FONT_SIZE = "CHANGE_FONT_SIZE",
+  CHANGE_FONT_FAMILY = "CHANGE_FONT_FAMILY",
+  SET_AT_START = "SET_AT_START",
+  SET_AT_END = "SET_AT_END",
+  SET_KEY = "SET_KEY",
+  SET_TOTAL_LOCATIONS = "SET_TOTAL_LOCATIONS",
+  SET_CURRENT_LOCATION = "SET_CURRENT_LOCATION",
+  SET_META = "SET_META",
+  SET_PROGRESS = "SET_PROGRESS",
+  SET_LOCATIONS = "SET_LOCATIONS",
+  SET_IS_LOADING = "SET_IS_LOADING",
+  SET_IS_RENDERING = "SET_IS_RENDERING",
+  SET_SEARCH_RESULTS = "SET_SEARCH_RESULTS",
 }
 
 type BookPayload = {
@@ -96,48 +96,48 @@ type InitialState = {
 };
 
 export const defaultTheme: Theme = {
-  'body': {
-    background: '#fff',
+  body: {
+    background: "#fff",
   },
-  'span': {
-    color: '#000 !important',
+  span: {
+    color: "#000 !important",
   },
-  'p': {
-    color: '#000 !important',
+  p: {
+    color: "#000 !important",
   },
-  'li': {
-    color: '#000 !important',
+  li: {
+    color: "#000 !important",
   },
-  'h1': {
-    color: '#000 !important',
+  h1: {
+    color: "#000 !important",
   },
-  'a': {
-    'color': '#000 !important',
-    'pointer-events': 'auto',
-    'cursor': 'pointer',
+  a: {
+    color: "#000 !important",
+    "pointer-events": "auto",
+    cursor: "pointer",
   },
-  '::selection': {
-    background: 'lightskyblue',
+  "::selection": {
+    background: "lightskyblue",
   },
 };
 
 const initialState: InitialState = {
   theme: defaultTheme,
-  fontFamily: 'Helvetica',
-  fontSize: '12pt',
+  fontFamily: "Helvetica",
+  fontSize: "12pt",
   atStart: false,
   atEnd: false,
-  key: '',
+  key: "",
   totalLocations: 0,
   currentLocation: null,
   meta: {
-    cover: '',
-    author: '',
-    title: '',
-    description: '',
-    language: '',
-    publisher: '',
-    rights: '',
+    cover: "",
+    author: "",
+    title: "",
+    description: "",
+    language: "",
+    publisher: "",
+    rights: "",
   },
   progress: 0,
   locations: [],
@@ -405,6 +405,7 @@ export interface ReaderContextProps {
   searchResults: SearchResult[];
 
   setSearchResults: (results: SearchResult[]) => void;
+  changePageFlow: (pageFlow: "paginated" | "scrolled") => void;
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
@@ -425,13 +426,13 @@ const ReaderContext = createContext<ReaderContextProps>({
   getLocations: () => [],
   getCurrentLocation: () => null,
   getMeta: () => ({
-    cover: '',
-    author: '',
-    title: '',
-    description: '',
-    language: '',
-    publisher: '',
-    rights: '',
+    cover: "",
+    author: "",
+    title: "",
+    description: "",
+    language: "",
+    publisher: "",
+    rights: "",
   }),
   search: () => {},
 
@@ -443,7 +444,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   removeMark: () => {},
 
   setKey: () => {},
-  key: '',
+  key: "",
 
   theme: defaultTheme,
   atStart: false,
@@ -451,13 +452,13 @@ const ReaderContext = createContext<ReaderContextProps>({
   totalLocations: 0,
   currentLocation: null,
   meta: {
-    cover: '',
-    author: '',
-    title: '',
-    description: '',
-    language: '',
-    publisher: '',
-    rights: '',
+    cover: "",
+    author: "",
+    title: "",
+    description: "",
+    language: "",
+    publisher: "",
+    rights: "",
   },
   progress: 0,
   locations: [],
@@ -466,6 +467,7 @@ const ReaderContext = createContext<ReaderContextProps>({
 
   searchResults: [],
   setSearchResults: () => {},
+  changePageFlow: () => {},
 });
 
 function ReaderProvider({ children }: { children: React.ReactNode }) {
@@ -560,9 +562,10 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const getLocations = useCallback(() => state.locations, [state.locations]);
 
-  const getCurrentLocation = useCallback(() => state.currentLocation, [
-    state.currentLocation,
-  ]);
+  const getCurrentLocation = useCallback(
+    () => state.currentLocation,
+    [state.currentLocation]
+  );
 
   const getMeta = useCallback(() => state.meta, [state.meta]);
 
@@ -588,6 +591,13 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_SEARCH_RESULTS, payload: results });
   }, []);
 
+  const changePageFlow = useCallback((pageStyle: string) => {
+    console.log("Changing", pageStyle);
+    book.current?.injectJavaScript(`
+      rendition.flow("${pageStyle}");
+    `);
+  }, []);
+
   const addMark = useCallback(
     (
       type: Mark,
@@ -597,7 +607,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       className?: string,
       styles?: any
     ) => {
-      const defaultStyles = { fill: 'yellow' };
+      const defaultStyles = { fill: "yellow" };
 
       book.current?.injectJavaScript(`
       rendition.annotations.add('${type}', '${cfiRange}', ${JSON.stringify(
@@ -664,6 +674,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
       searchResults: state.searchResults,
       setSearchResults,
+      changePageFlow,
     }),
     [
       addMark,
@@ -702,6 +713,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       state.searchResults,
       state.theme,
       state.totalLocations,
+      changePageFlow,
     ]
   );
   return (
