@@ -7,44 +7,31 @@ export function useInjectWebVieWVariables() {
   const injectWebVieWVariables = useCallback(
     ({
       jszip,
-      epubjs,
-      type,
+      foliate,
       book,
-      theme,
-      enableSelection,
-      locations,
+      location,
     }: {
       jszip: string;
-      epubjs: string;
-      type: SourceType;
+      foliate: string;
       book: string;
-      theme: Theme;
-      enableSelection: boolean;
-      locations?: ePubCfi[];
+      location?: string;
     }) => {
-      return template
-        .replace(
-          /<script id="jszip"><\/script>/,
-          `<script src="${jszip}"></script>`
-        )
-        .replace(
-          /<script id="epubjs"><\/script>/,
-          `<script src="${epubjs}"></script>`
-        )
-        .replace(/const type = window.type;/, `const type = '${type}';`)
-        .replace(/const file = window.book;/, `const file = '${book}';`)
-        .replace(
-          /const theme = window.theme;/,
-          `const theme = ${JSON.stringify(theme)};`
-        )
-        .replace(
-          /const initialLocations = window.locations;/,
-          `const initialLocations = ${locations};`
-        )
-        .replace(
-          /const enableSelection = window.enable_selection;/,
-          `const enableSelection = ${enableSelection};`
-        );
+      return (
+        template
+          // .replace(
+          //   /<script id="jszip"><\/script>/,
+          //   `<script src="${jszip}"></script>`
+          // )
+          .replace(
+            /<script id="foliate"><\/script>/,
+            `<script src="${foliate}"></script>`
+          )
+          .replace(/const bookPath = undefined;/, `const bookPath = '${book}';`)
+          .replace(
+            /const bookLocation = undefined;/,
+            `const bookLocation = '${location}';`
+          )
+      );
     },
     []
   );

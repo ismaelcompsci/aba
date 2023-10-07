@@ -1,21 +1,13 @@
 import React, { useContext, useEffect, useRef } from "react";
+import { View as RNView, useWindowDimensions } from "react-native";
 import {
-  TouchableWithoutFeedback,
-  I18nManager,
-  View as RNView,
-} from "react-native";
-import {
-  Directions,
-  FlingGestureHandler,
   Gesture,
   GestureDetector,
-  GestureHandlerRootView,
-  State,
+  GestureTouchEvent,
 } from "react-native-gesture-handler";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { defaultTheme as initialTheme, ReaderContext } from "./context";
 import type { ReaderProps } from "./types";
-import { OpeningBook } from "./utils/OpeningBook";
 
 export type ViewProps = Omit<ReaderProps, "src" | "fileSystem"> & {
   templateUri: string;
@@ -25,54 +17,13 @@ export type ViewProps = Omit<ReaderProps, "src" | "fileSystem"> & {
 export function View({
   templateUri,
   allowedUris,
-  onStarted = () => {},
-  onReady = () => {},
-  onDisplayError = () => {},
-  onResized = () => {},
-  onLocationChange = () => {},
-  onRendered = () => {},
-  onSearch = () => {},
-  onLocationsReady = () => {},
-  onSelected = () => {},
-  onMarkPressed = () => {},
-  onOrientationChange = () => {},
-  onLayout = () => {},
-  onNavigationLoaded = () => {},
-  onBeginning = () => {},
-  onFinish = () => {},
   onPress = () => {},
-  onDoublePress = () => {},
   width,
   height,
-  initialLocation,
-  enableSwipe = true,
-  onSwipeLeft = () => {},
-  onSwipeRight = () => {},
-  defaultTheme = initialTheme,
-  renderOpeningBookComponent = () => (
-    <OpeningBook width={width} height={height} />
-  ),
 }: ViewProps) {
-  const {
-    registerBook,
-    setTotalLocations,
-    setCurrentLocation,
-    setMeta,
-    setProgress,
-    setLocations,
-    setAtStart,
-    setAtEnd,
-    goNext,
-    goPrevious,
-    isRendering,
-    setIsRendering,
-    goToLocation,
-    changeTheme,
-    setKey,
-    setSearchResults,
-    theme,
-  } = useContext(ReaderContext);
+  const { registerBook, theme } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
+  const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
 
   const onMessage = (event: WebViewMessageEvent) => {
     const parsedEvent = JSON.parse(event.nativeEvent.data);
@@ -82,125 +33,7 @@ export function View({
     delete parsedEvent.type;
 
     if (type === "epubjs") {
-      console.log(parsedEvent.message);
-    }
-
-    if (type === "meta") {
-      const { metadata } = parsedEvent;
-      setMeta(metadata);
-    }
-
-    if (type === "onStarted") {
-      setIsRendering(true);
-
-      changeTheme(defaultTheme);
-
-      return onStarted();
-    }
-
-    if (type === "onReady") {
-      const { totalLocations, currentLocation, progress } = parsedEvent;
-      setIsRendering(false);
-      setTotalLocations(totalLocations);
-      setCurrentLocation(currentLocation);
-      setProgress(progress);
-
-      if (initialLocation) {
-        goToLocation(initialLocation);
-      }
-
-      return onReady(totalLocations, currentLocation, progress);
-    }
-
-    if (type === "onDisplayError") {
-      const { reason } = parsedEvent;
-      setIsRendering(false);
-
-      return onDisplayError(reason);
-    }
-
-    if (type === "onResized") {
-      const { layout } = parsedEvent;
-
-      return onResized(layout);
-    }
-
-    if (type === "onLocationChange") {
-      const { totalLocations, currentLocation, progress } = parsedEvent;
-      setTotalLocations(totalLocations);
-      setCurrentLocation(currentLocation);
-      setProgress(progress);
-
-      if (currentLocation.atStart) setAtStart(true);
-      else if (currentLocation.atEnd) setAtEnd(true);
-      else {
-        setAtStart(false);
-        setAtEnd(false);
-      }
-      return onLocationChange(totalLocations, currentLocation, progress);
-    }
-
-    if (type === "onSearch") {
-      const { results } = parsedEvent;
-      setSearchResults(results);
-
-      return onSearch(results);
-    }
-
-    if (type === "onLocationsReady") {
-      const { epubKey } = parsedEvent;
-      setLocations(parsedEvent.locations);
-      setKey(epubKey);
-
-      return onLocationsReady(epubKey, parsedEvent.locations);
-    }
-
-    if (type === "onSelected") {
-      const { cfiRange, text } = parsedEvent;
-
-      return onSelected(text, cfiRange);
-    }
-
-    if (type === "onMarkPressed") {
-      const { cfiRange, text } = parsedEvent;
-
-      return onMarkPressed(cfiRange, text);
-    }
-
-    if (type === "onOrientationChange") {
-      const { orientation } = parsedEvent;
-
-      return onOrientationChange(orientation);
-    }
-
-    if (type === "onBeginning") {
-      setAtStart(true);
-
-      return onBeginning();
-    }
-
-    if (type === "onFinish") {
-      setAtEnd(true);
-
-      return onFinish();
-    }
-
-    if (type === "onRendered") {
-      const { section, currentSection } = parsedEvent;
-
-      return onRendered(section, currentSection);
-    }
-
-    if (type === "onLayout") {
-      const { layout } = parsedEvent;
-
-      return onLayout(layout);
-    }
-
-    if (type === "onNavigationLoaded") {
-      const { toc } = parsedEvent;
-
-      return onNavigationLoaded(toc);
+      console.log("[JS]", parsedEvent.message);
     }
 
     return () => {};
@@ -210,62 +43,48 @@ export function View({
     if (book.current) registerBook(book.current);
   }, [registerBook]);
 
-  let lastTap: number | null = null;
-  let timer: NodeJS.Timeout;
+  const centerOfScreenVertical = (e: GestureTouchEvent) => {
+    const third = SCREEN_HEIGHT / 3;
+    const start = third;
+    const end = third + third;
 
-  const handleDoublePress = () => {
-    if (lastTap) {
-      onDoublePress();
-      clearTimeout(timer);
-      lastTap = null;
-    } else {
-      lastTap = Date.now();
-      timer = setTimeout(() => {
-        onPress();
-        lastTap = null;
-        clearTimeout(timer);
-      }, 300);
-    }
+    const touch = e.allTouches[0];
+    const touchY = touch.absoluteY;
+
+    return touchY > start && touchY < end;
   };
 
-  const leftFlingGesture = Gesture.Fling()
-    .direction(I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT)
-    .onStart(() => {
-      if (enableSwipe) {
-        goPrevious();
-        onSwipeRight();
-      }
-    });
+  const centerOfScreenHorizontal = (e: GestureTouchEvent) => {
+    const third = SCREEN_WIDTH / 3;
+    const start = third;
+    const end = third + third;
 
-  const rightFlingGesture = Gesture.Fling()
-    .direction(I18nManager.isRTL ? Directions.RIGHT : Directions.LEFT)
-    .onStart(() => {
-      if (enableSwipe) {
-        goNext();
-        onSwipeLeft();
-      }
-    });
+    const touch = e.allTouches[0];
+    const touchX = touch.absoluteX;
+
+    return touchX > start && touchX < end;
+  };
 
   const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
-    onPress();
+    const isValid = centerOfScreenHorizontal(_event);
+
+    if (isValid) {
+      onPress();
+    }
   });
 
   return (
-    <GestureDetector
-      gesture={Gesture.Exclusive(
-        leftFlingGesture,
-        rightFlingGesture,
-        tapGesture
-      )}
-    >
+    <GestureDetector gesture={Gesture.Exclusive(tapGesture)}>
       <RNView
         style={{
-          height: "100%",
+          height: height,
           justifyContent: "center",
           alignItems: "center",
+          backgroundColor: "blue",
+          width: width,
         }}
       >
-        {isRendering && (
+        {/* {isRendering && (
           <RNView
             style={{
               width: "100%",
@@ -277,35 +96,33 @@ export function View({
           >
             {renderOpeningBookComponent()}
           </RNView>
-        )}
+        )} */}
 
         <WebView
           ref={book}
           source={{ uri: templateUri }}
           showsVerticalScrollIndicator={false}
-          javaScriptEnabled
+          webviewDebuggingEnabled={true}
+          javaScriptEnabled={true}
           originWhitelist={["*"]}
-          scrollEnabled={false}
+          scrollEnabled={true}
           mixedContentMode="compatibility"
           onMessage={onMessage}
           allowingReadAccessToURL={allowedUris}
-          allowUniversalAccessFromFileURLs
-          allowFileAccessFromFileURLs
-          allowFileAccess
-          onShouldStartLoadWithRequest={(request) => {
-            if (
-              !isRendering &&
-              request.mainDocumentURL &&
-              request.url !== request.mainDocumentURL
-            ) {
-              goToLocation(request.url.replace(request.mainDocumentURL, ""));
-            }
-            return true;
-          }}
+          allowUniversalAccessFromFileURLs={true}
+          allowFileAccessFromFileURLs={true}
+          allowFileAccess={true}
+          bounces={false}
+          contentInsetAdjustmentBehavior="never"
+          automaticallyAdjustContentInsets={false}
+          allowsLinkPreview={false}
+          // pagingEnabled
           style={{
             width,
-            backgroundColor: defaultTheme.body.background,
+            overflow: "hidden",
             height,
+            flex: 1,
+            backgroundColor: theme.backgroundColor,
           }}
         />
       </RNView>

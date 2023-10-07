@@ -1,11 +1,12 @@
-import { Theme } from "../EpubReader";
+import { Theme } from "../components/EpubReaderV2";
 import { ServerConfig } from "../components/login/login-form";
-import { EbookFile, LibraryItem, LibraryItemMinified } from "../types/server";
+import { EbookFile, LibraryItem, LibraryItemMinified } from "../types/adbs";
+import { defaultTheme } from "./themes";
 
 export const getItemCoverSrc = (
   libraryItem: LibraryItemMinified | LibraryItem | undefined | null,
-  token: string,
-  config: ServerConfig
+  config: ServerConfig,
+  token?: string
 ) => {
   if (!libraryItem || !token || !config) return;
 
@@ -29,7 +30,7 @@ export const cleanString = (from: string | null | undefined, max: number) => {
   return from;
 };
 
-export const ebookFormat = (ebookFile: EbookFile | undefined) => {
+export const ebookFormat = (ebookFile: EbookFile | undefined | null) => {
   if (!ebookFile) return null;
 
   if (!ebookFile.ebookFormat) {
@@ -73,46 +74,3 @@ export function humanFileSize(bytes: number, si = false, dp = 1) {
 
   return bytes.toFixed(dp) + " " + units[u];
 }
-
-export const defaultTheme: Theme | any[] = {
-  body: {
-    "padding-left": "15px !important",
-    "padding-right": "15px !important",
-    // "padding-top": "32px !important",
-  },
-};
-
-export const createThemeForBook = (newTheme: Theme) => {
-  return createThemeForBookUtil(defaultTheme, newTheme);
-};
-
-export const createThemeForBookUtil = (defaultTheme: any, newTheme: any) => {
-  let result = Array.isArray(newTheme)
-    ? [...defaultTheme]
-    : { ...defaultTheme };
-
-  for (let key in newTheme) {
-    if (
-      typeof defaultTheme[key] === undefined ||
-      typeof defaultTheme[key] !== "object"
-    ) {
-      result[key] = newTheme[key];
-    }
-
-    if (
-      typeof defaultTheme[key] === "object" &&
-      typeof newTheme[key] !== "object"
-    ) {
-      result[key] = newTheme[key];
-    }
-
-    if (
-      typeof defaultTheme[key] === "object" &&
-      typeof newTheme[key] === "object"
-    ) {
-      result[key] = createThemeForBookUtil(defaultTheme[key], newTheme[key]);
-    }
-  }
-
-  return result;
-};

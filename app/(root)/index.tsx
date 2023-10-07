@@ -10,28 +10,27 @@ import LoginForm, { ServerConfig } from "../../components/login/login-form";
 import { Toast } from "../../components/toast";
 import { LoginServerResponse } from "../../types/server";
 import {
-  currentLibraryAtom,
+  currentLibraryIdAtom,
   currentServerConfigAtom,
-  currentUserAtom,
   deviceDataAtom,
   serverSettingsAtom,
 } from "../../utils/local-atoms";
 import { IconButton } from "../../components/ui/button";
 import { ChevronLeft } from "@tamagui/lucide-icons";
+import { currentUserAtom } from "../../utils/atoms";
 
 global.Buffer = require("buffer").Buffer;
 
 const IndexPage = () => {
   const [load, setLoad] = useState(false);
+  const [showAddServer, setShowAddServer] = useState(false);
+
   const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentUser = useSetAtom(currentUserAtom);
-  const setCurrentLibrary = useSetAtom(currentLibraryAtom);
-  const [currentServerConfig, setCurrentServerConfig] = useAtom(
-    currentServerConfigAtom
-  );
+  const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
+  const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
 
-  const [showAddServer, setShowAddServer] = useState(false);
   const toast = useToastController();
   const router = useRouter();
 
@@ -46,7 +45,7 @@ const IndexPage = () => {
     config.userId = user.id;
     config.token = user.token;
 
-    setCurrentLibrary(userDefaultLibraryId);
+    setCurrentLibraryId(userDefaultLibraryId);
     setServerSettings(serverSettings);
     setCurrentUser(user);
     const ssc = saveServerConfig(config);
@@ -195,7 +194,7 @@ const IndexPage = () => {
   return (
     <>
       <Toast />
-      <YStack>
+      <YStack bg={"$background"}>
         <Stack
           bg={"$background"}
           height={"100%"}

@@ -4,17 +4,21 @@ import { GeneralSetting } from "../types/types";
 import { ServerConfig } from "../components/login/login-form";
 
 const BASE_URL = (
-  JSON.parse(getItem(GeneralSetting.CurrentServerConfig) || "") as ServerConfig
+  JSON.parse(
+    getItem(GeneralSetting.CurrentServerConfig) || "{}"
+  ) as ServerConfig
 ).serverAddress;
 
 const authInterceptor = (req: InternalAxiosRequestConfig) => {
-  const serverConfig = JSON.parse(
-    getItem(GeneralSetting.CurrentServerConfig) || ""
-  ) as ServerConfig;
+  const server: ServerConfig = JSON.parse(
+    getItem(GeneralSetting.CurrentServerConfig) || "{}"
+  );
 
-  if (serverConfig.token) {
+  console.log(server ? "SERVER IS HERE" : "NO SERVER");
+
+  if (server.token) {
     console.info("ADDED TOKEN");
-    req.headers.Authorization = `Bearer ${serverConfig.token}`;
+    req.headers.Authorization = `Bearer ${server.token}`;
   }
 
   return req;

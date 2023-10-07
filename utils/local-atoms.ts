@@ -2,15 +2,20 @@ import { DeviceData, GeneralSetting } from "../types/types";
 import { MMKV } from "react-native-mmkv";
 import { atom } from "jotai/vanilla";
 import { ServerConfig } from "../components/login/login-form";
-import { ServerSettings, User } from "../types/server";
+import { ServerSettings } from "../types/adbs";
 
 export const storage = new MMKV();
 
 export function getItem<T>(key: string): T | null {
   if (!key) return null;
+
   const value = storage.getString(key);
 
-  return value ? JSON.parse(value) : null;
+  if (!!value) {
+    return JSON.parse(value);
+  } else {
+    return null;
+  }
 }
 
 export function setItem<T>(key: string, value: T): void {
@@ -62,13 +67,8 @@ export const serverSettingsAtom = atomWithLocalStorage<ServerSettings>(
   {} as ServerSettings
 );
 
-export const currentUserAtom = atomWithLocalStorage<User>(
-  GeneralSetting.CurrentUser,
-  {} as User
-);
-
-export const currentLibraryAtom = atomWithLocalStorage<string>(
-  GeneralSetting.CurrentLibrary,
+export const currentLibraryIdAtom = atomWithLocalStorage<string>(
+  GeneralSetting.CurrentLibraryId,
   ""
 );
 

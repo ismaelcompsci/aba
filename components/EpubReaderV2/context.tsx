@@ -71,7 +71,7 @@ type BookPayload = {
 type BookActions = ActionMap<BookPayload>[keyof ActionMap<BookPayload>];
 
 type InitialState = {
-  theme: Theme;
+  theme: any;
   fontFamily: string;
   fontSize: FontSize;
   atStart: boolean;
@@ -95,30 +95,13 @@ type InitialState = {
   searchResults: SearchResult[];
 };
 
-export const defaultTheme: Theme = {
-  body: {
-    background: "#fff",
-  },
-  span: {
-    color: "#000 !important",
-  },
-  p: {
-    color: "#000 !important",
-  },
-  li: {
-    color: "#000 !important",
-  },
-  h1: {
-    color: "#000 !important",
-  },
-  a: {
-    color: "#000 !important",
-    "pointer-events": "auto",
-    cursor: "pointer",
-  },
-  "::selection": {
-    background: "lightskyblue",
-  },
+export const defaultTheme = {
+  spacing: 1.4,
+  justify: true,
+  hyphenate: true,
+  backgroundColor: "#09090b",
+  foregroundColor: "#fafafa",
+  fontSize: 18,
 };
 
 const initialState: InitialState = {
@@ -225,166 +208,166 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
 
 export interface ReaderContextProps {
   registerBook: (bookRef: WebView) => void;
-  setAtStart: (atStart: boolean) => void;
-  setAtEnd: (atEnd: boolean) => void;
-  setTotalLocations: (totalLocations: number) => void;
-  setCurrentLocation: (location: Location) => void;
-  setMeta: (meta: {
-    cover: string | ArrayBuffer | null | undefined;
-    author: string;
-    title: string;
-    description: string;
-    language: string;
-    publisher: string;
-    rights: string;
-  }) => void;
-  setProgress: (progress: number) => void;
-  setLocations: (locations: ePubCfi[]) => void;
+  // setAtStart: (atStart: boolean) => void;
+  // setAtEnd: (atEnd: boolean) => void;
+  // setTotalLocations: (totalLocations: number) => void;
+  // setCurrentLocation: (location: Location) => void;
+  // setMeta: (meta: {
+  //   cover: string | ArrayBuffer | null | undefined;
+  //   author: string;
+  //   title: string;
+  //   description: string;
+  //   language: string;
+  //   publisher: string;
+  //   rights: string;
+  // }) => void;
+  // setProgress: (progress: number) => void;
+  // setLocations: (locations: ePubCfi[]) => void;
   setIsLoading: (isLoading: boolean) => void;
-  setIsRendering: (isRendering: boolean) => void;
+  // setIsRendering: (isRendering: boolean) => void;
 
-  /**
-   * Go to specific location in the book
-   * @param {ePubCfi} target {@link ePubCfi}
-   */
-  goToLocation: (cfi: ePubCfi) => void;
+  // /**
+  //  * Go to specific location in the book
+  //  * @param {ePubCfi} target {@link ePubCfi}
+  //  */
+  // goToLocation: (cfi: ePubCfi) => void;
 
-  /**
-   * Go to previous page in the book
-   */
-  goPrevious: () => void;
+  // /**
+  //  * Go to previous page in the book
+  //  */
+  // goPrevious: () => void;
 
-  /**
-   * Go to next page in the book
-   */
-  goNext: () => void;
+  // /**
+  //  * Go to next page in the book
+  //  */
+  // goNext: () => void;
 
-  /**
-   * Get the total locations of the book
-   */
-  getLocations: () => ePubCfi[];
+  // /**
+  //  * Get the total locations of the book
+  //  */
+  // getLocations: () => ePubCfi[];
 
-  /**
-   * Returns the current location of the book
-   * @returns {Location} {@link Location}
-   */
-  getCurrentLocation: () => Location | null;
+  // /**
+  //  * Returns the current location of the book
+  //  * @returns {Location} {@link Location}
+  //  */
+  // getCurrentLocation: () => Location | null;
 
-  /**
-   * Returns an object containing the book's metadata
-   * @returns { cover: string | ArrayBuffer | null | undefined, author: string, title: string, description: string, language: string, publisher: string, rights: string, }
-   */
-  getMeta: () => {
-    cover: string | ArrayBuffer | null | undefined;
-    author: string;
-    title: string;
-    description: string;
-    language: string;
-    publisher: string;
-    rights: string;
-  };
+  // /**
+  //  * Returns an object containing the book's metadata
+  //  * @returns { cover: string | ArrayBuffer | null | undefined, author: string, title: string, description: string, language: string, publisher: string, rights: string, }
+  //  */
+  // getMeta: () => {
+  //   cover: string | ArrayBuffer | null | undefined;
+  //   author: string;
+  //   title: string;
+  //   description: string;
+  //   language: string;
+  //   publisher: string;
+  //   rights: string;
+  // };
 
-  /**
-   * Search for a specific text in the book
-   * @param {string} query {@link string} text to search
-   */
-  search: (query: string) => void;
+  // /**
+  //  * Search for a specific text in the book
+  //  * @param {string} query {@link string} text to search
+  //  */
+  // search: (query: string) => void;
 
-  /**
-   * @param theme {@link Theme}
-   * @description Theme object.
-   * @example
-   * ```
-   * selectTheme({ body: { background: '#fff' } });
-   * ```
-   */
-  changeTheme: (theme: Theme) => void;
+  // /**
+  //  * @param theme {@link Theme}
+  //  * @description Theme object.
+  //  * @example
+  //  * ```
+  //  * selectTheme({ body: { background: '#fff' } });
+  //  * ```
+  //  */
+  changeTheme: (theme: any) => void;
 
-  /**
-   * Change font size of all elements in the book
-   * @param font
-   * @see https://www.w3schools.com/cssref/css_websafe_fonts.asp
-   */
-  changeFontFamily: (fontFamily: string) => void;
+  // /**
+  //  * Change font size of all elements in the book
+  //  * @param font
+  //  * @see https://www.w3schools.com/cssref/css_websafe_fonts.asp
+  //  */
+  // changeFontFamily: (fontFamily: string) => void;
 
-  /**
-   * Change font size of all elements in the book
-   * @param {FontSize} size {@link FontSize}
-   */
-  changeFontSize: (size: FontSize) => void;
+  // /**
+  //  * Change font size of all elements in the book
+  //  * @param {FontSize} size {@link FontSize}
+  //  */
+  // changeFontSize: (size: FontSize) => void;
 
-  /**
-   * Add Mark a specific cfi in the book
-   */
-  addMark: (
-    type: Mark,
-    cfiRange: ePubCfi,
-    data?: any,
-    callback?: () => void,
-    className?: string,
-    styles?: any
-  ) => void;
+  // /**
+  //  * Add Mark a specific cfi in the book
+  //  */
+  // addMark: (
+  //   type: Mark,
+  //   cfiRange: ePubCfi,
+  //   data?: any,
+  //   callback?: () => void,
+  //   className?: string,
+  //   styles?: any
+  // ) => void;
 
-  /**
-   * Remove Mark a specific cfi in the book
-   */
-  removeMark: (cfiRange: ePubCfi, type: Mark) => void;
+  // /**
+  //  * Remove Mark a specific cfi in the book
+  //  */
+  // removeMark: (cfiRange: ePubCfi, type: Mark) => void;
 
-  setKey: (key: string) => void;
+  // setKey: (key: string) => void;
 
-  /**
-   * Works like a unique id for book
-   */
-  key: string;
+  // /**
+  //  * Works like a unique id for book
+  //  */
+  // key: string;
 
-  /**
-   * A theme object.
-   */
-  theme: Theme;
+  // /**
+  //  * A theme object.
+  //  */
+  theme: any;
 
-  /**
-   * Indicates if you are at the beginning of the book
-   * @returns {boolean} {@link boolean}
-   */
-  atStart: boolean;
+  // /**
+  //  * Indicates if you are at the beginning of the book
+  //  * @returns {boolean} {@link boolean}
+  //  */
+  // atStart: boolean;
 
-  /**
-   * Indicates if you are at the end of the book
-   * @returns {boolean} {@link boolean}
-   */
-  atEnd: boolean;
+  // /**
+  //  * Indicates if you are at the end of the book
+  //  * @returns {boolean} {@link boolean}
+  //  */
+  // atEnd: boolean;
 
-  /**
-   * The total number of locations
-   */
-  totalLocations: number;
+  // /**
+  //  * The total number of locations
+  //  */
+  // totalLocations: number;
 
-  /**
-   * The current location of the book
-   */
-  currentLocation: Location | null;
+  // /**
+  //  * The current location of the book
+  //  */
+  // currentLocation: Location | null;
 
-  /**
-   * An object containing the book's metadata
-   * { cover: string | ArrayBuffer | null | undefined, author: string, title: string, description: string, language: string, publisher: string, rights: string, }
-   */
-  meta: {
-    cover: string | ArrayBuffer | null | undefined;
-    author: string;
-    title: string;
-    description: string;
-    language: string;
-    publisher: string;
-    rights: string;
-  };
+  // /**
+  //  * An object containing the book's metadata
+  //  * { cover: string | ArrayBuffer | null | undefined, author: string, title: string, description: string, language: string, publisher: string, rights: string, }
+  //  */
+  // meta: {
+  //   cover: string | ArrayBuffer | null | undefined;
+  //   author: string;
+  //   title: string;
+  //   description: string;
+  //   language: string;
+  //   publisher: string;
+  //   rights: string;
+  // };
 
-  /**
-   * The progress of the book
-   * @returns {number} {@link number}
-   */
-  progress: number;
+  // /**
+  //  * The progress of the book
+  //  * @returns {number} {@link number}
+  //  */
+  // progress: number;
 
-  locations: ePubCfi[];
+  // locations: ePubCfi[];
 
   /**
    * Indicates if the book is loading
@@ -392,81 +375,81 @@ export interface ReaderContextProps {
    */
   isLoading: boolean;
 
-  /**
-   * Indicates if the book is rendering
-   * @returns {boolean} {@link boolean}
-   */
-  isRendering: boolean;
+  // /**
+  //  * Indicates if the book is rendering
+  //  * @returns {boolean} {@link boolean}
+  //  */
+  // isRendering: boolean;
 
-  /**
-   * Search results
-   * @returns {SearchResult[]} {@link SearchResult[]}
-   */
-  searchResults: SearchResult[];
+  // /**
+  //  * Search results
+  //  * @returns {SearchResult[]} {@link SearchResult[]}
+  //  */
+  // searchResults: SearchResult[];
 
-  setSearchResults: (results: SearchResult[]) => void;
+  // setSearchResults: (results: SearchResult[]) => void;
   changePageFlow: (pageFlow: "paginated" | "scrolled") => void;
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
   registerBook: () => {},
-  setAtStart: () => {},
-  setAtEnd: () => {},
-  setTotalLocations: () => {},
-  setCurrentLocation: () => {},
-  setMeta: () => {},
-  setProgress: () => {},
-  setLocations: () => {},
+  // setAtStart: () => {},
+  // setAtEnd: () => {},
+  // setTotalLocations: () => {},
+  // setCurrentLocation: () => {},
+  // setMeta: () => {},
+  // setProgress: () => {},
+  // setLocations: () => {},
   setIsLoading: () => {},
-  setIsRendering: () => {},
+  // setIsRendering: () => {},
 
-  goToLocation: () => {},
-  goPrevious: () => {},
-  goNext: () => {},
-  getLocations: () => [],
-  getCurrentLocation: () => null,
-  getMeta: () => ({
-    cover: "",
-    author: "",
-    title: "",
-    description: "",
-    language: "",
-    publisher: "",
-    rights: "",
-  }),
-  search: () => {},
+  // goToLocation: () => {},
+  // goPrevious: () => {},
+  // goNext: () => {},
+  // getLocations: () => [],
+  // getCurrentLocation: () => null,
+  // getMeta: () => ({
+  //   cover: "",
+  //   author: "",
+  //   title: "",
+  //   description: "",
+  //   language: "",
+  //   publisher: "",
+  //   rights: "",
+  // }),
+  // search: () => {},
 
   changeTheme: () => {},
-  changeFontFamily: () => {},
-  changeFontSize: () => {},
+  // changeFontFamily: () => {},
+  // changeFontSize: () => {},
 
-  addMark: () => {},
-  removeMark: () => {},
+  // addMark: () => {},
+  // removeMark: () => {},
 
-  setKey: () => {},
-  key: "",
+  // setKey: () => {},
+  // key: "",
 
   theme: defaultTheme,
-  atStart: false,
-  atEnd: false,
-  totalLocations: 0,
-  currentLocation: null,
-  meta: {
-    cover: "",
-    author: "",
-    title: "",
-    description: "",
-    language: "",
-    publisher: "",
-    rights: "",
-  },
-  progress: 0,
-  locations: [],
+  // atStart: false,
+  // atEnd: false,
+  // totalLocations: 0,
+  // currentLocation: null,
+  // meta: {
+  //   cover: "",
+  //   author: "",
+  //   title: "",
+  //   description: "",
+  //   language: "",
+  //   publisher: "",
+  //   rights: "",
+  // },
+  // progress: 0,
+  // locations: [],
   isLoading: true,
-  isRendering: true,
+  // isRendering: true,
 
-  searchResults: [],
-  setSearchResults: () => {},
+  // searchResults: [],
+  // setSearchResults: () => {},
   changePageFlow: () => {},
 });
 
@@ -478,153 +461,167 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     book.current = bookRef;
   }, []);
 
-  const changeTheme = useCallback((theme: Theme) => {
+  const changePageFlow = useCallback((pageStyle: string) => {
+    console.log(pageStyle);
     book.current?.injectJavaScript(`
-      rendition.themes.register({ theme: ${JSON.stringify(theme)} });
-      rendition.themes.select('theme');
-      rendition.views().forEach(view => view.pane ? view.pane.render() : null); true;
+      reader.setFlow('${pageStyle}');
+      true
     `);
-    dispatch({ type: Types.CHANGE_THEME, payload: theme });
   }, []);
 
-  const changeFontFamily = useCallback((fontFamily: string) => {
+  const changeTheme = useCallback((theme: any) => {
+    const style = {
+      spacing: 1.4,
+      justify: true,
+      hyphenate: true,
+      backgroundColor: "#09090b",
+      foregroundColor: "#fafafa",
+      fontSize: 18,
+      ...theme,
+    };
     book.current?.injectJavaScript(`
-      rendition.themes.font('${fontFamily}');
+        reader.setStyles(${JSON.stringify(style)})
     `);
-    dispatch({ type: Types.CHANGE_FONT_FAMILY, payload: fontFamily });
+    dispatch({ type: Types.CHANGE_THEME, payload: style });
   }, []);
 
-  const changeFontSize = useCallback((size: FontSize) => {
-    book.current?.injectJavaScript(`
-      rendition.themes.fontSize('${size}'); true
-    `);
-    dispatch({ type: Types.CHANGE_FONT_SIZE, payload: size });
-  }, []);
+  // const changeFontFamily = useCallback((fontFamily: string) => {
+  //   book.current?.injectJavaScript(`
+  //     rendition.themes.font('${fontFamily}');
+  //   `);
+  //   dispatch({ type: Types.CHANGE_FONT_FAMILY, payload: fontFamily });
+  // }, []);
 
-  const setAtStart = useCallback((atStart: boolean) => {
-    dispatch({ type: Types.SET_AT_START, payload: atStart });
-  }, []);
+  // const changeFontSize = useCallback((size: FontSize) => {
+  //   book.current?.injectJavaScript(`
+  //     var cfi = rendition.location.start.cfi;
+  //     rendition.themes.fontSize('${size}');
+  //     rendition.manager.updateLayout();
+  //     rendition.display(cfi, true);
+  //     true
+  //     `);
+  //   // rendition.clear();
+  //   // rendition.start();
+  //   dispatch({ type: Types.CHANGE_FONT_SIZE, payload: size });
+  // }, []);
 
-  const setAtEnd = useCallback((atEnd: boolean) => {
-    dispatch({ type: Types.SET_AT_END, payload: atEnd });
-  }, []);
+  // const setAtStart = useCallback((atStart: boolean) => {
+  //   dispatch({ type: Types.SET_AT_START, payload: atStart });
+  // }, []);
 
-  const setTotalLocations = useCallback((totalLocations: number) => {
-    dispatch({ type: Types.SET_TOTAL_LOCATIONS, payload: totalLocations });
-  }, []);
+  // const setAtEnd = useCallback((atEnd: boolean) => {
+  //   dispatch({ type: Types.SET_AT_END, payload: atEnd });
+  // }, []);
 
-  const setCurrentLocation = useCallback((location: Location) => {
-    dispatch({ type: Types.SET_CURRENT_LOCATION, payload: location });
-  }, []);
+  // const setTotalLocations = useCallback((totalLocations: number) => {
+  //   dispatch({ type: Types.SET_TOTAL_LOCATIONS, payload: totalLocations });
+  // }, []);
 
-  const setMeta = useCallback(
-    (meta: {
-      cover: string | ArrayBuffer | null | undefined;
-      author: string;
-      title: string;
-      description: string;
-      language: string;
-      publisher: string;
-      rights: string;
-    }) => {
-      dispatch({ type: Types.SET_META, payload: meta });
-    },
-    []
-  );
+  // const setCurrentLocation = useCallback((location: Location) => {
+  //   dispatch({ type: Types.SET_CURRENT_LOCATION, payload: location });
+  // }, []);
 
-  const setProgress = useCallback((progress: number) => {
-    dispatch({ type: Types.SET_PROGRESS, payload: progress });
-  }, []);
+  // const setMeta = useCallback(
+  //   (meta: {
+  //     cover: string | ArrayBuffer | null | undefined;
+  //     author: string;
+  //     title: string;
+  //     description: string;
+  //     language: string;
+  //     publisher: string;
+  //     rights: string;
+  //   }) => {
+  //     dispatch({ type: Types.SET_META, payload: meta });
+  //   },
+  //   []
+  // );
 
-  const setLocations = useCallback((locations: ePubCfi[]) => {
-    dispatch({ type: Types.SET_LOCATIONS, payload: locations });
-  }, []);
+  // const setProgress = useCallback((progress: number) => {
+  //   dispatch({ type: Types.SET_PROGRESS, payload: progress });
+  // }, []);
+
+  // const setLocations = useCallback((locations: ePubCfi[]) => {
+  //   dispatch({ type: Types.SET_LOCATIONS, payload: locations });
+  // }, []);
 
   const setIsLoading = useCallback((isLoading: boolean) => {
     dispatch({ type: Types.SET_IS_LOADING, payload: isLoading });
   }, []);
 
-  const setIsRendering = useCallback((isRendering: boolean) => {
-    dispatch({ type: Types.SET_IS_RENDERING, payload: isRendering });
-  }, []);
+  // const setIsRendering = useCallback((isRendering: boolean) => {
+  //   dispatch({ type: Types.SET_IS_RENDERING, payload: isRendering });
+  // }, []);
 
-  const goToLocation = useCallback((targetCfi: ePubCfi) => {
-    book.current?.injectJavaScript(`rendition.display('${targetCfi}'); true`);
-  }, []);
+  // const goToLocation = useCallback((targetCfi: ePubCfi) => {
+  //   book.current?.injectJavaScript(`rendition.display('${targetCfi}'); true`);
+  // }, []);
 
-  const goPrevious = useCallback(() => {
-    book.current?.injectJavaScript(`rendition.prev(); true`);
-  }, []);
+  // const goPrevious = useCallback(() => {
+  //   book.current?.injectJavaScript(`rendition.prev(); true`);
+  // }, []);
 
-  const goNext = useCallback(() => {
-    book.current?.injectJavaScript(`rendition.next(); true`);
-  }, []);
+  // const goNext = useCallback(() => {
+  //   book.current?.injectJavaScript(`rendition.next(); true`);
+  // }, []);
 
-  const getLocations = useCallback(() => state.locations, [state.locations]);
+  // const getLocations = useCallback(() => state.locations, [state.locations]);
 
-  const getCurrentLocation = useCallback(
-    () => state.currentLocation,
-    [state.currentLocation]
-  );
+  // const getCurrentLocation = useCallback(
+  //   () => state.currentLocation,
+  //   [state.currentLocation]
+  // );
 
-  const getMeta = useCallback(() => state.meta, [state.meta]);
+  // const getMeta = useCallback(() => state.meta, [state.meta]);
 
-  const search = useCallback((query: string) => {
-    book.current?.injectJavaScript(`
-      Promise.all(
-        book.spine.spineItems.map((item) => {
-          return item.load(book.load.bind(book)).then(() => {
-            let results = item.find('${query}'.trim());
-            item.unload();
-            return Promise.resolve(results);
-          });
-        })
-      ).then((results) =>
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({ type: 'onSearch', results: [].concat.apply([], results) })
-        )
-      ); true
-    `);
-  }, []);
+  // const search = useCallback((query: string) => {
+  //   book.current?.injectJavaScript(`
+  //     Promise.all(
+  //       book.spine.spineItems.map((item) => {
+  //         return item.load(book.load.bind(book)).then(() => {
+  //           let results = item.find('${query}'.trim());
+  //           item.unload();
+  //           return Promise.resolve(results);
+  //         });
+  //       })
+  //     ).then((results) =>
+  //       window.ReactNativeWebView.postMessage(
+  //         JSON.stringify({ type: 'onSearch', results: [].concat.apply([], results) })
+  //       )
+  //     ); true
+  //   `);
+  // }, []);
 
-  const setSearchResults = useCallback((results: SearchResult[]) => {
-    dispatch({ type: Types.SET_SEARCH_RESULTS, payload: results });
-  }, []);
+  // const setSearchResults = useCallback((results: SearchResult[]) => {
+  //   dispatch({ type: Types.SET_SEARCH_RESULTS, payload: results });
+  // }, []);
 
-  const changePageFlow = useCallback((pageStyle: string) => {
-    console.log("Changing", pageStyle);
-    book.current?.injectJavaScript(`
-      rendition.flow("${pageStyle}");
-    `);
-  }, []);
+  // const addMark = useCallback(
+  //   (
+  //     type: Mark,
+  //     cfiRange: string,
+  //     data?: any,
+  //     callback?: () => void,
+  //     className?: string,
+  //     styles?: any
+  //   ) => {
+  //     const defaultStyles = { fill: "yellow" };
 
-  const addMark = useCallback(
-    (
-      type: Mark,
-      cfiRange: string,
-      data?: any,
-      callback?: () => void,
-      className?: string,
-      styles?: any
-    ) => {
-      const defaultStyles = { fill: "yellow" };
+  //     book.current?.injectJavaScript(`
+  //     rendition.annotations.add('${type}', '${cfiRange}', ${JSON.stringify(
+  //       data ?? {}
+  //     )}, ${JSON.stringify(
+  //       callback ? callback() : () => {}
+  //     )}, '${className}', ${JSON.stringify(styles ?? defaultStyles)}); true
+  //   `);
+  //   },
+  //   []
+  // );
 
-      book.current?.injectJavaScript(`
-      rendition.annotations.add('${type}', '${cfiRange}', ${JSON.stringify(
-        data ?? {}
-      )}, ${JSON.stringify(
-        callback ? callback() : () => {}
-      )}, '${className}', ${JSON.stringify(styles ?? defaultStyles)}); true
-    `);
-    },
-    []
-  );
-
-  const removeMark = useCallback((cfiRange: string, type: Mark) => {
-    book.current?.injectJavaScript(`
-      rendition.annotations.remove('${cfiRange}', '${type}'); true
-    `);
-  }, []);
+  // const removeMark = useCallback((cfiRange: string, type: Mark) => {
+  //   book.current?.injectJavaScript(`
+  //     rendition.annotations.remove('${cfiRange}', '${type}'); true
+  //   `);
+  // }, []);
 
   const setKey = useCallback((key: string) => {
     dispatch({ type: Types.SET_KEY, payload: key });
@@ -633,33 +630,33 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   const contextValue = useMemo(
     () => ({
       registerBook,
-      setAtStart,
-      setAtEnd,
-      setTotalLocations,
-      setCurrentLocation,
-      setMeta,
-      setProgress,
-      setLocations,
+      // setAtStart,
+      // setAtEnd,
+      // setTotalLocations,
+      // setCurrentLocation,
+      // setMeta,
+      // setProgress,
+      // setLocations,
       setIsLoading,
-      setIsRendering,
+      // setIsRendering,
 
-      goToLocation,
-      goPrevious,
-      goNext,
-      getLocations,
-      getCurrentLocation,
-      getMeta,
-      search,
+      // goToLocation,
+      // goPrevious,
+      // goNext,
+      // getLocations,
+      // getCurrentLocation,
+      // getMeta,
+      // search,
 
-      addMark,
-      removeMark,
+      // addMark,
+      // removeMark,
 
       setKey,
       key: state.key,
 
       changeTheme,
-      changeFontFamily,
-      changeFontSize,
+      // changeFontFamily,
+      // changeFontSize,
       theme: state.theme,
 
       atStart: state.atStart,
@@ -673,34 +670,34 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       isRendering: state.isRendering,
 
       searchResults: state.searchResults,
-      setSearchResults,
+      // setSearchResults,
       changePageFlow,
     }),
     [
-      addMark,
-      changeFontFamily,
-      changeFontSize,
+      // addMark,
+      // changeFontFamily,
+      // changeFontSize,
       changeTheme,
-      getCurrentLocation,
-      getMeta,
-      getLocations,
-      goNext,
-      goPrevious,
-      goToLocation,
+      // getCurrentLocation,
+      // getMeta,
+      // getLocations,
+      // goNext,
+      // goPrevious,
+      // goToLocation,
       registerBook,
-      removeMark,
-      search,
-      setAtEnd,
-      setAtStart,
-      setCurrentLocation,
-      setMeta,
+      // removeMark,
+      // search,
+      // setAtEnd,
+      // setAtStart,
+      // setCurrentLocation,
+      // setMeta,
       setIsLoading,
-      setIsRendering,
+      // setIsRendering,
       setKey,
-      setLocations,
-      setProgress,
-      setSearchResults,
-      setTotalLocations,
+      // setLocations,
+      // setProgress,
+      // setSearchResults,
+      // setTotalLocations,
       state.atEnd,
       state.atStart,
       state.currentLocation,

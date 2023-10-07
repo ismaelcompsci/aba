@@ -1,4 +1,4 @@
-import { Toast as TToast, ToastViewport, useToastState } from "@tamagui/toast";
+import { Toast as TToast, useToastState } from "@tamagui/toast";
 import { YStack } from "tamagui";
 
 export const Toast = () => {

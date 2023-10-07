@@ -1,53 +1,47 @@
-import {
-  Card,
-  CardFooter,
-  Image,
-  ScrollView,
-  Spinner,
-  Text,
-  XStack,
-  YStack,
-} from "tamagui";
+import { Text, View, YStack } from "tamagui";
 import { PersonalizedView } from "../../types/server";
-import { getItemCoverSrc } from "../../utils/helpers";
 import { useAtomValue } from "jotai/react";
-import {
-  currentServerConfigAtom,
-  currentUserAtom,
-} from "../../utils/local-atoms";
+import { currentServerConfigAtom } from "../../utils/local-atoms";
 import { FlatList } from "react-native";
-import { PLACEHOLDER } from "../../constants/data-uris";
 import BookCard from "./book-card";
+import { currentUserAtom } from "../../utils/atoms";
 
 interface BookShelfProps {
   shelf: PersonalizedView;
+  isCoverSquareAspectRatio: boolean;
 }
 
-const BookShelf = ({ shelf }: BookShelfProps) => {
+const BookShelf = ({ shelf, isCoverSquareAspectRatio }: BookShelfProps) => {
   const user = useAtomValue(currentUserAtom);
   const currentServerConfig = useAtomValue(currentServerConfigAtom);
 
+  if (!user) {
+    console.log("[BOOKSHELF] no user");
+    return;
+  }
+
   // TODO HANDLE these
   if (shelf.label === "Newest Authors") {
-    console.log(shelf.type);
-
     return null;
   }
 
   if (shelf.label === "Recent Series") {
-    console.log(shelf.type);
     return null;
   }
 
   return (
-    <YStack w={"100%"} space={"$2"}>
-      <Text fontSize={"$7"}>{shelf.label}</Text>
+    <YStack w={"100%"} space={"$2"} bg={"$background"}>
+      <Text pl={"$2"} fontSize={"$4"}>
+        {shelf.label}
+      </Text>
       <FlatList
-        data={shelf.entities}
+        data={shelf.entities || []}
         horizontal
+        ItemSeparatorComponent={() => <View w={10} />}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <BookCard
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
             key={item.id}
             currentServerConfig={currentServerConfig}
             item={item}

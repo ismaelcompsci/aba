@@ -12,6 +12,7 @@ import { SourceType } from "./utils/enums/source-type.enum";
 import { isFsUri } from "./utils/isFsUri";
 import jszip from "./jszip";
 import epubjs from "./epubjs";
+import foliate from "./new";
 
 // ...
 export function Reader({
@@ -20,6 +21,7 @@ export function Reader({
   height,
   defaultTheme = initialTheme,
   initialLocations,
+  initialLocation,
   renderLoadingFileComponent = (props) => (
     <LoadingFile {...props} width={width} height={height} />
   ),
@@ -45,7 +47,8 @@ export function Reader({
       setIsLoading(true);
 
       const jszipFileUri = `${FileSystem.documentDirectory}jszip.min.js`;
-      const epubjsFileUri = `${FileSystem.documentDirectory}epub.min.js`;
+      // const epubjsFileUri = `${FileSystem.documentDirectory}epub.min.js`;
+      const foliateFileUri = `${FileSystem.documentDirectory}foliate.js`;
 
       try {
         await FileSystem.writeAsStringAsync(jszipFileUri, jszip);
@@ -53,13 +56,19 @@ export function Reader({
         throw new Error("failed to write jszip js file");
       }
 
+      // try {
+      //   await FileSystem.writeAsStringAsync(epubjsFileUri, epubjs);
+      // } catch (e) {
+      //   throw new Error("failed to write epubjs js file");
+      // }
+
       try {
-        await FileSystem.writeAsStringAsync(epubjsFileUri, epubjs);
+        await FileSystem.writeAsStringAsync(foliateFileUri, foliate);
       } catch (e) {
-        throw new Error("failed to write epubjs js file");
+        throw new Error("failed to write foliate js file");
       }
 
-      setAllowedUris(`${jszipFileUri},${epubjsFileUri}`);
+      setAllowedUris(`${jszipFileUri},${foliateFileUri}`);
 
       if (src) {
         const sourceType = getSourceType(src);
@@ -72,18 +81,15 @@ export function Reader({
 
         if (!isExternalSource) {
           if (isSrcInFs) {
-            setAllowedUris(`${src}${jszipFileUri},${epubjsFileUri}`);
+            setAllowedUris(`${src}${jszipFileUri},${foliateFileUri}`);
           }
           if (sourceType === SourceType.BASE64) {
             setTemplate(
               injectWebVieWVariables({
                 jszip: jszipFileUri,
-                epubjs: epubjsFileUri,
-                type: SourceType.BASE64,
+                foliate: foliateFileUri,
                 book: src,
-                theme: defaultTheme,
-                locations: initialLocations,
-                enableSelection: true,
+                location: initialLocation,
               })
             );
 
@@ -92,12 +98,9 @@ export function Reader({
             setTemplate(
               injectWebVieWVariables({
                 jszip: jszipFileUri,
-                epubjs: epubjsFileUri,
-                type: SourceType.BINARY,
+                foliate: foliateFileUri,
                 book: src,
-                theme: defaultTheme,
-                locations: initialLocations,
-                enableSelection: true,
+                location: initialLocation,
               })
             );
 
@@ -116,12 +119,9 @@ export function Reader({
             setTemplate(
               injectWebVieWVariables({
                 jszip: jszipFileUri,
-                epubjs: epubjsFileUri,
-                type: sourceType,
+                foliate: foliateFileUri,
                 book: src,
-                theme: defaultTheme,
-                locations: initialLocations,
-                enableSelection: true,
+                location: initialLocation,
               })
             );
 
@@ -131,17 +131,14 @@ export function Reader({
 
             if (!bookFileUri) throw new Error("Couldn't download book");
 
-            setAllowedUris(`${bookFileUri},${jszipFileUri},${epubjsFileUri}`);
+            setAllowedUris(`${bookFileUri},${jszipFileUri},${foliateFileUri}`);
 
             setTemplate(
               injectWebVieWVariables({
                 jszip: jszipFileUri,
-                epubjs: epubjsFileUri,
-                type: sourceType,
+                foliate: foliateFileUri,
                 book: bookFileUri,
-                theme: defaultTheme,
-                locations: initialLocations,
-                enableSelection: true,
+                location: initialLocation,
               })
             );
 
@@ -201,6 +198,7 @@ export function Reader({
       allowedUris={allowedUris}
       width={width}
       height={height}
+      defaultTheme={defaultTheme}
       {...rest}
     />
   );

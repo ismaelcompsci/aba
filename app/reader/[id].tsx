@@ -1,18 +1,14 @@
 import { useAtomValue } from "jotai/react";
-import { Button, Text, XStack, YStack } from "tamagui";
+import { YStack } from "tamagui";
 import { currentItemAtom } from "../../utils/atoms";
-import { useState } from "react";
 
 import MyReader from "../../components/reader/my-reader";
 import { currentServerConfigAtom } from "../../utils/local-atoms";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ReaderProvider } from "../../components/EpubReaderV2";
 
 const ReaderPage = () => {
   const currentServerConfig = useAtomValue(currentServerConfigAtom);
   const currentItem = useAtomValue(currentItemAtom);
-
-  const [hide, setHide] = useState(false);
 
   if (!currentItem) {
     // TODO BETTER ERROR VIEW

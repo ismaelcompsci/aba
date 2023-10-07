@@ -1,30 +1,62 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { StatusBar, useWindowDimensions } from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
-import { Reader } from "../EpubReaderV2";
-import * as FileSystem from "expo-file-system";
+import { Reader, Theme, useReader } from "../EpubReaderV2";
 
 import { useFileSystem } from "@epubjs-react-native/expo-file-system"; // for Expo project
 import { useAtomValue, useSetAtom } from "jotai/react";
 import { Spinner, YStack } from "tamagui";
-import { LibraryItem } from "../../types/server";
-import { createThemeForBook, ebookFormat } from "../../utils/helpers";
-import { currentUserAtom, tempBookFilesAtom } from "../../utils/local-atoms";
+import { ebookFormat } from "../../utils/helpers";
+import { tempBookFilesAtom } from "../../utils/local-atoms";
 import ReaderMenu from "./reader-menu";
+import { currentUserAtom } from "../../utils/atoms";
+import { LibraryItem } from "../../types/adbs";
+import { createThemeForBook } from "../../utils/themes";
 
 interface MyReader {
   url: string;
   item: LibraryItem;
 }
 
-const darkTheme = createThemeForBook({
-  body: {
-    color: "#dfe0e6",
-    "background-color": "#111",
-    "font-size": "20px",
-    "padding-top": "32px !important",
-  },
-});
+interface RReaderProps {
+  bookPath: string;
+  width: number;
+  location: string;
+  height: number;
+  handlePress: () => void;
+
+  setLoading: (loading: boolean) => void;
+}
+
+/* 
+  https://github.com/futurepress/epub.js/blob/master/src/utils/request.js
+  https://github.com/futurepress/epub.js/blob/master/src/book.js#L131
+*/
+
+const RReader = memo(
+  ({
+    bookPath,
+    width,
+    location,
+    height,
+    handlePress,
+    setLoading,
+  }: RReaderProps) => {
+    return (
+      <Reader
+        src={bookPath}
+        width={width}
+        initialLocation={location}
+        // onReady={() => setLoading(false)}
+        height={height}
+        fileSystem={useFileSystem}
+        onPress={handlePress}
+        // renderLoadingFileComponent={LoadingFileComponent}
+        // renderOpeningBookComponent={LoadingFileComponent}
+      />
+    );
+  }
+);
 
 const MyReader = ({ url, item }: MyReader) => {
   const { width, height } = useWindowDimensions();
@@ -34,9 +66,13 @@ const MyReader = ({ url, item }: MyReader) => {
   const [hide, setHide] = useState(false);
   const [bookPath, setBookPath] = useState("");
   const [location, setLocation] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+
+  const ebookFile =
+    "ebookFile" in item.media ? item.media.ebookFile : undefined;
 
   const getUserMediaProgress = (libraryItemId: string) => {
-    if (!user.mediaProgress || !libraryItemId) return;
+    if (!user?.mediaProgress || !libraryItemId) return;
 
     return user?.mediaProgress.find((md) => md.libraryItemId == libraryItemId);
   };
@@ -56,19 +92,20 @@ const MyReader = ({ url, item }: MyReader) => {
 
   useEffect(() => {
     const itemBookPath = `epub/${item.media.libraryItemId}.${
-      ebookFormat(item?.media.ebookFile) || "epub"
+      ebookFormat(ebookFile) || "epub"
     }`;
 
     const cachePath = RNFetchBlob.fs.dirs.DocumentDir + "/" + itemBookPath;
 
     (async () => {
+      setLoading(true);
       RNFetchBlob.config({
         fileCache: true,
-        appendExt: ebookFormat(item?.media.ebookFile) || "epub",
+        appendExt: ebookFormat(ebookFile) || "epub",
         path: cachePath,
       })
         .fetch("GET", url, {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${user?.token}`,
         })
         .then((res) => {
           let status = res.info().status;
@@ -79,7 +116,8 @@ const MyReader = ({ url, item }: MyReader) => {
         })
         .catch((errorMessage: any) => {
           console.error(errorMessage);
-        });
+        })
+        .finally(() => setLoading(false));
     })();
   }, []);
 
@@ -92,16 +130,26 @@ const MyReader = ({ url, item }: MyReader) => {
   return (
     <>
       <ReaderMenu hide={hide}>
-        <Reader
-          src={bookPath}
-          width={width}
-          initialLocation={location}
+        {/* {loading && (
+          <YStack
+            h={"100%"}
+            w={"100%"}
+            zIndex={"$5"}
+            pos={"absolute"}
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Spinner />
+          </YStack>
+        )} */}
+
+        <RReader
+          bookPath={bookPath}
+          handlePress={handlePress}
           height={height}
-          fileSystem={useFileSystem}
-          onPress={handlePress}
-          defaultTheme={darkTheme}
-          renderLoadingFileComponent={LoadingFileComponent}
-          renderOpeningBookComponent={LoadingFileComponent}
+          width={width}
+          location={location || ""}
+          setLoading={setLoading}
         />
       </ReaderMenu>
     </>

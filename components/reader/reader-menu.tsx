@@ -1,20 +1,36 @@
 import { ChevronLeft, List, Settings2 } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Stack, Text, XStack, YStack } from "tamagui";
+import {
+  Button,
+  Group,
+  Label,
+  Separator,
+  Switch,
+  Text,
+  XStack,
+  YStack,
+} from "tamagui";
 import { IconButton } from "../ui/button";
 import { BlurView } from "@react-native-community/blur";
-import { useReader } from "../EpubReaderV2";
+import { Theme, useReader } from "../EpubReaderV2";
+import { Appearance } from "react-native";
+import {
+  createThemeForBook,
+  darkTheme,
+  defaultTheme,
+} from "../../utils/themes";
 
 interface ReaderMenuProps {
   children: React.ReactNode;
   hide: boolean;
 }
 
-let s = "paginated";
 const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
+  const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
-  const { changePageFlow } = useReader();
+  const theme = Appearance.getColorScheme();
+  const { changePageFlow, changeTheme, changeFontSize } = useReader();
   const [openSettings, setOpenSettings] = useState(false);
 
   return (
@@ -58,34 +74,108 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
             b={0}
             justifyContent="flex-end"
           >
+            <IconButton icon={<List color={"$blue10Dark"} size={"$1"} />} />
             <IconButton
-              icon={<List color={"$blue10Dark"} size={"$1"} />}
-              onPress={() => {
-                if (s === "scrolled") {
-                  changePageFlow("paginated");
-                  s = "paginated";
-                } else {
-                  changePageFlow("scrolled");
-                  s = "scrolled";
-                }
-              }}
-            />
-            <IconButton
-              icon={<Settings2 color={"$blue10Dark"} size={"$1"} />}
+              selected={!openSettings}
+              backgroundColor={openSettings ? "$blue10Dark" : undefined}
+              icon={
+                <Settings2
+                  color={!openSettings ? "$blue10Dark" : "$background"}
+                  size={"$1"}
+                />
+              }
               onPress={() => setOpenSettings((p) => !p)}
             />
           </XStack>
           {hide && openSettings && (
-            <YStack top={"$13"}>
+            <YStack top={"$13"} h={"$20"}>
               <BlurView
                 style={{
                   height: "100%",
                 }}
-                blurType="extraDark"
+                blurType={theme === "light" ? "light" : "extraDark"}
                 blurAmount={10}
                 reducedTransparencyFallbackColor="white"
               />
-              <Stack pos={"absolute"} zIndex={"$3"}></Stack>
+              <YStack pos={"absolute"} zIndex={"$3"} p={"$2"} h={"100%"}>
+                {/* scrolling view */}
+                <XStack alignItems="center" space={"$2"}>
+                  <Label>Scrolling View</Label>
+                  <Separator minHeight={20} theme={"blue"} vertical />
+                  <Switch
+                    size={"$3"}
+                    checked={scrolled}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        changePageFlow("scrolled");
+                        setScrolled(true);
+                      } else {
+                        changePageFlow("paginated");
+                        setScrolled(false);
+                      }
+                    }}
+                  >
+                    <Switch.Thumb animation={"quick"} />
+                  </Switch>
+                </XStack>
+                {/* font size change */}
+                <XStack>
+                  <Group
+                    orientation="horizontal"
+                    separator={
+                      <Separator minHeight={20} theme={"blue"} vertical />
+                    }
+                  >
+                    <Group.Item>
+                      <Button
+                        size={"$3"}
+                        // onPress={() => handleFontSizeChange("down")}
+                        alignSelf="center"
+                        fontSize={"$1"}
+                      >
+                        A
+                      </Button>
+                    </Group.Item>
+                    <Group.Item>
+                      <Button
+                        size={"$3"}
+                        // onPress={() => handleFontSizeChange("up")}
+                        alignSelf="center"
+                        fontSize={"$7"}
+                      >
+                        A
+                      </Button>
+                    </Group.Item>
+                  </Group>
+                </XStack>
+                {/* Theme change */}
+                <XStack>
+                  <Button
+                    bg={"$gray1Light"}
+                    color="black"
+                    onPress={() =>
+                      changeTheme({
+                        backgroundColor: "#fafafa",
+                        foregroundColor: "#09090b",
+                      })
+                    }
+                  >
+                    A
+                  </Button>
+                  <Button
+                    bg={"black"}
+                    color="white"
+                    onPress={() =>
+                      changeTheme({
+                        backgroundColor: "#09090b",
+                        foregroundColor: "#fafafa",
+                      })
+                    }
+                  >
+                    A
+                  </Button>
+                </XStack>
+              </YStack>
             </YStack>
           )}
         </YStack>

@@ -3,7 +3,7 @@ import { ServerConfig } from "../components/login/login-form";
 export enum GeneralSetting {
   CurrentUser = "CurrentUser",
   CurrentServerConfig = "CurrentServerConfig",
-  CurrentLibrary = "CurrentLibrary",
+  CurrentLibraryId = "CurrentLibraryId",
   DeviceData = "DeviceData",
   ServerSettings = "ServerSettings",
   TempBookFiles = "TempBookFiles",

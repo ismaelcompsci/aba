@@ -97,7 +97,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -2256,64 +2256,7 @@ exports.methods = methods;
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-/* WEBPACK VAR INJECTION */(function(global) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "messageToReact", function() { return messageToReact; });
-/* harmony import */ var _book__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
-/* harmony import */ var _rendition__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(17);
-/* harmony import */ var _epubcfi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
-/* harmony import */ var _contents__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
-/* harmony import */ var _utils_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(0);
-/* harmony import */ var _utils_constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
-/* harmony import */ var _managers_views_iframe__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(21);
-/* harmony import */ var _managers_default__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(11);
-/* harmony import */ var _managers_continuous__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(23);
-
-
-
-
-
-
-
-
-
-function messageToReact(message) {
-  window.ReactNativeWebView.postMessage(JSON.stringify({
-    type: "epubjs",
-    message: message
-  }));
-}
-/**
- * Creates a new Book
- * @param {string|ArrayBuffer} url URL, Path or ArrayBuffer
- * @param {object} options to pass to the book
- * @returns {Book} a new Book object
- * @example ePub("/path/to/book.epub", {})
- */
-
-function ePub(url, options) {
-  return new _book__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"](url, options);
-}
-
-ePub.VERSION = _utils_constants__WEBPACK_IMPORTED_MODULE_5__[/* EPUBJS_VERSION */ "b"];
-
-if (typeof global !== "undefined") {
-  global.EPUBJS_VERSION = _utils_constants__WEBPACK_IMPORTED_MODULE_5__[/* EPUBJS_VERSION */ "b"];
-}
-
-ePub.Book = _book__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"];
-ePub.Rendition = _rendition__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"];
-ePub.Contents = _contents__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"];
-ePub.CFI = _epubcfi__WEBPACK_IMPORTED_MODULE_2__[/* default */ "a"];
-ePub.utils = _utils_core__WEBPACK_IMPORTED_MODULE_4__;
-/* harmony default export */ __webpack_exports__["default"] = (ePub);
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(8);
+/* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
 /* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(path_webpack__WEBPACK_IMPORTED_MODULE_0__);
 
 /**
@@ -2424,12 +2367,12 @@ class Path {
 /* harmony default export */ __webpack_exports__["a"] = (Path);
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var _path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5);
-/* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(8);
+/* harmony import */ var _path__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(7);
 /* harmony import */ var path_webpack__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(path_webpack__WEBPACK_IMPORTED_MODULE_1__);
 
 
@@ -2540,7 +2483,7 @@ class Url {
 /* harmony default export */ __webpack_exports__["a"] = (Url);
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2632,7 +2575,7 @@ class Hook {
 /* harmony default export */ __webpack_exports__["a"] = (Hook);
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3193,7 +3136,7 @@ module.exports = posix;
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3203,8 +3146,8 @@ module.exports = posix;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return replaceLinks; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "e", function() { return substitute; });
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
-/* harmony import */ var _url__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(6);
-/* harmony import */ var _path__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5);
+/* harmony import */ var _url__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(5);
+/* harmony import */ var _path__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(4);
 
 
 
@@ -3336,12 +3279,12 @@ function substitute(content, urls, replacements) {
 }
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* unused harmony export Task */
-/* harmony import */ var _epub__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
+/* harmony import */ var _epub__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(15);
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(0);
 
 
@@ -3576,7 +3519,7 @@ class Task {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3640,10 +3583,10 @@ function createDefiner() {
   return definer;
 }
 // EXTERNAL MODULE: ./src/mapping.js
-var mapping = __webpack_require__(12);
+var mapping = __webpack_require__(11);
 
 // EXTERNAL MODULE: ./src/utils/queue.js
-var queue = __webpack_require__(10);
+var queue = __webpack_require__(9);
 
 // EXTERNAL MODULE: ./node_modules/lodash/throttle.js
 var throttle = __webpack_require__(29);
@@ -4168,11 +4111,7 @@ class Views {
 // EXTERNAL MODULE: ./src/utils/constants.js
 var constants = __webpack_require__(1);
 
-// EXTERNAL MODULE: ./src/epub.js
-var epub = __webpack_require__(4);
-
 // CONCATENATED MODULE: ./src/managers/default/index.js
-
 
 
 
@@ -4571,7 +4510,6 @@ class default_DefaultViewManager {
   next() {
     var next;
     var left;
-    Object(epub["messageToReact"])(\`[next::default] next\`);
     let dir = this.settings.direction;
     if (!this.views.length) return;
 
@@ -4680,7 +4618,6 @@ class default_DefaultViewManager {
     } else if (this.isPaginated && this.settings.axis === "vertical") {
       this.scrollTop = this.container.scrollTop;
       let top = this.container.scrollTop;
-      Object(epub["messageToReact"])(\`[prev::default] top \${top}\`);
 
       if (top > 0) {
         this.scrollBy(0, -this.layout.height, true);
@@ -4944,11 +4881,7 @@ class default_DefaultViewManager {
 
     if (!this.settings.fullsize) {
       if (x) this.container.scrollLeft += x * dir;
-
-      if (y) {
-        Object(epub["messageToReact"])(\`[scrollBy::default] from \${this.container.scrollTop} to \${this.container.scrollTop + y}\`);
-        this.container.scrollTop += y;
-      }
+      if (y) this.container.scrollTop += y;
     } else {
       window.scrollBy(x * dir, y * dir);
     }
@@ -5136,7 +5069,7 @@ event_emitter_default()(default_DefaultViewManager.prototype);
 /* harmony default export */ var managers_default = __webpack_exports__["a"] = (default_DefaultViewManager);
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5614,7 +5547,7 @@ class Mapping {
 /* harmony default export */ __webpack_exports__["a"] = (Mapping);
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5622,8 +5555,8 @@ class Mapping {
 /* harmony import */ var event_emitter__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(event_emitter__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _utils_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(0);
 /* harmony import */ var _epubcfi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
-/* harmony import */ var _mapping__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
-/* harmony import */ var _utils_replacements__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(9);
+/* harmony import */ var _mapping__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(11);
+/* harmony import */ var _utils_replacements__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(8);
 /* harmony import */ var _utils_constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
 
 
@@ -6920,7 +6853,7 @@ event_emitter__WEBPACK_IMPORTED_MODULE_0___default()(Contents.prototype);
 /* harmony default export */ __webpack_exports__["a"] = (Contents);
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7246,7 +7179,7 @@ function contains(rect1, rect2) {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7397,6 +7330,63 @@ exports.NAMESPACE = NAMESPACE;
 
 
 /***/ }),
+/* 15 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* WEBPACK VAR INJECTION */(function(global) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "messageToReact", function() { return messageToReact; });
+/* harmony import */ var _book__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(25);
+/* harmony import */ var _rendition__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(17);
+/* harmony import */ var _epubcfi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
+/* harmony import */ var _contents__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
+/* harmony import */ var _utils_core__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(0);
+/* harmony import */ var _utils_constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
+/* harmony import */ var _managers_views_iframe__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(21);
+/* harmony import */ var _managers_default__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(10);
+/* harmony import */ var _managers_continuous__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(23);
+
+
+
+
+
+
+
+
+
+function messageToReact(message) {
+  window.ReactNativeWebView.postMessage(JSON.stringify({
+    type: "epubjs",
+    message: message
+  }));
+}
+/**
+ * Creates a new Book
+ * @param {string|ArrayBuffer} url URL, Path or ArrayBuffer
+ * @param {object} options to pass to the book
+ * @returns {Book} a new Book object
+ * @example ePub("/path/to/book.epub", {})
+ */
+
+function ePub(url, options) {
+  return new _book__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"](url, options);
+}
+
+ePub.VERSION = _utils_constants__WEBPACK_IMPORTED_MODULE_5__[/* EPUBJS_VERSION */ "b"];
+
+if (typeof global !== "undefined") {
+  global.EPUBJS_VERSION = _utils_constants__WEBPACK_IMPORTED_MODULE_5__[/* EPUBJS_VERSION */ "b"];
+}
+
+ePub.Book = _book__WEBPACK_IMPORTED_MODULE_0__[/* default */ "a"];
+ePub.Rendition = _rendition__WEBPACK_IMPORTED_MODULE_1__[/* default */ "a"];
+ePub.Contents = _contents__WEBPACK_IMPORTED_MODULE_3__[/* default */ "a"];
+ePub.CFI = _epubcfi__WEBPACK_IMPORTED_MODULE_2__[/* default */ "a"];
+ePub.utils = _utils_core__WEBPACK_IMPORTED_MODULE_4__;
+/* harmony default export */ __webpack_exports__["default"] = (ePub);
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(18)))
+
+/***/ }),
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -7420,13 +7410,13 @@ var event_emitter_default = /*#__PURE__*/__webpack_require__.n(event_emitter);
 var core = __webpack_require__(0);
 
 // EXTERNAL MODULE: ./src/utils/hook.js
-var hook = __webpack_require__(7);
+var hook = __webpack_require__(6);
 
 // EXTERNAL MODULE: ./src/epubcfi.js
 var src_epubcfi = __webpack_require__(2);
 
 // EXTERNAL MODULE: ./src/utils/queue.js
-var queue = __webpack_require__(10);
+var queue = __webpack_require__(9);
 
 // EXTERNAL MODULE: ./src/utils/constants.js
 var constants = __webpack_require__(1);
@@ -7685,7 +7675,7 @@ class layout_Layout {
 event_emitter_default()(layout_Layout.prototype);
 /* harmony default export */ var layout = (layout_Layout);
 // EXTERNAL MODULE: ./src/utils/url.js
-var utils_url = __webpack_require__(6);
+var utils_url = __webpack_require__(5);
 
 // CONCATENATED MODULE: ./src/themes.js
 
@@ -7980,7 +7970,7 @@ class themes_Themes {
 
 /* harmony default export */ var themes = (themes_Themes);
 // EXTERNAL MODULE: ./src/contents.js
-var src_contents = __webpack_require__(13);
+var src_contents = __webpack_require__(12);
 
 // CONCATENATED MODULE: ./src/annotations.js
 
@@ -8303,7 +8293,7 @@ event_emitter_default()(annotations_Annotation.prototype);
 var iframe = __webpack_require__(21);
 
 // EXTERNAL MODULE: ./src/managers/default/index.js + 3 modules
-var managers_default = __webpack_require__(11);
+var managers_default = __webpack_require__(10);
 
 // EXTERNAL MODULE: ./src/managers/continuous/index.js + 1 modules
 var continuous = __webpack_require__(23);
@@ -9448,18 +9438,16 @@ module.exports = isObject;
 /* harmony import */ var event_emitter__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(event_emitter__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _utils_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(0);
 /* harmony import */ var _epubcfi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(2);
-/* harmony import */ var _contents__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(13);
+/* harmony import */ var _contents__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(12);
 /* harmony import */ var _utils_constants__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(1);
-/* harmony import */ var marks_pane__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(14);
+/* harmony import */ var marks_pane__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(13);
 /* harmony import */ var marks_pane__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(marks_pane__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _epub__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(4);
 
 
 
 
 
-
-
+ // import { messageToReact } from "../../epub";
 
 class IframeView {
   constructor(section, options) {
@@ -9704,18 +9692,22 @@ class IframeView {
   expand(force) {
     var width = this.lockedWidth;
     var height = this.lockedHeight;
+    var zoom = this.settings.zoom;
     var columns;
     var textWidth, textHeight;
     if (!this.iframe || this._expanding) return;
     this._expanding = true;
 
     if (this.layout.name === "pre-paginated") {
-      width = this.layout.columnWidth;
-      height = this.layout.height;
+      var o = this.contents.viewport(); // width = this.layout.columnWidth;
+      // height = this.layout.height;
+
+      width = parseInt(o.width) * zoom;
+      height = parseInt(o.height) * zoom;
     } // Expand Horizontally
     else if (this.settings.axis === "horizontal") {
       // Get the width of the text
-      width = this.contents.textWidth();
+      width = this.contents.textWidth() * zoom;
 
       if (width % this.layout.pageWidth > 0) {
         width = Math.ceil(width / this.layout.pageWidth) * this.layout.pageWidth;
@@ -9731,10 +9723,11 @@ class IframeView {
       }
     } // Expand Vertically
     else if (this.settings.axis === "vertical") {
-      height = this.contents.textHeight(); // messageToReact(\`[expand::iframe] height \${height}\`);
+      height = this.contents.textHeight() * zoom; // messageToReact(\`[expand::iframe] height \${height}\`);
 
       if (this.settings.flow === "paginated" && height % this.layout.height > 0) {
         height = Math.ceil(height / this.layout.height) * this.layout.height;
+        width = this.layout.width * zoom;
       }
     } // Only Resize if dimensions have changed or
     // if Frame is still hidden, so needs reframing
@@ -9749,6 +9742,7 @@ class IframeView {
 
   reframe(width, height) {
     var size;
+    var zoom = this.settings.zoom;
 
     if (Object(_utils_core__WEBPACK_IMPORTED_MODULE_1__["isNumber"])(width)) {
       this.element.style.width = width + "px";
@@ -10461,7 +10455,7 @@ module.exports = debounce;
 var core = __webpack_require__(0);
 
 // EXTERNAL MODULE: ./src/managers/default/index.js + 3 modules
-var managers_default = __webpack_require__(11);
+var managers_default = __webpack_require__(10);
 
 // EXTERNAL MODULE: ./src/utils/constants.js
 var constants = __webpack_require__(1);
@@ -10802,16 +10796,12 @@ event_emitter_default()(snap_Snap.prototype);
 var debounce = __webpack_require__(22);
 var debounce_default = /*#__PURE__*/__webpack_require__.n(debounce);
 
-// EXTERNAL MODULE: ./src/epub.js
-var epub = __webpack_require__(4);
-
 // CONCATENATED MODULE: ./src/managers/continuous/index.js
 
 
 
 
-
-
+ // import { messageToReact } from "../../epub";
 
 class continuous_ContinuousViewManager extends managers_default["a" /* default */] {
   constructor(options) {
@@ -10830,7 +10820,8 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
       snap: false,
       afterScrolledTimeout: 10,
       allowScriptedContent: false,
-      allowPopups: false
+      allowPopups: false,
+      zoom: 1
     });
     Object(core["extend"])(this.settings, options.settings || {}); // Gap can be 0, but defaults doesn't handle that
 
@@ -10847,7 +10838,8 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
       height: 0,
       forceEvenPages: false,
       allowScriptedContent: this.settings.allowScriptedContent,
-      allowPopups: this.settings.allowPopups
+      allowPopups: this.settings.allowPopups,
+      zoom: 1
     };
     this.scrollTop = 0;
     this.scrollLeft = 0;
@@ -10862,11 +10854,11 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
   fill(_full) {
     var full = _full || new core["defer"]();
     this.q.enqueue(() => {
-      Object(epub["messageToReact"])(\`[fill::continuous] check()\`);
+      // messageToReact(\`[fill::continuous] check()\`);
       return this.check();
     }).then(result => {
       if (result) {
-        Object(epub["messageToReact"])(\`[fill::continuous] fill()\`);
+        // messageToReact(\`[fill::continuous] fill()\`);
         this.fill(full);
       } else {
         full.resolve();
@@ -10942,20 +10934,21 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
   }
 
   prepend(section) {
-    var view = this.createView(section); // every time it prepends it calls counter which scrolls to the newest prepended 
+    var view = this.createView(section); // every time it prepends it calls counter which scrolls to the newest prepended
     // view
     // 1. only prepend once
-    // 2. only call scrollby when the current view is 
+    // 2. only call scrollby when the current view is
 
-    this.container.scrollTop = this.container.scrollTop + 1;
+    this.container.scrollTop = this.container.scrollTop - 1;
     this.oldScroll = this.scrollTop;
     this.oldHeight = this.container.scrollHeight;
-    Object(epub["messageToReact"])(\`[prepend::continuous] container height \${this.oldHeight} scrollTop \${this.scrollTop} \`);
-    view.on(constants["c" /* EVENTS */].VIEWS.RESIZED, bounds => {
-      Object(epub["messageToReact"])(\`[prepend::continuous] expanded? \${view.expanded} oldscroll \${this.oldScroll}\`);
+    this.expandedCheck = false; // messageToReact(\`[prepend::continuous] container height \${this.oldHeight} scrollTop \${this.scrollTop} \`);
 
-      if (view.expanded) {
+    view.on(constants["c" /* EVENTS */].VIEWS.RESIZED, bounds => {
+      // messageToReact(\`[prepend::continuous] expanded? \${view.expanded} oldscroll \${this.oldScroll}\`);
+      if (view.expanded && !this.expandedCheck) {
         this.oldHeight += bounds.heightDelta;
+        this.expandedCheck = true;
       }
 
       this.counter(bounds);
@@ -10974,10 +10967,8 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
 
   counter(bounds) {
     if (this.settings.axis === "vertical") {
-      const newY = this.oldScroll + (this.container.scrollHeight - this.oldHeight);
-      Object(epub["messageToReact"])(\`[prepend::continuous] new height \${this.container.scrollHeight} new scroll \${newY}\`);
-      this.container.scrollTop = bounds.height + this.oldScroll; // this.scrollTop = newY;
-      // this.scrollBy(0, bounds.heightDelta, true);
+      this.container.scrollTop = bounds.height + this.oldScroll;
+      this.scrollTop = bounds.height + this.oldScroll; // this.scrollBy(0, bounds.heightDelta, true);
     } else {
       this.scrollBy(bounds.widthDelta, 0, true);
     }
@@ -11013,12 +11004,12 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
         }
 
         visible.push(view);
-      } else {
-        // this.q.enqueue(view.destroy.bind(view));
-        // console.log("hidden " + view.index, view.displayed);
-        clearTimeout(this.trimTimeout);
-        this.trimTimeout = setTimeout(function () {// this.q.enqueue(this.trim.bind(this));
-        }.bind(this), 250);
+      } else {// this.q.enqueue(view.destroy.bind(view));
+        // // console.log("hidden " + view.index, view.displayed);
+        // clearTimeout(this.trimTimeout);
+        //   this.trimTimeout = setTimeout(function(){
+        //   this.q.enqueue(this.trim.bind(this));
+        // }.bind(this), 250);
       }
     }
 
@@ -11078,7 +11069,7 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
       let prev = first && first.section.prev();
 
       if (prev) {
-        Object(epub["messageToReact"])(\`[check::prepend::continuous] prepending view offset \${offset} prev \${this.prevOffset}\`);
+        // messageToReact(\`[check::prepend::continuous] prepending view offset \${offset} prev \${this.prevOffset}\`);
         newViews.push(this.prepend(prev));
       }
     };
@@ -11108,21 +11099,20 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
     });
 
     if (newViews.length) {
-      Object(epub["messageToReact"])(\`[check::continuous] newViews len: \${newViews.length}\`);
+      // messageToReact(\`[check::continuous] newViews len: \${newViews.length}\`);
       return Promise.all(promises).then(() => {
         // Check to see if anything new is on screen after rendering
         return this.update(delta);
       }, err => {
         return err;
       }).finally(() => {});
-    } // else {
-    // 	this.q.enqueue(function(){
-    // 		this.update();
-    // 	}.bind(this));
-    // checking.resolve(false);
-    // 	return checking.promise;
-    // }
-
+    } else {
+      this.q.enqueue(function () {
+        this.update();
+      }.bind(this));
+      checking.resolve(false);
+      return checking.promise;
+    }
   }
 
   trim() {
@@ -11168,7 +11158,7 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
       if (this.settings.axis === "vertical") {
         this.scrollTo(0, prevTop - bounds.height, true);
       } else {
-        if (this.settings.direction === 'rtl') {
+        if (this.settings.direction === "rtl") {
           if (!this.settings.fullsize) {
             this.scrollTo(prevLeft, 0, true);
           } else {
@@ -11213,7 +11203,7 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
 
     this._onScroll = this.onScroll.bind(this);
     scroller.addEventListener("scroll", this._onScroll);
-    this._scrolled = debounce_default()(this.scrolled.bind(this), 10);
+    this._scrolled = debounce_default()(this.scrolled.bind(this), 30);
     this.didScroll = false;
   }
 
@@ -11244,13 +11234,12 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
     }
 
     this.scrollTop = scrollTop;
-    this.scrollLeft = scrollLeft;
-    !this.ignore && Object(epub["messageToReact"])(\`[onScroll::continuous] scrollTop \${this.scrollTop}\`);
+    this.scrollLeft = scrollLeft; // !this.ignore && messageToReact(\`[onScroll::continuous] scrollTop \${this.scrollTop}\`);
 
     if (!this.ignore) {
       this._scrolled();
     } else {
-      Object(epub["messageToReact"])(\`[onScroll::continuous] IGNORED scrollTop \${this.scrollTop}\`);
+      // messageToReact(\`[onScroll::continuous] IGNORED scrollTop \${this.scrollTop}\`);
       this.ignore = false;
     }
 
@@ -11271,9 +11260,9 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
     this.q.enqueue(function () {
       if (this.prevBounds) {
         if (this.prevBounds.height) {}
-      }
+      } // messageToReact(\`[scrolled::continuous] scrollTop \${this.scrollTop} pbou \${JSON.stringify(this.prevBounds || {})}\`);
 
-      Object(epub["messageToReact"])(\`[scrolled::continuous] scrollTop \${this.scrollTop} pbou \${JSON.stringify(this.prevBounds || {})}\`);
+
       return this.check();
     }.bind(this));
     this.emit(constants["c" /* EVENTS */].MANAGERS.SCROLL, {
@@ -11284,7 +11273,7 @@ class continuous_ContinuousViewManager extends managers_default["a" /* default *
     this.afterScrolled = setTimeout(function () {
       // Don't report scroll if we are about the snap
       if (this.snapper && this.snapper.supportsTouch && this.snapper.needsSnap()) {
-        Object(epub["messageToReact"])(\`[scrolled::continuous] about to snap\`);
+        // messageToReact(\`[scrolled::continuous] about to snap\`);
         return;
       }
 
@@ -14187,19 +14176,19 @@ var event_emitter_default = /*#__PURE__*/__webpack_require__.n(event_emitter);
 var core = __webpack_require__(0);
 
 // EXTERNAL MODULE: ./src/utils/url.js
-var utils_url = __webpack_require__(6);
+var utils_url = __webpack_require__(5);
 
 // EXTERNAL MODULE: ./src/utils/path.js
-var utils_path = __webpack_require__(5);
+var utils_path = __webpack_require__(4);
 
 // EXTERNAL MODULE: ./src/epubcfi.js
 var epubcfi = __webpack_require__(2);
 
 // EXTERNAL MODULE: ./src/utils/hook.js
-var hook = __webpack_require__(7);
+var hook = __webpack_require__(6);
 
 // EXTERNAL MODULE: ./src/utils/replacements.js
-var replacements = __webpack_require__(9);
+var replacements = __webpack_require__(8);
 
 // CONCATENATED MODULE: ./src/utils/request.js
 
@@ -14231,6 +14220,9 @@ function request_request(url, type, withCredentials, headers) {
   xhr.onerror = err;
   xhr.open("GET", url, true);
 
+  window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: "[REQUEST] " + url}));
+
+
   for (header in headers) {
     xhr.setRequestHeader(header, headers[header]);
   }
@@ -14243,6 +14235,9 @@ function request_request(url, type, withCredentials, headers) {
   if (!type) {
     type = new utils_path["a" /* default */](url).extension;
   }
+
+  window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: "[REQUEST] " + type}));
+
 
   if (type == "blob") {
     xhr.responseType = BLOB_RESPONSE;
@@ -14290,6 +14285,8 @@ function request_request(url, type, withCredentials, headers) {
           return deferred.promise;
         }
 
+
+
         if (this.status === 403) {
           deferred.reject({
             status: this.status,
@@ -14299,8 +14296,10 @@ function request_request(url, type, withCredentials, headers) {
           });
           return deferred.promise;
         }
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: "[REQUEST] " + "WHEN"}));
 
         if (responseXML) {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: "[REQUEST] " + "CONFIRMED"}));
           r = this.responseXML;
         } else if (Object(core["isXml"])(type)) {
           // xhr.overrideMimeType("text/xml"); // for OPF parsing
@@ -14325,6 +14324,8 @@ function request_request(url, type, withCredentials, headers) {
 
         deferred.resolve(r);
       } else {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: "[REQUEST] " + "REJECTED"}));
+
         deferred.reject({
           status: this.status,
           message: this.response,
@@ -14953,7 +14954,7 @@ class spine_Spine {
 
 /* harmony default export */ var src_spine = (spine_Spine);
 // EXTERNAL MODULE: ./src/utils/queue.js
-var queue = __webpack_require__(10);
+var queue = __webpack_require__(9);
 
 // EXTERNAL MODULE: ./src/utils/constants.js
 var constants = __webpack_require__(1);
@@ -15453,7 +15454,7 @@ class locations_Locations {
 event_emitter_default()(locations_Locations.prototype);
 /* harmony default export */ var src_locations = (locations_Locations);
 // EXTERNAL MODULE: ./node_modules/path-webpack/path.js
-var path_webpack_path = __webpack_require__(8);
+var path_webpack_path = __webpack_require__(7);
 var path_default = /*#__PURE__*/__webpack_require__.n(path_webpack_path);
 
 // CONCATENATED MODULE: ./src/container.js
@@ -17722,7 +17723,11 @@ class displayoptions_DisplayOptions {
 }
 
 /* harmony default export */ var displayoptions = (displayoptions_DisplayOptions);
+// EXTERNAL MODULE: ./src/epub.js
+var epub = __webpack_require__(15);
+
 // CONCATENATED MODULE: ./src/book.js
+
 
 
 
@@ -17955,16 +17960,20 @@ class book_Book {
     var type = what || this.determineType(input);
 
     if (type === INPUT_TYPE.BINARY) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: type + "BINARy" }));
       this.archived = true;
       this.url = new utils_url["a" /* default */]("/", "");
       opening = this.openEpub(input);
     } else if (type === INPUT_TYPE.BASE64) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: type + " BASE" }));
       this.archived = true;
       this.url = new utils_url["a" /* default */]("/", "");
       opening = this.openEpub(input, type);
     } else if (type === INPUT_TYPE.EPUB) {
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: type + " EPUB type" }));
       this.archived = true;
       this.url = new utils_url["a" /* default */]("/", "");
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: type + " EPUB " + this.url }));
       opening = this.request(input, "binary", this.settings.requestCredentials, this.settings.requestHeaders).then(this.openEpub.bind(this));
     } else if (type == INPUT_TYPE.OPF) {
       this.url = new utils_url["a" /* default */](input);
@@ -17974,6 +17983,7 @@ class book_Book {
       opening = this.openManifest(this.url.Path.toString());
     } else {
       this.url = new utils_url["a" /* default */](input);
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: type + "CONT" }));
       opening = this.openContainer(CONTAINER_PATH).then(this.openPackaging.bind(this));
     }
 
@@ -18161,6 +18171,9 @@ class book_Book {
 
 
   unpack(packaging) {
+
+    window.ReactNativeWebView.postMessage(JSON.stringify({ type: "epubjs", message: "UNPACKING" }));
+
     this.package = packaging; //TODO: deprecated this
 
     if (this.packaging.metadata.layout === "") {
@@ -18474,7 +18487,7 @@ event_emitter_default()(book_Book.prototype);
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var conventions = __webpack_require__(15);
+var conventions = __webpack_require__(14);
 
 var NAMESPACE = conventions.NAMESPACE;
 
@@ -20382,7 +20395,7 @@ module.exports = function (fn) {
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var conventions = __webpack_require__(15);
+var conventions = __webpack_require__(14);
 var dom = __webpack_require__(26)
 var entities = __webpack_require__(47);
 var sax = __webpack_require__(48);
@@ -20656,7 +20669,7 @@ exports.XMLSerializer = dom.XMLSerializer;
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var freeze = __webpack_require__(15).freeze;
+var freeze = __webpack_require__(14).freeze;
 
 /**
  * The entities that are predefined in every XML document.
@@ -20935,7 +20948,7 @@ exports.entityMap = exports.HTML_ENTITIES
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var NAMESPACE = __webpack_require__(15).NAMESPACE;
+var NAMESPACE = __webpack_require__(14).NAMESPACE;
 
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]

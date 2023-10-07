@@ -1,28 +1,30 @@
 import "@tamagui/core/reset.css";
 
+import { NativeStackHeaderProps } from "@react-navigation/native-stack";
+import { ToastProvider, ToastViewport } from "@tamagui/toast";
 import "expo-dev-client";
 import { useFonts } from "expo-font";
-import { ToastProvider, ToastViewport } from "@tamagui/toast";
-import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { SplashScreen, Stack, usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Appearance, ColorSchemeName } from "react-native";
-import {
-  Button,
-  Stack as TStack,
-  TamaguiProvider,
-  Text,
-  XStack,
-} from "tamagui";
+import { Stack as TStack, TamaguiProvider, Text, XStack } from "tamagui";
 
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { ArrowLeft, ChevronLeft, Menu, Search } from "@tamagui/lucide-icons";
+import { ChevronLeft, Menu, Search } from "@tamagui/lucide-icons";
 
-import appConfig from "../tamagui.config";
-import { Provider, useAtom, useSetAtom } from "jotai/react";
-import { MMKV } from "react-native-mmkv";
-import { currentServerConfigAtom } from "../utils/local-atoms";
+import { useAtom, useAtomValue, useSetAtom } from "jotai/react";
+import { getLibraries } from "../api/library";
+import { Logo } from "../assets/svgs/logo";
+import ServersModal from "../components/modals/servers-modal";
 import { IconButton } from "../components/ui/button";
+import { iconMap } from "../constants/adbs-icons";
+import appConfig from "../tamagui.config";
+import {
+  currentLibraryAtom,
+  currentUserAtom,
+  librariesAtom,
+  serversModalVisibleAtom,
+} from "../utils/atoms";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -38,10 +40,13 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [user] = useAtom(currentUserAtom);
+  const [libraries, setLibraries] = useAtom(librariesAtom);
   const [theme, setTheme] = useState<ColorSchemeName>(null);
   const [loaded, error] = useFonts({
     Inter: require("../assets/fonts/Inter.ttf"),
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    monospace: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    Lato: require("../assets/fonts/Lato.ttf"),
     ...FontAwesome.font,
   });
 
@@ -62,33 +67,52 @@ export default function RootLayout() {
     });
   }, []);
 
+  useEffect(() => {
+    async function initLibraries() {
+      if (!user || !user?.token) {
+        console.info("[INIT_LIBRARRIES_LAYOUT] no user");
+        return;
+      }
+      const { error, data } = await getLibraries();
+
+      if (error) {
+        console.error("[INIT_LIBRARRIES_LAYOUT] ", error);
+      }
+
+      setLibraries(data?.libraries || []);
+
+      data?.libraries && console.info("[INIT_LIBRARRIES_LAYOUT] success");
+    }
+    initLibraries();
+  }, [user]);
+
   if (!loaded) {
     return null;
   }
 
   return (
-    <Provider>
-      <TamaguiProvider defaultTheme={theme ? theme : "dark"} config={appConfig}>
-        <ToastProvider>
-          <Stack
-            screenOptions={{
-              header: Header,
-              animation: "none",
-              gestureEnabled: false,
-            }}
-          >
-            <Stack.Screen name="(root)/index" />
-          </Stack>
-
-          <ToastViewport
-            w={"100%"}
-            pt={"$8"}
-            display="flex"
-            alignContent="center"
-          />
-        </ToastProvider>
-      </TamaguiProvider>
-    </Provider>
+    // <Provider>
+    <TamaguiProvider defaultTheme={theme ? theme : "dark"} config={appConfig}>
+      <ToastProvider>
+        <Stack
+          screenOptions={{
+            header: Header,
+            animation: "none",
+            gestureEnabled: false,
+          }}
+        >
+          <Stack.Screen name="(root)/index" />
+        </Stack>
+        <ToastViewport
+          w={"100%"}
+          pt={"$8"}
+          display="flex"
+          alignContent="center"
+        />
+        <ServersModal />
+      </ToastProvider>
+    </TamaguiProvider>
+    // </Provider>
   );
 }
 const Header = ({
@@ -97,9 +121,14 @@ const Header = ({
   options,
   back,
 }: NativeStackHeaderProps) => {
+  const setVisible = useSetAtom(serversModalVisibleAtom);
+  const lib = useAtomValue(currentLibraryAtom);
+
   const router = useRouter();
   const path = usePathname();
   const theme = Appearance.getColorScheme();
+
+  const Icon = lib?.icon ? iconMap[lib.icon] : iconMap["database"];
 
   if (path === "/") {
     return null;
@@ -119,12 +148,43 @@ const Header = ({
         alignItems="center"
       >
         <XStack w={"50%"}>
-          {path.startsWith("/item/") && (
+          {path.startsWith("/item/") ? (
             <IconButton
+              mr={"$3"}
               icon={<ChevronLeft size={"$1"} color={"$blue10Dark"} />}
               onPress={() => router.back()}
             />
+          ) : (
+            <XStack
+              pl={"$2"}
+              mr={"$3"}
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Logo size={"$2"} />
+            </XStack>
           )}
+          <XStack>
+            <IconButton
+              onPress={() => setVisible(true)}
+              borderColor={"$blue10Dark"}
+              pressStyle={{
+                bg: "$backgroundPress",
+              }}
+              icon={<Icon size={"$1"} color={"$blue10Dark"} />}
+              justifyContent="center"
+              space={"$1"}
+            >
+              <Text
+                color={"$colorPress"}
+                fontWeight={"$7"}
+                numberOfLines={1}
+                textAlign="center"
+              >
+                {lib?.name || ""}
+              </Text>
+            </IconButton>
+          </XStack>
         </XStack>
         <XStack w={"50%"} space={"$space.2"} justifyContent="flex-end">
           <IconButton
@@ -140,9 +200,6 @@ const Header = ({
             }}
           />
         </XStack>
-        {/* <Text px={20} fontSize={"$9"} fontWeight={"600"}>
-          {route}
-        </Text> */}
       </XStack>
     </TStack>
   );

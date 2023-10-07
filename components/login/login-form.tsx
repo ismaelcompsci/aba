@@ -50,7 +50,7 @@ const LoginForm = ({
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      serverAddress: "http://192.168.1.160:54932", // TODO REMOVE
+      serverAddress: "http://192.168.1.158:54932", // TODO REMOVE
       username: "owner_ismael", // TODO REMOVE
       password: "olvera608", // TODO REMOVE
     },

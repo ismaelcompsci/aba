@@ -1,4 +1,5 @@
 import { Stack, styled, Text } from "@tamagui/core";
+import { useState } from "react";
 import { StackProps } from "tamagui";
 
 const ButtonFrame = styled(Stack, {
@@ -7,7 +8,8 @@ const ButtonFrame = styled(Stack, {
   flexDirection: "row",
   justifyContent: "center",
   backgroundColor: "$backgroundTransparent",
-  borderColor: "$gray10Dark",
+  borderColor: "transparent",
+  borderWidth: 0.5,
   pressStyle: {
     borderWidth: 0.5,
     borderColor: "$blue10Dark",
@@ -31,7 +33,12 @@ const ButtonFrame = styled(Stack, {
     },
     variant: {
       outline: {
-        borderWidth: 1,
+        borderWidth: 0.5,
+        borderColor: "$gray10Dark",
+      },
+      selected: {
+        borderWidth: 0.5,
+        borderColor: "$blue10Dark",
       },
       ghost: {
         backgroundColor: "$backgroundTransparent",
@@ -51,13 +58,31 @@ const ButtonText = styled(Text, {
 
 export const IconButton = ({
   icon,
+  text,
+  selected,
   ...rest
 }: StackProps & {
   icon?: any;
+  text?: string;
+  selected?: boolean;
 }) => {
+  const [userSelected, setUserSelected] = useState(false);
+
   return (
-    <ButtonFrame {...rest} variant={"ghost"} size={"sm"}>
+    <ButtonFrame
+      {...rest}
+      variant={userSelected ? "selected" : "outline"}
+      size={"sm"}
+      onPress={(event) => {
+        if (rest.onPress) {
+          rest?.onPress(event);
+        }
+
+        selected ? setUserSelected((prev) => !prev) : setUserSelected(false);
+      }}
+    >
       {icon}
+      {rest.children}
     </ButtonFrame>
   );
 };
