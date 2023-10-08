@@ -66,7 +66,7 @@ export const IconButton = ({
   text?: string;
   selected?: boolean;
 }) => {
-  const [userSelected, setUserSelected] = useState(false);
+  const [userSelected, setUserSelected] = useState(selected ? selected : false);
 
   return (
     <ButtonFrame

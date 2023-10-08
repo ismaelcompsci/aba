@@ -5,13 +5,15 @@ import { Reader, Theme, useReader } from "../EpubReaderV2";
 
 import { useFileSystem } from "@epubjs-react-native/expo-file-system"; // for Expo project
 import { useAtomValue, useSetAtom } from "jotai/react";
-import { Spinner, YStack } from "tamagui";
-import { ebookFormat } from "../../utils/helpers";
+import { Button, Spinner, Text, View, XStack, YStack } from "tamagui";
+import { ebookFormat, getUserMediaProgress } from "../../utils/helpers";
 import { tempBookFilesAtom } from "../../utils/local-atoms";
 import ReaderMenu from "./reader-menu";
 import { currentUserAtom } from "../../utils/atoms";
 import { LibraryItem } from "../../types/adbs";
 import { createThemeForBook } from "../../utils/themes";
+import { IconButton } from "../ui/button";
+import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 
 interface MyReader {
   url: string;
@@ -42,18 +44,72 @@ const RReader = memo(
     handlePress,
     setLoading,
   }: RReaderProps) => {
+    const [showingNext, setShowingNext] = useState(false);
+    const [showingPrev, setShowingPrev] = useState(false);
+
+    useEffect(() => {
+      StatusBar.setHidden(true);
+
+      return () => {
+        StatusBar.setHidden(false);
+      };
+    }, []);
+
     return (
-      <Reader
-        src={bookPath}
-        width={width}
-        initialLocation={location}
-        // onReady={() => setLoading(false)}
-        height={height}
-        fileSystem={useFileSystem}
-        onPress={handlePress}
-        // renderLoadingFileComponent={LoadingFileComponent}
-        // renderOpeningBookComponent={LoadingFileComponent}
-      />
+      <View>
+        {showingPrev ? (
+          <IconButton
+            selected
+            pos={"absolute"}
+            zIndex={"$5"}
+            top={"$10"}
+            left={"50%"}
+            style={[
+              {
+                transform: [{ translateX: -50 }],
+              },
+            ]}
+          >
+            <YStack justifyContent="center" alignItems="center">
+              <Text>RELEASE FOR: </Text>
+              <ChevronUp size={"$1"} />
+            </YStack>
+          </IconButton>
+        ) : null}
+        {showingNext ? (
+          <IconButton
+            selected
+            pos={"absolute"}
+            zIndex={"$5"}
+            left={"50%"}
+            bottom={"$10"}
+            style={[
+              { height: "auto" },
+              {
+                transform: [{ translateX: -50 }],
+              },
+            ]}
+          >
+            <YStack py="$1" justifyContent="center" alignItems="center">
+              <Text>RELEASE FOR: </Text>
+              <ChevronDown size={14} />
+            </YStack>
+          </IconButton>
+        ) : null}
+        <Reader
+          src={bookPath}
+          width={width}
+          initialLocation={location}
+          onShowNext={(s) => setShowingNext(s)}
+          onShowPrevious={(s) => setShowingPrev(s)}
+          onReady={() => setLoading(false)}
+          height={height}
+          fileSystem={useFileSystem}
+          onPress={handlePress}
+          // renderLoadingFileComponent={LoadingFileComponent}
+          // renderOpeningBookComponent={LoadingFileComponent}
+        />
+      </View>
     );
   }
 );
@@ -71,12 +127,6 @@ const MyReader = ({ url, item }: MyReader) => {
   const ebookFile =
     "ebookFile" in item.media ? item.media.ebookFile : undefined;
 
-  const getUserMediaProgress = (libraryItemId: string) => {
-    if (!user?.mediaProgress || !libraryItemId) return;
-
-    return user?.mediaProgress.find((md) => md.libraryItemId == libraryItemId);
-  };
-
   const handlePress = () => {
     setHide((p) => !p);
     StatusBar.setHidden(hide, "none");
@@ -84,16 +134,18 @@ const MyReader = ({ url, item }: MyReader) => {
 
   useEffect(() => {
     if (!item || !item.id) return;
-    const prog = getUserMediaProgress(item.id);
+    const prog = getUserMediaProgress(user, item.id);
 
     if (!prog || !prog.ebookLocation) return;
     setLocation(prog.ebookLocation);
   }, [item]);
 
   useEffect(() => {
-    const itemBookPath = `epub/${item.media.libraryItemId}.${
-      ebookFormat(ebookFile) || "epub"
-    }`;
+    if (!ebookFile) return;
+
+    const itemBookPath = `epub/${item.media.libraryItemId}.${ebookFormat(
+      ebookFile
+    )}`;
 
     const cachePath = RNFetchBlob.fs.dirs.DocumentDir + "/" + itemBookPath;
 
@@ -101,7 +153,7 @@ const MyReader = ({ url, item }: MyReader) => {
       setLoading(true);
       RNFetchBlob.config({
         fileCache: true,
-        appendExt: ebookFormat(ebookFile) || "epub",
+        appendExt: ebookFormat(ebookFile)!,
         path: cachePath,
       })
         .fetch("GET", url, {
@@ -121,16 +173,10 @@ const MyReader = ({ url, item }: MyReader) => {
     })();
   }, []);
 
-  useEffect(() => {
-    return () => {
-      StatusBar.setHidden(false);
-    };
-  }, []);
-
   return (
     <>
       <ReaderMenu hide={hide}>
-        {/* {loading && (
+        {loading ? (
           <YStack
             h={"100%"}
             w={"100%"}
@@ -141,16 +187,16 @@ const MyReader = ({ url, item }: MyReader) => {
           >
             <Spinner />
           </YStack>
-        )} */}
-
-        <RReader
-          bookPath={bookPath}
-          handlePress={handlePress}
-          height={height}
-          width={width}
-          location={location || ""}
-          setLoading={setLoading}
-        />
+        ) : (
+          <RReader
+            bookPath={bookPath}
+            handlePress={handlePress}
+            height={height}
+            width={width}
+            location={location || ""}
+            setLoading={setLoading}
+          />
+        )}
       </ReaderMenu>
     </>
   );

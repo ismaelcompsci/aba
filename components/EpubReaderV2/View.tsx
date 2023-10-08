@@ -17,11 +17,15 @@ export type ViewProps = Omit<ReaderProps, "src" | "fileSystem"> & {
 export function View({
   templateUri,
   allowedUris,
+  onStarted = () => {},
   onPress = () => {},
+  onDisplayError = () => {},
+  onShowNext = () => {},
+  onShowPrevious = () => {},
   width,
   height,
 }: ViewProps) {
-  const { registerBook, theme } = useContext(ReaderContext);
+  const { registerBook, theme, setIsRendering } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
   const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
 
@@ -34,6 +38,33 @@ export function View({
 
     if (type === "epubjs") {
       console.log("[JS]", parsedEvent.message);
+    }
+
+    if (type === "onStarted") {
+      setIsRendering(true);
+
+      return onStarted();
+    }
+
+    if (type === "onDisplayError") {
+      const { reason } = parsedEvent;
+      console.log(reason);
+      setIsRendering(false);
+
+      return onDisplayError(reason);
+    }
+
+    if (type === "onReady") {
+      setIsRendering(false);
+    }
+
+    if (type === "showNext") {
+      const { show } = parsedEvent;
+      onShowNext(show);
+    }
+    if (type === "showPrevious") {
+      const { show } = parsedEvent;
+      onShowPrevious(show);
     }
 
     return () => {};
@@ -84,20 +115,6 @@ export function View({
           width: width,
         }}
       >
-        {/* {isRendering && (
-          <RNView
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              top: 0,
-              zIndex: 2,
-            }}
-          >
-            {renderOpeningBookComponent()}
-          </RNView>
-        )} */}
-
         <WebView
           ref={book}
           source={{ uri: templateUri }}

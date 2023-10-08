@@ -3,7 +3,7 @@ export default `
   <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>foliate.js</title>
     <script id="jszip"></script>
     <script id="foliate"></script>
@@ -31,11 +31,15 @@ export default `
 
   <body oncopy='return false' oncut='return false'>
     <script>
-      let reader;
       const bookPath = undefined;
       const bookLocation = undefined;
 
       try {
+
+        // window.ReactNativeWebView.postMessage(
+        //   JSON.stringify({ type: "epubjs", message: "[INDEX_HTML] " + bookPath })
+        // );
+
         reader = new foliate(bookPath, bookLocation);
       } catch (err) {
         window.ReactNativeWebView.postMessage(

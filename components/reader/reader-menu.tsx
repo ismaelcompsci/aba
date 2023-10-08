@@ -76,7 +76,7 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
           >
             <IconButton icon={<List color={"$blue10Dark"} size={"$1"} />} />
             <IconButton
-              selected={!openSettings}
+              // selected={!openSettings}
               backgroundColor={openSettings ? "$blue10Dark" : undefined}
               icon={
                 <Settings2

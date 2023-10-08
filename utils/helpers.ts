@@ -1,6 +1,11 @@
 import { Theme } from "../components/EpubReaderV2";
 import { ServerConfig } from "../components/login/login-form";
-import { EbookFile, LibraryItem, LibraryItemMinified } from "../types/adbs";
+import {
+  EbookFile,
+  LibraryItem,
+  LibraryItemMinified,
+  User,
+} from "../types/adbs";
 import { defaultTheme } from "./themes";
 
 export const getItemCoverSrc = (
@@ -74,3 +79,12 @@ export function humanFileSize(bytes: number, si = false, dp = 1) {
 
   return bytes.toFixed(dp) + " " + units[u];
 }
+
+export const getUserMediaProgress = (
+  user: User | null,
+  libraryItemId: string
+) => {
+  if (!user?.mediaProgress || !libraryItemId) return;
+
+  return user?.mediaProgress.find((md) => md.libraryItemId == libraryItemId);
+};

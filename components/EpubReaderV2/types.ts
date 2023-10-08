@@ -97,6 +97,16 @@ export interface ReaderProps {
    */
   initialLocations?: ePubCfi[];
   /**
+   * @param {boolean} show
+   * @returns {void}
+   */
+  onShowNext?: (show: boolean) => void;
+  /**
+   * @param {boolean} show
+   * @returns {void}
+   */
+  onShowPrevious?: (show: boolean) => void;
+  /**
    * Called once the book loads is started
    * @returns {void} void
    */

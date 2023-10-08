@@ -11,15 +11,13 @@ import { getSourceName } from "./utils/getPathname";
 import { SourceType } from "./utils/enums/source-type.enum";
 import { isFsUri } from "./utils/isFsUri";
 import jszip from "./jszip";
-import epubjs from "./epubjs";
-import foliate from "./new";
+import foliate from "./foliate";
 
 // ...
 export function Reader({
   src,
   width,
   height,
-  defaultTheme = initialTheme,
   initialLocations,
   initialLocation,
   renderLoadingFileComponent = (props) => (
@@ -115,7 +113,14 @@ export function Reader({
             throw new Error(`Invalid source name: ${src}`);
           }
 
-          if (sourceType === SourceType.OPF || sourceType === SourceType.EPUB) {
+          if (
+            sourceType === SourceType.OPF ||
+            sourceType === SourceType.EPUB ||
+            sourceType === SourceType.CBZ ||
+            sourceType === SourceType.FB2 ||
+            sourceType === SourceType.MOBI ||
+            sourceType === SourceType.FBZ
+          ) {
             setTemplate(
               injectWebVieWVariables({
                 jszip: jszipFileUri,
@@ -148,7 +153,6 @@ export function Reader({
       }
     })();
   }, [
-    defaultTheme,
     downloadFile,
     initialLocations,
     injectWebVieWVariables,
@@ -198,7 +202,7 @@ export function Reader({
       allowedUris={allowedUris}
       width={width}
       height={height}
-      defaultTheme={defaultTheme}
+      // defaultTheme={defaultTheme}
       {...rest}
     />
   );

@@ -1,6 +1,10 @@
 export enum SourceType {
-  BASE64 = 'base64',
-  EPUB = 'epub',
-  OPF = 'opf',
-  BINARY = 'binary',
+  BASE64 = "base64",
+  EPUB = "epub",
+  OPF = "opf",
+  BINARY = "binary",
+  CBZ = "cbz",
+  FB2 = "fb2",
+  FBZ = "fbz",
+  MOBI = "mobi",
 }

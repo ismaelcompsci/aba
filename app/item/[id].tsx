@@ -9,7 +9,11 @@ import {
   currentLibraryAtom,
   currentUserAtom,
 } from "../../utils/atoms";
-import { cleanString, getItemCoverSrc } from "../../utils/helpers";
+import {
+  cleanString,
+  getItemCoverSrc,
+  getUserMediaProgress,
+} from "../../utils/helpers";
 import { currentServerConfigAtom } from "../../utils/local-atoms";
 import ItemInfo from "../../components/item/item-info";
 import { LibraryItem, LibraryItemExpanded } from "../../types/adbs";

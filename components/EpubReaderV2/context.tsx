@@ -224,7 +224,7 @@ export interface ReaderContextProps {
   // setProgress: (progress: number) => void;
   // setLocations: (locations: ePubCfi[]) => void;
   setIsLoading: (isLoading: boolean) => void;
-  // setIsRendering: (isRendering: boolean) => void;
+  setIsRendering: (isRendering: boolean) => void;
 
   // /**
   //  * Go to specific location in the book
@@ -401,7 +401,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   // setProgress: () => {},
   // setLocations: () => {},
   setIsLoading: () => {},
-  // setIsRendering: () => {},
+  setIsRendering: () => {},
 
   // goToLocation: () => {},
   // goPrevious: () => {},
@@ -462,7 +462,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const changePageFlow = useCallback((pageStyle: string) => {
-    console.log(pageStyle);
     book.current?.injectJavaScript(`
       reader.setFlow('${pageStyle}');
       true
@@ -480,7 +479,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       ...theme,
     };
     book.current?.injectJavaScript(`
-        reader.setStyles(${JSON.stringify(style)})
+        reader.setStyles(${JSON.stringify(style)});
+        true
     `);
     dispatch({ type: Types.CHANGE_THEME, payload: style });
   }, []);
@@ -548,9 +548,9 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_IS_LOADING, payload: isLoading });
   }, []);
 
-  // const setIsRendering = useCallback((isRendering: boolean) => {
-  //   dispatch({ type: Types.SET_IS_RENDERING, payload: isRendering });
-  // }, []);
+  const setIsRendering = useCallback((isRendering: boolean) => {
+    dispatch({ type: Types.SET_IS_RENDERING, payload: isRendering });
+  }, []);
 
   // const goToLocation = useCallback((targetCfi: ePubCfi) => {
   //   book.current?.injectJavaScript(`rendition.display('${targetCfi}'); true`);
@@ -638,7 +638,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setProgress,
       // setLocations,
       setIsLoading,
-      // setIsRendering,
+      setIsRendering,
 
       // goToLocation,
       // goPrevious,
@@ -692,7 +692,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setCurrentLocation,
       // setMeta,
       setIsLoading,
-      // setIsRendering,
+      setIsRendering,
       setKey,
       // setLocations,
       // setProgress,

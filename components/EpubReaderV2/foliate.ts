@@ -3169,7 +3169,8 @@ export default `
         this.renderer.open(book);
         this.#root.append(this.renderer);
         if (book.sections.some((section) => section.mediaOverlay)) {
-          const activeClass = book.media["active-class"];
+          book.media.activeClass ||= "-epub-media-overlay-active";
+          const activeClass = book.media.activeClass;
           this.mediaOverlay = book.getMediaOverlay();
           let lastActive;
           this.mediaOverlay.addEventListener("highlight", (e) => {
@@ -3573,7 +3574,264 @@ export default `
         return this.mediaOverlay.start(index);
       }
     }
-    customElements.define("foliate-view", view_View); // CONCATENATED MODULE: ./my-foliate/epub.js
+    customElements.define("foliate-view", view_View); // CONCATENATED MODULE: ./my-foliate/vendor/fflate.js
+    var r = Uint8Array,
+      e = Uint16Array,
+      n = Uint32Array,
+      a = new r([
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4,
+        5, 5, 5, 5, 0, 0, 0, 0,
+      ]),
+      t = new r([
+        0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10,
+        10, 11, 11, 12, 12, 13, 13, 0, 0,
+      ]),
+      i = new r([
+        16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
+      ]),
+      f = function (r, a) {
+        for (var t = new e(31), i = 0; i < 31; ++i) t[i] = a += 1 << r[i - 1];
+        var f = new n(t[30]);
+        for (i = 1; i < 30; ++i)
+          for (var o = t[i]; o < t[i + 1]; ++o) f[o] = ((o - t[i]) << 5) | i;
+        return [t, f];
+      },
+      o = f(a, 2),
+      v = o[0],
+      l = o[1];
+    (v[28] = 258), (l[258] = 28);
+    for (var u = f(t, 0)[0], c = new e(32768), d = 0; d < 32768; ++d) {
+      var s = ((43690 & d) >>> 1) | ((21845 & d) << 1);
+      (s =
+        ((61680 & (s = ((52428 & s) >>> 2) | ((13107 & s) << 2))) >>> 4) |
+        ((3855 & s) << 4)),
+        (c[d] = (((65280 & s) >>> 8) | ((255 & s) << 8)) >>> 1);
+    }
+    var w = function (r, n, a) {
+        for (var t = r.length, i = 0, f = new e(n); i < t; ++i)
+          r[i] && ++f[r[i] - 1];
+        var o,
+          v = new e(n);
+        for (i = 0; i < n; ++i) v[i] = (v[i - 1] + f[i - 1]) << 1;
+        if (a) {
+          o = new e(1 << n);
+          var l = 15 - n;
+          for (i = 0; i < t; ++i)
+            if (r[i])
+              for (
+                var u = (i << 4) | r[i],
+                  d = n - r[i],
+                  s = v[r[i] - 1]++ << d,
+                  w = s | ((1 << d) - 1);
+                s <= w;
+                ++s
+              )
+                o[c[s] >>> l] = u;
+        } else
+          for (o = new e(t), i = 0; i < t; ++i)
+            r[i] && (o[i] = c[v[r[i] - 1]++] >>> (15 - r[i]));
+        return o;
+      },
+      b = new r(288);
+    for (d = 0; d < 144; ++d) b[d] = 8;
+    for (d = 144; d < 256; ++d) b[d] = 9;
+    for (d = 256; d < 280; ++d) b[d] = 7;
+    for (d = 280; d < 288; ++d) b[d] = 8;
+    var h = new r(32);
+    for (d = 0; d < 32; ++d) h[d] = 5;
+    var E = w(b, 9, 1),
+      p = w(h, 5, 1),
+      g = function (r) {
+        for (var e = r[0], n = 1; n < r.length; ++n) r[n] > e && (e = r[n]);
+        return e;
+      },
+      y = function (r, e, n) {
+        var a = (e / 8) | 0;
+        return ((r[a] | (r[a + 1] << 8)) >> (7 & e)) & n;
+      },
+      k = function (r, e) {
+        var n = (e / 8) | 0;
+        return (r[n] | (r[n + 1] << 8) | (r[n + 2] << 16)) >> (7 & e);
+      },
+      T = [
+        "unexpected EOF",
+        "invalid block type",
+        "invalid length/literal",
+        "invalid distance",
+        "stream finished",
+        "no stream handler",
+        ,
+        "no callback",
+        "invalid UTF-8 data",
+        "extra field too long",
+        "date not in range 1980-2099",
+        "filename too long",
+        "stream finishing",
+        "invalid zip data",
+      ],
+      m = function (r, e, n) {
+        var a = new Error(e || T[r]);
+        if (
+          ((a.code = r),
+          Error.captureStackTrace && Error.captureStackTrace(a, m),
+          !n)
+        )
+          throw a;
+        return a;
+      },
+      x = function (f, o, l) {
+        var c = f.length;
+        if (!c || (l && l.f && !l.l)) return o || new r(0);
+        var d = !o || l,
+          s = !l || l.i;
+        l || (l = {}), o || (o = new r(3 * c));
+        var b = function (e) {
+            var n = o.length;
+            if (e > n) {
+              var a = new r(Math.max(2 * n, e));
+              a.set(o), (o = a);
+            }
+          },
+          h = l.f || 0,
+          T = l.p || 0,
+          x = l.b || 0,
+          S = l.l,
+          U = l.d,
+          _ = l.m,
+          z = l.n,
+          A = 8 * c;
+        do {
+          if (!S) {
+            h = y(f, T, 1);
+            var M = y(f, T + 1, 3);
+            if (((T += 3), !M)) {
+              var B = f[(C = 4 + (((T + 7) / 8) | 0)) - 4] | (f[C - 3] << 8),
+                D = C + B;
+              if (D > c) {
+                s && m(0);
+                break;
+              }
+              d && b(x + B),
+                o.set(f.subarray(C, D), x),
+                (l.b = x += B),
+                (l.p = T = 8 * D),
+                (l.f = h);
+              continue;
+            }
+            if (1 == M) (S = E), (U = p), (_ = 9), (z = 5);
+            else if (2 == M) {
+              var F = y(f, T, 31) + 257,
+                L = y(f, T + 10, 15) + 4,
+                N = F + y(f, T + 5, 31) + 1;
+              T += 14;
+              for (var P = new r(N), R = new r(19), Y = 0; Y < L; ++Y)
+                R[i[Y]] = y(f, T + 3 * Y, 7);
+              T += 3 * L;
+              var O = g(R),
+                j = (1 << O) - 1,
+                q = w(R, O, 1);
+              for (Y = 0; Y < N; ) {
+                var C,
+                  G = q[y(f, T, j)];
+                if (((T += 15 & G), (C = G >>> 4) < 16)) P[Y++] = C;
+                else {
+                  var H = 0,
+                    I = 0;
+                  for (
+                    16 == C
+                      ? ((I = 3 + y(f, T, 3)), (T += 2), (H = P[Y - 1]))
+                      : 17 == C
+                      ? ((I = 3 + y(f, T, 7)), (T += 3))
+                      : 18 == C && ((I = 11 + y(f, T, 127)), (T += 7));
+                    I--;
+
+                  )
+                    P[Y++] = H;
+                }
+              }
+              var J = P.subarray(0, F),
+                K = P.subarray(F);
+              (_ = g(J)), (z = g(K)), (S = w(J, _, 1)), (U = w(K, z, 1));
+            } else m(1);
+            if (T > A) {
+              s && m(0);
+              break;
+            }
+          }
+          d && b(x + 131072);
+          for (var Q = (1 << _) - 1, V = (1 << z) - 1, W = T; ; W = T) {
+            var X = (H = S[k(f, T) & Q]) >>> 4;
+            if ((T += 15 & H) > A) {
+              s && m(0);
+              break;
+            }
+            if ((H || m(2), X < 256)) o[x++] = X;
+            else {
+              if (256 == X) {
+                (W = T), (S = null);
+                break;
+              }
+              var Z = X - 254;
+              if (X > 264) {
+                var \$ = a[(Y = X - 257)];
+                (Z = y(f, T, (1 << \$) - 1) + v[Y]), (T += \$);
+              }
+              var rr = U[k(f, T) & V],
+                er = rr >>> 4;
+              rr || m(3), (T += 15 & rr);
+              K = u[er];
+              if (er > 3) {
+                \$ = t[er];
+                (K += k(f, T) & ((1 << \$) - 1)), (T += \$);
+              }
+              if (T > A) {
+                s && m(0);
+                break;
+              }
+              d && b(x + 131072);
+              for (var nr = x + Z; x < nr; x += 4)
+                (o[x] = o[x - K]),
+                  (o[x + 1] = o[x + 1 - K]),
+                  (o[x + 2] = o[x + 2 - K]),
+                  (o[x + 3] = o[x + 3 - K]);
+              x = nr;
+            }
+          }
+          (l.l = S),
+            (l.p = W),
+            (l.b = x),
+            (l.f = h),
+            S && ((h = 1), (l.m = _), (l.d = U), (l.n = z));
+        } while (!h);
+        return x == o.length
+          ? o
+          : (function (a, t, i) {
+              (null == t || t < 0) && (t = 0),
+                (null == i || i > a.length) && (i = a.length);
+              var f = new (
+                2 == a.BYTES_PER_ELEMENT ? e : 4 == a.BYTES_PER_ELEMENT ? n : r
+              )(i - t);
+              return f.set(a.subarray(t, i)), f;
+            })(o, 0, x);
+      },
+      S = new r(0),
+      U = function (r) {
+        (8 != (15 & r[0]) || r[0] >>> 4 > 7 || ((r[0] << 8) | r[1]) % 31) &&
+          m(6, "invalid zlib data"),
+          32 & r[1] &&
+            m(6, "invalid zlib data: preset dictionaries not supported");
+      };
+    function _(r, e) {
+      return x((U(r), r.subarray(2, -4)), e);
+    }
+    var z = "undefined" != typeof TextDecoder && new TextDecoder();
+    try {
+      z.decode(S, {
+        stream: !0,
+      }),
+        1;
+    } catch (r) {} // CONCATENATED MODULE: ./my-foliate/epub.js
+
     const epub_NS = {
       CONTAINER: "urn:oasis:names:tc:opendocument:xmlns:container",
       XHTML: "http://www.w3.org/1999/xhtml",
@@ -3829,17 +4087,30 @@ export default `
           ];
         }),
       );
-      const getProperties = (prefix) =>
-        Object.fromEntries(
-          \$\$(\$metadata, "meta")
-            .filter(filterAttribute("property", (x) => x?.startsWith(prefix)))
-            .map((el) => [
-              el.getAttribute("property").replace(prefix, ""),
-              getElementText(el),
-            ]),
-        );
-      const rendition = getProperties("rendition:");
-      const media = getProperties("media:");
+      const \$\$meta = \$\$(\$metadata, "meta");
+      const getMetasByPrefix = (prefix) =>
+        \$\$meta
+          .filter(filterAttribute("property", (x) => x?.startsWith(prefix)))
+          .map((el) => [el.getAttribute("property").replace(prefix, ""), el]);
+      const rendition = Object.fromEntries(
+        getMetasByPrefix("rendition:").map(([k, el]) => [
+          k,
+          getElementText(el),
+        ]),
+      );
+      const media = {
+        narrator: [],
+        duration: {},
+      };
+      for (const [k, el] of getMetasByPrefix("media:")) {
+        const v = getElementText(el);
+        if (k === "duration")
+          media.duration[el.getAttribute("refines")?.split("#")?.[1] ?? ""] =
+            parseClock(v);
+        else if (k === "active-class") media.activeClass = v;
+        else if (k === "narrator") media.narrator.push(v);
+        else if (k === "playback-active-class") media.playbackActiveClass = v;
+      }
       return {
         metadata,
         rendition,
@@ -3980,7 +4251,6 @@ export default `
           const last = arr.at(-1);
           if (last?.src === src)
             last.items.push({
-              \$par,
               text,
               begin,
               end,
@@ -3990,7 +4260,6 @@ export default `
               src,
               items: [
                 {
-                  \$par,
                   text,
                   begin,
                   end,
@@ -4005,7 +4274,7 @@ export default `
         return this.#entries[this.#audioIndex];
       }
       get #activeItem() {
-        return this.#activeAudio.items[this.#itemIndex];
+        return this.#activeAudio?.items?.[this.#itemIndex];
       }
       #error(e) {
         console.error(e);
@@ -4038,17 +4307,18 @@ export default `
         this.#audioIndex = audioIndex;
         this.#itemIndex = itemIndex;
         const src = this.#activeAudio?.src;
-        if (!src) return this.start(this.#sectionIndex + 1);
+        if (!src || !this.#activeItem)
+          return this.start(this.#sectionIndex + 1);
         const url = URL.createObjectURL(await this.book.loadBlob(src));
         const audio = new Audio(url);
         this.#audio = audio;
         audio.addEventListener("timeupdate", () => {
+          if (audio.paused) return;
           const t = audio.currentTime;
           const { items } = this.#activeAudio;
           if (t > this.#activeItem?.end) {
             this.#unhighlight();
             if (this.#itemIndex === items.length - 1) {
-              audio.pause();
               this.#play(this.#audioIndex + 1, 0).catch((e) => this.#error(e));
               return;
             }
@@ -4074,7 +4344,8 @@ export default `
           audio.play().catch((e) => this.#error(e));
         });
       }
-      async start(sectionIndex) {
+      async start(sectionIndex, filter = () => true) {
+        this.#audio?.pause();
         const section = this.book.sections[sectionIndex];
         const href = section?.id;
         if (!href) return;
@@ -4085,16 +4356,36 @@ export default `
         for (let i = 0; i < this.#entries.length; i++) {
           const { items } = this.#entries[i];
           for (let j = 0; j < items.length; j++) {
-            if (items[j].text.split("#")[0] === href)
+            if (
+              items[j].text.split("#")[0] === href &&
+              filter(items[j], j, items)
+            )
               return this.#play(i, j).catch((e) => this.#error(e));
           }
         }
       }
       pause() {
-        return this.#audio?.pause();
+        this.#audio?.pause();
       }
       resume() {
-        return this.#audio?.play();
+        this.#audio?.play().catch((e) => this.#error(e));
+      }
+      prev() {
+        if (this.#itemIndex > 0)
+          this.#play(this.#audioIndex, this.#itemIndex - 1);
+        else if (this.#audioIndex > 0)
+          this.#play(
+            this.#audioIndex - 1,
+            this.#entries[this.#audioIndex - 1].items.length - 1,
+          );
+        else if (this.#sectionIndex > 0)
+          this.start(
+            this.#sectionIndex - 1,
+            (_, i, items) => i === items.length - 1,
+          );
+      }
+      next() {
+        this.#play(this.#audioIndex, this.#itemIndex + 1);
       }
       setRate(rate) {
         this.#rate = rate;
@@ -4750,6 +5041,1904 @@ export default `
       destroy() {
         this.#loader?.destroy();
       }
+    } // CONCATENATED MODULE: ./my-foliate/fb2.js
+    const fb2_normalizeWhitespace = (str) =>
+      str
+        ? str
+            .replace(/[\\t\\n\\f\\r ]+/g, " ")
+            .replace(/^[\\t\\n\\f\\r ]+/, "")
+            .replace(/[\\t\\n\\f\\r ]+\$/, "")
+        : "";
+    const fb2_getElementText = (el) => fb2_normalizeWhitespace(el?.textContent);
+    const fb2_NS = {
+      XLINK: "http://www.w3.org/1999/xlink",
+      EPUB: "http://www.idpf.org/2007/ops",
+    };
+    const fb2_MIME = {
+      XML: "application/xml",
+      XHTML: "application/xhtml+xml",
+    };
+    const STYLE = {
+      strong: ["strong", "self"],
+      emphasis: ["em", "self"],
+      style: ["span", "self"],
+      a: "anchor",
+      strikethrough: ["s", "self"],
+      sub: ["sub", "self"],
+      sup: ["sup", "self"],
+      code: ["code", "self"],
+      image: "image",
+    };
+    const TABLE = {
+      tr: ["tr", ["align"]],
+      th: ["th", ["colspan", "rowspan", "align", "valign"]],
+      td: ["td", ["colspan", "rowspan", "align", "valign"]],
+    };
+    const POEM = {
+      epigraph: ["blockquote"],
+      subtitle: ["h2", STYLE],
+      "text-author": ["p", STYLE],
+      date: ["p", STYLE],
+      stanza: "stanza",
+    };
+    const SECTION = {
+      title: [
+        "header",
+        {
+          p: ["h1", STYLE],
+          "empty-line": ["br"],
+        },
+      ],
+      epigraph: ["blockquote", "self"],
+      image: "image",
+      annotation: ["aside"],
+      section: ["section", "self"],
+      p: ["p", STYLE],
+      poem: ["blockquote", POEM],
+      subtitle: ["h2", STYLE],
+      cite: ["blockquote", "self"],
+      "empty-line": ["br"],
+      table: ["table", TABLE],
+      "text-author": ["p", STYLE],
+    };
+    POEM["epigraph"].push(SECTION);
+    const BODY = {
+      image: "image",
+      title: [
+        "section",
+        {
+          p: ["h1", STYLE],
+          "empty-line": ["br"],
+        },
+      ],
+      epigraph: ["section", SECTION],
+      section: ["section", SECTION],
+    };
+    const getImageSrc = (el) => {
+      const href = el.getAttributeNS(fb2_NS.XLINK, "href");
+      const [, id] = href.split("#");
+      const bin = el.getRootNode().getElementById(id);
+      return bin
+        ? \`data:\${bin.getAttribute("content-type")};base64,\${bin.textContent}\`
+        : href;
+    };
+    class FB2Converter {
+      constructor(fb2) {
+        this.fb2 = fb2;
+        this.doc = document.implementation.createDocument(fb2_NS.XHTML, "html");
+      }
+      image(node) {
+        const el = this.doc.createElement("img");
+        el.alt = node.getAttribute("alt");
+        el.title = node.getAttribute("title");
+        el.setAttribute("src", getImageSrc(node));
+        return el;
+      }
+      anchor(node) {
+        const el = this.convert(node, {
+          a: ["a", STYLE],
+        });
+        el.setAttribute("href", node.getAttributeNS(fb2_NS.XLINK, "href"));
+        if (node.getAttribute("type") === "note")
+          el.setAttributeNS(fb2_NS.EPUB, "epub:type", "noteref");
+        return el;
+      }
+      stanza(node) {
+        const el = this.convert(node, {
+          stanza: [
+            "p",
+            {
+              title: [
+                "header",
+                {
+                  p: ["strong", STYLE],
+                  "empty-line": ["br"],
+                },
+              ],
+              subtitle: ["p", STYLE],
+            },
+          ],
+        });
+        for (const child of node.children)
+          if (child.nodeName === "v") {
+            el.append(this.doc.createTextNode(child.textContent));
+            el.append(this.doc.createElement("br"));
+          }
+        return el;
+      }
+      convert(node, def) {
+        // not an element; return text content
+        if (node.nodeType === 3)
+          return this.doc.createTextNode(node.textContent);
+        if (node.nodeType === 4)
+          return this.doc.createCDATASection(node.textContent);
+        if (node.nodeType === 8)
+          return this.doc.createComment(node.textContent);
+        const d = def?.[node.nodeName];
+        if (!d) return null;
+        if (typeof d === "string") return this[d](node);
+        const [name, opts] = d;
+        const el = this.doc.createElement(name);
+
+        // copy the ID, and set class name from original element name
+        if (node.id) el.id = node.id;
+        el.classList.add(node.nodeName);
+
+        // copy attributes
+        if (Array.isArray(opts))
+          for (const attr of opts)
+            el.setAttribute(attr, node.getAttribute(attr));
+
+        // process child elements recursively
+        const childDef =
+          opts === "self" ? def : Array.isArray(opts) ? null : opts;
+        let child = node.firstChild;
+        while (child) {
+          const childEl = this.convert(child, childDef);
+          if (childEl) el.append(childEl);
+          child = child.nextSibling;
+        }
+        return el;
+      }
+    }
+    const parseXML = async (blob) => {
+      const buffer = await blob.arrayBuffer();
+      const str = new TextDecoder("utf-8").decode(buffer);
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(str, fb2_MIME.XML);
+      const encoding =
+        doc.xmlEncoding ||
+        // \`Document.xmlEncoding\` is deprecated, and already removed in Firefox
+        // so parse the XML declaration manually
+        str.match(
+          /^<\\?xml\\s+version\\s*=\\s*["']1.\\d+"\\s+encoding\\s*=\\s*["']([A-Za-z0-9._-]*)["']/,
+        )?.[1];
+      if (encoding && encoding.toLowerCase() !== "utf-8") {
+        const str = new TextDecoder(encoding).decode(buffer);
+        return parser.parseFromString(str, fb2_MIME.XML);
+      }
+      return doc;
+    };
+    const style = URL.createObjectURL(
+      new Blob(
+        [
+          \`
+@namespace epub "http://www.idpf.org/2007/ops";
+body > img, section > img {
+    display: block;
+    margin: auto;
+}
+.title h1 {
+    text-align: center;
+}
+body > section > .title, body.notesBodyType > .title {
+    margin: 3em 0;
+}
+body.notesBodyType > section .title h1 {
+    text-align: start;
+}
+body.notesBodyType > section .title {
+    margin: 1em 0;
+}
+p {
+    text-indent: 1em;
+    margin: 0;
+}
+:not(p) + p, p:first-child {
+    text-indent: 0;
+}
+.poem p {
+    text-indent: 0;
+    margin: 1em 0;
+}
+.text-author, .date {
+    text-align: end;
+}
+.text-author:before {
+    content: "—";
+}
+table {
+    border-collapse: collapse;
+}
+td, th {
+    padding: .25em;
+}
+a[epub|type~="noteref"] {
+    font-size: .75em;
+    vertical-align: super;
+}
+body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
+    margin: 3em 0;
+}
+\`,
+        ],
+        {
+          type: "text/css",
+        },
+      ),
+    );
+    const template = (html) => \`<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head><link href="\${style}" rel="stylesheet" type="text/css"/></head>
+    <body>\${html}</body>
+</html>\`;
+
+    // name of custom ID attribute for TOC items
+    const dataID = "data-foliate-id";
+    const makeFB2 = async (blob) => {
+      const book = {};
+      const doc = await parseXML(blob);
+      const converter = new FB2Converter(doc);
+      const \$ = (x) => doc.querySelector(x);
+      const \$\$ = (x) => [...doc.querySelectorAll(x)];
+      const getPerson = (el) => {
+        const nick = fb2_getElementText(el.querySelector("nickname"));
+        if (nick) return nick;
+        const first = fb2_getElementText(el.querySelector("first-name"));
+        const middle = fb2_getElementText(el.querySelector("middle-name"));
+        const last = fb2_getElementText(el.querySelector("last-name"));
+        const name = [first, middle, last].filter((x) => x).join(" ");
+        const sortAs = last
+          ? [last, [first, middle].filter((x) => x).join(" ")].join(", ")
+          : null;
+        return {
+          name,
+          sortAs,
+        };
+      };
+      const getDate = (el) =>
+        el?.getAttribute("value") ?? fb2_getElementText(el);
+      const annotation = \$("title-info annotation");
+      book.metadata = {
+        title: fb2_getElementText(\$("title-info book-title")),
+        identifier: fb2_getElementText(\$("document-info id")),
+        language: fb2_getElementText(\$("title-info lang")),
+        author: \$\$("title-info author").map(getPerson),
+        translator: \$\$("title-info translator").map(getPerson),
+        producer: \$\$("document-info author")
+          .map(getPerson)
+          .concat(\$\$("document-info program-used").map(fb2_getElementText)),
+        publisher: fb2_getElementText(\$("publish-info publisher")),
+        published: getDate(\$("title-info date")),
+        modified: getDate(\$("document-info date")),
+        description: annotation
+          ? converter.convert(annotation, {
+              annotation: ["div", SECTION],
+            }).innerHTML
+          : null,
+        subject: \$\$("title-info genre").map(fb2_getElementText),
+      };
+      if (\$("coverpage image")) {
+        const src = getImageSrc(\$("coverpage image"));
+        book.getCover = () => fetch(src).then((res) => res.blob());
+      } else book.getCover = () => null;
+
+      // get convert each body
+      const bodyData = Array.from(doc.querySelectorAll("body"), (body) => {
+        const converted = converter.convert(body, {
+          body: ["body", BODY],
+        });
+        return [
+          Array.from(converted.children, (el) => {
+            // get list of IDs in the section
+            const ids = [el, ...el.querySelectorAll("[id]")].map((el) => el.id);
+            return {
+              el,
+              ids,
+            };
+          }),
+          converted,
+        ];
+      });
+      const urls = [];
+      const sectionData = bodyData[0][0]
+        // make a separate section for each section in the first body
+        .map(({ el, ids }) => {
+          // set up titles for TOC
+          const titles = Array.from(
+            el.querySelectorAll(":scope > section > .title"),
+            (el, index) => {
+              el.setAttribute(dataID, index);
+              return {
+                title: fb2_getElementText(el),
+                index,
+              };
+            },
+          );
+          return {
+            ids,
+            titles,
+            el,
+          };
+        })
+        // for additional bodies, only make one section for each body
+        .concat(
+          bodyData.slice(1).map(([sections, body]) => {
+            const ids = sections.map((s) => s.ids).flat();
+            body.classList.add("notesBodyType");
+            return {
+              ids,
+              el: body,
+              linear: "no",
+            };
+          }),
+        )
+        .map(({ ids, titles, el, linear }) => {
+          const str = template(el.outerHTML);
+          const blob = new Blob([str], {
+            type: fb2_MIME.XHTML,
+          });
+          const url = URL.createObjectURL(blob);
+          urls.push(url);
+          const title = fb2_normalizeWhitespace(
+            el.querySelector(".title, .subtitle, p")?.textContent ??
+              (el.classList.contains("title") ? el.textContent : ""),
+          );
+          return {
+            ids,
+            title,
+            titles,
+            load: () => url,
+            createDocument: () =>
+              new DOMParser().parseFromString(str, fb2_MIME.XHTML),
+            // doo't count image data as it'd skew the size too much
+            size:
+              blob.size -
+              Array.from(
+                el.querySelectorAll("[src]"),
+                (el) => el.getAttribute("src")?.length ?? 0,
+              ).reduce((a, b) => a + b, 0),
+            linear,
+          };
+        });
+      const idMap = new Map();
+      book.sections = sectionData.map((section, index) => {
+        const { ids, load, createDocument, size, linear } = section;
+        for (const id of ids) if (id) idMap.set(id, index);
+        return {
+          id: index,
+          load,
+          createDocument,
+          size,
+          linear,
+        };
+      });
+      book.toc = sectionData
+        .map(({ title, titles }, index) => {
+          const id = index.toString();
+          return {
+            label: title,
+            href: id,
+            subitems: titles?.length
+              ? titles.map(({ title, index }) => ({
+                  label: title,
+                  href: \`\${id}#\${index}\`,
+                }))
+              : null,
+          };
+        })
+        .filter((item) => item);
+      book.resolveHref = (href) => {
+        const [a, b] = href.split("#");
+        return a
+          ? // the link is from the TOC
+            {
+              index: Number(a),
+              anchor: (doc) => doc.querySelector(\`[\${dataID}="\${b}"]\`),
+            }
+          : // link from within the page
+            {
+              index: idMap.get(b),
+              anchor: (doc) => doc.getElementById(b),
+            };
+      };
+      book.splitTOCHref = (href) =>
+        href?.split("#")?.map((x) => Number(x)) ?? [];
+      book.getTOCFragment = (doc, id) =>
+        doc.querySelector(\`[\${dataID}="\${id}"]\`);
+      book.destroy = () => {
+        for (const url of urls) URL.revokeObjectURL(url);
+      };
+      return book;
+    }; // CONCATENATED MODULE: ./my-foliate/comic-book.js
+    const makeComicBook = ({ entries, loadBlob, getSize }, file) => {
+      const cache = new Map();
+      const urls = new Map();
+      const load = async (name) => {
+        if (cache.has(name)) return cache.get(name);
+        const src = URL.createObjectURL(await loadBlob(name));
+        const page = URL.createObjectURL(
+          new Blob([\`<img src="\${src}">\`], {
+            type: "text/html",
+          }),
+        );
+        urls.set(name, [src, page]);
+        cache.set(name, page);
+        return page;
+      };
+      const unload = (name) => {
+        urls.get(name)?.forEach?.((url) => URL.revokeObjectURL(url));
+        urls.delete(name);
+        cache.delete(name);
+      };
+      const exts = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg"];
+      const files = entries
+        .map((entry) => entry.filename)
+        .filter((name) => exts.some((ext) => name.endsWith(ext)))
+        .sort();
+      const book = {};
+      book.getCover = () => loadBlob(files[0]);
+      book.metadata = {
+        title: file.name,
+      };
+      book.sections = files.map((name) => ({
+        id: name,
+        load: () => load(name),
+        unload: () => unload(name),
+        size: getSize(name),
+      }));
+      book.toc = files.map((name) => ({
+        label: name,
+        href: name,
+      }));
+      book.rendition = {
+        layout: "pre-paginated",
+      };
+      book.resolveHref = (href) => ({
+        index: book.sections.findIndex((s) => s.id === href),
+      });
+      book.splitTOCHref = (href) => [href, null];
+      book.getTOCFragment = (doc) => doc.documentElement;
+      book.destroy = () => {
+        for (const arr of urls.values())
+          for (const url of arr) URL.revokeObjectURL(url);
+      };
+      return book;
+    }; // CONCATENATED MODULE: ./my-foliate/mobi.js
+    const unescapeHTML = (str) => {
+      if (!str) return "";
+      const textarea = document.createElement("textarea");
+      textarea.innerHTML = str;
+      return textarea.value;
+    };
+    const mobi_MIME = {
+      XML: "application/xml",
+      XHTML: "application/xhtml+xml",
+      HTML: "text/html",
+      CSS: "text/css",
+      SVG: "image/svg+xml",
+    };
+    const PDB_HEADER = {
+      name: [0, 32, "string"],
+      type: [60, 4, "string"],
+      creator: [64, 4, "string"],
+      numRecords: [76, 2, "uint"],
+    };
+    const PALMDOC_HEADER = {
+      compression: [0, 2, "uint"],
+      numTextRecords: [8, 2, "uint"],
+      recordSize: [10, 2, "uint"],
+      encryption: [12, 2, "uint"],
+    };
+    const MOBI_HEADER = {
+      magic: [16, 4, "string"],
+      length: [20, 4, "uint"],
+      type: [24, 4, "uint"],
+      encoding: [28, 4, "uint"],
+      uid: [32, 4, "uint"],
+      version: [36, 4, "uint"],
+      titleOffset: [84, 4, "uint"],
+      titleLength: [88, 4, "uint"],
+      localeRegion: [94, 1, "uint"],
+      localeLanguage: [95, 1, "uint"],
+      resourceStart: [108, 4, "uint"],
+      huffcdic: [112, 4, "uint"],
+      numHuffcdic: [116, 4, "uint"],
+      exthFlag: [128, 4, "uint"],
+      trailingFlags: [240, 4, "uint"],
+      indx: [244, 4, "uint"],
+    };
+    const KF8_HEADER = {
+      resourceStart: [108, 4, "uint"],
+      fdst: [192, 4, "uint"],
+      numFdst: [196, 4, "uint"],
+      frag: [248, 4, "uint"],
+      skel: [252, 4, "uint"],
+      guide: [260, 4, "uint"],
+    };
+    const EXTH_HEADER = {
+      magic: [0, 4, "string"],
+      length: [4, 4, "uint"],
+      count: [8, 4, "uint"],
+    };
+    const INDX_HEADER = {
+      magic: [0, 4, "string"],
+      length: [4, 4, "uint"],
+      type: [8, 4, "uint"],
+      idxt: [20, 4, "uint"],
+      numRecords: [24, 4, "uint"],
+      encoding: [28, 4, "uint"],
+      language: [32, 4, "uint"],
+      total: [36, 4, "uint"],
+      ordt: [40, 4, "uint"],
+      ligt: [44, 4, "uint"],
+      numLigt: [48, 4, "uint"],
+      numCncx: [52, 4, "uint"],
+    };
+    const TAGX_HEADER = {
+      magic: [0, 4, "string"],
+      length: [4, 4, "uint"],
+      numControlBytes: [8, 4, "uint"],
+    };
+    const HUFF_HEADER = {
+      magic: [0, 4, "string"],
+      offset1: [8, 4, "uint"],
+      offset2: [12, 4, "uint"],
+    };
+    const CDIC_HEADER = {
+      magic: [0, 4, "string"],
+      length: [4, 4, "uint"],
+      numEntries: [8, 4, "uint"],
+      codeLength: [12, 4, "uint"],
+    };
+    const FDST_HEADER = {
+      magic: [0, 4, "string"],
+      numEntries: [8, 4, "uint"],
+    };
+    const FONT_HEADER = {
+      flags: [8, 4, "uint"],
+      dataStart: [12, 4, "uint"],
+      keyLength: [16, 4, "uint"],
+      keyStart: [20, 4, "uint"],
+    };
+    const MOBI_ENCODING = {
+      1252: "windows-1252",
+      65001: "utf-8",
+    };
+    const EXTH_RECORD_TYPE = {
+      100: ["creator", "string", true],
+      101: ["publisher"],
+      103: ["description"],
+      104: ["isbn"],
+      105: ["subject", "string", true],
+      106: ["date"],
+      108: ["contributor", "string", true],
+      109: ["rights"],
+      110: ["subjectCode", "string", true],
+      112: ["source", "string", true],
+      113: ["asin"],
+      121: ["boundary", "uint"],
+      122: ["fixedLayout"],
+      125: ["numResources", "uint"],
+      126: ["originalResolution"],
+      127: ["zeroGutter"],
+      128: ["zeroMargin"],
+      129: ["coverURI"],
+      132: ["regionMagnification"],
+      201: ["coverOffset", "uint"],
+      202: ["thumbnailOffset", "uint"],
+      503: ["title"],
+      524: ["language", "string", true],
+      527: ["pageProgressionDirection"],
+    };
+    const MOBI_LANG = {
+      1: [
+        "ar",
+        "ar-SA",
+        "ar-IQ",
+        "ar-EG",
+        "ar-LY",
+        "ar-DZ",
+        "ar-MA",
+        "ar-TN",
+        "ar-OM",
+        "ar-YE",
+        "ar-SY",
+        "ar-JO",
+        "ar-LB",
+        "ar-KW",
+        "ar-AE",
+        "ar-BH",
+        "ar-QA",
+      ],
+      2: ["bg"],
+      3: ["ca"],
+      4: ["zh", "zh-TW", "zh-CN", "zh-HK", "zh-SG"],
+      5: ["cs"],
+      6: ["da"],
+      7: ["de", "de-DE", "de-CH", "de-AT", "de-LU", "de-LI"],
+      8: ["el"],
+      9: [
+        "en",
+        "en-US",
+        "en-GB",
+        "en-AU",
+        "en-CA",
+        "en-NZ",
+        "en-IE",
+        "en-ZA",
+        "en-JM",
+        null,
+        "en-BZ",
+        "en-TT",
+        "en-ZW",
+        "en-PH",
+      ],
+      10: [
+        "es",
+        "es-ES",
+        "es-MX",
+        null,
+        "es-GT",
+        "es-CR",
+        "es-PA",
+        "es-DO",
+        "es-VE",
+        "es-CO",
+        "es-PE",
+        "es-AR",
+        "es-EC",
+        "es-CL",
+        "es-UY",
+        "es-PY",
+        "es-BO",
+        "es-SV",
+        "es-HN",
+        "es-NI",
+        "es-PR",
+      ],
+      11: ["fi"],
+      12: ["fr", "fr-FR", "fr-BE", "fr-CA", "fr-CH", "fr-LU", "fr-MC"],
+      13: ["he"],
+      14: ["hu"],
+      15: ["is"],
+      16: ["it", "it-IT", "it-CH"],
+      17: ["ja"],
+      18: ["ko"],
+      19: ["nl", "nl-NL", "nl-BE"],
+      20: ["no", "nb", "nn"],
+      21: ["pl"],
+      22: ["pt", "pt-BR", "pt-PT"],
+      23: ["rm"],
+      24: ["ro"],
+      25: ["ru"],
+      26: ["hr", null, "sr"],
+      27: ["sk"],
+      28: ["sq"],
+      29: ["sv", "sv-SE", "sv-FI"],
+      30: ["th"],
+      31: ["tr"],
+      32: ["ur"],
+      33: ["id"],
+      34: ["uk"],
+      35: ["be"],
+      36: ["sl"],
+      37: ["et"],
+      38: ["lv"],
+      39: ["lt"],
+      41: ["fa"],
+      42: ["vi"],
+      43: ["hy"],
+      44: ["az"],
+      45: ["eu"],
+      46: ["hsb"],
+      47: ["mk"],
+      48: ["st"],
+      49: ["ts"],
+      50: ["tn"],
+      52: ["xh"],
+      53: ["zu"],
+      54: ["af"],
+      55: ["ka"],
+      56: ["fo"],
+      57: ["hi"],
+      58: ["mt"],
+      59: ["se"],
+      62: ["ms"],
+      63: ["kk"],
+      65: ["sw"],
+      67: ["uz", null, "uz-UZ"],
+      68: ["tt"],
+      69: ["bn"],
+      70: ["pa"],
+      71: ["gu"],
+      72: ["or"],
+      73: ["ta"],
+      74: ["te"],
+      75: ["kn"],
+      76: ["ml"],
+      77: ["as"],
+      78: ["mr"],
+      79: ["sa"],
+      82: ["cy", "cy-GB"],
+      83: ["gl", "gl-ES"],
+      87: ["kok"],
+      97: ["ne"],
+      98: ["fy"],
+    };
+    const concatTypedArray = (a, b) => {
+      const result = new a.constructor(a.length + b.length);
+      result.set(a);
+      result.set(b, a.length);
+      return result;
+    };
+    const concatTypedArray3 = (a, b, c) => {
+      const result = new a.constructor(a.length + b.length + c.length);
+      result.set(a);
+      result.set(b, a.length);
+      result.set(c, a.length + b.length);
+      return result;
+    };
+    const decoder = new TextDecoder();
+    const getString = (buffer) => decoder.decode(buffer);
+    const getUint = (buffer) => {
+      if (!buffer) return;
+      const l = buffer.byteLength;
+      const func = l === 4 ? "getUint32" : l === 2 ? "getUint16" : "getUint8";
+      return new DataView(buffer)[func](0);
+    };
+    const getStruct = (def, buffer) =>
+      Object.fromEntries(
+        Array.from(Object.entries(def)).map(([key, [start, len, type]]) => [
+          key,
+          (type === "string" ? getString : getUint)(
+            buffer.slice(start, start + len),
+          ),
+        ]),
+      );
+    const getDecoder = (x) => new TextDecoder(MOBI_ENCODING[x]);
+    const getVarLen = (byteArray, i = 0) => {
+      let value = 0,
+        length = 0;
+      for (const byte of byteArray.subarray(i, i + 4)) {
+        value = (value << 7) | ((byte & 0b111_1111) >>> 0);
+        length++;
+        if (byte & 0b1000_0000) break;
+      }
+      return {
+        value,
+        length,
+      };
+    };
+
+    // variable-length quantity, but read from the end of data
+    const getVarLenFromEnd = (byteArray) => {
+      let value = 0;
+      for (const byte of byteArray.subarray(-4)) {
+        // \`byte & 0b1000_0000\` indicates the start of value
+        if (byte & 0b1000_0000) value = 0;
+        value = (value << 7) | (byte & 0b111_1111);
+      }
+      return value;
+    };
+    const countBitsSet = (x) => {
+      let count = 0;
+      for (; x > 0; x = x >> 1) if ((x & 1) === 1) count++;
+      return count;
+    };
+    const countUnsetEnd = (x) => {
+      let count = 0;
+      while ((x & 1) === 0) (x = x >> 1), count++;
+      return count;
+    };
+    const decompressPalmDOC = (array) => {
+      let output = [];
+      for (let i = 0; i < array.length; i++) {
+        const byte = array[i];
+        if (byte === 0) output.push(0); // uncompressed literal, just copy it
+        else if (byte <= 8)
+          // copy next 1-8 bytes
+          for (const x of array.subarray(i + 1, (i += byte) + 1))
+            output.push(x);
+        else if (byte <= 0b0111_1111) output.push(byte); // uncompressed literal
+        else if (byte <= 0b1011_1111) {
+          // 1st and 2nd bits are 10, meaning this is a length-distance pair
+          // read next byte and combine it with current byte
+          const bytes = (byte << 8) | array[i++ + 1];
+          // the 3rd to 13th bits encode distance
+          const distance = (bytes & 0b0011_1111_1111_1111) >>> 3;
+          // the last 3 bits, plus 3, is the length to copy
+          const length = (bytes & 0b111) + 3;
+          for (let j = 0; j < length; j++)
+            output.push(output[output.length - distance]);
+        }
+        // compressed from space plus char
+        else output.push(32, byte ^ 0b1000_0000);
+      }
+      return Uint8Array.from(output);
+    };
+    const read32Bits = (byteArray, from) => {
+      const startByte = from >> 3;
+      const end = from + 32;
+      const endByte = end >> 3;
+      let bits = 0n;
+      for (let i = startByte; i <= endByte; i++)
+        bits = (bits << 8n) | BigInt(byteArray[i] ?? 0);
+      return (bits >> (8n - BigInt(end & 7))) & 0xffffffffn;
+    };
+    const huffcdic = async (mobi, loadRecord) => {
+      const huffRecord = await loadRecord(mobi.huffcdic);
+      const { magic, offset1, offset2 } = getStruct(HUFF_HEADER, huffRecord);
+      if (magic !== "HUFF") throw new Error("Invalid HUFF record");
+
+      // table1 is indexed by byte value
+      const table1 = Array.from(
+        {
+          length: 256,
+        },
+        (_, i) => offset1 + i * 4,
+      )
+        .map((offset) => getUint(huffRecord.slice(offset, offset + 4)))
+        .map((x) => [x & 0b1000_0000, x & 0b1_1111, x >>> 8]);
+
+      // table2 is indexed by code length
+      const table2 = [null].concat(
+        Array.from(
+          {
+            length: 32,
+          },
+          (_, i) => offset2 + i * 8,
+        ).map((offset) => [
+          getUint(huffRecord.slice(offset, offset + 4)),
+          getUint(huffRecord.slice(offset + 4, offset + 8)),
+        ]),
+      );
+      const dictionary = [];
+      for (let i = 1; i < mobi.numHuffcdic; i++) {
+        const record = await loadRecord(mobi.huffcdic + i);
+        const cdic = getStruct(CDIC_HEADER, record);
+        if (cdic.magic !== "CDIC") throw new Error("Invalid CDIC record");
+        // \`numEntries\` is the total number of dictionary data across CDIC records
+        // so \`n\` here is the number of entries in *this* record
+        const n = Math.min(
+          1 << cdic.codeLength,
+          cdic.numEntries - dictionary.length,
+        );
+        const buffer = record.slice(cdic.length);
+        for (let i = 0; i < n; i++) {
+          const offset = getUint(buffer.slice(i * 2, i * 2 + 2));
+          const x = getUint(buffer.slice(offset, offset + 2));
+          const length = x & 0x7fff;
+          const decompressed = x & 0x8000;
+          const value = new Uint8Array(
+            buffer.slice(offset + 2, offset + 2 + length),
+          );
+          dictionary.push([value, decompressed]);
+        }
+      }
+      const decompress = (byteArray) => {
+        let output = new Uint8Array();
+        const bitLength = byteArray.byteLength * 8;
+        for (let i = 0; i < bitLength; ) {
+          const bits = Number(read32Bits(byteArray, i));
+          let [found, codeLength, value] = table1[bits >>> 24];
+          if (!found) {
+            while (bits >>> (32 - codeLength) < table2[codeLength][0])
+              codeLength += 1;
+            value = table2[codeLength][1];
+          }
+          if ((i += codeLength) > bitLength) break;
+          const code = value - (bits >>> (32 - codeLength));
+          let [result, decompressed] = dictionary[code];
+          if (!decompressed) {
+            // the result is itself compressed
+            result = decompress(result);
+            // cache the result for next time
+            dictionary[code] = [result, true];
+          }
+          output = concatTypedArray(output, result);
+        }
+        return output;
+      };
+      return decompress;
+    };
+    const getIndexData = async (indxIndex, loadRecord) => {
+      const indxRecord = await loadRecord(indxIndex);
+      const indx = getStruct(INDX_HEADER, indxRecord);
+      if (indx.magic !== "INDX") throw new Error("Invalid INDX record");
+      const decoder = getDecoder(indx.encoding);
+      const tagxBuffer = indxRecord.slice(indx.length);
+      const tagx = getStruct(TAGX_HEADER, tagxBuffer);
+      if (tagx.magic !== "TAGX") throw new Error("Invalid TAGX section");
+      const numTags = (tagx.length - 12) / 4;
+      const tagTable = Array.from(
+        {
+          length: numTags,
+        },
+        (_, i) => new Uint8Array(tagxBuffer.slice(12 + i * 4, 12 + i * 4 + 4)),
+      );
+      const cncx = {};
+      let cncxRecordOffset = 0;
+      for (let i = 0; i < indx.numCncx; i++) {
+        const record = await loadRecord(indxIndex + indx.numRecords + i + 1);
+        const array = new Uint8Array(record);
+        for (let pos = 0; pos < array.byteLength; ) {
+          const index = pos;
+          const { value, length } = getVarLen(array, pos);
+          pos += length;
+          const result = record.slice(pos, pos + value);
+          pos += value;
+          cncx[cncxRecordOffset + index] = decoder.decode(result);
+        }
+        cncxRecordOffset += 0x10000;
+      }
+      const table = [];
+      for (let i = 0; i < indx.numRecords; i++) {
+        const record = await loadRecord(indxIndex + 1 + i);
+        const array = new Uint8Array(record);
+        const indx = getStruct(INDX_HEADER, record);
+        if (indx.magic !== "INDX") throw new Error("Invalid INDX record");
+        for (let j = 0; j < indx.numRecords; j++) {
+          const offsetOffset = indx.idxt + 4 + 2 * j;
+          const offset = getUint(record.slice(offsetOffset, offsetOffset + 2));
+          const length = getUint(record.slice(offset, offset + 1));
+          const name = getString(record.slice(offset + 1, offset + 1 + length));
+          const tags = [];
+          const startPos = offset + 1 + length;
+          let controlByteIndex = 0;
+          let pos = startPos + tagx.numControlBytes;
+          for (const [tag, numValues, mask, end] of tagTable) {
+            if (end & 1) {
+              controlByteIndex++;
+              continue;
+            }
+            const offset = startPos + controlByteIndex;
+            const value = getUint(record.slice(offset, offset + 1)) & mask;
+            if (value === mask) {
+              if (countBitsSet(mask) > 1) {
+                const { value, length } = getVarLen(array, pos);
+                tags.push([tag, null, value, numValues]);
+                pos += length;
+              } else tags.push([tag, 1, null, numValues]);
+            } else
+              tags.push([tag, value >> countUnsetEnd(mask), null, numValues]);
+          }
+          const tagMap = {};
+          for (const [tag, valueCount, valueBytes, numValues] of tags) {
+            const values = [];
+            if (valueCount != null) {
+              for (let i = 0; i < valueCount * numValues; i++) {
+                const { value, length } = getVarLen(array, pos);
+                values.push(value);
+                pos += length;
+              }
+            } else {
+              let count = 0;
+              while (count < valueBytes) {
+                const { value, length } = getVarLen(array, pos);
+                values.push(value);
+                pos += length;
+                count += length;
+              }
+            }
+            tagMap[tag] = values;
+          }
+          table.push({
+            name,
+            tagMap,
+          });
+        }
+      }
+      return {
+        table,
+        cncx,
+      };
+    };
+    const getNCX = async (indxIndex, loadRecord) => {
+      const { table, cncx } = await getIndexData(indxIndex, loadRecord);
+      const items = table.map(({ tagMap }, index) => ({
+        index,
+        offset: tagMap[1]?.[0],
+        size: tagMap[2]?.[0],
+        label: cncx[tagMap[3]] ?? "",
+        headingLevel: tagMap[4]?.[0],
+        pos: tagMap[6],
+        parent: tagMap[21]?.[0],
+        firstChild: tagMap[22]?.[0],
+        lastChild: tagMap[23]?.[0],
+      }));
+      const getChildren = (item) => {
+        if (item.firstChild == null) return item;
+        item.children = items
+          .filter((x) => x.parent === item.index)
+          .map(getChildren);
+        return item;
+      };
+      return items.filter((item) => item.headingLevel === 0).map(getChildren);
+    };
+    const getEXTH = (buf, encoding) => {
+      const { magic, count } = getStruct(EXTH_HEADER, buf);
+      if (magic !== "EXTH") throw new Error("Invalid EXTH header");
+      const decoder = getDecoder(encoding);
+      const results = {};
+      let offset = 12;
+      for (let i = 0; i < count; i++) {
+        const type = getUint(buf.slice(offset, offset + 4));
+        const length = getUint(buf.slice(offset + 4, offset + 8));
+        if (type in EXTH_RECORD_TYPE) {
+          const [name, typ, many] = EXTH_RECORD_TYPE[type];
+          const data = buf.slice(offset + 8, offset + length);
+          const value = typ === "uint" ? getUint(data) : decoder.decode(data);
+          if (many) {
+            results[name] ??= [];
+            results[name].push(value);
+          } else results[name] = value;
+        }
+        offset += length;
+      }
+      return results;
+    };
+    const getFont = async (buf, unzlib) => {
+      const { flags, dataStart, keyLength, keyStart } = getStruct(
+        FONT_HEADER,
+        buf,
+      );
+      const array = new Uint8Array(buf.slice(dataStart));
+      // deobfuscate font
+      if (flags & 0b10) {
+        const bytes = keyLength === 16 ? 1024 : 1040;
+        const key = new Uint8Array(buf.slice(keyStart, keyStart + keyLength));
+        const length = Math.min(bytes, array.length);
+        for (var i = 0; i < length; i++)
+          array[i] = array[i] ^ key[i % key.length];
+      }
+      // decompress font
+      if (flags & 1)
+        try {
+          return await unzlib(array);
+        } catch (e) {
+          console.warn(e);
+          console.warn("Failed to decompress font");
+        }
+      return array;
+    };
+    const isMOBI = async (file) => {
+      const magic = getString(await file.slice(60, 68).arrayBuffer());
+      return magic === "BOOKMOBI"; // || magic === 'TEXtREAd'
+    };
+
+    class PDB {
+      #file;
+      #offsets;
+      pdb;
+      async open(file) {
+        this.#file = file;
+        const pdb = getStruct(
+          PDB_HEADER,
+          await file.slice(0, 78).arrayBuffer(),
+        );
+        this.pdb = pdb;
+        const buffer = await file
+          .slice(78, 78 + pdb.numRecords * 8)
+          .arrayBuffer();
+        // get start and end offsets for each record
+        this.#offsets = Array.from(
+          {
+            length: pdb.numRecords,
+          },
+          (_, i) => getUint(buffer.slice(i * 8, i * 8 + 4)),
+        ).map((x, i, a) => [x, a[i + 1]]);
+      }
+      loadRecord(index) {
+        const offsets = this.#offsets[index];
+        if (!offsets) throw new RangeError("Record index out of bounds");
+        return this.#file.slice(...offsets).arrayBuffer();
+      }
+      async loadMagic(index) {
+        const start = this.#offsets[index][0];
+        return getString(
+          await this.#file.slice(start, start + 4).arrayBuffer(),
+        );
+      }
+    }
+    class MOBI extends PDB {
+      #start = 0;
+      #resourceStart;
+      #decoder;
+      #encoder;
+      #decompress;
+      #removeTrailingEntries;
+      constructor({ unzlib }) {
+        super();
+        this.unzlib = unzlib;
+      }
+      async open(file) {
+        await super.open(file);
+        // TODO: if (this.pdb.type === 'TEXt')
+        this.headers = this.#getHeaders(await super.loadRecord(0));
+        this.#resourceStart = this.headers.mobi.resourceStart;
+        let isKF8 = this.headers.mobi.version >= 8;
+        if (!isKF8) {
+          const boundary = this.headers.exth?.boundary;
+          if (boundary < 0xffffffff)
+            try {
+              // it's a "combo" MOBI/KF8 file; try to open the KF8 part
+              this.headers = this.#getHeaders(await super.loadRecord(boundary));
+              this.#start = boundary;
+              isKF8 = true;
+            } catch (e) {
+              console.warn(e);
+              console.warn("Failed to open KF8; falling back to MOBI");
+            }
+        }
+        await this.#setup();
+        return isKF8 ? new KF8(this).init() : new MOBI6(this).init();
+      }
+      #getHeaders(buf) {
+        const palmdoc = getStruct(PALMDOC_HEADER, buf);
+        const mobi = getStruct(MOBI_HEADER, buf);
+        if (mobi.magic !== "MOBI") throw new Error("Missing MOBI header");
+        const { titleOffset, titleLength, localeLanguage, localeRegion } = mobi;
+        mobi.title = buf.slice(titleOffset, titleOffset + titleLength);
+        const lang = MOBI_LANG[localeLanguage];
+        mobi.language = lang?.[localeRegion >> 2] ?? lang?.[0];
+        const exth =
+          mobi.exthFlag & 0b100_0000
+            ? getEXTH(buf.slice(mobi.length + 16), mobi.encoding)
+            : null;
+        const kf8 = mobi.version >= 8 ? getStruct(KF8_HEADER, buf) : null;
+        return {
+          palmdoc,
+          mobi,
+          exth,
+          kf8,
+        };
+      }
+      async #setup() {
+        const { palmdoc, mobi } = this.headers;
+        this.#decoder = getDecoder(mobi.encoding);
+        // \`TextEncoder\` only supports UTF-8
+        // we are only encoding ASCII anyway, so I think it's fine
+        this.#encoder = new TextEncoder();
+
+        // set up decompressor
+        const { compression } = palmdoc;
+        this.#decompress =
+          compression === 1
+            ? (f) => f
+            : compression === 2
+            ? decompressPalmDOC
+            : compression === 17480
+            ? await huffcdic(mobi, this.loadRecord.bind(this))
+            : null;
+        if (!this.#decompress) throw new Error("Unknown compression type");
+
+        // set up function for removing trailing bytes
+        const { trailingFlags } = mobi;
+        const multibyte = trailingFlags & 1;
+        const numTrailingEntries = countBitsSet(trailingFlags >>> 1);
+        this.#removeTrailingEntries = (array) => {
+          for (let i = 0; i < numTrailingEntries; i++) {
+            const length = getVarLenFromEnd(array);
+            array = array.subarray(0, -length);
+          }
+          if (multibyte) {
+            const length = (array[array.length - 1] & 0b11) + 1;
+            array = array.subarray(0, -length);
+          }
+          return array;
+        };
+      }
+      decode(...args) {
+        return this.#decoder.decode(...args);
+      }
+      encode(...args) {
+        return this.#encoder.encode(...args);
+      }
+      loadRecord(index) {
+        return super.loadRecord(this.#start + index);
+      }
+      loadMagic(index) {
+        return super.loadMagic(this.#start + index);
+      }
+      loadText(index) {
+        return this.loadRecord(index + 1)
+          .then((buf) => new Uint8Array(buf))
+          .then(this.#removeTrailingEntries)
+          .then(this.#decompress);
+      }
+      async loadResource(index) {
+        const buf = await super.loadRecord(this.#resourceStart + index);
+        const magic = getString(buf.slice(0, 4));
+        if (magic === "FONT") return getFont(buf, this.unzlib);
+        if (magic === "VIDE" || magic === "AUDI") return buf.slice(12);
+        return buf;
+      }
+      getNCX() {
+        const index = this.headers.mobi.indx;
+        if (index < 0xffffffff)
+          return getNCX(index, this.loadRecord.bind(this));
+      }
+      getMetadata() {
+        const { mobi, exth } = this.headers;
+        return {
+          identifier: mobi.uid.toString(),
+          title: unescapeHTML(exth?.title || this.decode(mobi.title)),
+          author: exth?.creator?.map(unescapeHTML),
+          publisher: unescapeHTML(exth?.publisher),
+          language: exth?.language ?? mobi.language,
+          published: exth?.date,
+          description: unescapeHTML(exth?.description),
+          subject: exth?.subject?.map(unescapeHTML),
+          rights: unescapeHTML(exth?.rights),
+        };
+      }
+      async getCover() {
+        const { exth } = this.headers;
+        const offset =
+          exth?.coverOffset < 0xffffffff
+            ? exth?.coverOffset
+            : exth?.thumbnailOffset < 0xffffffff
+            ? exth?.thumbnailOffset
+            : null;
+        if (offset != null) {
+          const buf = await this.loadResource(offset);
+          return new Blob([buf]);
+        }
+      }
+    }
+    const mbpPagebreakRegex = /<\\s*(?:mbp:)?pagebreak[^>]*>/gi;
+    const fileposRegex = /<[^<>]+filepos=['"]{0,1}(\\d+)[^<>]*>/gi;
+    class MOBI6 {
+      parser = new DOMParser();
+      serializer = new XMLSerializer();
+      #resourceCache = new Map();
+      #textCache = new Map();
+      #cache = new Map();
+      #sections;
+      #fileposList = [];
+      #type = mobi_MIME.HTML;
+      constructor(mobi) {
+        this.mobi = mobi;
+      }
+      async init() {
+        // load all text records in an array
+        let array = new Uint8Array();
+        for (let i = 0; i < this.mobi.headers.palmdoc.numTextRecords; i++)
+          array = concatTypedArray(array, await this.mobi.loadText(i));
+
+        // convert to string so we can use regex
+        // note that \`filepos\` are byte offsets
+        // so it needs to preserve each byte as a separate character
+        // (see https://stackoverflow.com/q/50198017)
+        const str = Array.from(new Uint8Array(array), (c) =>
+          String.fromCharCode(c),
+        ).join("");
+
+        // split content into sections at each \`<mbp:pagebreak>\`
+        this.#sections = [0]
+          .concat(Array.from(str.matchAll(mbpPagebreakRegex), (m) => m.index))
+          .map((x, i, a) => str.slice(x, a[i + 1]))
+          // recover the original raw bytes
+          .map((str) => Uint8Array.from(str, (x) => x.charCodeAt(0)))
+          .map((raw) => ({
+            book: this,
+            raw,
+          }))
+          // get start and end filepos for each section
+          .reduce((arr, x) => {
+            const last = arr[arr.length - 1];
+            x.start = last?.end ?? 0;
+            x.end = x.start + x.raw.byteLength;
+            return arr.concat(x);
+          }, []);
+        this.sections = this.#sections.map((section, index) => ({
+          id: index,
+          load: () => this.loadSection(section),
+          createDocument: () => this.createDocument(section),
+          size: section.end - section.start,
+        }));
+        const fileposInNCX = [];
+        try {
+          const ncx = await this.mobi.getNCX();
+          const map = ({ label, offset, children }) => {
+            const filepos = offset.toString().padStart(10, "0");
+            const href = \`filepos:\${filepos}\`;
+            fileposInNCX.push(filepos);
+            label = unescapeHTML(label);
+            return {
+              label,
+              href,
+              subitems: children?.map(map),
+            };
+          };
+          this.toc = ncx?.map(map);
+          this.landmarks = await this.getGuide();
+
+          // try to build TOC if there's no NCX
+          if (!this.toc) {
+            const tocHref = this.landmarks.find(({ type }) =>
+              type?.includes("toc"),
+            )?.href;
+            if (tocHref) {
+              const { index } = this.resolveHref(tocHref);
+              const doc = await this.sections[index].createDocument();
+              this.toc = Array.from(
+                doc.querySelectorAll("a[filepos]"),
+                (a) => ({
+                  label: a.innerText?.trim(),
+                  href: \`filepos:\${a.getAttribute("filepos")}\`,
+                }),
+              );
+            }
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+
+        // get list of all \`filepos\` references in the book,
+        // which will be used to insert anchor elements
+        // because only then can they be referenced in the DOM
+        this.#fileposList = [
+          ...new Set(
+            fileposInNCX.concat(
+              Array.from(str.matchAll(fileposRegex), (m) => m[1]),
+            ),
+          ),
+        ]
+          .map((filepos) => ({
+            filepos,
+            number: Number(filepos),
+          }))
+          .sort((a, b) => a.number - b.number);
+        this.metadata = this.mobi.getMetadata();
+        this.getCover = this.mobi.getCover.bind(this.mobi);
+        return this;
+      }
+      async getGuide() {
+        const doc = await this.createDocument(this.#sections[0]);
+        return Array.from(doc.getElementsByTagName("reference"), (ref) => ({
+          label: ref.getAttribute("title"),
+          type: ref.getAttribute("type")?.split(/\\s/),
+          href: \`filepos:\${ref.getAttribute("filepos")}\`,
+        }));
+      }
+      async loadResource(index) {
+        if (this.#resourceCache.has(index))
+          return this.#resourceCache.get(index);
+        const raw = await this.mobi.loadResource(index);
+        const url = URL.createObjectURL(new Blob([raw]));
+        this.#resourceCache.set(index, url);
+        return url;
+      }
+      async loadRecindex(recindex) {
+        return this.loadResource(Number(recindex) - 1);
+      }
+      async replaceResources(doc) {
+        for (const img of doc.querySelectorAll("img[recindex]")) {
+          const recindex = img.getAttribute("recindex");
+          try {
+            img.src = await this.loadRecindex(recindex);
+          } catch (e) {
+            console.warn(\`Failed to load image \${recindex}\`);
+          }
+        }
+        for (const media of doc.querySelectorAll("[mediarecindex]")) {
+          const mediarecindex = media.getAttribute("mediarecindex");
+          const recindex = media.getAttribute("recindex");
+          try {
+            media.src = await this.loadRecindex(mediarecindex);
+            if (recindex) media.poster = await this.loadRecindex(recindex);
+          } catch (e) {
+            console.warn(\`Failed to load media \${mediarecindex}\`);
+          }
+        }
+        for (const a of doc.querySelectorAll("[filepos]")) {
+          const filepos = a.getAttribute("filepos");
+          a.href = \`filepos:\${filepos}\`;
+        }
+      }
+      async loadText(section) {
+        if (this.#textCache.has(section)) return this.#textCache.get(section);
+        const { raw } = section;
+
+        // insert anchor elements for each \`filepos\`
+        const fileposList = this.#fileposList
+          .filter(
+            ({ number }) => number >= section.start && number < section.end,
+          )
+          .map((obj) => ({
+            ...obj,
+            offset: obj.number - section.start,
+          }));
+        let arr = raw;
+        if (fileposList.length) {
+          arr = raw.subarray(0, fileposList[0].offset);
+          fileposList.forEach(({ filepos, offset }, i) => {
+            const next = fileposList[i + 1];
+            const a = this.mobi.encode(\`<a id="filepos\${filepos}"></a>\`);
+            arr = concatTypedArray3(arr, a, raw.subarray(offset, next?.offset));
+          });
+        }
+        const str = this.mobi.decode(arr).replaceAll(mbpPagebreakRegex, "");
+        this.#textCache.set(section, str);
+        return str;
+      }
+      async createDocument(section) {
+        const str = await this.loadText(section);
+        return this.parser.parseFromString(str, this.#type);
+      }
+      async loadSection(section) {
+        if (this.#cache.has(section)) return this.#cache.get(section);
+        const doc = await this.createDocument(section);
+
+        // inject default stylesheet
+        const style = doc.createElement("style");
+        doc.head.append(style);
+        // blockquotes in MOBI seem to have only a small left margin by default
+        // many books seem to rely on this, as it's the only way to set margin
+        // (since there's no CSS)
+        style.append(
+          doc.createTextNode(\`blockquote {
+            margin-block-start: 0;
+            margin-block-end: 0;
+            margin-inline-start: 1em;
+            margin-inline-end: 0;
+        }\`),
+        );
+        await this.replaceResources(doc);
+        const result = this.serializer.serializeToString(doc);
+        const url = URL.createObjectURL(
+          new Blob([result], {
+            type: this.#type,
+          }),
+        );
+        this.#cache.set(section, url);
+        return url;
+      }
+      resolveHref(href) {
+        const filepos = href.match(/filepos:(.*)/)[1];
+        const number = Number(filepos);
+        const index = this.#sections.findIndex(
+          (section) => section.end > number,
+        );
+        const anchor = (doc) => doc.getElementById(\`filepos\${filepos}\`);
+        return {
+          index,
+          anchor,
+        };
+      }
+      splitTOCHref(href) {
+        const filepos = href.match(/filepos:(.*)/)[1];
+        const number = Number(filepos);
+        const index = this.#sections.findIndex(
+          (section) => section.end > number,
+        );
+        return [index, \`filepos\${filepos}\`];
+      }
+      getTOCFragment(doc, id) {
+        return doc.getElementById(id);
+      }
+      isExternal(uri) {
+        return /^(?!blob|filepos)\\w+:/i.test(uri);
+      }
+      destroy() {
+        for (const url of this.#resourceCache.values())
+          URL.revokeObjectURL(url);
+        for (const url of this.#cache.values()) URL.revokeObjectURL(url);
+      }
+    }
+
+    // handlers for \`kindle:\` uris
+    const kindleResourceRegex =
+      /kindle:(flow|embed):(\\w+)(?:\\?mime=(\\w+\\/[-+.\\w]+))?/;
+    const kindlePosRegex = /kindle:pos:fid:(\\w+):off:(\\w+)/;
+    const parseResourceURI = (str) => {
+      const [resourceType, id, type] = str.match(kindleResourceRegex).slice(1);
+      return {
+        resourceType,
+        id: parseInt(id, 32),
+        type,
+      };
+    };
+    const parsePosURI = (str) => {
+      const [fid, off] = str.match(kindlePosRegex).slice(1);
+      return {
+        fid: parseInt(fid, 32),
+        off: parseInt(off, 32),
+      };
+    };
+    const makePosURI = (fid = 0, off = 0) =>
+      \`kindle:pos:fid:\${fid
+        .toString(32)
+        .toUpperCase()
+        .padStart(4, "0")}:off:\${off
+        .toString(32)
+        .toUpperCase()
+        .padStart(10, "0")}\`;
+
+    // \`kindle:pos:\` links are originally links that contain fragments identifiers
+    // so there should exist an element with \`id\` or \`name\`
+    // otherwise try to find one with an \`aid\` attribute
+    const getFragmentSelector = (str) => {
+      const match = str.match(/\\s(id|name|aid)\\s*=\\s*['"]([^'"]*)['"]/i);
+      if (!match) return;
+      const [, attr, value] = match;
+      return \`[\${attr}="\${CSS.escape(value)}"]\`;
+    };
+
+    // replace asynchronously and sequentially
+    const mobi_replaceSeries = async (str, regex, f) => {
+      const matches = [];
+      str.replace(regex, (...args) => (matches.push(args), null));
+      const results = [];
+      for (const args of matches) results.push(await f(...args));
+      return str.replace(regex, () => results.shift());
+    };
+    const mobi_getPageSpread = (properties) => {
+      for (const p of properties) {
+        if (p === "page-spread-left" || p === "rendition:page-spread-left")
+          return "left";
+        if (p === "page-spread-right" || p === "rendition:page-spread-right")
+          return "right";
+        if (p === "rendition:page-spread-center") return "center";
+      }
+    };
+    class KF8 {
+      parser = new DOMParser();
+      serializer = new XMLSerializer();
+      #cache = new Map();
+      #fragmentOffsets = new Map();
+      #fragmentSelectors = new Map();
+      #tables = {};
+      #sections;
+      #fullRawLength;
+      #rawHead = new Uint8Array();
+      #rawTail = new Uint8Array();
+      #lastLoadedHead = -1;
+      #lastLoadedTail = -1;
+      #type = mobi_MIME.XHTML;
+      #inlineMap = new Map();
+      constructor(mobi) {
+        this.mobi = mobi;
+      }
+      async init() {
+        const loadRecord = this.mobi.loadRecord.bind(this.mobi);
+        const { kf8 } = this.mobi.headers;
+        try {
+          const fdstBuffer = await loadRecord(kf8.fdst);
+          const fdst = getStruct(FDST_HEADER, fdstBuffer);
+          if (fdst.magic !== "FDST") throw new Error("Missing FDST record");
+          const fdstTable = Array.from(
+            {
+              length: fdst.numEntries,
+            },
+            (_, i) => 12 + i * 8,
+          ).map((offset) => [
+            getUint(fdstBuffer.slice(offset, offset + 4)),
+            getUint(fdstBuffer.slice(offset + 4, offset + 8)),
+          ]);
+          this.#tables.fdstTable = fdstTable;
+          this.#fullRawLength = fdstTable[fdstTable.length - 1][1];
+        } catch {}
+        const skelTable = (await getIndexData(kf8.skel, loadRecord)).table.map(
+          ({ name, tagMap }, index) => ({
+            index,
+            name,
+            numFrag: tagMap[1][0],
+            offset: tagMap[6][0],
+            length: tagMap[6][1],
+          }),
+        );
+        const fragData = await getIndexData(kf8.frag, loadRecord);
+        const fragTable = fragData.table.map(({ name, tagMap }) => ({
+          insertOffset: parseInt(name),
+          selector: fragData.cncx[tagMap[2][0]],
+          index: tagMap[4][0],
+          offset: tagMap[6][0],
+          length: tagMap[6][1],
+        }));
+        this.#tables.skelTable = skelTable;
+        this.#tables.fragTable = fragTable;
+        this.#sections = skelTable.reduce((arr, skel) => {
+          const last = arr[arr.length - 1];
+          const fragStart = last?.fragEnd ?? 0,
+            fragEnd = fragStart + skel.numFrag;
+          const frags = fragTable.slice(fragStart, fragEnd);
+          const length =
+            skel.length + frags.map((f) => f.length).reduce((a, b) => a + b);
+          const totalLength = (last?.totalLength ?? 0) + length;
+          return arr.concat({
+            skel,
+            frags,
+            fragEnd,
+            length,
+            totalLength,
+          });
+        }, []);
+        const resources = await this.getResourcesByMagic(["RESC", "PAGE"]);
+        const pageSpreads = new Map();
+        if (resources.RESC) {
+          const buf = await this.mobi.loadRecord(resources.RESC);
+          const str = this.mobi.decode(buf.slice(16)).replace(/\\0/g, "");
+          // the RESC record lacks the root \`<package>\` element
+          // but seem to be otherwise valid XML
+          const index = str.search(/\\?>/);
+          const xmlStr = \`<package>\${str.slice(index)}</package>\`;
+          const opf = this.parser.parseFromString(xmlStr, mobi_MIME.XML);
+          for (const \$itemref of opf.querySelectorAll("spine > itemref")) {
+            const i = parseInt(\$itemref.getAttribute("skelid"));
+            pageSpreads.set(
+              i,
+              mobi_getPageSpread(
+                \$itemref.getAttribute("properties")?.split(" ") ?? [],
+              ),
+            );
+          }
+        }
+        this.sections = this.#sections.map((section, index) =>
+          section.frags.length
+            ? {
+                id: index,
+                load: () => this.loadSection(section),
+                createDocument: () => this.createDocument(section),
+                size: section.length,
+                pageSpread: pageSpreads.get(index),
+              }
+            : {
+                linear: "no",
+              },
+        );
+        try {
+          const ncx = await this.mobi.getNCX();
+          const map = ({ label, pos, children }) => {
+            const [fid, off] = pos;
+            const href = makePosURI(fid, off);
+            const arr = this.#fragmentOffsets.get(fid);
+            if (arr) arr.push(off);
+            else this.#fragmentOffsets.set(fid, [off]);
+            return {
+              label: unescapeHTML(label),
+              href,
+              subitems: children?.map(map),
+            };
+          };
+          this.toc = ncx?.map(map);
+          this.landmarks = await this.getGuide();
+        } catch (e) {
+          console.warn(e);
+        }
+        const { exth } = this.mobi.headers;
+        this.dir = exth.pageProgressionDirection;
+        this.rendition = {
+          layout: exth.fixedLayout === "true" ? "pre-paginated" : "reflowable",
+          viewport: Object.fromEntries(
+            exth.originalResolution
+              ?.split("x")
+              ?.slice(0, 2)
+              ?.map((x, i) => [i ? "height" : "width", x]) ?? [],
+          ),
+        };
+        this.metadata = this.mobi.getMetadata();
+        this.getCover = this.mobi.getCover.bind(this.mobi);
+        return this;
+      }
+      // is this really the only way of getting to RESC, PAGE, etc.?
+      async getResourcesByMagic(keys) {
+        const results = {};
+        const start = this.mobi.headers.kf8.resourceStart;
+        const end = this.mobi.pdb.numRecords;
+        for (let i = start; i < end; i++) {
+          try {
+            const magic = await this.mobi.loadMagic(i);
+            const match = keys.find((key) => key === magic);
+            if (match) results[match] = i;
+          } catch {}
+        }
+        return results;
+      }
+      async getGuide() {
+        const index = this.mobi.headers.kf8.guide;
+        if (index < 0xffffffff) {
+          const loadRecord = this.mobi.loadRecord.bind(this.mobi);
+          const { table, cncx } = await getIndexData(index, loadRecord);
+          return table.map(({ name, tagMap }) => ({
+            label: cncx[tagMap[1][0]] ?? "",
+            type: name?.split(/\\s/),
+            href: makePosURI(tagMap[6]?.[0] ?? tagMap[3]?.[0]),
+          }));
+        }
+      }
+      async loadResourceBlob(str) {
+        const { resourceType, id, type } = parseResourceURI(str);
+        const raw =
+          resourceType === "flow"
+            ? await this.loadFlow(id)
+            : await this.mobi.loadResource(id - 1);
+        const result = [
+          mobi_MIME.XHTML,
+          mobi_MIME.HTML,
+          mobi_MIME.CSS,
+          mobi_MIME.SVG,
+        ].includes(type)
+          ? await this.replaceResources(this.mobi.decode(raw))
+          : raw;
+        const doc =
+          type === mobi_MIME.SVG
+            ? this.parser.parseFromString(result, type)
+            : null;
+        return [
+          new Blob([result], {
+            type,
+          }),
+          // SVG wrappers need to be inlined
+          // as browsers don't allow external resources when loading SVG as an image
+          doc?.getElementsByTagNameNS("http://www.w3.org/2000/svg", "image")
+            ?.length
+            ? doc.documentElement
+            : null,
+        ];
+      }
+      async loadResource(str) {
+        if (this.#cache.has(str)) return this.#cache.get(str);
+        const [blob, inline] = await this.loadResourceBlob(str);
+        const url = inline ? str : URL.createObjectURL(blob);
+        if (inline) this.#inlineMap.set(url, inline);
+        this.#cache.set(str, url);
+        return url;
+      }
+      replaceResources(str) {
+        const regex = new RegExp(kindleResourceRegex, "g");
+        return mobi_replaceSeries(str, regex, this.loadResource.bind(this));
+      }
+      // NOTE: there doesn't seem to be a way to access text randomly?
+      // how to know the decompressed size of the records without decompressing?
+      // 4096 is just the maximum size
+      async loadRaw(start, end) {
+        // here we load either from the front or back until we have reached the
+        // required offsets; at worst you'd have to load half the book at once
+        const distanceHead = end - this.#rawHead.length;
+        const distanceEnd =
+          this.#fullRawLength == null
+            ? Infinity
+            : this.#fullRawLength - this.#rawTail.length - start;
+        // load from the start
+        if (distanceHead < 0 || distanceHead < distanceEnd) {
+          while (this.#rawHead.length < end) {
+            const index = ++this.#lastLoadedHead;
+            const data = await this.mobi.loadText(index);
+            this.#rawHead = concatTypedArray(this.#rawHead, data);
+          }
+          return this.#rawHead.slice(start, end);
+        }
+        // load from the end
+        while (this.#fullRawLength - this.#rawTail.length > start) {
+          const index =
+            this.mobi.headers.palmdoc.numTextRecords -
+            1 -
+            ++this.#lastLoadedTail;
+          const data = await this.mobi.loadText(index);
+          this.#rawTail = concatTypedArray(data, this.#rawTail);
+        }
+        const rawTailStart = this.#fullRawLength - this.#rawTail.length;
+        return this.#rawTail.slice(start - rawTailStart, end - rawTailStart);
+      }
+      loadFlow(index) {
+        if (index < 0xffffffff)
+          return this.loadRaw(...this.#tables.fdstTable[index]);
+      }
+      async loadText(section) {
+        const { skel, frags, length } = section;
+        const raw = await this.loadRaw(skel.offset, skel.offset + length);
+        let skeleton = raw.slice(0, skel.length);
+        for (const frag of frags) {
+          const insertOffset = frag.insertOffset - skel.offset;
+          const offset = skel.length + frag.offset;
+          const fragRaw = raw.slice(offset, offset + frag.length);
+          skeleton = concatTypedArray3(
+            skeleton.slice(0, insertOffset),
+            fragRaw,
+            skeleton.slice(insertOffset),
+          );
+          const offsets = this.#fragmentOffsets.get(frag.index);
+          if (offsets)
+            for (const offset of offsets) {
+              const str = this.mobi.decode(fragRaw).slice(offset);
+              const selector = getFragmentSelector(str);
+              this.#setFragmentSelector(frag.index, offset, selector);
+            }
+        }
+        return this.mobi.decode(skeleton);
+      }
+      async createDocument(section) {
+        const str = await this.loadText(section);
+        return this.parser.parseFromString(str, this.#type);
+      }
+      async loadSection(section) {
+        if (this.#cache.has(section)) return this.#cache.get(section);
+        const str = await this.loadText(section);
+        const replaced = await this.replaceResources(str);
+
+        // by default, type is XHTML; change to HTML if it's not valid XHTML
+        let doc = this.parser.parseFromString(replaced, this.#type);
+        if (doc.querySelector("parsererror")) {
+          this.#type = mobi_MIME.HTML;
+          doc = this.parser.parseFromString(replaced, this.#type);
+        }
+        for (const [url, node] of this.#inlineMap) {
+          for (const el of doc.querySelectorAll(\`img[src="\${url}"]\`))
+            el.replaceWith(node);
+        }
+        const url = URL.createObjectURL(
+          new Blob([this.serializer.serializeToString(doc)], {
+            type: this.#type,
+          }),
+        );
+        this.#cache.set(section, url);
+        return url;
+      }
+      getIndexByFID(fid) {
+        return this.#sections.findIndex((section) =>
+          section.frags.some((frag) => frag.index === fid),
+        );
+      }
+      #setFragmentSelector(id, offset, selector) {
+        const map = this.#fragmentSelectors.get(id);
+        if (map) map.set(offset, selector);
+        else {
+          const map = new Map();
+          this.#fragmentSelectors.set(id, map);
+          map.set(offset, selector);
+        }
+      }
+      async resolveHref(href) {
+        const { fid, off } = parsePosURI(href);
+        const index = this.getIndexByFID(fid);
+        if (index < 0) return;
+        const saved = this.#fragmentSelectors.get(fid)?.get(off);
+        if (saved)
+          return {
+            index,
+            anchor: (doc) => doc.querySelector(saved),
+          };
+        const { skel, frags } = this.#sections[index];
+        const frag = frags.find((frag) => frag.index === fid);
+        const offset = skel.offset + skel.length + frag.offset;
+        const fragRaw = await this.loadRaw(offset, offset + frag.length);
+        const str = this.mobi.decode(fragRaw).slice(off);
+        const selector = getFragmentSelector(str);
+        this.#setFragmentSelector(fid, off, selector);
+        const anchor = (doc) => doc.querySelector(selector);
+        return {
+          index,
+          anchor,
+        };
+      }
+      splitTOCHref(href) {
+        const pos = parsePosURI(href);
+        const index = this.getIndexByFID(pos.fid);
+        return [index, pos];
+      }
+      getTOCFragment(doc, { fid, off }) {
+        const selector = this.#fragmentSelectors.get(fid)?.get(off);
+        return doc.querySelector(selector);
+      }
+      isExternal(uri) {
+        return /^(?!blob|kindle)\\w+:/i.test(uri);
+      }
+      destroy() {
+        for (const url of this.#cache.values()) URL.revokeObjectURL(url);
+      }
     } // CONCATENATED MODULE: ./my-foliate/request.js
     // const reactMessage = (m) => {
     //   window.ReactNativeWebView.postMessage(
@@ -5061,21 +7250,21 @@ export default `
       }
       return deferred.promise;
     } // CONCATENATED MODULE: ./my-foliate/vendor/zip.js
-    const e = 0,
-      t = 1,
-      n = 2,
-      i = -2,
-      r = -3,
-      a = -4,
-      s = -5,
-      o = [
+    const zip_e = 0,
+      zip_t = 1,
+      zip_n = 2,
+      zip_i = -2,
+      zip_r = -3,
+      zip_a = -4,
+      zip_s = -5,
+      zip_o = [
         0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383,
         32767, 65535,
       ],
-      l = 1440,
-      c = 0,
-      u = 4,
-      d = [
+      zip_l = 1440,
+      zip_c = 0,
+      zip_u = 4,
+      zip_d = [
         96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8,
         48, 0, 9, 192, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 160, 0, 8, 0, 0, 8,
         128, 0, 8, 64, 0, 9, 224, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 144, 83,
@@ -5153,7 +7342,7 @@ export default `
         0, 8, 63, 0, 9, 223, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 191, 0, 8,
         15, 0, 8, 143, 0, 8, 79, 0, 9, 255,
       ],
-      f = [
+      zip_f = [
         80, 5, 1, 87, 5, 257, 83, 5, 17, 91, 5, 4097, 81, 5, 5, 89, 5, 1025, 85,
         5, 65, 93, 5, 16385, 80, 5, 3, 88, 5, 513, 84, 5, 33, 92, 5, 8193, 82,
         5, 9, 90, 5, 2049, 86, 5, 129, 192, 5, 24577, 80, 5, 2, 87, 5, 385, 83,
@@ -5161,24 +7350,24 @@ export default `
         5, 4, 88, 5, 769, 84, 5, 49, 92, 5, 12289, 82, 5, 13, 90, 5, 3073, 86,
         5, 193, 192, 5, 24577,
       ],
-      _ = [
+      zip_ = [
         3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59,
         67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0,
       ],
-      h = [
+      zip_h = [
         0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4,
         5, 5, 5, 5, 0, 112, 112,
       ],
-      w = [
+      zip_w = [
         1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385,
         513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577,
       ],
-      b = [
+      zip_b = [
         0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10,
         10, 11, 11, 12, 12, 13, 13,
       ],
-      p = 15;
-    function m() {
+      zip_p = 15;
+    function zip_m() {
       let t, n, i, o, c, u;
       function d(t, n, a, d, f, _, h, w, b, m, g) {
         let y, x, k, v, S, z, A, U, D, E, F, T, O, C, W;
@@ -5186,12 +7375,12 @@ export default `
         do {
           i[t[n + E]]++, E++, S--;
         } while (0 !== S);
-        if (i[0] == a) return (h[0] = -1), (w[0] = 0), e;
-        for (U = w[0], z = 1; z <= p && 0 === i[z]; z++);
-        for (A = z, U < z && (U = z), S = p; 0 !== S && 0 === i[S]; S--);
+        if (i[0] == a) return (h[0] = -1), (w[0] = 0), zip_e;
+        for (U = w[0], z = 1; z <= zip_p && 0 === i[z]; z++);
+        for (A = z, U < z && (U = z), S = zip_p; 0 !== S && 0 === i[S]; S--);
         for (k = S, U > S && (U = S), w[0] = U, C = 1 << z; z < S; z++, C <<= 1)
-          if ((C -= i[z]) < 0) return r;
-        if ((C -= i[S]) < 0) return r;
+          if ((C -= i[z]) < 0) return zip_r;
+        if ((C -= i[S]) < 0) return zip_r;
         for (i[S] += C, u[1] = z = 0, E = 1, O = 2; 0 != --S; )
           (u[O] = z += i[E]), O++, E++;
         (S = 0), (E = 0);
@@ -5214,7 +7403,7 @@ export default `
                   ((x -= y + 1), (O = A), z < W))
               )
                 for (; ++z < W && !((x <<= 1) <= i[++O]); ) x -= i[O];
-              if (((W = 1 << z), m[0] + W > l)) return r;
+              if (((W = 1 << z), m[0] + W > zip_l)) return zip_r;
               (c[v] = F = m[0]),
                 (m[0] += W),
                 0 !== v
@@ -5243,7 +7432,7 @@ export default `
             for (S ^= z, D = (1 << T) - 1; (S & D) != u[v]; )
               v--, (T -= U), (D = (1 << T) - 1);
           }
-        return 0 !== C && 1 != k ? s : e;
+        return 0 !== C && 1 != k ? zip_s : zip_e;
       }
       function f(e) {
         let r;
@@ -5251,19 +7440,19 @@ export default `
           t ||
             ((t = []),
             (n = []),
-            (i = new Int32Array(p + 1)),
+            (i = new Int32Array(zip_p + 1)),
             (o = []),
-            (c = new Int32Array(p)),
-            (u = new Int32Array(p + 1))),
+            (c = new Int32Array(zip_p)),
+            (u = new Int32Array(zip_p + 1))),
             n.length < e && (n = []),
             r = 0;
           r < e;
           r++
         )
           n[r] = 0;
-        for (r = 0; r < p + 1; r++) i[r] = 0;
+        for (r = 0; r < zip_p + 1; r++) i[r] = 0;
         for (r = 0; r < 3; r++) o[r] = 0;
-        c.set(i.subarray(0, p), 0), u.set(i.subarray(0, p + 1), 0);
+        c.set(i.subarray(0, zip_p), 0), u.set(i.subarray(0, zip_p + 1), 0);
       }
       (this.inflate_trees_bits = function (e, i, a, o, l) {
         let c;
@@ -5271,10 +7460,10 @@ export default `
           f(19),
           (t[0] = 0),
           (c = d(e, 0, 19, 19, null, null, a, i, o, t, n)),
-          c == r
+          c == zip_r
             ? (l.msg = "oversubscribed dynamic bit lengths tree")
-            : (c != s && 0 !== i[0]) ||
-              ((l.msg = "incomplete dynamic bit lengths tree"), (c = r)),
+            : (c != zip_s && 0 !== i[0]) ||
+              ((l.msg = "incomplete dynamic bit lengths tree"), (c = zip_r)),
           c
         );
       }),
@@ -5283,41 +7472,42 @@ export default `
           return (
             f(288),
             (t[0] = 0),
-            (x = d(l, 0, i, 257, _, h, p, c, g, t, n)),
-            x != e || 0 === c[0]
-              ? (x == r
+            (x = d(l, 0, i, 257, zip_, zip_h, p, c, g, t, n)),
+            x != zip_e || 0 === c[0]
+              ? (x == zip_r
                   ? (y.msg = "oversubscribed literal/length tree")
-                  : x != a &&
-                    ((y.msg = "incomplete literal/length tree"), (x = r)),
+                  : x != zip_a &&
+                    ((y.msg = "incomplete literal/length tree"), (x = zip_r)),
                 x)
               : (f(288),
-                (x = d(l, i, o, 0, w, b, m, u, g, t, n)),
-                x != e || (0 === u[0] && i > 257)
-                  ? (x == r
+                (x = d(l, i, o, 0, zip_w, zip_b, m, u, g, t, n)),
+                x != zip_e || (0 === u[0] && i > 257)
+                  ? (x == zip_r
                       ? (y.msg = "oversubscribed distance tree")
-                      : x == s
-                      ? ((y.msg = "incomplete distance tree"), (x = r))
-                      : x != a &&
-                        ((y.msg = "empty distance tree with lengths"), (x = r)),
+                      : x == zip_s
+                      ? ((y.msg = "incomplete distance tree"), (x = zip_r))
+                      : x != zip_a &&
+                        ((y.msg = "empty distance tree with lengths"),
+                        (x = zip_r)),
                     x)
-                  : e)
+                  : zip_e)
           );
         });
     }
-    m.inflate_trees_fixed = function (t, n, i, r) {
-      return (t[0] = 9), (n[0] = 5), (i[0] = d), (r[0] = f), e;
+    zip_m.inflate_trees_fixed = function (t, n, i, r) {
+      return (t[0] = 9), (n[0] = 5), (i[0] = zip_d), (r[0] = zip_f), zip_e;
     };
-    const g = 0,
-      y = 1,
-      x = 2,
-      k = 3,
-      v = 4,
-      S = 5,
-      z = 6,
+    const zip_g = 0,
+      zip_y = 1,
+      zip_x = 2,
+      zip_k = 3,
+      zip_v = 4,
+      zip_S = 5,
+      zip_z = 6,
       A = 7,
-      U = 8,
+      zip_U = 8,
       D = 9;
-    function E() {
+    function zip_E() {
       const n = this;
       let a,
         s,
@@ -5341,8 +7531,8 @@ export default `
           (p = u.bitk),
           (y = u.write),
           (x = y < u.read ? u.read - y - 1 : u.end - y),
-          (k = o[n]),
-          (v = o[i]);
+          (k = zip_o[n]),
+          (v = zip_o[i]);
         do {
           for (; p < 20; ) g--, (b |= (255 & d.read_byte(m++)) << p), (p += 8);
           if (
@@ -5351,7 +7541,7 @@ export default `
             for (;;) {
               if (((b >>= _[U + 1]), (p -= _[U + 1]), 0 != (16 & w))) {
                 for (
-                  w &= 15, S = _[U + 2] + (b & o[w]), b >>= w, p -= w;
+                  w &= 15, S = _[U + 2] + (b & zip_o[w]), b >>= w, p -= w;
                   p < 15;
 
                 )
@@ -5361,7 +7551,7 @@ export default `
                     for (w &= 15; p < w; )
                       g--, (b |= (255 & d.read_byte(m++)) << p), (p += 8);
                     if (
-                      ((z = _[U + 2] + (b & o[w])),
+                      ((z = _[U + 2] + (b & zip_o[w])),
                       (b >>= w),
                       (p -= w),
                       (x -= S),
@@ -5419,10 +7609,10 @@ export default `
                       (d.total_in += m - d.next_in_index),
                       (d.next_in_index = m),
                       (u.write = y),
-                      r
+                      zip_r
                     );
                   (f += _[U + 2]),
-                    (f += b & o[w]),
+                    (f += b & zip_o[w]),
                     (U = 3 * (h + f)),
                     (w = _[U]);
                 }
@@ -5441,7 +7631,7 @@ export default `
                     (d.total_in += m - d.next_in_index),
                     (d.next_in_index = m),
                     (u.write = y),
-                    t)
+                    zip_t)
                   : ((d.msg = "invalid literal/length code"),
                     (S = d.avail_in - g),
                     (S = p >> 3 < S ? p >> 3 : S),
@@ -5454,10 +7644,10 @@ export default `
                     (d.total_in += m - d.next_in_index),
                     (d.next_in_index = m),
                     (u.write = y),
-                    r);
+                    zip_r);
               if (
                 ((f += _[U + 2]),
-                (f += b & o[w]),
+                (f += b & zip_o[w]),
                 (U = 3 * (h + f)),
                 0 === (w = _[U]))
               ) {
@@ -5479,11 +7669,11 @@ export default `
           (d.total_in += m - d.next_in_index),
           (d.next_in_index = m),
           (u.write = y),
-          e
+          zip_e
         );
       }
       (n.init = function (e, t, n, i, r, o) {
-        (a = g),
+        (a = zip_g),
           (b = e),
           (p = t),
           (l = n),
@@ -5514,7 +7704,7 @@ export default `
 
           )
             switch (a) {
-              case g:
+              case zip_g:
                 if (
                   R >= 258 &&
                   M >= 10 &&
@@ -5531,13 +7721,13 @@ export default `
                   (N = n.bitk),
                   (L = n.write),
                   (R = L < n.read ? n.read - L - 1 : n.end - L),
-                  O != e)
+                  O != zip_e)
                 ) {
-                  a = O == t ? A : D;
+                  a = O == zip_t ? A : D;
                   break;
                 }
-                (f = b), (s = l), (d = m), (a = y);
-              case y:
+                (f = b), (s = l), (d = m), (a = zip_y);
+              case zip_y:
                 for (C = f; N < C; ) {
                   if (0 === M)
                     return (
@@ -5549,20 +7739,23 @@ export default `
                       (n.write = L),
                       n.inflate_flush(T, O)
                     );
-                  (O = e), M--, (I |= (255 & T.read_byte(P++)) << N), (N += 8);
+                  (O = zip_e),
+                    M--,
+                    (I |= (255 & T.read_byte(P++)) << N),
+                    (N += 8);
                 }
                 if (
-                  ((W = 3 * (d + (I & o[C]))),
+                  ((W = 3 * (d + (I & zip_o[C]))),
                   (I >>>= s[W + 1]),
                   (N -= s[W + 1]),
                   (j = s[W]),
                   0 === j)
                 ) {
-                  (_ = s[W + 2]), (a = z);
+                  (_ = s[W + 2]), (a = zip_z);
                   break;
                 }
                 if (0 != (16 & j)) {
-                  (h = 15 & j), (u = s[W + 2]), (a = x);
+                  (h = 15 & j), (u = s[W + 2]), (a = zip_x);
                   break;
                 }
                 if (0 == (64 & j)) {
@@ -5576,7 +7769,7 @@ export default `
                 return (
                   (a = D),
                   (T.msg = "invalid literal/length code"),
-                  (O = r),
+                  (O = zip_r),
                   (n.bitb = I),
                   (n.bitk = N),
                   (T.avail_in = M),
@@ -5585,7 +7778,7 @@ export default `
                   (n.write = L),
                   n.inflate_flush(T, O)
                 );
-              case x:
+              case zip_x:
                 for (C = h; N < C; ) {
                   if (0 === M)
                     return (
@@ -5597,16 +7790,19 @@ export default `
                       (n.write = L),
                       n.inflate_flush(T, O)
                     );
-                  (O = e), M--, (I |= (255 & T.read_byte(P++)) << N), (N += 8);
+                  (O = zip_e),
+                    M--,
+                    (I |= (255 & T.read_byte(P++)) << N),
+                    (N += 8);
                 }
-                (u += I & o[C]),
+                (u += I & zip_o[C]),
                   (I >>= C),
                   (N -= C),
                   (f = p),
                   (s = c),
                   (d = E),
-                  (a = k);
-              case k:
+                  (a = zip_k);
+              case zip_k:
                 for (C = f; N < C; ) {
                   if (0 === M)
                     return (
@@ -5618,16 +7814,19 @@ export default `
                       (n.write = L),
                       n.inflate_flush(T, O)
                     );
-                  (O = e), M--, (I |= (255 & T.read_byte(P++)) << N), (N += 8);
+                  (O = zip_e),
+                    M--,
+                    (I |= (255 & T.read_byte(P++)) << N),
+                    (N += 8);
                 }
                 if (
-                  ((W = 3 * (d + (I & o[C]))),
+                  ((W = 3 * (d + (I & zip_o[C]))),
                   (I >>= s[W + 1]),
                   (N -= s[W + 1]),
                   (j = s[W]),
                   0 != (16 & j))
                 ) {
-                  (h = 15 & j), (w = s[W + 2]), (a = v);
+                  (h = 15 & j), (w = s[W + 2]), (a = zip_v);
                   break;
                 }
                 if (0 == (64 & j)) {
@@ -5637,7 +7836,7 @@ export default `
                 return (
                   (a = D),
                   (T.msg = "invalid distance code"),
-                  (O = r),
+                  (O = zip_r),
                   (n.bitb = I),
                   (n.bitk = N),
                   (T.avail_in = M),
@@ -5646,7 +7845,7 @@ export default `
                   (n.write = L),
                   n.inflate_flush(T, O)
                 );
-              case v:
+              case zip_v:
                 for (C = h; N < C; ) {
                   if (0 === M)
                     return (
@@ -5658,10 +7857,13 @@ export default `
                       (n.write = L),
                       n.inflate_flush(T, O)
                     );
-                  (O = e), M--, (I |= (255 & T.read_byte(P++)) << N), (N += 8);
+                  (O = zip_e),
+                    M--,
+                    (I |= (255 & T.read_byte(P++)) << N),
+                    (N += 8);
                 }
-                (w += I & o[C]), (I >>= C), (N -= C), (a = S);
-              case S:
+                (w += I & zip_o[C]), (I >>= C), (N -= C), (a = zip_S);
+              case zip_S:
                 for (B = L - w; B < 0; ) B += n.end;
                 for (; 0 !== u; ) {
                   if (
@@ -5691,9 +7893,9 @@ export default `
                     );
                   (n.win[L++] = n.win[B++]), R--, B == n.end && (B = 0), u--;
                 }
-                a = g;
+                a = zip_g;
                 break;
-              case z:
+              case zip_z:
                 if (
                   0 === R &&
                   (L == n.end &&
@@ -5718,7 +7920,7 @@ export default `
                     (n.write = L),
                     n.inflate_flush(T, O)
                   );
-                (O = e), (n.win[L++] = _), R--, (a = g);
+                (O = zip_e), (n.win[L++] = _), R--, (a = zip_g);
                 break;
               case A:
                 if (
@@ -5738,10 +7940,10 @@ export default `
                     (n.write = L),
                     n.inflate_flush(T, O)
                   );
-                a = U;
-              case U:
+                a = zip_U;
+              case zip_U:
                 return (
-                  (O = t),
+                  (O = zip_t),
                   (n.bitb = I),
                   (n.bitk = N),
                   (T.avail_in = M),
@@ -5752,7 +7954,7 @@ export default `
                 );
               case D:
                 return (
-                  (O = r),
+                  (O = zip_r),
                   (n.bitb = I),
                   (n.bitk = N),
                   (T.avail_in = M),
@@ -5763,7 +7965,7 @@ export default `
                 );
               default:
                 return (
-                  (O = i),
+                  (O = zip_i),
                   (n.bitb = I),
                   (n.bitk = N),
                   (T.avail_in = M),
@@ -5779,7 +7981,7 @@ export default `
     const F = [
         16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
       ],
-      T = 0,
+      zip_T = 0,
       O = 1,
       C = 2,
       W = 3,
@@ -5792,16 +7994,16 @@ export default `
     function N(n, a) {
       const c = this;
       let u,
-        d = T,
+        d = zip_T,
         f = 0,
         _ = 0,
         h = 0;
       const w = [0],
         b = [0],
-        p = new E();
+        p = new zip_E();
       let g = 0,
-        y = new Int32Array(3 * l);
-      const x = new m();
+        y = new Int32Array(3 * zip_l);
+      const x = new zip_m();
       (c.bitk = 0),
         (c.bitb = 0),
         (c.win = new Uint8Array(a)),
@@ -5811,7 +8013,7 @@ export default `
         (c.reset = function (e, t) {
           t && (t[0] = 0),
             d == L && p.free(e),
-            (d = T),
+            (d = zip_T),
             (c.bitk = 0),
             (c.bitb = 0),
             (c.read = c.write = 0);
@@ -5824,7 +8026,7 @@ export default `
             (a = c.read),
             (i = (a <= c.write ? c.write : c.end) - a),
             i > t.avail_out && (i = t.avail_out),
-            0 !== i && n == s && (n = e),
+            0 !== i && n == zip_s && (n = zip_e),
             (t.avail_out -= i),
             (t.total_out += i),
             t.next_out.set(c.win.subarray(a, a + i), r),
@@ -5835,7 +8037,7 @@ export default `
               c.write == c.end && (c.write = 0),
               (i = c.write - a),
               i > t.avail_out && (i = t.avail_out),
-              0 !== i && n == s && (n = e),
+              0 !== i && n == zip_s && (n = zip_e),
               (t.avail_out -= i),
               (t.total_out += i),
               t.next_out.set(c.win.subarray(a, a + i), r),
@@ -5860,7 +8062,7 @@ export default `
           ) {
             let D, E, N, P, V, q, H, K;
             switch (d) {
-              case T:
+              case zip_T:
                 for (; k < 3; ) {
                   if (0 === S)
                     return (
@@ -5872,7 +8074,10 @@ export default `
                       (c.write = z),
                       c.inflate_flush(n, a)
                     );
-                  (a = e), S--, (l |= (255 & n.read_byte(v++)) << k), (k += 8);
+                  (a = zip_e),
+                    S--,
+                    (l |= (255 & n.read_byte(v++)) << k),
+                    (k += 8);
                 }
                 switch (((s = 7 & l), (g = 1 & s), s >>> 1)) {
                   case 0:
@@ -5888,7 +8093,7 @@ export default `
                       (E = []),
                       (N = [[]]),
                       (P = [[]]),
-                      m.inflate_trees_fixed(D, E, N, P),
+                      zip_m.inflate_trees_fixed(D, E, N, P),
                       p.init(D[0], E[0], N[0], 0, P[0], 0),
                       (l >>>= 3),
                       (k -= 3),
@@ -5903,7 +8108,7 @@ export default `
                       (k -= 3),
                       (d = I),
                       (n.msg = "invalid block type"),
-                      (a = r),
+                      (a = zip_r),
                       (c.bitb = l),
                       (c.bitk = k),
                       (n.avail_in = S),
@@ -5926,13 +8131,16 @@ export default `
                       (c.write = z),
                       c.inflate_flush(n, a)
                     );
-                  (a = e), S--, (l |= (255 & n.read_byte(v++)) << k), (k += 8);
+                  (a = zip_e),
+                    S--,
+                    (l |= (255 & n.read_byte(v++)) << k),
+                    (k += 8);
                 }
                 if (((~l >>> 16) & 65535) != (65535 & l))
                   return (
                     (d = I),
                     (n.msg = "invalid stored block lengths"),
-                    (a = r),
+                    (a = zip_r),
                     (c.bitb = l),
                     (c.bitk = k),
                     (n.avail_in = S),
@@ -5943,7 +8151,7 @@ export default `
                   );
                 (f = 65535 & l),
                   (l = k = 0),
-                  (d = 0 !== f ? C : 0 !== g ? R : T);
+                  (d = 0 !== f ? C : 0 !== g ? R : zip_T);
                 break;
               case C:
                 if (0 === S)
@@ -5981,7 +8189,7 @@ export default `
                     c.inflate_flush(n, a)
                   );
                 if (
-                  ((a = e),
+                  ((a = zip_e),
                   (s = f),
                   s > S && (s = S),
                   s > A && (s = A),
@@ -5993,7 +8201,7 @@ export default `
                   0 != (f -= s))
                 )
                   break;
-                d = 0 !== g ? R : T;
+                d = 0 !== g ? R : zip_T;
                 break;
               case W:
                 for (; k < 14; ) {
@@ -6007,7 +8215,10 @@ export default `
                       (c.write = z),
                       c.inflate_flush(n, a)
                     );
-                  (a = e), S--, (l |= (255 & n.read_byte(v++)) << k), (k += 8);
+                  (a = zip_e),
+                    S--,
+                    (l |= (255 & n.read_byte(v++)) << k),
+                    (k += 8);
                 }
                 if (
                   ((_ = s = 16383 & l), (31 & s) > 29 || ((s >> 5) & 31) > 29)
@@ -6015,7 +8226,7 @@ export default `
                   return (
                     (d = I),
                     (n.msg = "too many length or distance symbols"),
-                    (a = r),
+                    (a = zip_r),
                     (c.bitb = l),
                     (c.bitk = k),
                     (n.avail_in = S),
@@ -6043,7 +8254,7 @@ export default `
                         (c.write = z),
                         c.inflate_flush(n, a)
                       );
-                    (a = e),
+                    (a = zip_e),
                       S--,
                       (l |= (255 & n.read_byte(v++)) << k),
                       (k += 8);
@@ -6054,10 +8265,10 @@ export default `
                 if (
                   ((w[0] = 7),
                   (s = x.inflate_trees_bits(u, w, b, y, n)),
-                  s != e)
+                  s != zip_e)
                 )
                   return (
-                    (a = s) == r && ((u = null), (d = I)),
+                    (a = s) == zip_r && ((u = null), (d = I)),
                     (c.bitb = l),
                     (c.bitk = k),
                     (n.avail_in = S),
@@ -6081,14 +8292,14 @@ export default `
                         (c.write = z),
                         c.inflate_flush(n, a)
                       );
-                    (a = e),
+                    (a = zip_e),
                       S--,
                       (l |= (255 & n.read_byte(v++)) << k),
                       (k += 8);
                   }
                   if (
-                    ((s = y[3 * (b[0] + (l & o[s])) + 1]),
-                    (i = y[3 * (b[0] + (l & o[s])) + 2]),
+                    ((s = y[3 * (b[0] + (l & zip_o[s])) + 1]),
+                    (i = y[3 * (b[0] + (l & zip_o[s])) + 2]),
                     i < 16)
                   )
                     (l >>>= s), (k -= s), (u[h++] = i);
@@ -6108,7 +8319,7 @@ export default `
                           (c.write = z),
                           c.inflate_flush(n, a)
                         );
-                      (a = e),
+                      (a = zip_e),
                         S--,
                         (l |= (255 & n.read_byte(v++)) << k),
                         (k += 8);
@@ -6116,7 +8327,7 @@ export default `
                     if (
                       ((l >>>= s),
                       (k -= s),
-                      (t += l & o[U]),
+                      (t += l & zip_o[U]),
                       (l >>>= U),
                       (k -= U),
                       (U = h),
@@ -6128,7 +8339,7 @@ export default `
                         (u = null),
                         (d = I),
                         (n.msg = "invalid bit length repeat"),
-                        (a = r),
+                        (a = zip_r),
                         (c.bitb = l),
                         (c.bitk = k),
                         (n.avail_in = S),
@@ -6164,10 +8375,10 @@ export default `
                     y,
                     n,
                   )),
-                  s != e)
+                  s != zip_e)
                 )
                   return (
-                    s == r && ((u = null), (d = I)),
+                    s == zip_r && ((u = null), (d = I)),
                     (a = s),
                     (c.bitb = l),
                     (c.bitk = k),
@@ -6186,11 +8397,11 @@ export default `
                   (n.total_in += v - n.next_in_index),
                   (n.next_in_index = v),
                   (c.write = z),
-                  (a = p.proc(c, n, a)) != t)
+                  (a = p.proc(c, n, a)) != zip_t)
                 )
                   return c.inflate_flush(n, a);
                 if (
-                  ((a = e),
+                  ((a = zip_e),
                   p.free(n),
                   (v = n.next_in_index),
                   (S = n.avail_in),
@@ -6200,7 +8411,7 @@ export default `
                   (A = z < c.read ? c.read - z - 1 : c.end - z),
                   0 === g)
                 ) {
-                  d = T;
+                  d = zip_T;
                   break;
                 }
                 d = R;
@@ -6224,7 +8435,7 @@ export default `
                 d = B;
               case B:
                 return (
-                  (a = t),
+                  (a = zip_t),
                   (c.bitb = l),
                   (c.bitk = k),
                   (n.avail_in = S),
@@ -6235,7 +8446,7 @@ export default `
                 );
               case I:
                 return (
-                  (a = r),
+                  (a = zip_r),
                   (c.bitb = l),
                   (c.bitk = k),
                   (n.avail_in = S),
@@ -6246,7 +8457,7 @@ export default `
                 );
               default:
                 return (
-                  (a = i),
+                  (a = zip_i),
                   (c.bitb = l),
                   (c.bitk = k),
                   (n.avail_in = S),
@@ -6289,8 +8500,8 @@ export default `
             (t.msg = null),
             (t.istate.mode = X),
             t.istate.blocks.reset(t, null),
-            e)
-          : i;
+            zip_e)
+          : zip_i;
       }
       (a.mode = 0),
         (a.method = 0),
@@ -6299,22 +8510,25 @@ export default `
         (a.marker = 0),
         (a.wbits = 0),
         (a.inflateEnd = function (t) {
-          return a.blocks && a.blocks.free(t), (a.blocks = null), e;
+          return a.blocks && a.blocks.free(t), (a.blocks = null), zip_e;
         }),
         (a.inflateInit = function (t, n) {
           return (
             (t.msg = null),
             (a.blocks = null),
             n < 8 || n > 15
-              ? (a.inflateEnd(t), i)
-              : ((a.wbits = n), (t.istate.blocks = new N(t, 1 << n)), o(t), e)
+              ? (a.inflateEnd(t), zip_i)
+              : ((a.wbits = n),
+                (t.istate.blocks = new N(t, 1 << n)),
+                o(t),
+                zip_e)
           );
         }),
         (a.inflate = function (a, o) {
           let l, c;
-          if (!a || !a.istate || !a.next_in) return i;
+          if (!a || !a.istate || !a.next_in) return zip_i;
           const d = a.istate;
-          for (o = o == u ? s : e, l = s; ; )
+          for (o = o == zip_u ? zip_s : zip_e, l = zip_s; ; )
             switch (d.mode) {
               case q:
                 if (0 === a.avail_in) return l;
@@ -6386,47 +8600,50 @@ export default `
                     a.total_in++,
                     (d.need += 255 & a.read_byte(a.next_in_index++)),
                     (d.mode = Q),
-                    n);
+                    zip_n);
               case Q:
                 return (
-                  (d.mode = \$), (a.msg = "need dictionary"), (d.marker = 0), i
+                  (d.mode = \$),
+                  (a.msg = "need dictionary"),
+                  (d.marker = 0),
+                  zip_i
                 );
               case X:
-                if (((l = d.blocks.proc(a, l)), l == r)) {
+                if (((l = d.blocks.proc(a, l)), l == zip_r)) {
                   (d.mode = \$), (d.marker = 0);
                   break;
                 }
-                if ((l == e && (l = o), l != t)) return l;
+                if ((l == zip_e && (l = o), l != zip_t)) return l;
                 (l = o), d.blocks.reset(a, d.was), (d.mode = Y);
               case Y:
-                return (a.avail_in = 0), t;
+                return (a.avail_in = 0), zip_t;
               case \$:
-                return r;
+                return zip_r;
               default:
-                return i;
+                return zip_i;
             }
         }),
         (a.inflateSetDictionary = function (t, n, r) {
           let a = 0,
             s = r;
-          if (!t || !t.istate || t.istate.mode != Q) return i;
+          if (!t || !t.istate || t.istate.mode != Q) return zip_i;
           const o = t.istate;
           return (
             s >= 1 << o.wbits && ((s = (1 << o.wbits) - 1), (a = r - s)),
             o.blocks.set_dictionary(n, a, s),
             (o.mode = X),
-            e
+            zip_e
           );
         }),
         (a.inflateSync = function (t) {
           let n, a, l, c, u;
-          if (!t || !t.istate) return i;
+          if (!t || !t.istate) return zip_i;
           const d = t.istate;
           if (
             (d.mode != \$ && ((d.mode = \$), (d.marker = 0)),
             0 === (n = t.avail_in))
           )
-            return s;
+            return zip_s;
           for (a = t.next_in_index, l = d.marker; 0 !== n && l < 4; )
             t.read_byte(a) == ee[l]
               ? l++
@@ -6439,20 +8656,20 @@ export default `
             (t.avail_in = n),
             (d.marker = l),
             4 != l
-              ? r
+              ? zip_r
               : ((c = t.total_in),
                 (u = t.total_out),
                 o(t),
                 (t.total_in = c),
                 (t.total_out = u),
                 (d.mode = X),
-                e)
+                zip_e)
           );
         }),
         (a.inflateSyncPoint = function (e) {
           return e && e.istate && e.istate.blocks
             ? e.istate.blocks.sync_point()
-            : i;
+            : zip_i;
         });
     }
     function ne() {}
@@ -6463,21 +8680,21 @@ export default `
       },
       inflate(e) {
         const t = this;
-        return t.istate ? t.istate.inflate(t, e) : i;
+        return t.istate ? t.istate.inflate(t, e) : zip_i;
       },
       inflateEnd() {
         const e = this;
-        if (!e.istate) return i;
+        if (!e.istate) return zip_i;
         const t = e.istate.inflateEnd(e);
         return (e.istate = null), t;
       },
       inflateSync() {
         const e = this;
-        return e.istate ? e.istate.inflateSync(e) : i;
+        return e.istate ? e.istate.inflateSync(e) : zip_i;
       },
       inflateSetDictionary(e, t) {
         const n = this;
-        return n.istate ? n.istate.inflateSetDictionary(n, e, t) : i;
+        return n.istate ? n.istate.inflateSetDictionary(n, e, t) : zip_i;
       },
       read_byte(e) {
         return this.next_in[e];
@@ -8602,7 +10819,7 @@ export default `
       Inflate: function (n) {
         const i = new ne(),
           r = n && n.chunkSize ? Math.floor(2 * n.chunkSize) : 131072,
-          a = c,
+          a = zip_c,
           o = new Uint8Array(r);
         let l = !1;
         i.inflateInit(),
@@ -8622,12 +10839,12 @@ export default `
                   (i.avail_out = r),
                   0 !== i.avail_in || l || ((i.next_in_index = 0), (l = !0)),
                   (d = i.inflate(a)),
-                  l && d === s)
+                  l && d === zip_s)
                 ) {
                   if (0 !== i.avail_in) throw new Error("inflating: bad input");
-                } else if (d !== e && d !== t)
+                } else if (d !== zip_e && d !== zip_t)
                   throw new Error("inflating: " + i.msg);
-                if ((l || d === t) && i.avail_in === n.length)
+                if ((l || d === zip_t) && i.avail_in === n.length)
                   throw new Error("inflating: bad input");
                 i.next_out_index &&
                   (i.next_out_index === r
@@ -8668,6 +10885,12 @@ export default `
         console.log(m);
       }
     };
+    const toReactMessage = (e) => {
+      window.ReactNativeWebView.postMessage(JSON.stringify(e));
+    };
+    toReactMessage({
+      type: "onStarted",
+    });
     const makeZipLoader = async (file) => {
       try {
         Ae({
@@ -8746,18 +10969,75 @@ export default `
       background-color: \${backgroundColor};
   }
 \`;
+    /**
+     *
+     * @param {Blob} file
+     * @returns {boolean}
+     */
+    const isZip = async (file) => {
+      const arr = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+      return (
+        arr[0] === 0x50 && arr[1] === 0x4b && arr[2] === 0x03 && arr[3] === 0x04
+      );
+    };
+    const isCBZ = ({ name, type }) =>
+      type === "application/vnd.comicbook+zip" || name.endsWith(".cbz");
+    const isFB2 = ({ name, type }) =>
+      type === "application/x-fictionbook+xml" || name.endsWith(".fb2");
+    const isFBZ = ({ name, type }) =>
+      type === "application/x-zip-compressed-fb2" ||
+      name.endsWith(".fb2.zip") ||
+      name.endsWith(".fbz");
     const getView = async (file) => {
-      let book;
-      const loader = await makeZipLoader(file);
-      try {
-        book = await new EPUB(loader).init();
-      } catch (error) {
-        main_debugMessage("[GETVIEW] ERROR" + error);
+      if (!file.size) {
+        toReactMessage({
+          type: "onDisplayError",
+          reason: "book-error-not-found",
+        });
+        main_debugMessage("GETVIEW ERROR not founds");
+        return;
       }
-      if (!book) throw new Error("File type not supported");
+      let book;
+      if (await isZip(file)) {
+        const loader = await makeZipLoader(file);
+        if (isCBZ(file)) {
+          main_debugMessage("[GETVIEW] Making cbz");
+          book = makeComicBook(loader, file);
+        } else if (isFBZ(file)) {
+          main_debugMessage("[GETVIEW] Making fbz");
+          const { entries } = loader;
+          const entry = entries.find((entry) =>
+            entry.filename.endsWith(".fb2"),
+          );
+          const blob = await loader.loadBlob((entry ?? entries[0]).filename);
+          book = await makeFB2(blob);
+        } else {
+          main_debugMessage("[GETVIEW] Making epub");
+          book = await new EPUB(loader).init();
+        }
+      } else {
+        if (await isMOBI(file)) {
+          main_debugMessage("[GETVIEW] Making mobi");
+          book = await new MOBI({
+            unzlib: _,
+          }).open(file);
+          main_debugMessage("[GETVIEW] DONE MAKING MOBI");
+        } else if (isFB2(file)) {
+          main_debugMessage("[GETVIEW] Making fb2");
+          book = await makeFB2(file);
+        }
+      }
+      if (!book) {
+        toReactMessage({
+          type: "onDisplayError",
+          reason: "unsupported-type",
+        });
+        main_debugMessage("GETVIEW ERROR");
+        return;
+      }
       const view = document.createElement("foliate-view");
-      document.body.append(view);
       await view.open(book);
+      document.body.append(view);
       return view;
     };
     class Reader {
@@ -8771,8 +11051,10 @@ export default `
         fontSize: 18,
       };
       constructor(path, bookLocation, initialStyles) {
+        this.path = path;
+        this.initalLocation = bookLocation;
+        this.currentLocation = undefined;
         this.setStyles(initialStyles);
-        this.setWindowTheme();
         if (path) {
           this.getBookBlob(path).catch((error) => {
             var err = new Error("Cannot load book at " + path);
@@ -8781,8 +11063,6 @@ export default `
             );
           });
         }
-        this.initalLocation = bookLocation;
-        this.currentLocation = undefined;
         main_debugMessage("[READER] CONSTRUCTED");
       }
       getBookBlob(input) {
@@ -8802,7 +11082,9 @@ export default `
         var blobData = new Blob([data], {
           type: "application/zip",
         });
-        this.open(blobData);
+        var file = new File([blobData], this.path);
+        // debugMessage(\`[OPENEPUB] name  \${file.name} t \${file.type}\`);
+        this.open(file);
       }
       async open(file) {
         this.view = await getView(file);
@@ -8822,33 +11104,31 @@ export default `
         this.#background =
           this.view.renderer.shadowRoot.querySelector("#background");
         const title = book.metadata?.title ?? "Untitled Book";
+        toReactMessage({
+          type: "onReady",
+        });
       }
       showNext(ev) {
-        main_debugMessage(\`nexet \${JSON.stringify(ev.detail.show)}\`);
+        toReactMessage({
+          type: "showNext",
+          show: ev.detail.show,
+        });
       }
       showPrevious(ev) {
-        main_debugMessage(\`prev \${JSON.stringify(ev.detail.show)}\`);
+        toReactMessage({
+          type: "showPrevious",
+          show: ev.detail.show,
+        });
       }
       onRelocate(e) {
         const { fraction, location, tocItem, pageItem } = e.detail;
-        main_debugMessage(fraction);
+        toReactMessage({
+          type: "onLocationChange",
+        });
       }
       setFlow(flow) {
         this.view.renderer.setAttribute("flow", flow);
         this.setTheme();
-        return true;
-      }
-      setWindowTheme() {
-        document.body.style.backgroundColor = this.style.backgroundColor;
-        document.body.style.color = this.style.foregroundColor;
-        if (this.#background) {
-          this.#background.style.backgroundColor = this.style.backgroundColor;
-        }
-        return true;
-      }
-      setTheme() {
-        this.view.renderer.setStyles?.(getCSS(this.style));
-        this.setWindowTheme();
         return true;
       }
       setStyles(newStyles) {
@@ -8857,7 +11137,20 @@ export default `
           ...this.style,
           ...newStyles,
         };
-        this.setTheme();
+        this.#setTheme();
+        return true;
+      }
+      #setWindowTheme() {
+        document.body.style.backgroundColor = this.style.backgroundColor;
+        document.body.style.color = this.style.foregroundColor;
+        if (this.#background) {
+          this.#background.style.backgroundColor = this.style.backgroundColor;
+        }
+        return true;
+      }
+      #setTheme() {
+        this.view.renderer.setStyles?.(getCSS(this.style));
+        this.#setWindowTheme();
         return true;
       }
     }
