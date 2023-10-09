@@ -1,5 +1,4 @@
 import { config, createGenericFont } from "@tamagui/config";
-
 import { Text, View } from "react-native";
 
 import {
@@ -16,9 +15,10 @@ setupReactNative({
   Text,
   View,
 });
-
+config.animations;
 const appConfig = createTamagui({
   ...config,
+
   tokens: createTokens({
     ...config.tokens,
     size: { ...config.tokens.size, sm: 36, md: 46, lg: 60 },

@@ -8,6 +8,8 @@ import {
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { defaultTheme as initialTheme, ReaderContext } from "./context";
 import type { ReaderProps } from "./types";
+import { Spinner, YStack } from "tamagui";
+import RNFetchBlob from "rn-fetch-blob";
 
 export type ViewProps = Omit<ReaderProps, "src" | "fileSystem"> & {
   templateUri: string;
@@ -59,12 +61,12 @@ export function View({
     }
 
     if (type === "showNext") {
-      const { show } = parsedEvent;
-      onShowNext(show);
+      const { show, label } = parsedEvent;
+      onShowNext(show, label);
     }
     if (type === "showPrevious") {
-      const { show } = parsedEvent;
-      onShowPrevious(show);
+      const { show, label } = parsedEvent;
+      onShowPrevious(show, label);
     }
 
     return () => {};
@@ -104,6 +106,11 @@ export function View({
     }
   });
 
+  /**
+   * TODO figure out the white flash
+   * and stop it from happenings
+   * only send onReady when book is rendered in html
+   */
   return (
     <GestureDetector gesture={Gesture.Exclusive(tapGesture)}>
       <RNView
@@ -111,7 +118,7 @@ export function View({
           height: height,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "blue",
+          backgroundColor: theme.backgroundColor,
           width: width,
         }}
       >
@@ -125,7 +132,10 @@ export function View({
           scrollEnabled={true}
           mixedContentMode="compatibility"
           onMessage={onMessage}
-          allowingReadAccessToURL={allowedUris}
+          allowingReadAccessToURL={
+            allowedUris +
+            `,${RNFetchBlob.fs.dirs.DocumentDir},${RNFetchBlob.fs.dirs.MainBundleDir}`
+          }
           allowUniversalAccessFromFileURLs={true}
           allowFileAccessFromFileURLs={true}
           allowFileAccess={true}
@@ -133,7 +143,10 @@ export function View({
           contentInsetAdjustmentBehavior="never"
           automaticallyAdjustContentInsets={false}
           allowsLinkPreview={false}
-          // pagingEnabled
+          startInLoadingState={true}
+          renderLoading={() => {
+            return <LoadingFileComponent />;
+          }}
           style={{
             width,
             overflow: "hidden",
@@ -146,3 +159,17 @@ export function View({
     </GestureDetector>
   );
 }
+
+const LoadingFileComponent = () => {
+  return (
+    <YStack
+      bg={"#111"}
+      h={"100%"}
+      w={"100%"}
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Spinner />
+    </YStack>
+  );
+};

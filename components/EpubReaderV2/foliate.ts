@@ -460,7 +460,7 @@ export default `
 
     // turn indices into standard CFIs when you don't have an actual package document
     const fake = {
-      fromIndex: (index) => \`/6/\${(index + 1) * 2}\`,
+      fromIndex: (index) => wrap(\`/6/\${(index + 1) * 2}\`),
       toIndex: (parts) => parts?.at(-1).index / 2 - 1,
     };
 
@@ -502,12 +502,12 @@ export default `
         )
         .flat();
     class TOCProgress {
-      constructor({ toc, ids, splitHref, getFragment }) {
+      async init({ toc, ids, splitHref, getFragment }) {
         assignIDs(toc);
         const items = flatten(toc);
         const grouped = new Map();
         for (const [i, item] of items.entries()) {
-          const [id, fragment] = splitHref(item?.href) ?? [];
+          const [id, fragment] = (await splitHref(item?.href)) ?? [];
           const value = {
             fragment,
             item,
@@ -529,6 +529,7 @@ export default `
         this.getFragment = getFragment;
       }
       getProgress(index, range) {
+        if (!this.ids) return;
         const id = this.ids[index];
         const obj = this.map.get(id);
         if (!obj) return null;
@@ -835,7 +836,20 @@ export default `
         return range;
       };
       for (const match of func(strs, makeRange)) yield match;
-    }; // CONCATENATED MODULE: ./my-foliate/fixed-layout.js
+    }; // CONCATENATED MODULE: ./my-foliate/debug.js
+    const debugMessage = (m) => {
+      if (typeof window.ReactNativeWebView != "undefined") {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "epubjs",
+            message: m,
+          }),
+        );
+      } else {
+        console.log(m);
+      }
+    };
+    /* harmony default export */ const debug = debugMessage; // CONCATENATED MODULE: ./my-foliate/fixed-layout.js
     const parseViewport = (str) =>
       str
         ?.split(/[,;\\s]/) // NOTE: technically, only the comma is valid
@@ -843,7 +857,7 @@ export default `
         ?.map((x) => x.split("=").map((x) => x.trim()));
     const getViewport = (doc, viewport) => {
       // use \`viewBox\` for SVG
-      if (doc.documentElement.nodeName === "svg") {
+      if (doc.documentElement.localName === "svg") {
         const [, , width, height] =
           doc.documentElement.getAttribute("viewBox")?.split(/\\s/) ?? [];
         return {
@@ -903,6 +917,7 @@ export default `
             align-items: center;
         }\`);
         this.#observer.observe(this);
+        debug("[FIXEDLAYOUT] INITED");
       }
       async #createFrame({ index, src }) {
         const element = document.createElement("div");
@@ -962,7 +977,7 @@ export default `
         this.#portrait = portrait;
         const blankWidth = left.width ?? right.width;
         const blankHeight = left.height ?? right.height;
-        const scale =
+        let scale =
           portrait || this.#center
             ? Math.min(
                 width / (target.width ?? blankWidth),
@@ -977,6 +992,8 @@ export default `
                     right.height ?? blankHeight,
                   ),
               );
+        scale = scale <= 0 ? 0.4 : scale
+
         const transform = (frame) => {
           const { element, iframe, width, height, blank } = frame;
           Object.assign(iframe.style, {
@@ -986,8 +1003,11 @@ export default `
             transformOrigin: "top left",
             display: blank ? "none" : "block",
           });
+          debug(
+            \`[FIXEDLAYOUT_RENDER] \${window.innerWidth} \${JSON.stringify(target)} \${this.#portrait} \${(width ?? blankWidth) * scale} \${width} \${height} \${blankHeight} \${blankWidth} \${scale}\`,
+          );
           Object.assign(element.style, {
-            width: \`\${(width ?? blankWidth) * scale}px\`,
+            width: \`\${window.innerWidth}px\`,
             height: \`\${(height ?? blankHeight) * scale}px\`,
             overflow: "hidden",
             display: "block",
@@ -1088,6 +1108,7 @@ export default `
             },
             [{}],
           );
+        debug("[FIXEDLAYOUT_OPEN] done createing open ");
       }
       get index() {
         const spread = this.#spreads[this.#index];
@@ -1184,6 +1205,7 @@ export default `
         await this.goToSpread(index, side);
       }
       async next() {
+        debug("[FIXEDLAYOUT_NEXT] next...");
         const s = this.rtl ? this.#goLeft() : this.#goRight();
         if (s) this.#reportLocation("page");
         else
@@ -1215,7 +1237,7 @@ export default `
       }
     }
     customElements.define("foliate-fxl", FixedLayout); // CONCATENATED MODULE: ./my-foliate/paginator.js
-    const debugMessage = (m) => {
+    const paginator_debugMessage = (m) => {
       if (typeof window.ReactNativeWebView != "undefined") {
         window.ReactNativeWebView.postMessage(
           JSON.stringify({
@@ -1499,6 +1521,7 @@ export default `
         else this.scrolled(layout);
       }
       scrolled({ gap, columnWidth }) {
+        paginator_debugMessage("[SCROLLED] SCROLLED...");
         const vertical = this.#vertical;
         const doc = this.document;
         Object.assign(doc.documentElement.style, {
@@ -1516,6 +1539,7 @@ export default `
         this.expand();
       }
       columnize({ width, height, gap, columnWidth }) {
+        paginator_debugMessage("[COLUMNIZE] COLUMNIZING...");
         const vertical = this.#vertical;
         this.#size = vertical ? height : width;
         const doc = this.document;
@@ -1580,6 +1604,7 @@ export default `
         }
       }
       expand() {
+        paginator_debugMessage("[EXPAND] EXPANDING...");
         if (this.#column) {
           const side = this.#vertical ? "height" : "width";
           const otherSide = this.#vertical ? "width" : "height";
@@ -1794,6 +1819,7 @@ export default `
           doc.addEventListener("touchmove", this.#onTouchMove.bind(this), opts);
           doc.addEventListener("touchend", this.#onTouchEnd.bind(this));
         });
+        paginator_debugMessage("[PAGINATOR] INITED");
       }
       attributeChangedCallback(name, _, value) {
         switch (name) {
@@ -1915,6 +1941,7 @@ export default `
       }
       render() {
         if (!this.#view) return;
+        paginator_debugMessage("[RENDER]");
         this.#view.render(
           this.#beforeRender({
             vertical: this.#vertical,
@@ -2023,7 +2050,12 @@ export default `
         if (state.pinched) return;
         state.pinched = globalThis.visualViewport.scale > 1;
         if (this.scrolled || state.pinched) {
-          this.#check();
+          if (this.hasChecked) {
+            this.hasChecked = false;
+            this.#check();
+          } else {
+            this.hasChecked = true;
+          }
           return;
         }
         if (e.touches.length > 1) {
@@ -2105,7 +2137,7 @@ export default `
           const scrollheight = this.#container.scrollHeight;
           const start = scrollTop;
           const end = this.end - scrollheight;
-          if (end > 80) {
+          if (end > 50) {
             this.#canGoToNextSection = true;
             this.dispatchEvent(
               new CustomEvent("next", {
@@ -2116,7 +2148,7 @@ export default `
             );
             return;
           }
-          if (start < -80) {
+          if (start < -50) {
             this.#canGoToPrevSection = true;
             this.dispatchEvent(
               new CustomEvent("previous", {
@@ -2262,7 +2294,7 @@ export default `
           }
           // idk what this.#anchor is ????
           this.#anchor &&
-            debugMessage(
+            paginator_debugMessage(
               \`[SCROLLTOANCHOR] anchor \${JSON.stringify(this.#anchor)} \${
                 this.#anchor
               }\`,
@@ -2515,6 +2547,7 @@ export default `
       }
       setStyles(styles) {
         this.#styles = styles;
+        paginator_debugMessage("[SETSTYLES] SETTING STYLES");
         const \$\$styles = this.#styleMap.get(this.#view?.document);
         if (!\$\$styles) return;
         const [\$beforeStyle, \$style] = \$\$styles;
@@ -3139,7 +3172,8 @@ export default `
           );
           const splitHref = book.splitTOCHref.bind(book);
           const getFragment = book.getTOCFragment.bind(book);
-          this.#tocProgress = new TOCProgress({
+          this.#tocProgress = new TOCProgress();
+          await this.#tocProgress.init({
             toc: book.toc ?? [],
             ids,
             splitHref,
@@ -3155,6 +3189,7 @@ export default `
         this.isFixedLayout = this.book.rendition?.layout === "pre-paginated";
         if (this.isFixedLayout) {
           this.renderer = document.createElement("foliate-fxl");
+          debug("[VIEW_OPEN] fixed layout element");
         } else {
           this.renderer = document.createElement("foliate-paginator");
         }
@@ -3188,6 +3223,7 @@ export default `
             lastActive?.deref()?.classList?.remove(activeClass);
           });
         }
+        debug("[VIEW_OPEN] DONE OPENING BOOK...");
       }
       close() {
         this.renderer?.destroy();
@@ -4228,6 +4264,7 @@ export default `
       #audioIndex;
       #itemIndex;
       #audio;
+      #volume = 1;
       #rate = 1;
       constructor(book, loadXML) {
         super();
@@ -4340,6 +4377,7 @@ export default `
         });
         audio.addEventListener("canplaythrough", () => {
           audio.currentTime = this.#activeItem.begin ?? 0;
+          audio.volume = this.#volume;
           audio.playbackRate = this.#rate;
           audio.play().catch((e) => this.#error(e));
         });
@@ -4386,6 +4424,10 @@ export default `
       }
       next() {
         this.#play(this.#audioIndex, this.#itemIndex + 1);
+      }
+      setVolume(volume) {
+        this.#volume = volume;
+        if (this.#audio) this.#audio.volume = volume;
       }
       setRate(rate) {
         this.#rate = rate;
@@ -7249,7 +7291,641 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         }
       }
       return deferred.promise;
-    } // CONCATENATED MODULE: ./my-foliate/vendor/zip.js
+    } // CONCATENATED MODULE: ./my-foliate/pdf.js
+    /* global pdfjsLib */
+
+    // https://github.com/mozilla/pdf.js/blob/f04967017f22e46d70d11468dd928b4cdc2f6ea1/web/text_layer_builder.css
+    const textLayerBuilderCSS = \`
+/* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+:root {
+  --highlight-bg-color: rgb(180 0 170);
+  --highlight-selected-bg-color: rgb(0 100 0);
+}
+
+@media screen and (forced-colors: active) {
+  :root {
+    --highlight-bg-color: Highlight;
+    --highlight-selected-bg-color: ButtonText;
+  }
+}
+
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.25;
+  line-height: 1;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 2;
+}
+
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+/* Only necessary in Google Chrome, see issue 14205, and most unfortunately
+ * the problem doesn't show up in "text" reference tests. */
+/*#if !MOZCENTRAL*/
+.textLayer span.markedContent {
+  top: 0;
+  height: 0;
+}
+/*#endif*/
+
+.textLayer .highlight {
+  margin: -1px;
+  padding: 1px;
+  background-color: var(--highlight-bg-color);
+  border-radius: 4px;
+}
+
+.textLayer .highlight.appended {
+  position: initial;
+}
+
+.textLayer .highlight.begin {
+  border-radius: 4px 0 0 4px;
+}
+
+.textLayer .highlight.end {
+  border-radius: 0 4px 4px 0;
+}
+
+.textLayer .highlight.middle {
+  border-radius: 0;
+}
+
+.textLayer .highlight.selected {
+  background-color: var(--highlight-selected-bg-color);
+}
+
+.textLayer ::selection {
+  /*#if !MOZCENTRAL*/
+  background: blue;
+  /*#endif*/
+  background: AccentColor; /* stylelint-disable-line declaration-block-no-duplicate-properties */
+}
+
+/* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */
+/*#if !MOZCENTRAL*/
+.textLayer br::selection {
+  background: transparent;
+}
+/*#endif*/
+
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: -1;
+  cursor: default;
+  user-select: none;
+}
+
+.textLayer .endOfContent.active {
+  top: 0;
+}
+\`;
+
+    //https://github.com/mozilla/pdf.js/blob/d64f223d034ad74fb62571c3acff566d25eca413/web/annotation_layer_builder.css
+    const annotationLayerBuilderCSS = \`
+/* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+:root {
+  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --input-focus-border-color: Highlight;
+  --input-focus-outline: 1px solid Canvas;
+  --input-unfocused-border-color: transparent;
+  --input-disabled-border-color: transparent;
+  --input-hover-border-color: black;
+  --link-outline: none;
+}
+
+@media screen and (forced-colors: active) {
+  :root {
+    --input-focus-border-color: CanvasText;
+    --input-unfocused-border-color: ActiveText;
+    --input-disabled-border-color: GrayText;
+    --input-hover-border-color: Highlight;
+    --link-outline: 1.5px solid LinkText;
+    --hcm-highligh-filter: invert(100%);
+  }
+  .annotationLayer .textWidgetAnnotation :is(input, textarea):required,
+  .annotationLayer .choiceWidgetAnnotation select:required,
+  .annotationLayer
+    .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+    input:required {
+    outline: 1.5px solid selectedItem;
+  }
+
+  .annotationLayer .linkAnnotation:hover {
+    backdrop-filter: var(--hcm-highligh-filter);
+  }
+
+  .annotationLayer .linkAnnotation > a:hover {
+    opacity: 0 !important;
+    background: none !important;
+    box-shadow: none;
+  }
+
+  .annotationLayer .popupAnnotation .popup {
+    outline: calc(1.5px * var(--scale-factor)) solid CanvasText !important;
+    background-color: ButtonFace !important;
+    color: ButtonText !important;
+  }
+
+  .annotationLayer .highlightArea:hover::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: var(--hcm-highligh-filter);
+    content: "";
+    pointer-events: none;
+  }
+
+  .annotationLayer .popupAnnotation.focused .popup {
+    outline: calc(3px * var(--scale-factor)) solid Highlight !important;
+  }
+}
+
+.annotationLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+  z-index: 3;
+}
+
+.annotationLayer[data-main-rotation="90"] .norotate {
+  transform: rotate(270deg) translateX(-100%);
+}
+.annotationLayer[data-main-rotation="180"] .norotate {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+.annotationLayer[data-main-rotation="270"] .norotate {
+  transform: rotate(90deg) translateY(-100%);
+}
+
+.annotationLayer canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.annotationLayer section {
+  position: absolute;
+  text-align: initial;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+}
+
+.annotationLayer .linkAnnotation {
+  outline: var(--link-outline);
+}
+
+.annotationLayer :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton) > a {
+  position: absolute;
+  font-size: 1em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.annotationLayer
+  :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton):not(.hasBorder)
+  > a:hover {
+  opacity: 0.2;
+  background-color: rgb(255 255 0);
+  box-shadow: 0 2px 10px rgb(255 255 0);
+}
+
+.annotationLayer .linkAnnotation.hasBorder:hover {
+  background-color: rgb(255 255 0 / 0.2);
+}
+
+.annotationLayer .hasBorder {
+  background-size: 100% 100%;
+}
+
+.annotationLayer .textAnnotation img {
+  position: absolute;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea),
+.annotationLayer .choiceWidgetAnnotation select,
+.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  background-image: var(--annotation-unfocused-field-background);
+  border: 2px solid var(--input-unfocused-border-color);
+  box-sizing: border-box;
+  font: calc(9px * var(--scale-factor)) sans-serif;
+  height: 100%;
+  margin: 0;
+  vertical-align: top;
+  width: 100%;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea):required,
+.annotationLayer .choiceWidgetAnnotation select:required,
+.annotationLayer
+  .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+  input:required {
+  outline: 1.5px solid red;
+}
+
+.annotationLayer .choiceWidgetAnnotation select option {
+  padding: 0;
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton input {
+  border-radius: 50%;
+}
+
+.annotationLayer .textWidgetAnnotation textarea {
+  resize: none;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea)[disabled],
+.annotationLayer .choiceWidgetAnnotation select[disabled],
+.annotationLayer
+  .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+  input[disabled] {
+  background: none;
+  border: 2px solid var(--input-disabled-border-color);
+  cursor: not-allowed;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea):hover,
+.annotationLayer .choiceWidgetAnnotation select:hover,
+.annotationLayer
+  .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+  input:hover {
+  border: 2px solid var(--input-hover-border-color);
+}
+.annotationLayer .textWidgetAnnotation :is(input, textarea):hover,
+.annotationLayer .choiceWidgetAnnotation select:hover,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:hover {
+  border-radius: 2px;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea):focus,
+.annotationLayer .choiceWidgetAnnotation select:focus {
+  background: none;
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) :focus {
+  background-image: none;
+  background-color: transparent;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox :focus {
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton :focus {
+  border: 2px solid var(--input-focus-border-color);
+  outline: var(--input-focus-outline);
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after,
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  background-color: CanvasText;
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  height: 80%;
+  left: 45%;
+  width: 1px;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before {
+  transform: rotate(45deg);
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  transform: rotate(-45deg);
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  border-radius: 50%;
+  height: 50%;
+  left: 30%;
+  top: 20%;
+  width: 50%;
+}
+
+.annotationLayer .textWidgetAnnotation input.comb {
+  font-family: monospace;
+  padding-left: 2px;
+  padding-right: 0;
+}
+
+.annotationLayer .textWidgetAnnotation input.comb:focus {
+  /*
+   * Letter spacing is placed on the right side of each character. Hence, the
+   * letter spacing of the last character may be placed outside the visible
+   * area, causing horizontal scrolling. We avoid this by extending the width
+   * when the element has focus and revert this when it loses focus.
+   */
+  width: 103%;
+}
+
+.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  appearance: none;
+}
+
+.annotationLayer .fileAttachmentAnnotation .popupTriggerArea {
+  height: 100%;
+  width: 100%;
+}
+
+.annotationLayer .popupAnnotation {
+  position: absolute;
+  font-size: calc(9px * var(--scale-factor));
+  pointer-events: none;
+  width: max-content;
+  max-width: 45%;
+  height: auto;
+}
+
+.annotationLayer .popup {
+  background-color: rgb(255 255 153);
+  box-shadow: 0 calc(2px * var(--scale-factor)) calc(5px * var(--scale-factor))
+    rgb(136 136 136);
+  border-radius: calc(2px * var(--scale-factor));
+  outline: 1.5px solid rgb(255 255 74);
+  padding: calc(6px * var(--scale-factor));
+  cursor: pointer;
+  font: message-box;
+  white-space: normal;
+  word-wrap: break-word;
+  pointer-events: auto;
+}
+
+.annotationLayer .popupAnnotation.focused .popup {
+  outline-width: 3px;
+}
+
+.annotationLayer .popup * {
+  font-size: calc(9px * var(--scale-factor));
+}
+
+.annotationLayer .popup > .header {
+  display: inline-block;
+}
+
+.annotationLayer .popup > .header h1 {
+  display: inline;
+}
+
+.annotationLayer .popup > .header .popupDate {
+  display: inline-block;
+  margin-left: calc(5px * var(--scale-factor));
+  width: fit-content;
+}
+
+.annotationLayer .popupContent {
+  border-top: 1px solid rgb(51 51 51);
+  margin-top: calc(2px * var(--scale-factor));
+  padding-top: calc(2px * var(--scale-factor));
+}
+
+.annotationLayer .richText > * {
+  white-space: pre-wrap;
+  font-size: calc(9px * var(--scale-factor));
+}
+
+.annotationLayer .popupTriggerArea {
+  cursor: pointer;
+}
+
+.annotationLayer section svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.annotationLayer .annotationTextContent {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+}
+
+.annotationLayer .annotationTextContent span {
+  width: 100%;
+  display: inline-block;
+}
+
+.annotationLayer svg.quadrilateralsContainer {
+  contain: strict;
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+\`;
+    const renderPage = async (page, getImageBlob) => {
+      // debugMessage('[RENDERPAGE]')
+      const scale = devicePixelRatio;
+      const viewport = page.getViewport({
+        scale,
+      });
+      const canvas = document.createElement("canvas");
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      const canvasContext = canvas.getContext("2d");
+      await page.render({
+        canvasContext,
+        viewport,
+      }).promise;
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve));
+      // debugMessage('[RENDERPAGE] GETTING BLOB...')
+      if (getImageBlob) return blob;
+      // debugMessage('[RENDERPAGE] DONE GETTINGBLOB')
+
+      /*
+  // with the SVG backend
+  const operatorList = await page.getOperatorList()
+  const svgGraphics = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs)
+  const svg = await svgGraphics.getSVG(operatorList, viewport)
+  const str = new XMLSerializer().serializeToString(svg)
+  const blob = new Blob([str], { type: 'image/svg+xml' })
+  */
+
+      const container = document.createElement("div");
+      container.classList.add("textLayer");
+      await pdfjsLib.renderTextLayer({
+        textContentSource: await page.getTextContent(),
+        container,
+        viewport,
+      }).promise;
+      const div = document.createElement("div");
+      div.classList.add("annotationLayer");
+      await new pdfjsLib.AnnotationLayer({
+        page,
+        viewport,
+        div,
+      }).render({
+        annotations: await page.getAnnotations(),
+        linkService: {
+          getDestinationHash: (dest) => JSON.stringify(dest),
+          addLinkAttributes: (link, url) => (link.href = url),
+        },
+      });
+      const src = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(
+        new Blob(
+          [
+            \`
+        <!DOCTYPE html>
+        <meta charset="utf-8">
+        <style>
+        :root {
+            --scale-factor: \${scale};
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        \${textLayerBuilderCSS}
+        \${annotationLayerBuilderCSS}
+        </style>
+        <img src="\${src}">
+        \${container.outerHTML}
+        \${div.outerHTML}
+    \`,
+          ],
+          {
+            type: "text/html",
+          },
+        ),
+      );
+      // debugMessage(\`[RENDERPAGE] done getting url \${url}\`)
+      return url;
+    };
+    const makeTOCItem = (item) => ({
+      label: item.title,
+      href: JSON.stringify(item.dest),
+      subitems: item.items.length ? item.items.map(makeTOCItem) : null,
+    });
+    const makePDF = async (file) => {
+      const data = new Uint8Array(await file.arrayBuffer());
+      const pdf = await pdfjsLib.getDocument({
+        data,
+      }).promise;
+      const book = {
+        rendition: {
+          layout: "pre-paginated",
+        },
+      };
+      const info = (await pdf.getMetadata())?.info;
+      book.metadata = {
+        title: info?.Title,
+        author: info?.Author,
+      };
+      const outline = await pdf.getOutline();
+      book.toc = outline?.map(makeTOCItem);
+      const cache = new Map();
+      book.sections = Array.from({
+        length: pdf.numPages,
+      }).map((_, i) => ({
+        id: i,
+        load: async () => {
+          const cached = cache.get(i);
+          if (cached) return cached;
+          const url = await renderPage(await pdf.getPage(i + 1));
+          cache.set(i, url);
+          return url;
+        },
+        size: 1000,
+      }));
+      book.isExternal = (uri) => /^\\w+:/i.test(uri);
+      book.resolveHref = async (href) => {
+        const parsed = JSON.parse(href);
+        const dest =
+          typeof parsed === "string"
+            ? await pdf.getDestination(parsed)
+            : parsed;
+        const index = await pdf.getPageIndex(dest[0]);
+        return {
+          index,
+        };
+      };
+      book.splitTOCHref = async (href) => {
+        const parsed = JSON.parse(href);
+        const dest =
+          typeof parsed === "string"
+            ? await pdf.getDestination(parsed)
+            : parsed;
+        const index = await pdf.getPageIndex(dest[0]);
+        return [index, null];
+      };
+      book.getTOCFragment = (doc) => doc.documentElement;
+      book.getCover = async () => renderPage(await pdf.getPage(1), true);
+      return book;
+    }; // CONCATENATED MODULE: ./my-foliate/vendor/zip.js
     const zip_e = 0,
       zip_t = 1,
       zip_n = 2,
@@ -10873,18 +11549,6 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
       },
     }); // CONCATENATED MODULE: ./main.js
 
-    const main_debugMessage = (m) => {
-      if (typeof window.ReactNativeWebView != "undefined") {
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({
-            type: "epubjs",
-            message: m,
-          }),
-        );
-      } else {
-        console.log(m);
-      }
-    };
     const toReactMessage = (e) => {
       window.ReactNativeWebView.postMessage(JSON.stringify(e));
     };
@@ -10913,7 +11577,7 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
           getSize,
         };
       } catch (err) {
-        main_debugMessage("[makeZipLoader] " + err);
+        debug("[makeZipLoader] " + err);
       }
     };
     const getCSS = ({
@@ -10931,12 +11595,12 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
             color: lightblue;
         }
     }
-    body {
-      padding-left: 15px;
-      padding-right: 15px;
+    body, div {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
       background-color: \${backgroundColor};
       color: \${foregroundColor}; 
-      font-size: \${fontSize}px;
+      font-size: \${fontSize}px !important;
     }
     p, li, blockquote, dd {
         line-height: \${spacing};
@@ -10980,6 +11644,16 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         arr[0] === 0x50 && arr[1] === 0x4b && arr[2] === 0x03 && arr[3] === 0x04
       );
     };
+    const isPDF = async (file) => {
+      const arr = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+      return (
+        arr[0] === 0x25 &&
+        arr[1] === 0x50 &&
+        arr[2] === 0x44 &&
+        arr[3] === 0x46 &&
+        arr[4] === 0x2d
+      );
+    };
     const isCBZ = ({ name, type }) =>
       type === "application/vnd.comicbook+zip" || name.endsWith(".cbz");
     const isFB2 = ({ name, type }) =>
@@ -10994,17 +11668,17 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
           type: "onDisplayError",
           reason: "book-error-not-found",
         });
-        main_debugMessage("GETVIEW ERROR not founds");
+        debug("GETVIEW ERROR not founds");
         return;
       }
       let book;
       if (await isZip(file)) {
         const loader = await makeZipLoader(file);
         if (isCBZ(file)) {
-          main_debugMessage("[GETVIEW] Making cbz");
+          debug("[GETVIEW] Making cbz");
           book = makeComicBook(loader, file);
         } else if (isFBZ(file)) {
-          main_debugMessage("[GETVIEW] Making fbz");
+          debug("[GETVIEW] Making fbz");
           const { entries } = loader;
           const entry = entries.find((entry) =>
             entry.filename.endsWith(".fb2"),
@@ -11012,18 +11686,20 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
           const blob = await loader.loadBlob((entry ?? entries[0]).filename);
           book = await makeFB2(blob);
         } else {
-          main_debugMessage("[GETVIEW] Making epub");
+          debug("[GETVIEW] Making epub");
           book = await new EPUB(loader).init();
         }
+      } else if (await isPDF(file)) {
+        book = await makePDF(file);
       } else {
         if (await isMOBI(file)) {
-          main_debugMessage("[GETVIEW] Making mobi");
+          debug("[GETVIEW] Making mobi");
           book = await new MOBI({
             unzlib: _,
           }).open(file);
-          main_debugMessage("[GETVIEW] DONE MAKING MOBI");
+          debug("[GETVIEW] DONE MAKING MOBI");
         } else if (isFB2(file)) {
-          main_debugMessage("[GETVIEW] Making fb2");
+          debug("[GETVIEW] Making fb2");
           book = await makeFB2(file);
         }
       }
@@ -11032,7 +11708,7 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
           type: "onDisplayError",
           reason: "unsupported-type",
         });
-        main_debugMessage("GETVIEW ERROR");
+        debug("GETVIEW ERROR");
         return;
       }
       const view = document.createElement("foliate-view");
@@ -11042,6 +11718,9 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
     };
     class Reader {
       #background;
+      #tocMap;
+      #currentTocPos;
+      #isPdf;
       style = {
         spacing: 1.4,
         justify: true,
@@ -11058,18 +11737,17 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         if (path) {
           this.getBookBlob(path).catch((error) => {
             var err = new Error("Cannot load book at " + path);
-            main_debugMessage(
-              \`[READER] ERROR \${JSON.stringify(err)} or \${error}\`,
-            );
+            debug(\`[READER] ERROR \${JSON.stringify(err)} or \${error}\`);
           });
         }
-        main_debugMessage("[READER] CONSTRUCTED");
+        this.#tocMap = new Map();
+        debug("[READER] CONSTRUCTED");
       }
-      getBookBlob(input) {
+      getBookBlob = (input) => {
         var opening;
         opening = request(input, "binary").then(this.openEpub.bind(this));
         return opening;
-      }
+      };
 
       /**
        * Open an archived epub
@@ -11078,60 +11756,106 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
        * @param  {string} [encoding]
        * @return {Promise}
        */
-      openEpub(data, encoding) {
-        var blobData = new Blob([data], {
-          type: "application/zip",
-        });
+      openEpub = (data, encoding) => {
+        var blobData = new Blob([data]);
         var file = new File([blobData], this.path);
-        // debugMessage(\`[OPENEPUB] name  \${file.name} t \${file.type}\`);
         this.open(file);
-      }
-      async open(file) {
-        this.view = await getView(file);
-        this.view.addEventListener("relocate", this.onRelocate);
-        this.view.renderer.addEventListener("next", this.showNext, {
-          passive: false,
-        });
-        this.view.renderer.addEventListener("previous", this.showPrevious, {
-          passive: false,
-        });
-        const { book } = this.view;
-        this.view.renderer.setStyles?.(getCSS(this.style));
-        this.initalLocation
-          ? await this.view.goTo(this.initalLocation)
-          : this.view.renderer.next();
-        this.view.renderer.setAttribute("gap", "0%");
-        this.#background =
-          this.view.renderer.shadowRoot.querySelector("#background");
-        const title = book.metadata?.title ?? "Untitled Book";
-        toReactMessage({
-          type: "onReady",
-        });
-      }
-      showNext(ev) {
+      };
+      open = async (file) => {
+        try {
+          this.view = await getView(file);
+          this.view.addEventListener("relocate", this.onRelocate);
+          if (this.#isPdf) {
+            this.view.renderer.addEventListener("next", this.showNext, {
+              passive: false,
+            });
+            this.view.renderer.addEventListener("previous", this.showPrevious, {
+              passive: false,
+            });
+            this.#background =
+              this.view.renderer.shadowRoot.querySelector("#background");
+          }
+          const { book } = this.view;
+          const toc = book.toc;
+          this.view.renderer.setStyles?.(getCSS(this.style));
+          let count = 0;
+          toc?.flatMap((item, i) => {
+            if (item.subitems?.length > 0) {
+              return item.subitems.map((subitem) => {
+                this.#tocMap.set(count, {
+                  label: subitem.label,
+                  id: subitem.id,
+                });
+                count += 1;
+              });
+            } else {
+              this.#tocMap.set(count, {
+                label: item.label,
+                id: item.id,
+              });
+              count += 1;
+            }
+          });
+          // this.view.renderer.next();
+          this.initalLocation
+            ? await this.view.goTo(this.initalLocation)
+            : this.view.renderer.next()
+
+          this.view.renderer.setAttribute("gap", "0%");
+          const title = book.metadata?.title ?? "Untitled Book";
+          toReactMessage({
+            type: "onReady",
+          });
+        } catch (err) {
+          debug("[READER_OPEN_ERROR] " + err);
+        }
+      };
+      showNext = (ev) => {
+        /**
+         * TODO instead of rendering a component in react do it here.
+         */
+        const nextLabel = ev.detail.show
+          ? this.#tocMap.get(this.#currentTocPos?.id + 1)?.label
+          : null;
         toReactMessage({
           type: "showNext",
           show: ev.detail.show,
+          label: nextLabel,
         });
-      }
-      showPrevious(ev) {
+      };
+      showPrevious = (ev) => {
+        const prevLabel = ev.detail.show
+          ? this.#tocMap.get(this.#currentTocPos?.id - 1)?.label
+          : null;
         toReactMessage({
           type: "showPrevious",
           show: ev.detail.show,
+          label: prevLabel,
         });
-      }
-      onRelocate(e) {
+      };
+      onRelocate = (e) => {
         const { fraction, location, tocItem, pageItem } = e.detail;
+        this.#currentTocPos = {
+          id: tocItem.id,
+          label: tocItem.label,
+        };
         toReactMessage({
           type: "onLocationChange",
+          fraction,
+          location,
+          tocItem,
+          pageItem,
         });
-      }
-      setFlow(flow) {
+      };
+      setFlow = (flow) => {
+        if (this.view.renderer.getAttribute("flow") === flow) return;
         this.view.renderer.setAttribute("flow", flow);
-        this.setTheme();
+        this.#setTheme();
         return true;
-      }
-      setStyles(newStyles) {
+      };
+
+      // https://github.com/johnfactotum/foliate/blob/14f2d8e07a5da2d04482b00fffe92103998506bc/src/reader/reader.js#L309
+      setStyles = (newStyles) => {
         if (!newStyles) return;
         this.style = {
           ...this.style,
@@ -11139,20 +11863,26 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         };
         this.#setTheme();
         return true;
-      }
-      #setWindowTheme() {
+      };
+      next = () => {
+        this.view.renderer.next();
+      };
+      prev = () => {
+        this.view.renderer.prev();
+      };
+      #setWindowTheme = () => {
         document.body.style.backgroundColor = this.style.backgroundColor;
         document.body.style.color = this.style.foregroundColor;
         if (this.#background) {
           this.#background.style.backgroundColor = this.style.backgroundColor;
         }
         return true;
-      }
-      #setTheme() {
+      };
+      #setTheme = () => {
         this.view.renderer.setStyles?.(getCSS(this.style));
         this.#setWindowTheme();
         return true;
-      }
+      };
     }
     /* harmony default export */ const main = Reader;
 

@@ -1,18 +1,29 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import { StatusBar, useWindowDimensions } from "react-native";
+import {
+  Dimensions,
+  StatusBar,
+  View as RNView,
+  useWindowDimensions,
+} from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
-import { Reader, Theme, useReader } from "../EpubReaderV2";
+import { Reader } from "../EpubReaderV2";
 
 import { useFileSystem } from "@epubjs-react-native/expo-file-system"; // for Expo project
 import { useAtomValue, useSetAtom } from "jotai/react";
-import { Button, Spinner, Text, View, XStack, YStack } from "tamagui";
+import {
+  AnimatePresence,
+  Button,
+  Spinner,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from "tamagui";
 import { ebookFormat, getUserMediaProgress } from "../../utils/helpers";
 import { tempBookFilesAtom } from "../../utils/local-atoms";
 import ReaderMenu from "./reader-menu";
 import { currentUserAtom } from "../../utils/atoms";
 import { LibraryItem } from "../../types/adbs";
-import { createThemeForBook } from "../../utils/themes";
-import { IconButton } from "../ui/button";
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 
 interface MyReader {
@@ -44,8 +55,10 @@ const RReader = memo(
     handlePress,
     setLoading,
   }: RReaderProps) => {
+    const [viewWidth, setViewWidth] = useState(0);
     const [showingNext, setShowingNext] = useState(false);
     const [showingPrev, setShowingPrev] = useState(false);
+    const [currentLabel, setCurrentLabel] = useState("");
 
     useEffect(() => {
       StatusBar.setHidden(true);
@@ -56,58 +69,91 @@ const RReader = memo(
     }, []);
 
     return (
-      <View>
-        {showingPrev ? (
-          <IconButton
-            selected
-            pos={"absolute"}
-            zIndex={"$5"}
-            top={"$10"}
-            left={"50%"}
-            style={[
-              {
-                transform: [{ translateX: -50 }],
-              },
-            ]}
-          >
-            <YStack justifyContent="center" alignItems="center">
-              <Text>RELEASE FOR: </Text>
-              <ChevronUp size={"$1"} />
-            </YStack>
-          </IconButton>
-        ) : null}
-        {showingNext ? (
-          <IconButton
-            selected
-            pos={"absolute"}
-            zIndex={"$5"}
-            left={"50%"}
-            bottom={"$10"}
-            style={[
-              { height: "auto" },
-              {
-                transform: [{ translateX: -50 }],
-              },
-            ]}
-          >
-            <YStack py="$1" justifyContent="center" alignItems="center">
-              <Text>RELEASE FOR: </Text>
-              <ChevronDown size={14} />
-            </YStack>
-          </IconButton>
-        ) : null}
+      <View display="flex">
+        <AnimatePresence>
+          {showingPrev ? (
+            <XStack
+              animation={"100ms"}
+              enterStyle={{
+                scale: 1.2,
+                y: -100,
+                opacity: 0,
+              }}
+              exitStyle={{
+                opacity: 0,
+                y: -100,
+                scale: 0.9,
+              }}
+              pos={"absolute"}
+              justifyContent="center"
+              top={"$10"}
+              zIndex={"$5"}
+              left={0}
+              right={0}
+              margin={"auto"}
+            >
+              <Button themeInverse>
+                <YStack py="$1" justifyContent="center" alignItems="center">
+                  <ChevronUp size={"$1"} />
+                  <Text numberOfLines={1}>
+                    RELEASE FOR: {currentLabel || "previous"}
+                  </Text>
+                </YStack>
+              </Button>
+            </XStack>
+          ) : null}
+        </AnimatePresence>
+        <AnimatePresence>
+          {showingNext ? (
+            <XStack
+              animation={"100ms"}
+              enterStyle={{
+                scale: 1.2,
+                y: 200,
+                opacity: 0,
+              }}
+              exitStyle={{
+                opacity: 0,
+                y: 200,
+                scale: 0.9,
+              }}
+              pos={"absolute"}
+              justifyContent="center"
+              bottom={"$10"}
+              zIndex={"$5"}
+              left={0}
+              right={0}
+              margin={"auto"}
+            >
+              <Button themeInverse>
+                <YStack py="$1" justifyContent="center" alignItems="center">
+                  <Text numberOfLines={1}>
+                    RELEASE FOR: {currentLabel || "next"}
+                  </Text>
+                  <ChevronDown size={14} />
+                </YStack>
+              </Button>
+            </XStack>
+          ) : null}
+        </AnimatePresence>
         <Reader
           src={bookPath}
           width={width}
           initialLocation={location}
-          onShowNext={(s) => setShowingNext(s)}
-          onShowPrevious={(s) => setShowingPrev(s)}
+          onShowNext={(s, label) => {
+            setCurrentLabel((prev) => (label ? label : prev));
+            setShowingNext(s);
+          }}
+          onShowPrevious={(s, label) => {
+            setCurrentLabel((prev) => (label ? label : prev));
+            setShowingPrev(s);
+          }}
           onReady={() => setLoading(false)}
           height={height}
           fileSystem={useFileSystem}
           onPress={handlePress}
-          // renderLoadingFileComponent={LoadingFileComponent}
-          // renderOpeningBookComponent={LoadingFileComponent}
+          renderLoadingFileComponent={LoadingFileComponent}
+          renderOpeningBookComponent={LoadingFileComponent}
         />
       </View>
     );
@@ -205,7 +251,7 @@ const MyReader = ({ url, item }: MyReader) => {
 const LoadingFileComponent = () => {
   return (
     <YStack
-      bg={"#111"}
+      bg={"$background"}
       h={"100%"}
       w={"100%"}
       alignItems="center"

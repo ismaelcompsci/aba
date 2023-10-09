@@ -10,8 +10,9 @@ import { getSourceType } from "./utils/getSourceType";
 import { getSourceName } from "./utils/getPathname";
 import { SourceType } from "./utils/enums/source-type.enum";
 import { isFsUri } from "./utils/isFsUri";
-import jszip from "./jszip";
 import foliate from "./foliate";
+import pdf from "./pdf";
+import pdfWorker from "./pdfWorker";
 
 // ...
 export function Reader({
@@ -44,21 +45,21 @@ export function Reader({
     (async () => {
       setIsLoading(true);
 
-      const jszipFileUri = `${FileSystem.documentDirectory}jszip.min.js`;
-      // const epubjsFileUri = `${FileSystem.documentDirectory}epub.min.js`;
       const foliateFileUri = `${FileSystem.documentDirectory}foliate.js`;
+      const pdfFileUri = `${FileSystem.documentDirectory}pdf.js`;
+      const pdfWorkerUri = `${FileSystem.documentDirectory}pdf.worker.js`;
 
       try {
-        await FileSystem.writeAsStringAsync(jszipFileUri, jszip);
+        await FileSystem.writeAsStringAsync(pdfFileUri, pdf);
       } catch (e) {
-        throw new Error("failed to write jszip js file");
+        throw new Error("failed to write pdf js file");
       }
 
-      // try {
-      //   await FileSystem.writeAsStringAsync(epubjsFileUri, epubjs);
-      // } catch (e) {
-      //   throw new Error("failed to write epubjs js file");
-      // }
+      try {
+        await FileSystem.writeAsStringAsync(pdfWorkerUri, pdfWorker);
+      } catch (e) {
+        throw new Error("failed to write pdf js file");
+      }
 
       try {
         await FileSystem.writeAsStringAsync(foliateFileUri, foliate);
@@ -66,7 +67,7 @@ export function Reader({
         throw new Error("failed to write foliate js file");
       }
 
-      setAllowedUris(`${jszipFileUri},${foliateFileUri}`);
+      setAllowedUris(`${pdfFileUri},${foliateFileUri},${pdfWorkerUri}`);
 
       if (src) {
         const sourceType = getSourceType(src);
@@ -79,13 +80,15 @@ export function Reader({
 
         if (!isExternalSource) {
           if (isSrcInFs) {
-            setAllowedUris(`${src}${jszipFileUri},${foliateFileUri}`);
+            setAllowedUris(
+              `${src},${pdfFileUri},${foliateFileUri},${pdfWorkerUri}`
+            );
           }
           if (sourceType === SourceType.BASE64) {
             setTemplate(
               injectWebVieWVariables({
-                jszip: jszipFileUri,
                 foliate: foliateFileUri,
+                pdf: pdfFileUri,
                 book: src,
                 location: initialLocation,
               })
@@ -95,7 +98,7 @@ export function Reader({
           } else {
             setTemplate(
               injectWebVieWVariables({
-                jszip: jszipFileUri,
+                pdf: pdfFileUri,
                 foliate: foliateFileUri,
                 book: src,
                 location: initialLocation,
@@ -119,11 +122,12 @@ export function Reader({
             sourceType === SourceType.CBZ ||
             sourceType === SourceType.FB2 ||
             sourceType === SourceType.MOBI ||
-            sourceType === SourceType.FBZ
+            sourceType === SourceType.FBZ ||
+            sourceType === SourceType.PDF
           ) {
             setTemplate(
               injectWebVieWVariables({
-                jszip: jszipFileUri,
+                pdf: pdfFileUri,
                 foliate: foliateFileUri,
                 book: src,
                 location: initialLocation,
@@ -136,11 +140,11 @@ export function Reader({
 
             if (!bookFileUri) throw new Error("Couldn't download book");
 
-            setAllowedUris(`${bookFileUri},${jszipFileUri},${foliateFileUri}`);
+            setAllowedUris(`${bookFileUri},${pdfFileUri},${foliateFileUri}`);
 
             setTemplate(
               injectWebVieWVariables({
-                jszip: jszipFileUri,
+                pdf: pdfFileUri,
                 foliate: foliateFileUri,
                 book: bookFileUri,
                 location: initialLocation,

@@ -5,8 +5,8 @@ export default `
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>foliate.js</title>
-    <script id="jszip"></script>
     <script id="foliate"></script>
+    <script id="pdf"></script>
 
     <style type="text/css">
       html {
@@ -15,6 +15,7 @@ export default `
         overflow: hidden !important;
         justify-content: center;
         align-items: center;
+        background-color: #09090b;
       }
       body {
         margin: 0 auto;
@@ -31,6 +32,9 @@ export default `
 
   <body oncopy='return false' oncut='return false'>
     <script>
+    var pdfjsLib = window["pdfjs-dist/build/pdf"];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdf.worker.js";
+
       const bookPath = undefined;
       const bookLocation = undefined;
 

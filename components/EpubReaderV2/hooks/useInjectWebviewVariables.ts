@@ -6,32 +6,30 @@ import type { SourceType } from "../utils/enums/source-type.enum";
 export function useInjectWebVieWVariables() {
   const injectWebVieWVariables = useCallback(
     ({
-      jszip,
+      pdf,
       foliate,
       book,
       location,
     }: {
-      jszip: string;
+      pdf: string;
       foliate: string;
       book: string;
       location?: string;
     }) => {
-      return (
-        template
-          // .replace(
-          //   /<script id="jszip"><\/script>/,
-          //   `<script src="${jszip}"></script>`
-          // )
-          .replace(
-            /<script id="foliate"><\/script>/,
-            `<script src="${foliate}"></script>`
-          )
-          .replace(/const bookPath = undefined;/, `const bookPath = '${book}';`)
-          .replace(
-            /const bookLocation = undefined;/,
-            `const bookLocation = '${location}';`
-          )
-      );
+      return template
+        .replace(
+          /<script id="pdf"><\/script>/,
+          `<script src="${pdf}"></script>`
+        )
+        .replace(
+          /<script id="foliate"><\/script>/,
+          `<script src="${foliate}"></script>`
+        )
+        .replace(/const bookPath = undefined;/, `const bookPath = '${book}';`)
+        .replace(
+          /const bookLocation = undefined;/,
+          `const bookLocation = '${location}';`
+        );
     },
     []
   );

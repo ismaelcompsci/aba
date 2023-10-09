@@ -1,6 +1,6 @@
 import { ChevronLeft, List, Settings2 } from "@tamagui/lucide-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   Group,
@@ -32,6 +32,12 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
   const theme = Appearance.getColorScheme();
   const { changePageFlow, changeTheme, changeFontSize } = useReader();
   const [openSettings, setOpenSettings] = useState(false);
+
+  useEffect(() => {
+    if (!hide) {
+      setOpenSettings(false);
+    }
+  }, [hide]);
 
   return (
     <YStack

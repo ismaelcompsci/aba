@@ -7,4 +7,5 @@ export enum SourceType {
   FB2 = "fb2",
   FBZ = "fbz",
   MOBI = "mobi",
+  PDF = "pdf",
 }

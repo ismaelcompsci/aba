@@ -21,6 +21,10 @@ export function getSourceType(source: string): SourceType | undefined {
     return SourceType.FBZ;
   }
 
+  if (source.includes(".pdf")) {
+    return SourceType.PDF;
+  }
+
   if (source.includes(".mobi")) {
     return SourceType.MOBI;
   }

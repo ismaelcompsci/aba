@@ -100,12 +100,12 @@ export interface ReaderProps {
    * @param {boolean} show
    * @returns {void}
    */
-  onShowNext?: (show: boolean) => void;
+  onShowNext?: (show: boolean, label: string) => void;
   /**
    * @param {boolean} show
    * @returns {void}
    */
-  onShowPrevious?: (show: boolean) => void;
+  onShowPrevious?: (show: boolean, label: string) => void;
   /**
    * Called once the book loads is started
    * @returns {void} void
