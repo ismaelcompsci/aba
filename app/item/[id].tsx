@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, ScrollView, Spinner, Text, XStack, YStack } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 import { getLibraryItem } from "../../api/library";
@@ -9,14 +9,10 @@ import {
   currentLibraryAtom,
   currentUserAtom,
 } from "../../utils/atoms";
-import {
-  cleanString,
-  getItemCoverSrc,
-  getUserMediaProgress,
-} from "../../utils/helpers";
+import { cleanString, getItemCoverSrc } from "../../utils/helpers";
 import { currentServerConfigAtom } from "../../utils/local-atoms";
 import ItemInfo from "../../components/item/item-info";
-import { LibraryItem, LibraryItemExpanded } from "../../types/adbs";
+import { LibraryItemExpanded } from "../../types/adbs";
 import ItemImage from "../../components/item-image";
 
 const ItemHeaderPicture = () => {
@@ -115,7 +111,7 @@ const ItemPage = () => {
           <Text>Read</Text>
         </Button>
       );
-    } else {
+    } else if (isMissing || isInvalid) {
       return (
         <Button
           chromeless

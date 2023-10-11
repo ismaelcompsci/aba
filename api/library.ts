@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import { API, handleApiError } from "./API";
-import { PersonalizedView } from "../types/server";
+import { LibraryItems, LibrarySeries, PersonalizedView } from "../types/server";
 import { Library } from "../types/adbs";
 
 /* https://api.audiobookshelf.org/#get-all-libraries */
@@ -38,4 +38,52 @@ export const getLibraryItem = async (itemId: string) => {
   } catch (error) {
     return handleApiError(error as AxiosError);
   }
+};
+
+export const getLibraryItems = async ({
+  libraryId,
+  limit,
+  pageParam,
+}: {
+  libraryId: string;
+  limit: number;
+  pageParam: number;
+}) => {
+  const { data }: { data: LibraryItems } = await API.get(
+    `/api/libraries/${libraryId}/items`,
+    {
+      params: {
+        limit: limit,
+        page: pageParam,
+        minified: 1,
+        include: "rssfeed,numEpisodesIncomplete",
+      },
+    }
+  );
+
+  return { data, nextPage: pageParam + 1 };
+};
+
+export const getLibrarySeries = async ({
+  libraryId,
+  limit,
+  pageParam,
+}: {
+  libraryId: string;
+  limit: number;
+  pageParam: number;
+}) => {
+  const { data }: { data: LibrarySeries } = await API.get(
+    `/api/libraries/${libraryId}/series`,
+    {
+      params: {
+        limit: limit,
+        page: pageParam,
+        minified: 1,
+        include: "rssfeed,numEpisodesIncomplete",
+      },
+    }
+  );
+
+  return { data, nextPage: pageParam + 1 };
 };

@@ -1,14 +1,9 @@
-import { memo, useEffect, useMemo, useState } from "react";
-import {
-  Dimensions,
-  StatusBar,
-  View as RNView,
-  useWindowDimensions,
-} from "react-native";
+import { memo, useEffect, useState } from "react";
+import { StatusBar, useWindowDimensions } from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
 import { Reader } from "../EpubReaderV2";
 
-import { useFileSystem } from "@epubjs-react-native/expo-file-system"; // for Expo project
+import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import { useAtomValue, useSetAtom } from "jotai/react";
 import {
   AnimatePresence,
@@ -25,6 +20,8 @@ import ReaderMenu from "./reader-menu";
 import { currentUserAtom } from "../../utils/atoms";
 import { LibraryItem } from "../../types/adbs";
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { router } from "expo-router";
+import { useToastController } from "@tamagui/toast";
 
 interface MyReader {
   url: string;
@@ -37,7 +34,6 @@ interface RReaderProps {
   location: string;
   height: number;
   handlePress: () => void;
-
   setLoading: (loading: boolean) => void;
 }
 
@@ -45,7 +41,12 @@ interface RReaderProps {
   https://github.com/futurepress/epub.js/blob/master/src/utils/request.js
   https://github.com/futurepress/epub.js/blob/master/src/book.js#L131
 */
-
+/**
+ * TODO
+ * make a loading so that there is only one and a atom to hold the loading state
+ * isLoadingAtom
+ * currentLoadingPosition i.e. downloading from server... or opeing book or ....
+ */
 const RReader = memo(
   ({
     bookPath,
@@ -55,11 +56,14 @@ const RReader = memo(
     handlePress,
     setLoading,
   }: RReaderProps) => {
-    const [viewWidth, setViewWidth] = useState(0);
     const [showingNext, setShowingNext] = useState(false);
     const [showingPrev, setShowingPrev] = useState(false);
     const [currentLabel, setCurrentLabel] = useState("");
+    const toast = useToastController();
 
+    const enableSwipe = bookPath.endsWith(".pdf");
+
+    console.log(enableSwipe, "enableSwipe");
     useEffect(() => {
       StatusBar.setHidden(true);
 
@@ -94,7 +98,7 @@ const RReader = memo(
             >
               <Button themeInverse>
                 <YStack py="$1" justifyContent="center" alignItems="center">
-                  <ChevronUp size={"$1"} />
+                  <ChevronUp size={14} />
                   <Text numberOfLines={1}>
                     RELEASE FOR: {currentLabel || "previous"}
                   </Text>
@@ -148,12 +152,19 @@ const RReader = memo(
             setCurrentLabel((prev) => (label ? label : prev));
             setShowingPrev(s);
           }}
+          onDisplayError={(reason) => {
+            toast.show("Something went wrong!", {
+              message: reason,
+            });
+            router.back();
+          }}
           onReady={() => setLoading(false)}
           height={height}
+          enableSwipe={enableSwipe}
           fileSystem={useFileSystem}
           onPress={handlePress}
           renderLoadingFileComponent={LoadingFileComponent}
-          renderOpeningBookComponent={LoadingFileComponent}
+          renderOpeningBookComponent={OpeningBookComponent}
         />
       </View>
     );
@@ -189,34 +200,42 @@ const MyReader = ({ url, item }: MyReader) => {
   useEffect(() => {
     if (!ebookFile) return;
 
-    const itemBookPath = `epub/${item.media.libraryItemId}.${ebookFormat(
-      ebookFile
-    )}`;
+    const getBook = async () => {
+      const itemBookPath = `epub/${item.media.libraryItemId}.${ebookFormat(
+        ebookFile
+      )}`;
 
-    const cachePath = RNFetchBlob.fs.dirs.DocumentDir + "/" + itemBookPath;
+      const cachePath = RNFetchBlob.fs.dirs.DocumentDir + "/" + itemBookPath;
+      const exists = await RNFetchBlob.fs.exists(cachePath);
 
-    (async () => {
-      setLoading(true);
-      RNFetchBlob.config({
-        fileCache: true,
-        appendExt: ebookFormat(ebookFile)!,
-        path: cachePath,
-      })
-        .fetch("GET", url, {
-          Authorization: `Bearer ${user?.token}`,
+      if (!exists) {
+        setLoading(true);
+        RNFetchBlob.config({
+          fileCache: true,
+          appendExt: ebookFormat(ebookFile)!,
+          path: cachePath,
         })
-        .then((res) => {
-          let status = res.info().status;
-          if (status == 200) {
-            setBookPath(res.path());
-            setTempBookFiles((prev: string[]) => [...prev, res.path()]);
-          }
-        })
-        .catch((errorMessage: any) => {
-          console.error(errorMessage);
-        })
-        .finally(() => setLoading(false));
-    })();
+          .fetch("GET", url, {
+            Authorization: `Bearer ${user?.token}`,
+          })
+          .then((res) => {
+            let status = res.info().status;
+            if (status == 200) {
+              setBookPath(res.path());
+              setTempBookFiles((prev: string[]) => [...prev, res.path()]);
+            }
+          })
+          .catch((errorMessage: any) => {
+            console.error(errorMessage);
+          })
+          .finally(() => setLoading(false));
+      } else {
+        setBookPath(cachePath);
+        setLoading(false);
+      }
+    };
+
+    getBook();
   }, []);
 
   return (
@@ -227,11 +246,11 @@ const MyReader = ({ url, item }: MyReader) => {
             h={"100%"}
             w={"100%"}
             zIndex={"$5"}
-            pos={"absolute"}
             justifyContent="center"
             alignItems="center"
           >
             <Spinner />
+            <Text>Downloading file from server...</Text>
           </YStack>
         ) : (
           <RReader
@@ -251,13 +270,33 @@ const MyReader = ({ url, item }: MyReader) => {
 const LoadingFileComponent = () => {
   return (
     <YStack
+      pos={"absolute"}
       bg={"$background"}
       h={"100%"}
       w={"100%"}
       alignItems="center"
       justifyContent="center"
+      zIndex={"$5"}
     >
       <Spinner />
+      <Text>Loading File...</Text>
+    </YStack>
+  );
+};
+
+const OpeningBookComponent = () => {
+  return (
+    <YStack
+      pos={"absolute"}
+      bg={"$background"}
+      h={"100%"}
+      w={"100%"}
+      alignItems="center"
+      justifyContent="center"
+      zIndex={"$5"}
+    >
+      <Spinner />
+      <Text>Opening book...</Text>
     </YStack>
   );
 };

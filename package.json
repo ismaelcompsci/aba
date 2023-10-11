@@ -31,6 +31,7 @@
     "@tamagui/themes": "^1.59.2",
     "@tamagui/toast": "^1.59.2",
     "@tamagui/toggle-group": "^1.68.6",
+    "@tanstack/react-query": "^4.36.1",
     "axios": "^1.5.0",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "burnt": "^0.11.7",
@@ -60,7 +61,8 @@
     "react-native-webview": "13.2.2",
     "rn-fetch-blob": "^0.12.0",
     "tamagui": "^1.59.2",
-    "zod": "^3.22.2"
+    "zod": "^3.22.2",
+    "@shopify/flash-list": "1.4.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -26,6 +26,8 @@ import {
   serversModalVisibleAtom,
 } from "../utils/atoms";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 export {
   // Catch any errors thrown by the Layout component.
   ErrorBoundary,
@@ -38,6 +40,8 @@ export const unstable_settings = {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [user] = useAtom(currentUserAtom);
@@ -91,28 +95,27 @@ export default function RootLayout() {
   }
 
   return (
-    // <Provider>
     <TamaguiProvider defaultTheme={theme ? theme : "dark"} config={appConfig}>
-      <ToastProvider>
-        <Stack
-          screenOptions={{
-            header: Header,
-            animation: "none",
-            gestureEnabled: false,
-          }}
-        >
-          <Stack.Screen name="(root)/index" />
-        </Stack>
-        <ToastViewport
-          w={"100%"}
-          pt={"$8"}
-          display="flex"
-          alignContent="center"
-        />
-        <ServersModal />
-      </ToastProvider>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider native={"mobile"}>
+          <Stack
+            screenOptions={{
+              header: Header,
+              animation: "none",
+              gestureEnabled: false,
+            }}
+          />
+          {/* TODO FIX make absolute and only take up space needed */}
+          <ToastViewport
+            w={"100%"}
+            pt={"$8"}
+            display="flex"
+            alignContent="center"
+          />
+          <ServersModal />
+        </ToastProvider>
+      </QueryClientProvider>
     </TamaguiProvider>
-    // </Provider>
   );
 }
 const Header = ({

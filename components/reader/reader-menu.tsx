@@ -15,29 +15,41 @@ import { IconButton } from "../ui/button";
 import { BlurView } from "@react-native-community/blur";
 import { Theme, useReader } from "../EpubReaderV2";
 import { Appearance } from "react-native";
-import {
-  createThemeForBook,
-  darkTheme,
-  defaultTheme,
-} from "../../utils/themes";
 
 interface ReaderMenuProps {
   children: React.ReactNode;
   hide: boolean;
 }
 
+const STEP = 0.5;
+
 const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
-  const [scrolled, setScrolled] = useState(false);
   const router = useRouter();
   const theme = Appearance.getColorScheme();
-  const { changePageFlow, changeTheme, changeFontSize } = useReader();
+  const { changeTheme, isRendering } = useReader();
   const [openSettings, setOpenSettings] = useState(false);
+  const [readerSettings, setReaderSettigns] = useState({
+    "line-height": 1.5,
+    justify: true,
+    hyphenate: true,
+    gap: 0.06,
+    "max-inline-size": 720,
+    "max-block-size": 1440,
+    "max-column-count": 2,
+    scrolled: false,
+    "font-size": 16,
+    theme: "dark",
+  });
 
   useEffect(() => {
     if (!hide) {
       setOpenSettings(false);
     }
   }, [hide]);
+
+  useEffect(() => {
+    changeTheme(readerSettings);
+  }, [readerSettings, isRendering]);
 
   return (
     <YStack
@@ -110,15 +122,12 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
                   <Separator minHeight={20} theme={"blue"} vertical />
                   <Switch
                     size={"$3"}
-                    checked={scrolled}
+                    checked={readerSettings.scrolled}
                     onCheckedChange={(checked) => {
-                      if (checked) {
-                        changePageFlow("scrolled");
-                        setScrolled(true);
-                      } else {
-                        changePageFlow("paginated");
-                        setScrolled(false);
-                      }
+                      setReaderSettigns((prev) => ({
+                        ...prev,
+                        scrolled: checked,
+                      }));
                     }}
                   >
                     <Switch.Thumb animation={"quick"} />
@@ -135,7 +144,12 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
                     <Group.Item>
                       <Button
                         size={"$3"}
-                        // onPress={() => handleFontSizeChange("down")}
+                        onPress={() => {
+                          setReaderSettigns((prev) => ({
+                            ...prev,
+                            "font-size": prev["font-size"] - STEP,
+                          }));
+                        }}
                         alignSelf="center"
                         fontSize={"$1"}
                       >
@@ -145,7 +159,12 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
                     <Group.Item>
                       <Button
                         size={"$3"}
-                        // onPress={() => handleFontSizeChange("up")}
+                        onPress={() => {
+                          setReaderSettigns((prev) => ({
+                            ...prev,
+                            "font-size": prev["font-size"] + STEP,
+                          }));
+                        }}
                         alignSelf="center"
                         fontSize={"$7"}
                       >
@@ -160,10 +179,7 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
                     bg={"$gray1Light"}
                     color="black"
                     onPress={() =>
-                      changeTheme({
-                        backgroundColor: "#fafafa",
-                        foregroundColor: "#09090b",
-                      })
+                      setReaderSettigns((prev) => ({ ...prev, theme: "light" }))
                     }
                   >
                     A
@@ -172,10 +188,7 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
                     bg={"black"}
                     color="white"
                     onPress={() =>
-                      changeTheme({
-                        backgroundColor: "#09090b",
-                        foregroundColor: "#fafafa",
-                      })
+                      setReaderSettigns((prev) => ({ ...prev, theme: "dark" }))
                     }
                   >
                     A

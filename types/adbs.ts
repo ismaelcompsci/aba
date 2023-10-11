@@ -249,6 +249,13 @@ export type SeriesBooks = Omit<Series, "description" | "updatedAt"> & {
   books: LibraryItem[];
   totalDuration: number;
 };
+export type SeriesBooksMinified = Omit<Series, "description" | "updatedAt"> & {
+  nameIgnorePrefix: string;
+  nameIgnorePrefixSort: string;
+  type: string;
+  books: LibraryItemMinified[];
+  totalDuration: number;
+};
 
 export type SeriesSequence = Omit<
   Series,

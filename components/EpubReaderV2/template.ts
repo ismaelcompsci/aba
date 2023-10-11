@@ -11,27 +11,26 @@ export default `
     <style type="text/css">
       html {
         height: 100%;
+        width: 100%;
         display: flex;
         overflow: hidden !important;
         justify-content: center;
         align-items: center;
-        background-color: #09090b;
       }
       body {
         margin: 0 auto;
         height: 100%;
         font: menu;
         font-family: system-ui, sans-serif;
-      }
-      .foliate-view {
-        height: 100vh;
-        width: 100%;
+        background: var(--bg);
+        color: var(--fg);
       }
     </style>
   </head>
 
   <body oncopy='return false' oncut='return false'>
     <script>
+    var reader;
     var pdfjsLib = window["pdfjs-dist/build/pdf"];
     pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdf.worker.js";
 
@@ -39,11 +38,6 @@ export default `
       const bookLocation = undefined;
 
       try {
-
-        // window.ReactNativeWebView.postMessage(
-        //   JSON.stringify({ type: "epubjs", message: "[INDEX_HTML] " + bookPath })
-        // );
-
         reader = new foliate(bookPath, bookLocation);
       } catch (err) {
         window.ReactNativeWebView.postMessage(

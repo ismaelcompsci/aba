@@ -836,20 +836,7 @@ export default `
         return range;
       };
       for (const match of func(strs, makeRange)) yield match;
-    }; // CONCATENATED MODULE: ./my-foliate/debug.js
-    const debugMessage = (m) => {
-      if (typeof window.ReactNativeWebView != "undefined") {
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({
-            type: "epubjs",
-            message: m,
-          }),
-        );
-      } else {
-        console.log(m);
-      }
-    };
-    /* harmony default export */ const debug = debugMessage; // CONCATENATED MODULE: ./my-foliate/fixed-layout.js
+    }; // CONCATENATED MODULE: ./my-foliate/fixed-layout.js
     const parseViewport = (str) =>
       str
         ?.split(/[,;\\s]/) // NOTE: technically, only the comma is valid
@@ -917,7 +904,6 @@ export default `
             align-items: center;
         }\`);
         this.#observer.observe(this);
-        debug("[FIXEDLAYOUT] INITED");
       }
       async #createFrame({ index, src }) {
         const element = document.createElement("div");
@@ -969,7 +955,9 @@ export default `
         const left = this.#left ?? {};
         const right = this.#center ?? this.#right;
         const target = side === "left" ? left : right;
-        const { width, height } = this.getBoundingClientRect();
+        let { width, height } = this.getBoundingClientRect();
+        var _width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+        width = width === 0 ? _width : width;
         const portrait =
           this.spread !== "both" &&
           this.spread !== "portrait" &&
@@ -977,7 +965,7 @@ export default `
         this.#portrait = portrait;
         const blankWidth = left.width ?? right.width;
         const blankHeight = left.height ?? right.height;
-        let scale =
+        const scale =
           portrait || this.#center
             ? Math.min(
                 width / (target.width ?? blankWidth),
@@ -992,8 +980,6 @@ export default `
                     right.height ?? blankHeight,
                   ),
               );
-        scale = scale <= 0 ? 0.4 : scale
-
         const transform = (frame) => {
           const { element, iframe, width, height, blank } = frame;
           Object.assign(iframe.style, {
@@ -1003,11 +989,8 @@ export default `
             transformOrigin: "top left",
             display: blank ? "none" : "block",
           });
-          debug(
-            \`[FIXEDLAYOUT_RENDER] \${window.innerWidth} \${JSON.stringify(target)} \${this.#portrait} \${(width ?? blankWidth) * scale} \${width} \${height} \${blankHeight} \${blankWidth} \${scale}\`,
-          );
           Object.assign(element.style, {
-            width: \`\${window.innerWidth}px\`,
+            width: \`\${(width ?? blankWidth) * scale}px\`,
             height: \`\${(height ?? blankHeight) * scale}px\`,
             overflow: "hidden",
             display: "block",
@@ -1108,7 +1091,6 @@ export default `
             },
             [{}],
           );
-        debug("[FIXEDLAYOUT_OPEN] done createing open ");
       }
       get index() {
         const spread = this.#spreads[this.#index];
@@ -1205,7 +1187,6 @@ export default `
         await this.goToSpread(index, side);
       }
       async next() {
-        debug("[FIXEDLAYOUT_NEXT] next...");
         const s = this.rtl ? this.#goLeft() : this.#goRight();
         if (s) this.#reportLocation("page");
         else
@@ -1237,7 +1218,7 @@ export default `
       }
     }
     customElements.define("foliate-fxl", FixedLayout); // CONCATENATED MODULE: ./my-foliate/paginator.js
-    const paginator_debugMessage = (m) => {
+    const debugMessage = (m) => {
       if (typeof window.ReactNativeWebView != "undefined") {
         window.ReactNativeWebView.postMessage(
           JSON.stringify({
@@ -1521,7 +1502,7 @@ export default `
         else this.scrolled(layout);
       }
       scrolled({ gap, columnWidth }) {
-        paginator_debugMessage("[SCROLLED] SCROLLED...");
+        // debugMessage('[SCROLLED] SCROLLED...')
         const vertical = this.#vertical;
         const doc = this.document;
         Object.assign(doc.documentElement.style, {
@@ -1539,7 +1520,7 @@ export default `
         this.expand();
       }
       columnize({ width, height, gap, columnWidth }) {
-        paginator_debugMessage("[COLUMNIZE] COLUMNIZING...");
+        // debugMessage('[COLUMNIZE] COLUMNIZING...')
         const vertical = this.#vertical;
         this.#size = vertical ? height : width;
         const doc = this.document;
@@ -1604,8 +1585,9 @@ export default `
         }
       }
       expand() {
-        paginator_debugMessage("[EXPAND] EXPANDING...");
+        // debugMessage('[EXPAND] EXPANDING...')
         if (this.#column) {
+          // debugMessage('[EXPAND] COLUMN')
           const side = this.#vertical ? "height" : "width";
           const otherSide = this.#vertical ? "width" : "height";
           const contentSize = this.#contentRange.getBoundingClientRect()[side];
@@ -1630,6 +1612,7 @@ export default `
             this.#overlayer.redraw();
           }
         } else {
+          // debugMessage('[EXPAND] ELSE')
           const side = this.#vertical ? "width" : "height";
           const otherSide = this.#vertical ? "height" : "width";
           const doc = this.document;
@@ -1819,7 +1802,7 @@ export default `
           doc.addEventListener("touchmove", this.#onTouchMove.bind(this), opts);
           doc.addEventListener("touchend", this.#onTouchEnd.bind(this));
         });
-        paginator_debugMessage("[PAGINATOR] INITED");
+        debugMessage("[PAGINATOR] INITED");
       }
       attributeChangedCallback(name, _, value) {
         switch (name) {
@@ -1941,7 +1924,7 @@ export default `
       }
       render() {
         if (!this.#view) return;
-        paginator_debugMessage("[RENDER]");
+        // debugMessage('[RENDER]')
         this.#view.render(
           this.#beforeRender({
             vertical: this.#vertical,
@@ -2294,7 +2277,7 @@ export default `
           }
           // idk what this.#anchor is ????
           this.#anchor &&
-            paginator_debugMessage(
+            debugMessage(
               \`[SCROLLTOANCHOR] anchor \${JSON.stringify(this.#anchor)} \${
                 this.#anchor
               }\`,
@@ -2547,7 +2530,6 @@ export default `
       }
       setStyles(styles) {
         this.#styles = styles;
-        paginator_debugMessage("[SETSTYLES] SETTING STYLES");
         const \$\$styles = this.#styleMap.get(this.#view?.document);
         if (!\$\$styles) return;
         const [\$beforeStyle, \$style] = \$\$styles;
@@ -3062,7 +3044,20 @@ export default `
           this.highlight(range.cloneRange());
         }
       }
-    } // CONCATENATED MODULE: ./my-foliate/view.js
+    } // CONCATENATED MODULE: ./my-foliate/debug.js
+    const debug_debugMessage = (m) => {
+      if (typeof window.ReactNativeWebView != "undefined") {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "epubjs",
+            message: m,
+          }),
+        );
+      } else {
+        console.log(m);
+      }
+    };
+    /* harmony default export */ const debug = debug_debugMessage; // CONCATENATED MODULE: ./my-foliate/view.js
     const SEARCH_PREFIX = "foliate-search:";
     class History extends EventTarget {
       #arr = [];
@@ -11549,6 +11544,15 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
       },
     }); // CONCATENATED MODULE: ./main.js
 
+    /**
+     * PDF
+     * - fixed-layout.js
+     * - scale is sometimes 0
+     * Paginator
+     * - font size increases when switching from paginated to scrolled
+     * - happens in scrolled on line 247 inside the paginator view?? <- maybe styles dont get passed?
+     */
+
     const toReactMessage = (e) => {
       window.ReactNativeWebView.postMessage(JSON.stringify(e));
     };
@@ -11580,58 +11584,56 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         debug("[makeZipLoader] " + err);
       }
     };
-    const getCSS = ({
-      spacing,
-      justify,
-      hyphenate,
-      backgroundColor,
-      foregroundColor,
-      fontSize,
-    }) => \`
-    @namespace epub "http://www.idpf.org/2007/ops";
-    /* https://github.com/whatwg/html/issues/5426 */
-    @media (prefers-color-scheme: dark) {
-        a:link {
-            color: lightblue;
-        }
+    const blobToBase64 = (blob) =>
+      new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => resolve(reader.result.split(",")[1]);
+      });
+    const getCSS = ({ spacing, justify, hyphenate, theme, fontSize }) => \`
+@namespace epub "http://www.idpf.org/2007/ops";
+@media print {
+    html {
+        column-width: auto !important;
+        height: auto !important;
+        width: auto !important;
     }
-    body, div {
-      padding-left: 10px !important;
-      padding-right: 10px !important;
-      background-color: \${backgroundColor};
-      color: \${foregroundColor}; 
-      font-size: \${fontSize}px !important;
-    }
-    p, li, blockquote, dd {
-        line-height: \${spacing};
-        text-align: \${justify ? "justify" : "start"};
-        -webkit-hyphens: \${hyphenate ? "auto" : "manual"};
-        hyphens: \${hyphenate ? "auto" : "manual"};
-        -webkit-hyphenate-limit-before: 3;
-        -webkit-hyphenate-limit-after: 2;
-        -webkit-hyphenate-limit-lines: 2;
-        hanging-punctuation: allow-end last;
-        widows: 2;
-    }
-    /* prevent the above from overriding the align attribute */
-    [align="left"] { text-align: left; }
-    [align="right"] { text-align: right; }
-    [align="center"] { text-align: center; }
-    [align="justify"] { text-align: justify; }
+}
+html, body {
+  background: none !important;
+  color: \${theme.fg};
+  font-size: \${fontSize}px;
+}
+body *{
+  background-color: \${theme.bg} !important;
+  color: inherit !important;
+}
+html, body, p, li, blockquote, dd {
+    line-height: \${spacing};
+    text-align: \${justify ? "justify" : "start"};
+    -webkit-hyphens: \${hyphenate ? "auto" : "manual"};
+    hyphens: \${hyphenate ? "auto" : "manual"};
+    -webkit-hyphenate-limit-before: 3;
+    -webkit-hyphenate-limit-after: 2;
+    -webkit-hyphenate-limit-lines: 2;
+    hanging-punctuation: allow-end last;
+    widows: 2;
+}
+/* prevent the above from overriding the align attribute */
+[align="left"] { text-align: left; }
+[align="right"] { text-align: right; }
+[align="center"] { text-align: center; }
+[align="justify"] { text-align: justify; }
 
-    pre {
-        white-space: pre-wrap !important;
-    }
-    aside[epub|type~="endnote"],
-    aside[epub|type~="footnote"],
-    aside[epub|type~="note"],
-    aside[epub|type~="rearnote"] {
-        display: none;
-    }
-
-    foliate-view::part(filter) {
-      background-color: \${backgroundColor};
-  }
+pre {
+    white-space: pre-wrap !important;
+}
+aside[epub|type~="endnote"],
+aside[epub|type~="footnote"],
+aside[epub|type~="note"],
+aside[epub|type~="rearnote"] {
+    display: none;
+}
 \`;
     /**
      *
@@ -11717,7 +11719,6 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
       return view;
     };
     class Reader {
-      #background;
       #tocMap;
       #currentTocPos;
       #isPdf;
@@ -11725,15 +11726,11 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         spacing: 1.4,
         justify: true,
         hyphenate: true,
-        backgroundColor: "#09090b",
-        foregroundColor: "#fafafa",
-        fontSize: 18,
       };
       constructor(path, bookLocation, initialStyles) {
         this.path = path;
         this.initalLocation = bookLocation;
         this.currentLocation = undefined;
-        this.setStyles(initialStyles);
         if (path) {
           this.getBookBlob(path).catch((error) => {
             var err = new Error("Cannot load book at " + path);
@@ -11763,21 +11760,19 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
       };
       open = async (file) => {
         try {
+          this.#isPdf = await isPDF(file);
           this.view = await getView(file);
           this.view.addEventListener("relocate", this.onRelocate);
-          if (this.#isPdf) {
+          if (!this.#isPdf) {
             this.view.renderer.addEventListener("next", this.showNext, {
               passive: false,
             });
             this.view.renderer.addEventListener("previous", this.showPrevious, {
               passive: false,
             });
-            this.#background =
-              this.view.renderer.shadowRoot.querySelector("#background");
           }
           const { book } = this.view;
           const toc = book.toc;
-          this.view.renderer.setStyles?.(getCSS(this.style));
           let count = 0;
           toc?.flatMap((item, i) => {
             if (item.subitems?.length > 0) {
@@ -11796,18 +11791,21 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
               count += 1;
             }
           });
-          // this.view.renderer.next();
-          this.initalLocation
-            ? await this.view.goTo(this.initalLocation)
-            : this.view.renderer.next()
-
-          this.view.renderer.setAttribute("gap", "0%");
+          if (!this.#isPdf) {
+            this.initalLocation
+              ? await this.view.goTo(this.initalLocation)
+              : this.view.renderer.next();
+          } else this.view.renderer.next();
           const title = book.metadata?.title ?? "Untitled Book";
           toReactMessage({
             type: "onReady",
           });
         } catch (err) {
           debug("[READER_OPEN_ERROR] " + err);
+          toReactMessage({
+            type: "onDisplayError",
+            reason: "book-error-failed-to-open",
+          });
         }
       };
       showNext = (ev) => {
@@ -11847,42 +11845,38 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
           pageItem,
         });
       };
-      setFlow = (flow) => {
-        if (this.view.renderer.getAttribute("flow") === flow) return;
-        this.view.renderer.setAttribute("flow", flow);
-        this.#setTheme();
-        return true;
-      };
-
-      // https://github.com/johnfactotum/foliate/blob/14f2d8e07a5da2d04482b00fffe92103998506bc/src/reader/reader.js#L309
-      setStyles = (newStyles) => {
-        if (!newStyles) return;
-        this.style = {
-          ...this.style,
-          ...newStyles,
-        };
-        this.#setTheme();
-        return true;
-      };
       next = () => {
         this.view.renderer.next();
       };
       prev = () => {
         this.view.renderer.prev();
       };
-      #setWindowTheme = () => {
-        document.body.style.backgroundColor = this.style.backgroundColor;
-        document.body.style.color = this.style.foregroundColor;
-        if (this.#background) {
-          this.#background.style.backgroundColor = this.style.backgroundColor;
+      setTheme = ({ style, layout }) => {
+        Object.assign(this.style, style);
+        const { theme } = style;
+        const \$style = document.documentElement.style;
+        \$style.setProperty("--bg", theme.bg);
+        \$style.setProperty("--fg", theme.fg);
+        const renderer = this.view?.renderer;
+        if (renderer) {
+          renderer.setAttribute("flow", layout.flow ? "scrolled" : "paginated");
+          renderer.setAttribute("gap", layout.gap * 100 + "%");
+          renderer.setAttribute("max-inline-size", layout.maxInlineSize + "px");
+          renderer.setAttribute("max-block-size", layout.maxBlockSize + "px");
+          renderer.setAttribute("max-column-count", layout.maxColumnCount);
+          renderer.setStyles?.(getCSS(this.style));
         }
-        return true;
       };
-      #setTheme = () => {
-        this.view.renderer.setStyles?.(getCSS(this.style));
-        this.#setWindowTheme();
-        return true;
-      };
+      async getCover() {
+        try {
+          const blob = await this.book.getCover?.();
+          return blob ? blobToBase64(blob) : null;
+        } catch (e) {
+          console.warn(e);
+          console.warn("Failed to load cover");
+          return null;
+        }
+      }
     }
     /* harmony default export */ const main = Reader;
 

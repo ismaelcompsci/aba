@@ -14,11 +14,13 @@ import type {
   SearchResult,
   Theme,
 } from "./types";
+import { themes } from "./themes";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
     ? {
         type: Key;
+        payload: M[Key];
       }
     : {
         type: Key;
@@ -44,8 +46,8 @@ enum Types {
 }
 
 type BookPayload = {
-  [Types.CHANGE_THEME]: Theme;
-  [Types.CHANGE_FONT_SIZE]: FontSize;
+  [Types.CHANGE_THEME]: any;
+  [Types.CHANGE_FONT_SIZE]: number;
   [Types.CHANGE_FONT_FAMILY]: string;
   [Types.SET_AT_START]: boolean;
   [Types.SET_AT_END]: boolean;
@@ -73,7 +75,7 @@ type BookActions = ActionMap<BookPayload>[keyof ActionMap<BookPayload>];
 type InitialState = {
   theme: any;
   fontFamily: string;
-  fontSize: FontSize;
+  fontSize: number;
   atStart: boolean;
   atEnd: boolean;
   key: string;
@@ -101,13 +103,13 @@ export const defaultTheme = {
   hyphenate: true,
   backgroundColor: "#09090b",
   foregroundColor: "#fafafa",
-  fontSize: 18,
+  fontSize: 16,
 };
 
 const initialState: InitialState = {
   theme: defaultTheme,
   fontFamily: "Helvetica",
-  fontSize: "12pt",
+  fontSize: 16,
   atStart: false,
   atEnd: false,
   key: "",
@@ -235,12 +237,12 @@ export interface ReaderContextProps {
   // /**
   //  * Go to previous page in the book
   //  */
-  // goPrevious: () => void;
+  goPrevious: () => void;
 
   // /**
   //  * Go to next page in the book
   //  */
-  // goNext: () => void;
+  goNext: () => void;
 
   // /**
   //  * Get the total locations of the book
@@ -294,7 +296,7 @@ export interface ReaderContextProps {
   //  * Change font size of all elements in the book
   //  * @param {FontSize} size {@link FontSize}
   //  */
-  // changeFontSize: (size: FontSize) => void;
+  // changeFontSize: (size: number) => void;
 
   // /**
   //  * Add Mark a specific cfi in the book
@@ -379,7 +381,7 @@ export interface ReaderContextProps {
   //  * Indicates if the book is rendering
   //  * @returns {boolean} {@link boolean}
   //  */
-  // isRendering: boolean;
+  isRendering: boolean;
 
   // /**
   //  * Search results
@@ -388,7 +390,7 @@ export interface ReaderContextProps {
   // searchResults: SearchResult[];
 
   // setSearchResults: (results: SearchResult[]) => void;
-  changePageFlow: (pageFlow: "paginated" | "scrolled") => void;
+  // changePageFlow: (pageFlow: "paginated" | "scrolled") => void;
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
@@ -404,8 +406,8 @@ const ReaderContext = createContext<ReaderContextProps>({
   setIsRendering: () => {},
 
   // goToLocation: () => {},
-  // goPrevious: () => {},
-  // goNext: () => {},
+  goPrevious: () => {},
+  goNext: () => {},
   // getLocations: () => [],
   // getCurrentLocation: () => null,
   // getMeta: () => ({
@@ -446,11 +448,11 @@ const ReaderContext = createContext<ReaderContextProps>({
   // progress: 0,
   // locations: [],
   isLoading: true,
-  // isRendering: true,
+  isRendering: true,
 
   // searchResults: [],
   // setSearchResults: () => {},
-  changePageFlow: () => {},
+  // changePageFlow: () => {},
 });
 
 function ReaderProvider({ children }: { children: React.ReactNode }) {
@@ -461,28 +463,30 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     book.current = bookRef;
   }, []);
 
-  const changePageFlow = useCallback((pageStyle: string) => {
-    book.current?.injectJavaScript(`
-      reader.setFlow('${pageStyle}');
-      true
-    `);
-  }, []);
-
-  const changeTheme = useCallback((theme: any) => {
-    const style = {
-      spacing: 1.4,
-      justify: true,
-      hyphenate: true,
-      backgroundColor: "#09090b",
-      foregroundColor: "#fafafa",
-      fontSize: 18,
-      ...theme,
+  const changeTheme = useCallback((newTheme: any) => {
+    const t = themes.find((theme) => theme.name === newTheme.theme);
+    const _newTheme = {
+      style: {
+        lineHeight: newTheme.line_height,
+        justify: newTheme.justify,
+        hyphenate: newTheme.hyphenate,
+        invert: newTheme.invert,
+        theme: t,
+        fontSize: newTheme["font-size"],
+      },
+      layout: {
+        gap: newTheme.gap,
+        maxInlineSize: newTheme["max-inline-size"],
+        maxBlockSize: newTheme["max-block-size"],
+        maxColumnCount: newTheme["max-column-count"],
+        flow: newTheme.scrolled,
+      },
     };
     book.current?.injectJavaScript(`
-        reader.setStyles(${JSON.stringify(style)});
+        reader.setTheme(${JSON.stringify(_newTheme)});
         true
     `);
-    dispatch({ type: Types.CHANGE_THEME, payload: style });
+    dispatch({ type: Types.CHANGE_THEME, payload: _newTheme });
   }, []);
 
   // const changeFontFamily = useCallback((fontFamily: string) => {
@@ -490,19 +494,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   //     rendition.themes.font('${fontFamily}');
   //   `);
   //   dispatch({ type: Types.CHANGE_FONT_FAMILY, payload: fontFamily });
-  // }, []);
-
-  // const changeFontSize = useCallback((size: FontSize) => {
-  //   book.current?.injectJavaScript(`
-  //     var cfi = rendition.location.start.cfi;
-  //     rendition.themes.fontSize('${size}');
-  //     rendition.manager.updateLayout();
-  //     rendition.display(cfi, true);
-  //     true
-  //     `);
-  //   // rendition.clear();
-  //   // rendition.start();
-  //   dispatch({ type: Types.CHANGE_FONT_SIZE, payload: size });
   // }, []);
 
   // const setAtStart = useCallback((atStart: boolean) => {
@@ -556,13 +547,13 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   //   book.current?.injectJavaScript(`rendition.display('${targetCfi}'); true`);
   // }, []);
 
-  // const goPrevious = useCallback(() => {
-  //   book.current?.injectJavaScript(`rendition.prev(); true`);
-  // }, []);
+  const goPrevious = useCallback(() => {
+    book.current?.injectJavaScript(`reader.prev(); true`);
+  }, []);
 
-  // const goNext = useCallback(() => {
-  //   book.current?.injectJavaScript(`rendition.next(); true`);
-  // }, []);
+  const goNext = useCallback(() => {
+    book.current?.injectJavaScript(`reader.next(); true`);
+  }, []);
 
   // const getLocations = useCallback(() => state.locations, [state.locations]);
 
@@ -641,8 +632,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       setIsRendering,
 
       // goToLocation,
-      // goPrevious,
-      // goNext,
+      goPrevious,
+      goNext,
       // getLocations,
       // getCurrentLocation,
       // getMeta,
@@ -656,7 +647,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
       changeTheme,
       // changeFontFamily,
-      // changeFontSize,
       theme: state.theme,
 
       atStart: state.atStart,
@@ -671,7 +661,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
       searchResults: state.searchResults,
       // setSearchResults,
-      changePageFlow,
     }),
     [
       // addMark,
@@ -681,8 +670,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // getCurrentLocation,
       // getMeta,
       // getLocations,
-      // goNext,
-      // goPrevious,
+      goNext,
+      goPrevious,
       // goToLocation,
       registerBook,
       // removeMark,
@@ -710,7 +699,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       state.searchResults,
       state.theme,
       state.totalLocations,
-      changePageFlow,
     ]
   );
   return (

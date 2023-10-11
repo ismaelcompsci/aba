@@ -6,7 +6,6 @@ import {
   LibraryItemMinified,
   User,
 } from "../types/adbs";
-import { defaultTheme } from "./themes";
 
 export const getItemCoverSrc = (
   libraryItem: LibraryItemMinified | LibraryItem | undefined | null,

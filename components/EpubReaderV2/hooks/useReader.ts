@@ -3,79 +3,76 @@ import { ReaderContext, ReaderContextProps } from "../context";
 
 export function useReader() {
   const {
-    changeFontSize,
-    changeFontFamily,
+    // changeFontFamily,
     changeTheme,
-    goToLocation,
+    // goToLocation,
     goPrevious,
     goNext,
-    getLocations,
-    getCurrentLocation,
-    getMeta,
-    search,
-    addMark,
-    removeMark,
+    // getLocations,
+    // getCurrentLocation,
+    // getMeta,
+    // search,
+    // addMark,
+    // removeMark,
     theme,
-    atStart,
-    atEnd,
-    totalLocations,
-    currentLocation,
-    progress,
-    locations,
+    // atStart,
+    // atEnd,
+    // totalLocations,
+    // currentLocation,
+    // progress,
+    // locations,
     isLoading,
-    key,
-    searchResults,
-    changePageFlow,
+    isRendering,
+    // key,
+    // searchResults,
   } = useContext(ReaderContext);
 
   return {
-    changeFontSize,
-    changeFontFamily,
+    // changeFontFamily,
     changeTheme,
-    goToLocation,
-    goPrevious,
-    goNext,
-    getLocations,
-    getCurrentLocation,
-    getMeta,
-    search,
-    addMark,
-    removeMark,
+    // goToLocation,
+    // goPrevious,
+    // goNext,
+    // getLocations,
+    // getCurrentLocation,
+    // getMeta,
+    // search,
+    // addMark,
+    // removeMark,
     theme,
-    atStart,
-    atEnd,
-    totalLocations,
-    currentLocation,
-    progress,
-    locations,
+    // atStart,
+    // atEnd,
+    // totalLocations,
+    // currentLocation,
+    // progress,
+    // locations,
+    isRendering,
     isLoading,
-    key,
-    searchResults,
-    changePageFlow,
+    // key,
+    // searchResults,
   } as Pick<
     ReaderContextProps,
-    | "changeFontSize"
-    | "changeFontFamily"
+    // | "changeFontFamily"
     | "changeTheme"
-    | "goToLocation"
-    | "goPrevious"
-    | "goNext"
-    | "getLocations"
-    | "getCurrentLocation"
-    | "getMeta"
-    | "search"
-    | "addMark"
-    | "removeMark"
+    // | "goToLocation"
+    // | "goPrevious"
+    // | "goNext"
+    // | "getLocations"
+    // | "getCurrentLocation"
+    // | "getMeta"
+    // | "search"
+    // | "addMark"
+    // | "removeMark"
     | "theme"
-    | "atStart"
-    | "atEnd"
-    | "totalLocations"
-    | "currentLocation"
-    | "progress"
-    | "locations"
+    // | "atStart"
+    // | "atEnd"
+    // | "totalLocations"
+    // | "currentLocation"
+    // | "progress"
+    // | "locations"
     | "isLoading"
-    | "key"
-    | "searchResults"
-    | "changePageFlow"
+    | "isRendering"
+    // | "key"
+    // | "searchResults"
   >;
 }

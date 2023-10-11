@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { View as RNView, useWindowDimensions } from "react-native";
+import { I18nManager, View as RNView, useWindowDimensions } from "react-native";
 import {
+  Directions,
   Gesture,
   GestureDetector,
   GestureTouchEvent,
@@ -8,8 +9,9 @@ import {
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { defaultTheme as initialTheme, ReaderContext } from "./context";
 import type { ReaderProps } from "./types";
-import { Spinner, YStack } from "tamagui";
+import { Spinner, Text, YStack } from "tamagui";
 import RNFetchBlob from "rn-fetch-blob";
+import { OpeningBook } from "./utils/OpeningBook";
 
 export type ViewProps = Omit<ReaderProps, "src" | "fileSystem"> & {
   templateUri: string;
@@ -24,10 +26,21 @@ export function View({
   onDisplayError = () => {},
   onShowNext = () => {},
   onShowPrevious = () => {},
+  enableSwipe = false,
   width,
   height,
+  renderOpeningBookComponent = () => (
+    <OpeningBook width={width} height={height} />
+  ),
 }: ViewProps) {
-  const { registerBook, theme, setIsRendering } = useContext(ReaderContext);
+  const {
+    registerBook,
+    setIsRendering,
+    goNext,
+    goPrevious,
+    theme,
+    isRendering,
+  } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
   const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
 
@@ -50,7 +63,6 @@ export function View({
 
     if (type === "onDisplayError") {
       const { reason } = parsedEvent;
-      console.log(reason);
       setIsRendering(false);
 
       return onDisplayError(reason);
@@ -98,9 +110,24 @@ export function View({
     return touchX > start && touchX < end;
   };
 
+  const leftFlingGesture = Gesture.Fling()
+    .direction(I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT)
+    .onStart(() => {
+      if (enableSwipe) {
+        goPrevious();
+      }
+    });
+
+  const rightFlingGesture = Gesture.Fling()
+    .direction(I18nManager.isRTL ? Directions.RIGHT : Directions.LEFT)
+    .onStart(() => {
+      if (enableSwipe) {
+        goNext();
+      }
+    });
+
   const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
     const isValid = centerOfScreenHorizontal(_event);
-
     if (isValid) {
       onPress();
     }
@@ -112,7 +139,9 @@ export function View({
    * only send onReady when book is rendered in html
    */
   return (
-    <GestureDetector gesture={Gesture.Exclusive(tapGesture)}>
+    <GestureDetector
+      gesture={Gesture.Race(tapGesture, rightFlingGesture, leftFlingGesture)}
+    >
       <RNView
         style={{
           height: height,
@@ -122,6 +151,19 @@ export function View({
           width: width,
         }}
       >
+        {isRendering && (
+          <RNView
+            style={{
+              width: "100%",
+              height: "100%",
+              position: "absolute",
+              top: 0,
+              zIndex: 2,
+            }}
+          >
+            {renderOpeningBookComponent()}
+          </RNView>
+        )}
         <WebView
           ref={book}
           source={{ uri: templateUri }}
@@ -132,10 +174,7 @@ export function View({
           scrollEnabled={true}
           mixedContentMode="compatibility"
           onMessage={onMessage}
-          allowingReadAccessToURL={
-            allowedUris +
-            `,${RNFetchBlob.fs.dirs.DocumentDir},${RNFetchBlob.fs.dirs.MainBundleDir}`
-          }
+          allowingReadAccessToURL={`${allowedUris},${RNFetchBlob.fs.dirs.DocumentDir}`} /** use allow uri inseatd insecure? */
           allowUniversalAccessFromFileURLs={true}
           allowFileAccessFromFileURLs={true}
           allowFileAccess={true}
@@ -163,13 +202,15 @@ export function View({
 const LoadingFileComponent = () => {
   return (
     <YStack
-      bg={"#111"}
+      pos={"absolute"}
+      bg={"$background"}
       h={"100%"}
       w={"100%"}
       alignItems="center"
       justifyContent="center"
     >
       <Spinner />
+      <Text>Loading File...</Text>
     </YStack>
   );
 };
