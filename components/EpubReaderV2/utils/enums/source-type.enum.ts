@@ -8,4 +8,5 @@ export enum SourceType {
   FBZ = "fbz",
   MOBI = "mobi",
   PDF = "pdf",
+  AZW3 = "azw3",
 }

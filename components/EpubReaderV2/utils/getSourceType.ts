@@ -12,6 +12,9 @@ export function getSourceType(source: string): SourceType | undefined {
   if (source.includes(".cbz")) {
     return SourceType.CBZ;
   }
+  if (source.includes(".azw3")) {
+    return SourceType.CBZ;
+  }
 
   if (source.includes(".fb2")) {
     return SourceType.FB2;

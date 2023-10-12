@@ -1,32 +1,39 @@
-import { Spinner, Text, XStack, YStack } from "tamagui";
+import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
 import SectionHeader from "../../components/section-header";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getLibraryItems } from "../../api/library";
-import { currentLibraryIdAtom } from "../../utils/local-atoms";
+import {
+  currentLibraryIdAtom,
+  currentServerConfigAtom,
+} from "../../utils/local-atoms";
 import { useAtomValue } from "jotai/react";
 import { FlashList } from "@shopify/flash-list";
-
+import BookCard from "../../components/book/book-card";
+import { useCallback } from "react";
+import { LibraryItemMinified } from "../../types/adbs";
 /**
  *
  *  https://levelup.gitconnected.com/react-native-infinite-scrolling-with-react-query-3c2cc69790be
  */
 const LibraryPage = () => {
   const libraryId = useAtomValue(currentLibraryIdAtom);
+  const currentServerConfig = useAtomValue(currentServerConfigAtom);
 
   /**in futire add invalidator for stale data using server socket form audiobookshelf when new item is added */
-  const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ["library-items"],
-    queryFn: ({ pageParam = 0 }) =>
-      getLibraryItems({ pageParam, libraryId, limit: 20 }),
-    getNextPageParam: (lastPage) => {
-      if (lastPage.data.page >= lastPage.data.total) {
-        return undefined;
-      }
+  const { data, isInitialLoading, fetchNextPage, hasNextPage } =
+    useInfiniteQuery({
+      queryKey: ["library-items"],
+      queryFn: ({ pageParam = 0 }) =>
+        getLibraryItems({ pageParam, libraryId, limit: 20 }),
+      getNextPageParam: (lastPage) => {
+        if (lastPage.data.page >= lastPage.data.total) {
+          return undefined;
+        }
 
-      return lastPage.nextPage;
-    },
-    staleTime: 1000 * 60 * 60,
-  });
+        return lastPage.nextPage;
+      },
+      staleTime: 1000 * 60 * 60,
+    });
 
   const flattenData = data?.pages.flatMap((page) => page.data.results);
 
@@ -36,38 +43,58 @@ const LibraryPage = () => {
     }
   };
 
+  const handleRenderItem = useCallback(
+    ({ item }: { item: LibraryItemMinified }) => {
+      return (
+        <BookCard
+          currentServerConfig={currentServerConfig}
+          isCoverSquareAspectRatio={false}
+          token={currentServerConfig.token}
+          item={item}
+        />
+      );
+    },
+    [flattenData]
+  );
+
   return (
     <>
       <SectionHeader />
-      <YStack
-        bg={"$background"}
-        h={"100%"}
-        w={"100%"}
-        px={"$2"}
-        justifyContent="center"
-        alignItems="center"
-        pb={"$10"}
-      >
-        <XStack height={"100%"}>
+      {isInitialLoading ? (
+        <XStack
+          bg={"$background"}
+          w={"100%"}
+          h={"100%"}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Spinner />
+        </XStack>
+      ) : (
+        <XStack
+          bg={"$background"}
+          w={"100%"}
+          h={"100%"}
+          justifyContent="center"
+          alignItems="center"
+          pb={"$10"}
+          pl={"$4"}
+        >
           <FlashList
+            ItemSeparatorComponent={() => {
+              return <Separator vertical={false} w={100} h={10} />;
+            }}
             showsVerticalScrollIndicator={false}
             horizontal={false}
             data={flattenData}
+            numColumns={3}
             onEndReached={loadNextPageData}
             keyExtractor={(item, i) => `${i}${item.id}`}
-            renderItem={({ item }) => {
-              return (
-                <XStack w={"100%"} h={"$6"}>
-                  <YStack>
-                    <Text fontSize={"$10"}>{item.media.metadata.title}</Text>
-                  </YStack>
-                </XStack>
-              );
-            }}
-            estimatedItemSize={200}
+            renderItem={handleRenderItem}
+            estimatedItemSize={196}
           />
         </XStack>
-      </YStack>
+      )}
     </>
   );
 };

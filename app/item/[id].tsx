@@ -46,6 +46,7 @@ const ItemPage = () => {
   const [loading, setLoading] = useState(false);
 
   const cover = getItemCoverSrc(item, config, user?.token);
+  const coverFileType = item?.media.coverPath?.split(".").pop();
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.2 : 100;
   const bookHeigth = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.4;
   const isMissing = item?.isMissing;
@@ -153,7 +154,7 @@ const ItemPage = () => {
       justifyContent="center"
     >
       {loading && <Spinner alignSelf="center" />}
-      {!loading && (
+      {!loading && item && (
         <ScrollView>
           <ItemHeaderPicture />
           <YStack
@@ -181,6 +182,8 @@ const ItemPage = () => {
                 borderRadius={"$4"}
               >
                 <ItemImage
+                  itemId={item?.id}
+                  coverFileType={coverFileType}
                   cover={cover}
                   bookHeight={bookHeigth}
                   bookWidth={bookWidth}

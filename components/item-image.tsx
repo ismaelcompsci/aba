@@ -1,9 +1,11 @@
 import { BlurView } from "@react-native-community/blur";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ImageLoadEventData, NativeSyntheticEvent } from "react-native";
 import { Card, Image, Stack, Text } from "tamagui";
 import { PLACEHOLDER_IMAGE } from "../constants/data-uris";
 import { cleanString } from "../utils/helpers";
+import RNFetchBlob from "rn-fetch-blob";
+import { imageCacheDir } from "../utils/folders";
 
 interface ItemImageProps {
   cover: string | null | undefined;
@@ -11,15 +13,23 @@ interface ItemImageProps {
   bookWidth: number;
   isCoverSquareAspectRatio: boolean;
   title: string;
+  itemId: string;
+  coverFileType?: string;
 }
 
+/** use
+ * https://github.com/DylanVann/react-native-fast-image
+ */
 const ItemImage = ({
   cover,
   bookHeight,
   bookWidth,
   isCoverSquareAspectRatio,
   title,
+  itemId,
+  coverFileType,
 }: ItemImageProps) => {
+  const [bookCoverUri, setBookCoverUri] = useState<string | null>(null);
   const [showCoverBg, setShowCoverBg] = useState(false);
 
   const handleImageOnLoad = ({
@@ -46,9 +56,35 @@ const ItemImage = ({
       return "stretch";
     }
   };
+
+  useEffect(() => {
+    if (!cover) return;
+    /**
+     * this will go and look for that unique, URL based key in our filesystem
+      -> if it finds it -> return the local key
+      -> if not -> download it first and write to system
+     */
+    (async () => {
+      /** TODO
+       * possible error with hasImageCacheDir
+       * move creation of folders in root startup?
+       */
+      const imagePath = imageCacheDir + "/" + itemId + "." + coverFileType;
+      const imageInCache = await RNFetchBlob.fs.exists(imagePath);
+
+      if (imageInCache) {
+        setBookCoverUri(imagePath);
+      } else {
+        const response = await RNFetchBlob.fetch("GET", cover);
+        await RNFetchBlob.fs.writeFile(imagePath, response.base64(), "base64");
+        setBookCoverUri(imagePath);
+      }
+    })();
+  }, [cover, itemId]);
+
   return (
     <>
-      {cover ? (
+      {bookCoverUri ? (
         <Stack
           overflow="hidden"
           h={bookHeight}
@@ -68,7 +104,7 @@ const ItemImage = ({
                 onLoad={handleImageOnLoad}
                 resizeMode={"cover"}
                 source={{
-                  uri: cover,
+                  uri: bookCoverUri,
                 }}
               />
               <BlurView
@@ -92,11 +128,11 @@ const ItemImage = ({
             left={0}
             bottom={0}
             right={0}
-            onLoad={handleImageOnLoad}
             zIndex={"$3"}
+            // onLoad={handleImageOnLoad}
             resizeMode={resizeMode()}
             source={{
-              uri: cover,
+              uri: bookCoverUri,
             }}
           />
         </Stack>
@@ -112,7 +148,7 @@ const ItemImage = ({
           <Text zIndex={10} textAlign="center" color={"white"} fontSize={"$5"}>
             {cleanString(title, 60)}
           </Text>
-          <Card.Background>
+          {/* <Card.Background>
             <Image
               zIndex={-20}
               borderRadius={"$4"}
@@ -124,7 +160,7 @@ const ItemImage = ({
                 uri: PLACEHOLDER_IMAGE,
               }}
             />
-          </Card.Background>
+          </Card.Background> */}
         </Card>
       )}
     </>

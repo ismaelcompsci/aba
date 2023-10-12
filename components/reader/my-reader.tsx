@@ -22,6 +22,7 @@ import { LibraryItem } from "../../types/adbs";
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useToastController } from "@tamagui/toast";
+import { epubDir } from "../../utils/folders";
 
 interface MyReader {
   url: string;
@@ -201,11 +202,10 @@ const MyReader = ({ url, item }: MyReader) => {
     if (!ebookFile) return;
 
     const getBook = async () => {
-      const itemBookPath = `epub/${item.media.libraryItemId}.${ebookFormat(
+      const itemBookName = `${item.media.libraryItemId}.${ebookFormat(
         ebookFile
       )}`;
-
-      const cachePath = RNFetchBlob.fs.dirs.DocumentDir + "/" + itemBookPath;
+      const cachePath = epubDir + "/" + itemBookName;
       const exists = await RNFetchBlob.fs.exists(cachePath);
 
       if (!exists) {

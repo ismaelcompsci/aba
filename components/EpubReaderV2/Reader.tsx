@@ -123,7 +123,8 @@ export function Reader({
             sourceType === SourceType.FB2 ||
             sourceType === SourceType.MOBI ||
             sourceType === SourceType.FBZ ||
-            sourceType === SourceType.PDF
+            sourceType === SourceType.PDF ||
+            sourceType === SourceType.AZW3
           ) {
             setTemplate(
               injectWebVieWVariables({

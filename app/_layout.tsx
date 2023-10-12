@@ -73,7 +73,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     async function initLibraries() {
-      if (!user || !user?.token) {
+      if (!user?.token) {
         console.info("[INIT_LIBRARRIES_LAYOUT] no user");
         return;
       }
@@ -88,7 +88,7 @@ export default function RootLayout() {
       data?.libraries && console.info("[INIT_LIBRARRIES_LAYOUT] success");
     }
     initLibraries();
-  }, [user]);
+  }, [user, user?.token]);
 
   if (!loaded) {
     return null;

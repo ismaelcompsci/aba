@@ -4,6 +4,7 @@ import {
   EbookFile,
   LibraryItem,
   LibraryItemMinified,
+  SeriesBooksMinified,
   User,
 } from "../types/adbs";
 

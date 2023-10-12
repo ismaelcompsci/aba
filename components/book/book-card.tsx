@@ -1,12 +1,8 @@
-import { Card, CardFooter, Image, Stack, Text } from "tamagui";
+import { CardFooter, Stack, Text } from "tamagui";
 import { cleanString, getItemCoverSrc } from "../../utils/helpers";
-import { PLACEHOLDER_IMAGE } from "../../constants/data-uris";
 import { ServerConfig } from "../login/login-form";
 import { useRouter } from "expo-router";
 import { LibraryItemMinified } from "../../types/adbs";
-import { useEffect, useState } from "react";
-import { BlurView } from "@react-native-community/blur";
-import { ImageLoadEventData, NativeSyntheticEvent } from "react-native";
 import ItemImage from "../item-image";
 
 interface BookCardProps {
@@ -24,6 +20,7 @@ const BookCard = ({
 }: BookCardProps) => {
   const router = useRouter();
   const cover = getItemCoverSrc(item, currentServerConfig, token);
+  const coverFileType = item.media.coverPath?.split(".").pop();
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
   const bookHeigth = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
@@ -35,11 +32,10 @@ const BookCard = ({
   return (
     <Stack
       onPress={handlePress}
-      mb={"$2"}
       pressStyle={{ scale: 0.98 }}
       justifyContent="center"
       key={item.id}
-      w={bookWidth} // change this to make compact book covers
+      w={bookWidth}
       bg={"$background"}
     >
       <ItemImage
@@ -48,6 +44,8 @@ const BookCard = ({
         isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         cover={cover}
         title={item.media.metadata.title || ""}
+        itemId={item.id}
+        coverFileType={coverFileType}
       />
 
       <CardFooter gap={"$1"} p={0} display="flex" flexDirection="column">
@@ -68,59 +66,3 @@ const BookCard = ({
 };
 
 export default BookCard;
-
-/* 
-// <Stack
-        //   overflow="hidden"
-        //   h={bookHeigth}
-        //   w={bookWidth}
-        //   p={0}
-        //   m={0}
-        //   borderRadius={"$4"}
-        // >
-        //   {isCoverSquareAspectRatio && (
-        //     <>
-        //       <Image
-        //         position="absolute"
-        //         top={0}
-        //         left={0}
-        //         bottom={0}
-        //         right={0}
-        //         onLoad={handleImageOnLoad}
-        //         flex={1}
-        //         resizeMode={"cover"}
-        //         source={{
-        //           uri: cover,
-        //         }}
-        //       />
-        //       <BlurView
-        //         style={{
-        //           height: "100%",
-        //           position: "absolute",
-        //           top: 0,
-        //           left: 0,
-        //           bottom: 0,
-        //           right: 0,
-        //         }}
-        //         blurType="light"
-        //         blurAmount={3}
-        //         reducedTransparencyFallbackColor="white"
-        //       />
-        //     </>
-        //   )}
-        //   <Image
-        //     position="absolute"
-        //     top={0}
-        //     left={0}
-        //     bottom={0}
-        //     right={0}
-        //     onLoad={handleImageOnLoad}
-        //     zIndex={"$3"}
-        //     flex={1}
-        //     resizeMode={resizeMode()}
-        //     source={{
-        //       uri: cover,
-        //     }}
-        //   />
-        // </Stack>
-*/

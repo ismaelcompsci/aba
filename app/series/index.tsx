@@ -1,15 +1,24 @@
-import { Text, XStack, YStack } from "tamagui";
+import { XStack, YStack } from "tamagui";
 import SectionHeader from "../../components/section-header";
 import { useAtomValue } from "jotai/react";
 import { currentLibraryIdAtom } from "../../utils/local-atoms";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getLibrarySeries } from "../../api/library";
 import { FlashList } from "@shopify/flash-list";
+import { SeriesBooksMinified } from "../../types/adbs";
+
+import SeriesCard from "../../components/series/series-card";
+import { currentLibraryAtom } from "../../utils/atoms";
+import { Dimensions } from "react-native";
 
 const SeriesPages = () => {
   const libraryId = useAtomValue(currentLibraryIdAtom);
+  const lib = useAtomValue(currentLibraryAtom);
+  const screenWidth = Dimensions.get("screen").width;
 
-  const { data, isLoading, fetchNextPage, hasNextPage } = useInfiniteQuery({
+  const isCoverSquareAspectRatio = lib?.settings.coverAspectRatio === 1;
+
+  const { data, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ["library-series"],
     queryFn: ({ pageParam = 0 }) =>
       getLibrarySeries({ pageParam, libraryId, limit: 20 }),
@@ -31,6 +40,16 @@ const SeriesPages = () => {
     }
   };
 
+  const handleRenderItem = ({ item }: { item: SeriesBooksMinified }) => {
+    return (
+      <SeriesCard
+        screenWidth={screenWidth}
+        item={item}
+        isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+      />
+    );
+  };
+
   return (
     <>
       <SectionHeader />
@@ -45,20 +64,13 @@ const SeriesPages = () => {
       >
         <XStack height={"100%"}>
           <FlashList
+            numColumns={2}
             showsVerticalScrollIndicator={false}
             horizontal={false}
             data={flattenData}
             onEndReached={loadNextPageData}
             keyExtractor={(item, i) => `${i}${item.id}`}
-            renderItem={({ item }) => {
-              return (
-                <XStack w={"100%"} h={"$6"}>
-                  <YStack>
-                    <Text fontSize={"$10"}>{item.nameIgnorePrefix}</Text>
-                  </YStack>
-                </XStack>
-              );
-            }}
+            renderItem={handleRenderItem}
             estimatedItemSize={200}
           />
         </XStack>
