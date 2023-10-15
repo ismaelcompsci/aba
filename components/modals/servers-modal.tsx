@@ -6,6 +6,7 @@ import {
   ListItem,
   ScrollView,
   Separator,
+  View,
   XStack,
   YGroup,
   YStack,
@@ -48,12 +49,24 @@ const ServersModal = ({}: ServersModalProps) => {
 
   const hideModal = () => setVisible(false);
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    // <View flex={1} justifyContent="center" alignItems="center">
+    <Modal
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+      }}
+      visible={visible}
+      animationType="slide"
+      transparent
+    >
       <Touch
         onPress={hideModal}
         display="flex"
         justifyContent="center"
-        alignContent="center"
+        alignItems="center"
         h={"100%"}
         w={"100%"}
       >
@@ -113,6 +126,7 @@ const ServersModal = ({}: ServersModalProps) => {
         </Card>
       </Touch>
     </Modal>
+    // </View>
   );
 };
 

@@ -1,10 +1,11 @@
+import { useFileSystem } from "@epubjs-react-native/expo-file-system";
+import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { useToastController } from "@tamagui/toast";
+import { router } from "expo-router";
+import { useAtomValue, useSetAtom } from "jotai/react";
 import { memo, useEffect, useState } from "react";
 import { StatusBar, useWindowDimensions } from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
-import { Reader } from "../EpubReaderV2";
-
-import { useFileSystem } from "@epubjs-react-native/expo-file-system";
-import { useAtomValue, useSetAtom } from "jotai/react";
 import {
   AnimatePresence,
   Button,
@@ -14,15 +15,14 @@ import {
   XStack,
   YStack,
 } from "tamagui";
+
+import { LibraryItem } from "../../types/adbs";
+import { bookTocAtom, currentUserAtom } from "../../utils/atoms";
+import { epubDir } from "../../utils/folders";
 import { ebookFormat, getUserMediaProgress } from "../../utils/helpers";
 import { tempBookFilesAtom } from "../../utils/local-atoms";
+import { Reader, useReader } from "../EpubReaderV2";
 import ReaderMenu from "./reader-menu";
-import { currentUserAtom } from "../../utils/atoms";
-import { LibraryItem } from "../../types/adbs";
-import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
-import { router } from "expo-router";
-import { useToastController } from "@tamagui/toast";
-import { epubDir } from "../../utils/folders";
 
 interface MyReader {
   url: string;
@@ -57,14 +57,24 @@ const RReader = memo(
     handlePress,
     setLoading,
   }: RReaderProps) => {
+    const setToc = useSetAtom(bookTocAtom);
+
     const [showingNext, setShowingNext] = useState(false);
     const [showingPrev, setShowingPrev] = useState(false);
     const [currentLabel, setCurrentLabel] = useState("");
     const toast = useToastController();
-
+    const { theme } = useReader();
     const enableSwipe = bookPath.endsWith(".pdf");
 
-    console.log(enableSwipe, "enableSwipe");
+    const handleOnReady = (book: any) => {
+      setLoading(false);
+      const title = book.metadata?.title ?? "";
+      const bookAuthor = book.metadata?.author ?? "";
+      const bookToc = book.toc;
+
+      setToc(bookToc);
+    };
+
     useEffect(() => {
       StatusBar.setHidden(true);
 
@@ -73,11 +83,14 @@ const RReader = memo(
       };
     }, []);
 
+    const popoupTheme = { bg: theme.style.theme.bg, fg: theme.style.theme.fg };
+
     return (
-      <View display="flex">
+      <View>
         <AnimatePresence>
           {showingPrev ? (
             <XStack
+              zIndex={"$5"}
               animation={"100ms"}
               enterStyle={{
                 scale: 1.2,
@@ -92,15 +105,14 @@ const RReader = memo(
               pos={"absolute"}
               justifyContent="center"
               top={"$10"}
-              zIndex={"$5"}
               left={0}
               right={0}
               margin={"auto"}
             >
-              <Button themeInverse>
+              <Button backgroundColor={popoupTheme.fg}>
                 <YStack py="$1" justifyContent="center" alignItems="center">
                   <ChevronUp size={14} />
-                  <Text numberOfLines={1}>
+                  <Text numberOfLines={1} color={popoupTheme.bg}>
                     RELEASE FOR: {currentLabel || "previous"}
                   </Text>
                 </YStack>
@@ -159,7 +171,7 @@ const RReader = memo(
             });
             router.back();
           }}
-          onReady={() => setLoading(false)}
+          onReady={handleOnReady}
           height={height}
           enableSwipe={enableSwipe}
           fileSystem={useFileSystem}
@@ -177,10 +189,12 @@ const MyReader = ({ url, item }: MyReader) => {
 
   const user = useAtomValue(currentUserAtom);
   const setTempBookFiles = useSetAtom(tempBookFilesAtom);
-  const [hide, setHide] = useState(false);
   const [bookPath, setBookPath] = useState("");
   const [location, setLocation] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+
+  const [hide, setHide] = useState(false);
+  const [bookTitle, setBookTitle] = useState("");
 
   const ebookFile =
     "ebookFile" in item.media ? item.media.ebookFile : undefined;
@@ -240,7 +254,7 @@ const MyReader = ({ url, item }: MyReader) => {
 
   return (
     <>
-      <ReaderMenu hide={hide}>
+      <ReaderMenu hide={hide} title={bookTitle}>
         {loading ? (
           <YStack
             h={"100%"}

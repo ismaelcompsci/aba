@@ -27,6 +27,7 @@ import {
 } from "../utils/atoms";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { currentServerConfigAtom } from "../utils/local-atoms";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -43,8 +44,10 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+/* https://reactnavigation.org/docs/tab-view/ */
 export default function RootLayout() {
   const [user] = useAtom(currentUserAtom);
+  const currentServerConfig = useAtomValue(currentServerConfigAtom);
   const [libraries, setLibraries] = useAtom(librariesAtom);
   const [theme, setTheme] = useState<ColorSchemeName>(null);
   const [loaded, error] = useFonts({
@@ -83,12 +86,14 @@ export default function RootLayout() {
         console.error("[INIT_LIBRARRIES_LAYOUT] ", error);
       }
 
+      if (!data) return;
+
       setLibraries(data?.libraries || []);
 
       data?.libraries && console.info("[INIT_LIBRARRIES_LAYOUT] success");
     }
     initLibraries();
-  }, [user, user?.token]);
+  }, [user, user?.token, currentServerConfig]);
 
   if (!loaded) {
     return null;
@@ -99,12 +104,22 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ToastProvider native={"mobile"}>
           <Stack
+            initialRouteName="home"
             screenOptions={{
               header: Header,
               animation: "none",
               gestureEnabled: false,
             }}
-          />
+          >
+            <Stack.Screen
+              name="modal"
+              options={{
+                presentation: "modal",
+                headerShown: false,
+                animation: "slide_from_bottom",
+              }}
+            />
+          </Stack>
           {/* TODO FIX make absolute and only take up space needed */}
           <ToastViewport
             w={"100%"}

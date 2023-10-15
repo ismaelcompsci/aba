@@ -467,7 +467,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     const t = themes.find((theme) => theme.name === newTheme.theme);
     const _newTheme = {
       style: {
-        lineHeight: newTheme.line_height,
+        lineHeight: newTheme["line-height"],
         justify: newTheme.justify,
         hyphenate: newTheme.hyphenate,
         invert: newTheme.invert,

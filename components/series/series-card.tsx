@@ -24,20 +24,16 @@ const SeriesCard = ({
 
   const seriesCardWidth = bookWidth * 2 - 25;
 
-  const booksCardWidth = bookWidth * item.books.length;
-
-  const l = seriesCardWidth / 2 + 12;
-
   return (
     <YStack
-      borderColor={"$blue10Dark"}
-      borderWidth={0.2}
-      w={seriesCardWidth}
+      w={"100%"}
       px={"$2"}
       py={"$2"}
+      overflow="hidden"
+      justifyContent="center"
     >
       {/* book images */}
-      <XStack w={"100%"}>
+      <XStack w={"100%"} justifyContent="center">
         {item.books.map((book, i) => {
           const src = getItemCoverSrc(
             book,
@@ -48,7 +44,7 @@ const SeriesCard = ({
           const coverFileType = book.media.coverPath?.split(".").pop();
 
           return (
-            <XStack>
+            <XStack key={i}>
               <ItemImage
                 cover={src}
                 coverFileType={coverFileType}

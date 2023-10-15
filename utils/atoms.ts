@@ -15,3 +15,5 @@ export const currentLibraryAtom = atom<Library | null>((get) => {
 });
 
 export const serversModalVisibleAtom = atom(false);
+
+export const bookTocAtom = atom(null);

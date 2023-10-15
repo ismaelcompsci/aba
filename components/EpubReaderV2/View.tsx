@@ -26,6 +26,7 @@ export function View({
   onDisplayError = () => {},
   onShowNext = () => {},
   onShowPrevious = () => {},
+  onReady = () => {},
   enableSwipe = false,
   width,
   height,
@@ -69,7 +70,10 @@ export function View({
     }
 
     if (type === "onReady") {
+      const { book } = parsedEvent;
       setIsRendering(false);
+
+      onReady(book);
     }
 
     if (type === "showNext") {

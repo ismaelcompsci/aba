@@ -416,6 +416,8 @@ PODS:
   - react-native-mmkv (2.10.2):
     - MMKV (>= 1.2.13)
     - React-Core
+  - react-native-pager-view (6.2.1):
+    - React-Core
   - react-native-safe-area-context (4.6.3):
     - RCT-Folly
     - RCTRequired
@@ -627,6 +629,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -753,6 +756,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-pager-view:
+    :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-webview:
@@ -856,6 +861,7 @@ SPEC CHECKSUMS:
   React-logger: da1ebe05ae06eb6db4b162202faeafac4b435e77
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-mmkv: 9ae7ca3977e8ef48dbf7f066974eb844c20b5fd7
+  react-native-pager-view: d211379f61895b6349bd7e571b44a26d005c2975
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-webview: b8ec89966713985111a14d6e4bf98d8b54bced0d
   React-NativeModulesApple: edb5ace14f73f4969df6e7b1f3e41bef0012740f

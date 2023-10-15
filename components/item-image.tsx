@@ -76,11 +76,12 @@ const ItemImage = ({
         setBookCoverUri(imagePath);
       } else {
         const response = await RNFetchBlob.fetch("GET", cover);
-        await RNFetchBlob.fs.writeFile(imagePath, response.base64(), "base64");
+        const data = response.base64();
+        await RNFetchBlob.fs.writeFile(imagePath, data, "base64");
         setBookCoverUri(imagePath);
       }
     })();
-  }, [cover, itemId]);
+  }, []);
 
   return (
     <>
@@ -123,16 +124,23 @@ const ItemImage = ({
             </>
           )}
           <Image
-            position="absolute"
+            // position="absolute"
             top={0}
             left={0}
             bottom={0}
             right={0}
             zIndex={"$3"}
-            // onLoad={handleImageOnLoad}
+            onLoad={handleImageOnLoad}
             resizeMode={resizeMode()}
+            // onError={(err) => {
+            //   if (cover) {
+            //     setBookCoverUri(cover);
+            //   }
+            // }}
             source={{
               uri: bookCoverUri,
+              width: bookWidth,
+              height: bookHeight,
             }}
           />
         </Stack>

@@ -1,4 +1,4 @@
-import { CardFooter, Stack, Text } from "tamagui";
+import { CardFooter, Stack, Text, XStack } from "tamagui";
 import { cleanString, getItemCoverSrc } from "../../utils/helpers";
 import { ServerConfig } from "../login/login-form";
 import { useRouter } from "expo-router";
@@ -10,6 +10,7 @@ interface BookCardProps {
   token: string;
   currentServerConfig: ServerConfig;
   isCoverSquareAspectRatio: boolean;
+  isHomeView?: boolean;
 }
 
 const BookCard = ({
@@ -17,6 +18,7 @@ const BookCard = ({
   token,
   currentServerConfig,
   isCoverSquareAspectRatio,
+  isHomeView = false,
 }: BookCardProps) => {
   const router = useRouter();
   const cover = getItemCoverSrc(item, currentServerConfig, token);
@@ -30,6 +32,12 @@ const BookCard = ({
   };
 
   return (
+    // <XStack
+    //   justifyContent="center"
+    //   w={isHomeView ? null : "100%"}
+    //   alignContent="center"
+    //   alignItems="center"
+    // >
     <Stack
       onPress={handlePress}
       pressStyle={{ scale: 0.98 }}
@@ -63,6 +71,9 @@ const BookCard = ({
       </CardFooter>
     </Stack>
   );
+  {
+    /* </XStack> */
+  }
 };
 
 export default BookCard;

@@ -41,6 +41,7 @@ const BookShelf = ({ shelf, isCoverSquareAspectRatio }: BookShelfProps) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <BookCard
+            isHomeView
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
             key={item.id}
             currentServerConfig={currentServerConfig}

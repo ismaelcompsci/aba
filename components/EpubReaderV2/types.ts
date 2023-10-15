@@ -118,11 +118,7 @@ export interface ReaderProps {
    * @params {number} progress {@link number}
    * @returns {void} void
    */
-  onReady?: (
-    totalLocations: number,
-    currentLocation: Location,
-    progress: number
-  ) => void;
+  onReady?: (book: any) => void;
   /**
    * Called once book has not been displayed
    * @param {string} reason

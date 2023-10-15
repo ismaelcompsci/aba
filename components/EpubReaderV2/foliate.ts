@@ -749,7 +749,8 @@ export default `
         const { color = "red" } = options;
         const g = createSVGElement("g");
         g.setAttribute("fill", color);
-        g.setAttribute("fill-opacity", 0.3);
+        g.style.opacity = "var(--overlayer-highlight-opacity, .3)";
+        g.style.mixBlendMode = "var(--overlayer-highlight-blend-mode, normal)";
         for (const { left, top, height, width } of rects) {
           const el = createSVGElement("rect");
           el.setAttribute("x", left);
@@ -1618,7 +1619,10 @@ export default `
           const doc = this.document;
           const contentSize =
             doc?.documentElement?.getBoundingClientRect()?.[side];
-          const expandedSize = contentSize;
+          const expandedSize =
+            contentSize < this.container.clientHeight
+              ? this.container.clientHeight
+              : contentSize;
           const { margin } = this.#layout;
           const padding = this.#vertical ? \`0 \${margin}px\` : \`\${margin}px 0\`;
           this.#element.style.padding = padding;
@@ -2004,7 +2008,7 @@ export default `
             this.now = Date.now();
             const elapsed = this.now - this.lastCalled;
             this.lastCalled = null;
-            if (elapsed < 350) {
+            if (elapsed < 325) {
               return;
             }
           }
@@ -2033,7 +2037,7 @@ export default `
         if (state.pinched) return;
         state.pinched = globalThis.visualViewport.scale > 1;
         if (this.scrolled || state.pinched) {
-          if (this.hasChecked) {
+          if (this.hasChecked && this.scrolled) {
             this.hasChecked = false;
             this.#check();
           } else {
@@ -2063,14 +2067,6 @@ export default `
       #onTouchEnd() {
         this.#touchScrolled = false;
         if (this.scrolled) {
-          // const scrollTop = this.#container.scrollTop
-          // const scrollheight = this.#container.scrollHeight
-          // const s = this.#isScrollable();
-
-          // reactMessage(
-          //   \`[#CHECK] isScrollable \${s} sT \${scrollTop} sH \${scrollheight}\`
-          // );
-
           if (this.#canGoToNextSection) {
             this.nextSection().then(() => {
               this.#goingNext = true;
@@ -2109,18 +2105,13 @@ export default `
         });
       }
       #check() {
-        /**
-         * TODO if item is not scrollable
-         * the scrolled flow gets stuck
-         * so make a swipe to go next when user swipes
-         * ?
-         */
         if (this.scrolled) {
           const scrollTop = this.#container.scrollTop;
           const scrollheight = this.#container.scrollHeight;
           const start = scrollTop;
           const end = this.end - scrollheight;
           if (end > 50) {
+            if (this.atEnd || this.#canGoToPrevSection) return;
             this.#canGoToNextSection = true;
             this.dispatchEvent(
               new CustomEvent("next", {
@@ -2132,6 +2123,7 @@ export default `
             return;
           }
           if (start < -50) {
+            if (this.atStart || this.#canGoToNextSection) return;
             this.#canGoToPrevSection = true;
             this.dispatchEvent(
               new CustomEvent("previous", {
@@ -2142,8 +2134,10 @@ export default `
             );
             return;
           }
-          this.#canGoToPrevSection = false;
-          this.#canGoToNextSection = false;
+
+          // this.#canGoToPrevSection = false
+          // this.#canGoToNextSection = false
+
           if (this.sentEvent) {
             this.sentEvent = false;
             this.dispatchEvent(
@@ -3174,7 +3168,8 @@ export default `
             splitHref,
             getFragment,
           });
-          this.#pageProgress = new TOCProgress({
+          this.#pageProgress = new TOCProgress();
+          await this.#pageProgress.init({
             toc: book.pageList ?? [],
             ids,
             splitHref,
@@ -3184,7 +3179,7 @@ export default `
         this.isFixedLayout = this.book.rendition?.layout === "pre-paginated";
         if (this.isFixedLayout) {
           this.renderer = document.createElement("foliate-fxl");
-          debug("[VIEW_OPEN] fixed layout element");
+          debug("[VIEW_OPEN] fixed layout element " + this.renderer);
         } else {
           this.renderer = document.createElement("foliate-paginator");
         }
@@ -3196,7 +3191,12 @@ export default `
         this.renderer.addEventListener("create-overlayer", (e) =>
           e.detail.attach(this.#createOverlayer(e.detail)),
         );
-        this.renderer.open(book);
+        try {
+          this.renderer.open(book);
+        } catch (err) {
+          debug("[VIEW_OPEN] " + err);
+          return;
+        }
         this.#root.append(this.renderer);
         if (book.sections.some((section) => section.mediaOverlay)) {
           book.media.activeClass ||= "-epub-media-overlay-active";
@@ -3930,9 +3930,9 @@ export default `
         if (relativeTo.includes(":")) return new URL(url, relativeTo);
         // the base needs to be a valid URL, so set a base URL and then remove it
         const root = "https://invalid.invalid/";
-        return decodeURI(
-          new URL(url, root + relativeTo).href.replace(root, ""),
-        );
+        const obj = new URL(url, root + relativeTo);
+        obj.search = "";
+        return decodeURI(obj.href.replace(root, ""));
       } catch (e) {
         console.warn(e);
         return url;
@@ -4801,7 +4801,11 @@ export default `
         return (
           replacedImports
             // unprefix as most of the props are (only) supported unprefixed
-            .replace(/(?<=[{\\s;])-epub-/gi, "")
+            // .replace(/(?<=[{\\s;])-epub-/gi, '') // Errors on ios // chatgpt: JavaScript regular expressions allow you to use named capture groups,
+            // but you're using an older syntax that is not supported in JavaScript.
+            // This is likely causing the error.
+            // not sure if its correct but it works now :/
+            .replace(/([;\\s])-epub-/gi, "\$1") // chatgpt replacement
             // replace vw and vh as they cause problems with layout
             .replace(
               /(\\d*\\.?\\d+)vw/gi,
@@ -11590,7 +11594,7 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
         reader.readAsDataURL(blob);
         reader.onloadend = () => resolve(reader.result.split(",")[1]);
       });
-    const getCSS = ({ spacing, justify, hyphenate, theme, fontSize }) => \`
+    const getCSS = ({ lineHeight, justify, hyphenate, theme, fontSize }) => \`
 @namespace epub "http://www.idpf.org/2007/ops";
 @media print {
     html {
@@ -11602,14 +11606,14 @@ body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
 html, body {
   background: none !important;
   color: \${theme.fg};
-  font-size: \${fontSize}px;
+  font-size: \${fontSize}%;
 }
 body *{
   background-color: \${theme.bg} !important;
   color: inherit !important;
 }
 html, body, p, li, blockquote, dd {
-    line-height: \${spacing};
+    line-height: \${lineHeight};
     text-align: \${justify ? "justify" : "start"};
     -webkit-hyphens: \${hyphenate ? "auto" : "manual"};
     hyphens: \${hyphenate ? "auto" : "manual"};
@@ -11723,11 +11727,11 @@ aside[epub|type~="rearnote"] {
       #currentTocPos;
       #isPdf;
       style = {
-        spacing: 1.4,
+        lineHeight: 1.4,
         justify: true,
         hyphenate: true,
       };
-      constructor(path, bookLocation, initialStyles) {
+      constructor(path, bookLocation) {
         this.path = path;
         this.initalLocation = bookLocation;
         this.currentLocation = undefined;
@@ -11778,15 +11782,15 @@ aside[epub|type~="rearnote"] {
             if (item.subitems?.length > 0) {
               return item.subitems.map((subitem) => {
                 this.#tocMap.set(count, {
-                  label: subitem.label,
-                  id: subitem.id,
+                  label: subitem?.label,
+                  id: subitem?.id,
                 });
                 count += 1;
               });
             } else {
               this.#tocMap.set(count, {
-                label: item.label,
-                id: item.id,
+                label: item?.label,
+                id: item?.id,
               });
               count += 1;
             }
@@ -11796,9 +11800,9 @@ aside[epub|type~="rearnote"] {
               ? await this.view.goTo(this.initalLocation)
               : this.view.renderer.next();
           } else this.view.renderer.next();
-          const title = book.metadata?.title ?? "Untitled Book";
           toReactMessage({
             type: "onReady",
+            book,
           });
         } catch (err) {
           debug("[READER_OPEN_ERROR] " + err);
@@ -11834,8 +11838,8 @@ aside[epub|type~="rearnote"] {
       onRelocate = (e) => {
         const { fraction, location, tocItem, pageItem } = e.detail;
         this.#currentTocPos = {
-          id: tocItem.id,
-          label: tocItem.label,
+          id: tocItem?.id,
+          label: tocItem?.label,
         };
         toReactMessage({
           type: "onLocationChange",
@@ -11846,10 +11850,10 @@ aside[epub|type~="rearnote"] {
         });
       };
       next = () => {
-        this.view.renderer.next();
+        this.view?.renderer?.next();
       };
       prev = () => {
-        this.view.renderer.prev();
+        this.view?.renderer?.prev();
       };
       setTheme = ({ style, layout }) => {
         Object.assign(this.style, style);

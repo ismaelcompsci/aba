@@ -49,6 +49,7 @@ const IndexPage = () => {
     setServerSettings(serverSettings);
     setCurrentUser(user);
     const ssc = saveServerConfig(config);
+
     setCurrentServerConfig(ssc);
 
     console.log("Successfully logged in", user.username);
@@ -170,10 +171,10 @@ const IndexPage = () => {
         lastServerConnectionConfigId: sc.id || "",
       });
     } else {
+      const sa = serverConfig.serverAddress;
+      const su = serverConfig.username;
       sc = {
-        id: Buffer.from(
-          `${serverConfig.serverAddress}::${serverConfig.username}`
-        ).toString("base64"),
+        id: Buffer.from(`${sa}::${su}`).toString("base64"),
         index: deviceData.serverConnectionConfigs.length,
         name: `${serverConfig.serverAddress} (${serverConfig.username})`,
         userId: serverConfig.userId,

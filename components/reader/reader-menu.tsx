@@ -1,5 +1,13 @@
-import { ChevronLeft, List, Settings2 } from "@tamagui/lucide-icons";
-import { useRouter } from "expo-router";
+import {
+  ChevronLeft,
+  ChevronsDownUp,
+  ChevronsUpDown,
+  FoldHorizontal,
+  List,
+  Settings2,
+  UnfoldHorizontal,
+} from "@tamagui/lucide-icons";
+import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -14,18 +22,22 @@ import {
 import { IconButton } from "../ui/button";
 import { BlurView } from "@react-native-community/blur";
 import { Theme, useReader } from "../EpubReaderV2";
-import { Appearance } from "react-native";
+import { Appearance, Dimensions } from "react-native";
 
 interface ReaderMenuProps {
   children: React.ReactNode;
   hide: boolean;
+  title: string;
 }
 
-const STEP = 0.5;
+const STEP = 5;
+const GAPSTEP = 0.01;
+const LINESTEP = 0.1;
 
-const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
+const ReaderMenu = ({ children, hide, title }: ReaderMenuProps) => {
   const router = useRouter();
   const theme = Appearance.getColorScheme();
+  const { width } = Dimensions.get("window");
   const { changeTheme, isRendering } = useReader();
   const [openSettings, setOpenSettings] = useState(false);
   const [readerSettings, setReaderSettigns] = useState({
@@ -33,13 +45,19 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
     justify: true,
     hyphenate: true,
     gap: 0.06,
-    "max-inline-size": 720,
+    "max-inline-size": width,
     "max-block-size": 1440,
-    "max-column-count": 2,
+    "max-column-count": 1,
     scrolled: false,
-    "font-size": 16,
+    "font-size": 100,
     theme: "dark",
   });
+
+  const cap = (num: number) => {
+    if (num < 0) {
+      return 0;
+    } else return num;
+  };
 
   useEffect(() => {
     if (!hide) {
@@ -75,13 +93,18 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
             w={"50%"}
             px={"$2.5"}
             zIndex={"$2"}
+            alignItems="center"
             b={0}
           >
             <IconButton
               icon={<ChevronLeft size={"$1"} color={"$blue10Dark"} />}
               onPress={() => router.back()}
             />
+            <Text maxWidth={"$14"} numberOfLines={1}>
+              {title}
+            </Text>
           </XStack>
+
           <XStack
             pos={"absolute"}
             space={"$4"}
@@ -90,11 +113,14 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
             px={"$2.5"}
             r={0}
             b={0}
+            alignItems="center"
             justifyContent="flex-end"
           >
-            <IconButton icon={<List color={"$blue10Dark"} size={"$1"} />} />
+            <IconButton onPress={() => router.push("/modal")}>
+              <List color={"$blue10Dark"} size={"$1"} />
+            </IconButton>
+
             <IconButton
-              // selected={!openSettings}
               backgroundColor={openSettings ? "$blue10Dark" : undefined}
               icon={
                 <Settings2
@@ -192,6 +218,65 @@ const ReaderMenu = ({ children, hide }: ReaderMenuProps) => {
                     }
                   >
                     A
+                  </Button>
+                </XStack>
+                {/* Gap change */}
+                <XStack>
+                  <Button
+                    onPress={() => {
+                      setReaderSettigns((prev) => ({
+                        ...prev,
+                        gap: prev["gap"] + GAPSTEP,
+                      }));
+                    }}
+                  >
+                    <FoldHorizontal />
+                  </Button>
+                  <Button
+                    onPress={() => {
+                      setReaderSettigns((prev) => {
+                        let newValue = cap(prev["gap"] - GAPSTEP);
+                        return {
+                          ...prev,
+                          gap: newValue,
+                        };
+                      });
+                    }}
+                  >
+                    <UnfoldHorizontal />
+                  </Button>
+                </XStack>
+                <XStack>
+                  <Button
+                    onPress={() => {
+                      setReaderSettigns((prev) => {
+                        let newValue = cap(
+                          Math.fround(prev["line-height"] - LINESTEP)
+                        );
+
+                        return {
+                          ...prev,
+                          "line-height": newValue,
+                        };
+                      });
+                    }}
+                  >
+                    <ChevronsDownUp />
+                  </Button>
+                  <Button
+                    onPress={() => {
+                      setReaderSettigns((prev) => {
+                        let newValue = cap(
+                          Math.fround(prev["line-height"] + LINESTEP)
+                        );
+                        return {
+                          ...prev,
+                          "line-height": newValue,
+                        };
+                      });
+                    }}
+                  >
+                    <ChevronsUpDown />
                   </Button>
                 </XStack>
               </YStack>

@@ -10,14 +10,20 @@ const BASE_URL = (
 ).serverAddress;
 
 const authInterceptor = (req: InternalAxiosRequestConfig) => {
-  const server: ServerConfig = JSON.parse(
-    getItem(GeneralSetting.CurrentServerConfig) || "{}"
-  );
+  const item = getItem(GeneralSetting.CurrentServerConfig) as ServerConfig;
+  if (!item) {
+    console.log("NO ITEM IN authInterceptor");
+    return req;
+  }
 
-  console.log(server ? "SERVER IS HERE" : "NO SERVER");
+  let server;
+  if (typeof item === "string") {
+    server = JSON.parse(item);
+  } else {
+    server = item;
+  }
 
   if (server.token) {
-    console.info("ADDED TOKEN");
     req.headers.Authorization = `Bearer ${server.token}`;
   }
 
@@ -30,7 +36,7 @@ export const API = axios.create({
 
 API.interceptors.request.use(authInterceptor, (error) => {
   // TODO bettter
-  console.log("[AXIOS] ", error);
+  console.log("[AXIOS] ", JSON.stringify(error));
   return Promise.reject(error);
 });
 
@@ -40,6 +46,7 @@ export const handleApiError = (error: AxiosError) => {
       ? error?.response?.data || "An unexpected error has occurred."
       : "An unexpected error has occurred.";
 
+    console.log({ URL: error.config?.baseURL, errorMessage });
     return { error: errorMessage, data: null };
   } catch (error) {
     throw new Error("An unexpected error occurred.");
