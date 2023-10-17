@@ -1,35 +1,34 @@
-import { router } from "expo-router";
+import { useEffect } from "react";
+import { Redirect, router, useRootNavigationState } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Button, Spinner, Text, View } from "tamagui";
+import { Spinner, View } from "tamagui";
 
-import { Center } from "../components/center";
+import { ScreenCenter } from "../components/center";
 import { attemptingConnectionAtom, userAtom } from "../state/app-state";
 
 export default function IndexPage() {
+  const rootNavigationState = useRootNavigationState();
+
   const user = useAtomValue(userAtom);
   const attemptingConnection = useAtomValue(attemptingConnectionAtom);
 
+  useEffect(() => {
+    if (!user && !attemptingConnection) {
+      router.push("/server-connect/");
+    }
+  }, [user, attemptingConnection]);
+
+  if (!rootNavigationState?.key) return null;
   return (
     <>
       {attemptingConnection ? (
-        <Center>
+        <ScreenCenter>
           <Spinner />
-          <Text>Attmepting to connect...</Text>
-        </Center>
+        </ScreenCenter>
       ) : (
-        <View
-          backgroundColor={"$background"}
-          flex={1}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Text>HELLO WORLD INDEX PAGE</Text>
-          {!user ? (
-            <Button onPress={() => router.push("/server-connect/")}>
-              Connect
-            </Button>
-          ) : null}
-        </View>
+        <ScreenCenter>
+          <Redirect href={"/library/"} />
+        </ScreenCenter>
       )}
     </>
   );

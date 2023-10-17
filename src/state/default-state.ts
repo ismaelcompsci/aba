@@ -1,9 +1,12 @@
 import { ThemeName } from "tamagui";
 
-type DefaultSettings = {
-  theme: ThemeName;
+export type DefaultSettingsType = {
+  theme: {
+    scheme: "dark" | "light";
+    gui?: ThemeName | null | undefined;
+  };
 };
 
-export const DefaultSettings: DefaultSettings = {
-  theme: "dark",
+export const DefaultSettings: DefaultSettingsType = {
+  theme: { scheme: "dark", gui: null },
 };
