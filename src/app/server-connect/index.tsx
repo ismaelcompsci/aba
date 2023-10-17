@@ -19,7 +19,7 @@ const ServerConnectPage = () => {
     if (!serverConnections.length) {
       setShowAddServerForm(true);
     }
-  }, [deviceData]);
+  }, [deviceData.serverConnectionConfigs]);
 
   return (
     <ScreenCenter>
