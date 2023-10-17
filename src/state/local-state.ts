@@ -1,7 +1,8 @@
 import { MMKV } from "react-native-mmkv";
 import { atom } from "jotai";
 
-import { DeviceData } from "../types/types";
+import { ServerSettings } from "../types/aba";
+import { DeviceData, ServerConfig } from "../types/types";
 
 import { DefaultSettings } from "./default-state";
 import { GeneralSetting } from "./storage-keys";
@@ -50,10 +51,20 @@ const atomWithLocalStorage = <Value>(key: string, initialValue: Value) => {
 
 export const deviceDataAtom = atomWithLocalStorage<DeviceData>(
   GeneralSetting.DeviceData,
-  { lastServerConnectionConfigId: null, serverConnectionConfigs: [] }
+  DefaultSettings.deviceData
 );
 
 export const appThemeAtom = atomWithLocalStorage(
   GeneralSetting.AppTheme,
   DefaultSettings.theme
+);
+
+export const serverSettingsAtom = atomWithLocalStorage<ServerSettings>(
+  GeneralSetting.ServerSettings,
+  {}
+);
+
+export const currentServerConfigAtom = atomWithLocalStorage<ServerConfig>(
+  GeneralSetting.CurrentServerConfig,
+  {}
 );

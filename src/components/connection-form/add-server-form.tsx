@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Button, Input, Label, Stack, Text, XStack } from "tamagui";
+import { Button, Input, Label, Spinner, Stack, Text, XStack } from "tamagui";
 import { z } from "zod";
 
+import { LoginServerResponse, ServerConfig } from "../../types/types";
 import { pingServer } from "../../utils/api";
 import { ErrorMessage } from "../error-message";
 
@@ -23,9 +24,19 @@ export type LoginSchema = z.infer<typeof loginSchema>;
 
 interface AddServerFormProps {
   setShowAddServerForm: (show: boolean) => void;
+  makeConnection: ({
+    user,
+    userDefaultLibraryId,
+    serverSettings,
+  }: LoginServerResponse) => void;
+  serverConnections: ServerConfig[];
 }
 
-const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
+const AddServerForm = ({
+  setShowAddServerForm,
+  makeConnection,
+  serverConnections,
+}: AddServerFormProps) => {
   const [loading, setLoading] = useState(false);
 
   const form = useForm({
@@ -49,7 +60,27 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
         });
       }
 
+      const duplicateConfig = serverConnections.find(
+        (c) =>
+          c.serverAddress === data.serverAddress && c.username === data.username
+      );
+
+      if (duplicateConfig) {
+        form.setError("root.unknownError", {
+          message: "A login already exists for this address and username",
+        });
+        return;
+      }
+
       const response = await requestServerLogin(data);
+
+      if (response) {
+        console.log(JSON.stringify(response, null, 2));
+        return;
+        makeConnection(response);
+      }
+
+      console.log("ERROR", "NOT CONENCTED");
     } catch (error) {
       console.log(error);
     } finally {
@@ -57,21 +88,45 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
     }
   };
 
-  const requestServerLogin = async (data: LoginSchema) => {
+  const requestServerLogin = async (config: LoginSchema) => {
     const options = {
       headers: {
         "Content-Type": "application/json",
       },
     };
 
-    return axios.post(
-      `${data.serverAddress}/login`,
-      {
-        username: data.username,
-        password: data.password,
-      },
-      options
-    );
+    try {
+      const response = await axios.post(
+        `${config.serverAddress}/login`,
+        {
+          username: config.username,
+          password: config.password,
+        },
+        options
+      );
+
+      const data = response.data;
+
+      if (!data.user) {
+        console.error(data.data.error || "Unkown Error");
+
+        return false;
+      }
+
+      form.clearErrors("root.unknownError");
+      return data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const errorMsg = error.response
+          ? error.response.data || "Unknown Error"
+          : "Unknown Error";
+
+        form.setError("root.unknownError", { message: errorMsg });
+        return false;
+      }
+
+      return false;
+    }
   };
 
   return (
@@ -86,7 +141,8 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
               placeholder="http://555.555.5.555:5555"
               onBlur={field.onBlur}
               value={field.value}
-              // disabled={loading}
+              opacity={loading ? 0.5 : 1}
+              disabled={loading}
               onChangeText={field.onChange}
             />
             {!!fieldState.error?.message && (
@@ -105,7 +161,8 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
               placeholder="root"
               onBlur={field.onBlur}
               value={field.value}
-              // disabled={loading}
+              opacity={loading ? 0.5 : 1}
+              disabled={loading}
               onChangeText={field.onChange}
             />
             {!!fieldState.error?.message && (
@@ -125,7 +182,8 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
               onBlur={field.onBlur}
               textContentType="password"
               secureTextEntry
-              // disabled={loading}
+              disabled={loading}
+              opacity={loading ? 0.5 : 1}
               value={field.value}
               onChangeText={field.onChange}
             />
@@ -135,6 +193,12 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
           </Stack>
         )}
       />
+
+      {form.formState.errors?.root?.unknownError && (
+        <ErrorMessage>
+          {form.formState.errors?.root?.unknownError?.message}
+        </ErrorMessage>
+      )}
 
       <XStack w={"100%"} gap={"$4"}>
         <Button
@@ -148,6 +212,7 @@ const AddServerForm = ({ setShowAddServerForm }: AddServerFormProps) => {
           flex={1}
           onPress={form.handleSubmit(onSubmit)}
           disabled={loading}
+          iconAfter={() => (loading ? <Spinner /> : null)}
         >
           <Text>Connect</Text>
         </Button>
