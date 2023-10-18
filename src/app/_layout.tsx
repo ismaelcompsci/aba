@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Appearance } from "react-native";
+import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { ChevronLeft, Menu, Search } from "@tamagui/lucide-icons";
 import { useFonts } from "expo-font";
@@ -7,7 +7,6 @@ import { router, SplashScreen, Stack } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { TamaguiProvider, Theme } from "tamagui";
 
-import { Logo } from "../../assets/logo";
 import appConfig from "../../tamagui.config";
 import { IconButton } from "../components/button/button";
 import {
@@ -17,6 +16,7 @@ import {
   HeaderSafeArea,
 } from "../components/header/header";
 import { LogoContainer } from "../components/header/logo";
+import { Logo } from "../components/logo";
 import { useHeaderHeight } from "../hooks/use-header-height";
 import { attemptingConnectionAtom, userAtom } from "../state/app-state";
 import { DefaultSettingsType } from "../state/default-state";
@@ -24,6 +24,8 @@ import { appThemeAtom } from "../state/local-state";
 import { awaitTimeout } from "../utils/utils";
 
 SplashScreen.preventAutoHideAsync();
+
+console.log(Platform.OS);
 
 export default function Layout() {
   const [appTheme, setAppTheme] = useAtom(appThemeAtom);
