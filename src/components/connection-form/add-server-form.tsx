@@ -130,6 +130,7 @@ const AddServerForm = ({
     }
   };
 
+  //  make render component into a single one
   return (
     <AddServerFormFrame>
       <Controller

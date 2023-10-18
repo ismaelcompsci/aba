@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
-import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
@@ -80,13 +79,13 @@ const ServerConnectPage = () => {
         serverConfig.id !== s.id
     );
 
-    console.log({ id: serverConfig.id });
-
     if (duplicateConfig) {
-      // toast.show("Duplicate account", {
-      //   message: "username and address already exist",
-      // });
-      console.log("DUPED CONFIG");
+      // TODO
+      Burnt.toast({
+        title: "Duplicate login",
+        message: "username and address already exist",
+      });
+
       return;
     }
 
@@ -123,7 +122,6 @@ const ServerConnectPage = () => {
       });
     }
 
-    // prettyLog(sc);
     return sc;
   };
 

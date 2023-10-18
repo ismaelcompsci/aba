@@ -4,6 +4,7 @@ import type { IconProps } from "@tamagui/helpers-icon";
 import { themed } from "@tamagui/helpers-icon";
 
 // @ts-ignore
+// eslint-disable-next-line
 const Icon = (props: any) => {
   const { color = "black", size = 24, ...otherProps } = props;
   return (
