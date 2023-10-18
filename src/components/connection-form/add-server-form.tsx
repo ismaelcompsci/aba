@@ -28,7 +28,8 @@ interface AddServerFormProps {
     user,
     userDefaultLibraryId,
     serverSettings,
-  }: LoginServerResponse) => void;
+    address,
+  }: LoginServerResponse & { address: string }) => void;
   serverConnections: ServerConfig[];
 }
 
@@ -73,11 +74,11 @@ const AddServerForm = ({
       }
 
       const response = await requestServerLogin(data);
+      response.address = data.serverAddress;
 
       if (response) {
-        console.log(JSON.stringify(response, null, 2));
-        return;
         makeConnection(response);
+        return;
       }
 
       console.log("ERROR", "NOT CONENCTED");

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
+import axios from "axios";
+import * as Burnt from "burnt";
+import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { Button, Card, Text, YStack } from "tamagui";
 
@@ -12,8 +15,8 @@ import {
   serverSettingsAtom,
 } from "../../state/local-state";
 import { LoginServerResponse, ServerConfig } from "../../types/types";
-import { stringToBase64 } from "../../utils/utils";
-import { router } from "expo-router";
+import { authenticateToken, pingServer } from "../../utils/api";
+import { getRandomThemeColor, stringToBase64 } from "../../utils/utils";
 
 const ServerConnectPage = () => {
   const [showAddServerForm, setShowAddServerForm] = useState(false);
@@ -32,7 +35,8 @@ const ServerConnectPage = () => {
     userDefaultLibraryId,
     serverSettings,
     address,
-  }: LoginServerResponse & { address: string }) => {
+    id,
+  }: LoginServerResponse & { address: string; id?: string }) => {
     if (!user) return;
 
     setCurrentLibraryId(userDefaultLibraryId);
@@ -44,9 +48,15 @@ const ServerConnectPage = () => {
       token: user.token,
       username: user.username,
       serverAddress: address,
+      id: id,
     };
 
     const serverConfig = saveServerConfig(c);
+
+    if (!serverConfig) {
+      console.log("NO SERVER CONFIG");
+      return;
+    }
 
     setCurrentServerConfig(serverConfig);
     console.info("Successfully logged in", user.username);
@@ -59,27 +69,32 @@ const ServerConnectPage = () => {
     token: string;
     username: string;
     serverAddress: string;
+    id?: string;
   }) => {
     let sc = serverConnections.find((c) => c.id === serverConfig.id);
 
-    // const duplicateConfig = deviceData.serverConnectionConfigs.find(
-    //   (s) =>
-    //     s.serverAddress === serverConfig.serverAddress &&
-    //     s.username === serverConfig.username &&
-    //     serverConfig.id !== s.id
-    // );
+    const duplicateConfig = deviceData.serverConnectionConfigs.find(
+      (s) =>
+        s.serverAddress === serverConfig.serverAddress &&
+        s.username === serverConfig.username &&
+        serverConfig.id !== s.id
+    );
 
-    // if (duplicateConfig) {
-    //   // toast.show("Duplicate account", {
-    //   //   message: "username and address already exist",
-    //   // });
-    //   return;
-    // }
+    console.log({ id: serverConfig.id });
+
+    if (duplicateConfig) {
+      // toast.show("Duplicate account", {
+      //   message: "username and address already exist",
+      // });
+      console.log("DUPED CONFIG");
+      return;
+    }
 
     if (sc) {
+      sc.userId = serverConfig.userId;
       sc.name = `${serverConfig.serverAddress} (${serverConfig.username})`;
       sc.token = serverConfig.token;
-      sc.userId = serverConfig.userId;
+      sc.serverAddress = serverConfig.serverAddress;
       sc.username = serverConfig.username;
 
       const deduped = serverConnections.filter(
@@ -93,7 +108,7 @@ const ServerConnectPage = () => {
       const addr = serverConfig.serverAddress;
       const uname = serverConfig.username;
       sc = {
-        id: encodeURIComponent(stringToBase64(`${addr}::${uname}`)),
+        id: stringToBase64(`${addr}::${uname}`),
         index: deviceData.serverConnectionConfigs.length,
         name: `${serverConfig.serverAddress} (${serverConfig.username})`,
         userId: serverConfig.userId,
@@ -108,7 +123,34 @@ const ServerConnectPage = () => {
       });
     }
 
+    // prettyLog(sc);
     return sc;
+  };
+
+  const connectToServer = async (config: ServerConfig) => {
+    try {
+      const pinged = await pingServer(config.serverAddress);
+      if (!pinged.success) {
+        Burnt.toast({
+          title: "Server ping failed",
+        });
+        return;
+      }
+
+      const response = await authenticateToken(config);
+      if (!response) {
+        Burnt.toast({
+          title: "Token has expired",
+        });
+        return;
+      }
+      response.address = config.serverAddress;
+      response.id = config.id;
+
+      await makeConnection(response);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -133,7 +175,13 @@ const ServerConnectPage = () => {
             />
           ) : serverConnections.length ? (
             serverConnections.map((server) => (
-              <Button key={server.id}>{server.name}</Button>
+              <Button
+                key={server.id}
+                theme={getRandomThemeColor()}
+                onPress={() => connectToServer(server)}
+              >
+                {server.name}
+              </Button>
             ))
           ) : (
             <YStack>

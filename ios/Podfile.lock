@@ -1,5 +1,9 @@
 PODS:
   - boost (1.76.0)
+  - Burnt (0.12.1):
+    - ExpoModulesCore
+    - SPAlert (~> 4.2)
+    - SPIndicator (~> 1.6)
   - DoubleConversion (1.1.6)
   - EXApplication (5.3.1):
     - ExpoModulesCore
@@ -473,10 +477,13 @@ PODS:
   - RNSVG (13.9.0):
     - React-Core
   - SocketRocket (0.6.1)
+  - SPAlert (4.2.0)
+  - SPIndicator (1.6.4)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
+  - Burnt (from `../node_modules/burnt/ios`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
@@ -541,10 +548,14 @@ SPEC REPOS:
     - MMKV
     - MMKVCore
     - SocketRocket
+    - SPAlert
+    - SPIndicator
 
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
+  Burnt:
+    :path: "../node_modules/burnt/ios"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   EXApplication:
@@ -657,6 +668,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 57d2868c099736d80fcd648bf211b4431e51a558
+  Burnt: 8b232817df0d3efd78797702a0a541cc5a8eebe5
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   EXApplication: 042aa2e3f05258a16962ea1a9914bf288db9c9a1
   EXConstants: ce5bbea779da8031ac818c36bea41b10e14d04e1
@@ -715,6 +727,8 @@ SPEC CHECKSUMS:
   RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
   RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  SPAlert: 735da1f16a887e294719217572ce1f936d8c8782
+  SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
   Yoga: 86fed2e4d425ee4c6eab3813ba1791101ee153c6
 
 PODFILE CHECKSUM: 9840a577275a87d2fbede41b28ec75cfc29bc8c0

@@ -3,7 +3,7 @@ import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { ChevronLeft, Menu, Search } from "@tamagui/lucide-icons";
 import { useFonts } from "expo-font";
-import { router, SplashScreen, Stack } from "expo-router";
+import { router, SplashScreen, Stack, usePathname } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { TamaguiProvider, Theme } from "tamagui";
 
@@ -32,6 +32,9 @@ export default function Layout() {
   const setAttemptingConnection = useSetAtom(attemptingConnectionAtom);
   const setUser = useSetAtom(userAtom);
 
+  const pathname = usePathname();
+  const animation = pathname === "/" ? "fade" : "default";
+
   const [loaded, error] = useFonts({
     Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
     InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
@@ -53,7 +56,7 @@ export default function Layout() {
     const at = async () => {
       setAttemptingConnection(true);
       await awaitTimeout(3000);
-      setUser(null);
+      // setUser(null);
       setAttemptingConnection(false);
     };
 
@@ -78,23 +81,21 @@ export default function Layout() {
           initialRouteName="index"
           screenOptions={{
             header: Header,
+            animation: animation,
           }}
-        ></Stack>
+        />
       </Theme>
     </TamaguiProvider>
   );
 }
 
-const Header = ({
-  navigation,
-  route,
-  options,
-  back,
-}: NativeStackHeaderProps) => {
+const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   const { headerHeight, top } = useHeaderHeight();
   const { name } = route;
 
   const theme = Appearance.getColorScheme();
+
+  const showLogo = name === "library/index" || name === "index";
 
   const handlePress = () => {
     Appearance.setColorScheme(theme === "dark" ? "light" : "dark");
@@ -103,12 +104,15 @@ const Header = ({
   const handleBack = () => {
     router.back();
   };
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !showLogo });
+  }, [showLogo]);
 
   return (
     <HeaderSafeArea h={headerHeight}>
       <HeaderFrame pt={top}>
         <HeaderLeft>
-          {name === "library/index" ? (
+          {showLogo ? (
             <LogoContainer>
               <Logo />
             </LogoContainer>

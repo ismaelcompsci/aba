@@ -15,7 +15,11 @@ function getItem(key: string): string | null {
 }
 
 function setItem(key: string, value: string): void {
-  storage.set(key, value);
+  if (typeof value === "string") {
+    storage.set(key, value);
+  } else {
+    storage.set(key, JSON.stringify(value));
+  }
 }
 
 function removeItem(key: string): void {
@@ -27,8 +31,6 @@ function clearAll(): void {
 }
 
 const atomWithLocalStorage = <Value>(key: string, initialValue: Value) => {
-  console.log(initialValue);
-
   const getInitialValue = () => {
     const item = getItem(key);
     if (item !== null) {
@@ -61,10 +63,10 @@ export const appThemeAtom = atomWithLocalStorage(
 
 export const serverSettingsAtom = atomWithLocalStorage<ServerSettings>(
   GeneralSetting.ServerSettings,
-  {}
+  {} as ServerSettings
 );
 
 export const currentServerConfigAtom = atomWithLocalStorage<ServerConfig>(
   GeneralSetting.CurrentServerConfig,
-  {}
+  {} as ServerConfig
 );
