@@ -4,4 +4,6 @@
 
 
 ### Todo's
-- [ ] Fix back button on server connect page.
+- [ ] fix back button on server connect page.
+- [ ] fix menu and search button in header
+
