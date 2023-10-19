@@ -26,3 +26,12 @@ export const prettyLog = (obj: unknown) => {
 export const getRandomThemeColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
+
+export const cleanString = (from: string | null | undefined, max: number) => {
+  if (!from) return "";
+
+  if (from.length > max) {
+    return from.slice(0, max - 3) + "...";
+  }
+  return from;
+};

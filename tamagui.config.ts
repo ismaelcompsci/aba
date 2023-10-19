@@ -1,7 +1,4 @@
 import { config } from "@tamagui/config/v2-native";
-
-import { Text, View } from "react-native";
-
 import { createTamagui } from "tamagui";
 
 const appConfig = createTamagui(config);
@@ -12,3 +9,5 @@ declare module "tamagui" {
   interface TamaguiCustomConfig extends AppConfig {}
 }
 export default appConfig;
+
+// "foregroundImage": "./assets/fakeImage.png",

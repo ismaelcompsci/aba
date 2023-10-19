@@ -2,6 +2,7 @@ import axios from "axios";
 import * as Burnt from "burnt";
 
 import { ServerConfig } from "../types/types";
+import { LibraryItem, LibraryItemMinified } from "../types/aba";
 
 export const pingServer = async (
   baseUrl: string
@@ -56,4 +57,22 @@ export const authenticateToken = async (config: ServerConfig) => {
 
     return;
   }
+};
+
+export const getItemCoverSrc = (
+  libraryItem: LibraryItemMinified | LibraryItem | undefined | null,
+  config: ServerConfig | null,
+  token?: string
+) => {
+  if (!libraryItem || !token || !config) return;
+
+  const media = libraryItem.media;
+  if (!media || !media.coverPath) return null;
+
+  const url = new URL(
+    `/api/items/${libraryItem.id}/cover`,
+    config.serverAddress
+  );
+
+  return `${url}?token=${token}`;
 };

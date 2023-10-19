@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as Burnt from "burnt";
-import { Redirect, router, useRootNavigationState } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Spinner } from "tamagui";
 
@@ -20,7 +20,7 @@ import { authenticateToken, pingServer } from "../utils/api";
 import { stringToBase64 } from "../utils/utils";
 
 export default function IndexPage() {
-  const rootNavigationState = useRootNavigationState();
+  const [isMounted, setIsMounted] = useState(false);
 
   const [user, setUser] = useAtom(userAtom);
   const attemptingConnection = useAtomValue(attemptingConnectionAtom);
@@ -154,12 +154,7 @@ export default function IndexPage() {
   };
 
   useEffect(() => {
-    if (!user && !attemptingConnection) {
-      router.push("/server-connect/");
-    }
-  }, [user, attemptingConnection]);
-
-  useEffect(() => {
+    setIsMounted(true);
     if (!deviceData.lastServerConnectionConfigId) return;
 
     const config = deviceData.serverConnectionConfigs.find(
@@ -170,11 +165,16 @@ export default function IndexPage() {
     connectToServer(config);
   }, []);
 
-  if (!rootNavigationState?.key) return null;
+  useEffect(() => {
+    // IMPORTANT when logging out get rid of lastServerConnectionConfigId
+    if (!user && isMounted && !deviceData.lastServerConnectionConfigId) {
+      router.push("/server-connect/");
+    }
+  }, [user, isMounted]);
 
   return (
     <>
-      {attemptingConnection ? (
+      {!user || attemptingConnection ? (
         <ScreenCenter>
           <Spinner />
         </ScreenCenter>

@@ -2,13 +2,15 @@ import { useEffect } from "react";
 import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { ChevronLeft, Menu, Search } from "@tamagui/lucide-icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack, usePathname } from "expo-router";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { TamaguiProvider, Theme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
-import { IconButton } from "../components/button/button";
+import { IconButton } from "../components/buttons/button";
 import {
   HeaderFrame,
   HeaderLeft,
@@ -18,19 +20,21 @@ import {
 import { LogoContainer } from "../components/header/logo";
 import { Logo } from "../components/logo";
 import { useHeaderHeight } from "../hooks/use-header-height";
-import { attemptingConnectionAtom, userAtom } from "../state/app-state";
+import { librariesAtom, userAtom } from "../state/app-state";
 import { DefaultSettingsType } from "../state/default-state";
-import { appThemeAtom } from "../state/local-state";
-import { awaitTimeout } from "../utils/utils";
+import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
 SplashScreen.preventAutoHideAsync();
 
 console.log(Platform.OS);
 
+const queryClient = new QueryClient();
+
 export default function Layout() {
+  const [serverConfig] = useAtom(currentServerConfigAtom);
   const [appTheme, setAppTheme] = useAtom(appThemeAtom);
-  const setAttemptingConnection = useSetAtom(attemptingConnectionAtom);
-  const setUser = useSetAtom(userAtom);
+  const [_, setLibraries] = useAtom(librariesAtom);
+  const [user] = useAtom(userAtom);
 
   const pathname = usePathname();
   const animation = pathname === "/" ? "fade" : "default";
@@ -53,17 +57,6 @@ export default function Layout() {
   }, [loaded]);
 
   useEffect(() => {
-    const at = async () => {
-      setAttemptingConnection(true);
-      await awaitTimeout(3000);
-      // setUser(null);
-      setAttemptingConnection(false);
-    };
-
-    at();
-  }, []);
-
-  useEffect(() => {
     Appearance.addChangeListener(({ colorScheme }) => {
       const newAppTheme: DefaultSettingsType["theme"] = {
         scheme: colorScheme!,
@@ -72,20 +65,41 @@ export default function Layout() {
     });
   }, []);
 
+  useEffect(() => {
+    // TODO ADD LOADING STATE FOR SERVER LIST COMPONENT
+    // CHANGE THIS TO TANSTACK QUERY?
+    // TODO! ADD ERROR HANDLING
+    const getLibraries = async () => {
+      const response = await axios.get(
+        `${serverConfig.serverAddress}/api/libraries`,
+        { headers: { Authorization: `Bearer ${user?.token}` } }
+      );
+      console.log("DONWN LULW DOW");
+      setLibraries(response.data.libraries);
+    };
+
+    if (user) {
+      getLibraries();
+    }
+  }, [user, serverConfig]);
+
   if (!loaded) return null;
 
   return (
-    <TamaguiProvider config={appConfig}>
-      <Theme name={appTheme.scheme}>
-        <Stack
-          initialRouteName="index"
-          screenOptions={{
-            header: Header,
-            animation: animation,
-          }}
-        />
-      </Theme>
-    </TamaguiProvider>
+    <QueryClientProvider client={queryClient}>
+      <TamaguiProvider config={appConfig}>
+        <Theme name={appTheme.scheme}>
+          <Stack
+            initialRouteName="index"
+            screenOptions={{
+              header: Header,
+              // TODO CHANGE DYNAMICALLY DEPENDING ON ROUTE
+              animation: "fade",
+            }}
+          />
+        </Theme>
+      </TamaguiProvider>
+    </QueryClientProvider>
   );
 }
 
