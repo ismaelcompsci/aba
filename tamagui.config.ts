@@ -9,5 +9,3 @@ declare module "tamagui" {
   interface TamaguiCustomConfig extends AppConfig {}
 }
 export default appConfig;
-
-// "foregroundImage": "./assets/fakeImage.png",

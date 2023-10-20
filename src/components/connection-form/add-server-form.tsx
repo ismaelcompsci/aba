@@ -204,7 +204,7 @@ const AddServerForm = ({
 
       <XStack w={"100%"} gap={"$4"}>
         <Button
-          theme="red"
+          theme="red_active"
           flex={1}
           onPress={() => setShowAddServerForm(false)}
         >

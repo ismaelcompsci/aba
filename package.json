@@ -16,10 +16,10 @@
     "@react-navigation/native": "^6.1.7",
     "@shopify/flash-list": "1.4.3",
     "@tamagui/babel-plugin": "^1.74.20",
-    "@tamagui/config": "^1.74.15",
-    "@tamagui/lucide-icons": "^1.74.15",
-    "@tamagui/themes": "^1.74.15",
-    "@tamagui/toast": "^1.74.15",
+    "@tamagui/config": "^1.74.21",
+    "@tamagui/lucide-icons": "^1.74.21",
+    "@tamagui/themes": "^1.74.21",
+    "@tamagui/toast": "^1.74.21",
     "@tanstack/react-query": "^4.36.1",
     "axios": "^1.5.1",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
@@ -53,8 +53,9 @@
     "react-native-svg": "13.9.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.6",
-    "tamagui": "^1.74.15",
-    "zod": "^3.22.4"
+    "tamagui": "^1.74.21",
+    "zod": "^3.22.4",
+    "expo-linear-gradient": "~12.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
