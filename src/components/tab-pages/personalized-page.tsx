@@ -7,6 +7,7 @@ import BookShelf from "../../components/library/bookshelf";
 import { Library, User } from "../../types/aba";
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import { ScreenCenter } from "../center";
+import { PageView } from "./page-view";
 
 interface PersonalizedPageProps {
   library: Library | null;
@@ -37,7 +38,7 @@ const PersonalizedPage = ({
   );
 
   return (
-    <View bg={"$background"}>
+    <PageView>
       {isLoading ? (
         // HEIGHT OF HEADER PLUS TAB BAR
         <ScreenCenter pb={94 + 44}>
@@ -61,7 +62,7 @@ const PersonalizedPage = ({
           ))}
         </ScrollView>
       )}
-    </View>
+    </PageView>
   );
 };
 

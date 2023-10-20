@@ -8,13 +8,15 @@ import { Spinner, XStack } from "tamagui";
 import { Library, LibraryItemMinified, User } from "../../types/aba";
 import { LibraryItems, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
-import { ScreenCenter } from "../center";
+import { ScreenCenterWithTabBar } from "../center";
+
+import { PageView } from "./page-view";
 
 interface LibraryPageProps {
-  library: Library | null;
   currentLibraryId?: string | null;
-  user: User | null;
   serverConfig: ServerConfig | null;
+  library: Library | null;
+  user: User | null;
 }
 
 const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
@@ -108,11 +110,11 @@ const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
   }, [library]);
 
   return (
-    <>
+    <PageView>
       {isInitialLoading ? (
-        <ScreenCenter pb={94 + 44}>
+        <ScreenCenterWithTabBar>
           <Spinner />
-        </ScreenCenter>
+        </ScreenCenterWithTabBar>
       ) : (
         <XStack
           bg={"$background"}
@@ -136,7 +138,7 @@ const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
           />
         </XStack>
       )}
-    </>
+    </PageView>
   );
 };
 

@@ -3,7 +3,7 @@ import { atom } from "jotai";
 import { Library, User } from "../types/aba";
 
 export const userAtom = atom<User | null>(null);
-export const attemptingConnectionAtom = atom<boolean>(false);
+export const attemptingConnectionAtom = atom<boolean>(true);
 export const currentLibraryIdAtom = atom<string | null>(null);
 export const librariesAtom = atom<Library[]>([]);
 

@@ -182,7 +182,7 @@ const ServerConnectPage = () => {
               </Button>
             ))
           ) : (
-            <YStack>
+            <YStack w={"100%"} alignItems="center" justifyContent="center">
               <Text>Empty :/</Text>
             </YStack>
           )}

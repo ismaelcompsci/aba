@@ -64,3 +64,9 @@ export interface LibrarySeries {
   collapseseries: boolean;
   include: string;
 }
+
+export type TabName = "Home" | "Library";
+
+export type Tabs = {
+  [key in TabName]: React.ComponentType<any>; // Assuming Home and Library are React components
+};

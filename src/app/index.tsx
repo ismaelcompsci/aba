@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as Burnt from "burnt";
 import { Redirect, router } from "expo-router";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { Spinner } from "tamagui";
 
 import { ScreenCenter } from "../components/center";
@@ -23,7 +23,9 @@ export default function IndexPage() {
   const [isMounted, setIsMounted] = useState(false);
 
   const [user, setUser] = useAtom(userAtom);
-  const attemptingConnection = useAtomValue(attemptingConnectionAtom);
+  const [attemptingConnection, setAttemptingConnection] = useAtom(
+    attemptingConnectionAtom
+  );
   const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
@@ -60,6 +62,7 @@ export default function IndexPage() {
     setCurrentServerConfig(serverConfig);
     console.info("Successfully logged in", user.username);
 
+    setAttemptingConnection(false);
     router.push("/library/");
   };
 
@@ -149,7 +152,6 @@ export default function IndexPage() {
       });
     }
 
-    // prettyLog(sc);
     return sc;
   };
 
@@ -162,15 +164,20 @@ export default function IndexPage() {
     );
 
     if (!config) return;
+
     connectToServer(config);
   }, []);
 
   useEffect(() => {
-    // IMPORTANT when logging out get rid of lastServerConnectionConfigId
-    if (!user && isMounted && !deviceData.lastServerConnectionConfigId) {
+    if (
+      (!user && isMounted && !attemptingConnection) ||
+      (isMounted &&
+        !deviceData.lastServerConnectionConfigId &&
+        !deviceData.serverConnectionConfigs.length)
+    ) {
       router.push("/server-connect/");
     }
-  }, [user, isMounted]);
+  }, [user, isMounted, attemptingConnection, deviceData]);
 
   return (
     <>
