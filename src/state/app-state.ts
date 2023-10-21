@@ -7,6 +7,7 @@ export const attemptingConnectionAtom = atom<boolean>(true);
 export const currentLibraryIdAtom = atom<string | null>(null);
 export const librariesAtom = atom<Library[]>([]);
 export const openModalAtom = atom(false);
+export const changingLibraryAtom = atom(false);
 
 /**
  * Derived Atoms

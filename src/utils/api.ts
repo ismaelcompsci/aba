@@ -52,6 +52,7 @@ export const authenticateToken = async (config: ServerConfig) => {
       Burnt.toast({
         title: "Authentication Failed",
         message: errorMsg,
+        preset: "error",
       });
     }
 

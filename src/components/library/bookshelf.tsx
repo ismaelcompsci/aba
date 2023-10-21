@@ -1,5 +1,5 @@
 import { FlatList } from "react-native";
-import { Text, View, YStack, useTheme } from "tamagui";
+import { Text, useTheme, View, YStack } from "tamagui";
 
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";

@@ -84,6 +84,7 @@ const ServerConnectPage = () => {
       Burnt.toast({
         title: "Duplicate login",
         message: "username and address already exist",
+        preset: "error",
       });
 
       return;
@@ -131,6 +132,7 @@ const ServerConnectPage = () => {
       if (!pinged.success) {
         Burnt.toast({
           title: "Server ping failed",
+          preset: "error",
         });
         return;
       }
@@ -139,6 +141,7 @@ const ServerConnectPage = () => {
       if (!response) {
         Burnt.toast({
           title: "Token has expired",
+          preset: "error",
         });
         return;
       }

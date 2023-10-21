@@ -2,10 +2,12 @@ import { ThemeName } from "tamagui";
 
 import { DeviceData } from "../types/types";
 
+export type ThemeNames = ThemeName | "no color";
+
 export type DefaultSettingsType = {
   theme: {
     scheme: "dark" | "light";
-    color?: ThemeName | null | undefined;
+    color?: ThemeNames | null | undefined;
     full?: string | null;
   };
   deviceData: DeviceData;

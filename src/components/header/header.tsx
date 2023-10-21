@@ -15,6 +15,7 @@ export const HeaderFrame = styled(XStack, {
 
 export const HeaderLeft = styled(XStack, {
   flex: 1,
+  gap: "$4",
 });
 export const HeaderRight = styled(XStack, {
   flex: 1,

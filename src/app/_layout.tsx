@@ -5,8 +5,8 @@ import { ChevronLeft, MoreHorizontal, Search } from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
-import { router, SplashScreen, Stack, usePathname } from "expo-router";
-import { useAtom, useSetAtom } from "jotai";
+import { router, SplashScreen, Stack } from "expo-router";
+import { useAtomValue, useSetAtom } from "jotai";
 import { TamaguiProvider, Theme, ThemeName } from "tamagui";
 
 import appConfig from "../../tamagui.config";
@@ -20,7 +20,9 @@ import {
 import { LogoContainer } from "../components/header/logo";
 import { Logo } from "../components/logo";
 import MenuDrawer from "../components/menu/menu-drawer";
+import { ServerSelect } from "../components/servers-popover";
 import { useHeaderHeight } from "../hooks/use-header-height";
+import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, openModalAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
@@ -31,13 +33,13 @@ console.log(Platform.OS);
 const queryClient = new QueryClient();
 
 export default function Layout() {
-  const [serverConfig] = useAtom(currentServerConfigAtom);
-  const [appTheme, setAppTheme] = useAtom(appThemeAtom);
+  const serverConfig = useAtomValue(currentServerConfigAtom);
+  const user = useAtomValue(userAtom);
+  const appTheme = useAtomValue(appThemeAtom);
   const setLibraries = useSetAtom(librariesAtom);
-  const [user] = useAtom(userAtom);
 
-  const pathname = usePathname();
-  const animation = pathname === "/" ? "fade" : "default";
+  // const pathname = usePathname();
+  // const animation = pathname === "/" ? "fade" : "default";
 
   const [loaded, error] = useFonts({
     Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
@@ -54,15 +56,6 @@ export default function Layout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-
-  // useEffect(() => {
-  // const newAppTheme: DefaultSettingsType["theme"] = {
-  //   scheme: appTheme.scheme,
-  //   color: appTheme.color,
-  //   full: appTheme.color ? `${appTheme.scheme}_${appTheme.color}` : null,
-  // };
-  // setAppTheme(newAppTheme);
-  // }, [appTheme]);
 
   useEffect(() => {
     // TODO ADD LOADING STATE FOR SERVER LIST COMPONENT
@@ -108,10 +101,15 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   const setOpen = useSetAtom(openModalAtom);
 
   const { headerHeight, top } = useHeaderHeight();
+  const { iconColor } = useIconTheme();
   const { name } = route;
 
   const showLogo =
-    name === "library/index" || name === "index" || "/server-connect";
+    name === "library/index" ||
+    name === "index" ||
+    name === "server-connect/index";
+
+  const showServerSwitch = name !== "server-connect/index";
 
   const handleBack = () => {
     router.back();
@@ -130,17 +128,18 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <Logo />
             </LogoContainer>
           ) : (
-            <IconButton onPress={handleBack}>
+            <LogoContainer onPress={handleBack}>
               <ChevronLeft />
-            </IconButton>
+            </LogoContainer>
           )}
+          {showServerSwitch && <ServerSelect placement="bottom" />}
         </HeaderLeft>
         <HeaderRight>
           <IconButton>
-            <Search />
+            <Search color={iconColor} />
           </IconButton>
           <IconButton onPress={() => setOpen((prev) => !prev)}>
-            <MoreHorizontal />
+            <MoreHorizontal color={iconColor} />
           </IconButton>
         </HeaderRight>
       </HeaderFrame>

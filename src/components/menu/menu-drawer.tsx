@@ -8,6 +8,10 @@ import { openModalAtom } from "../../state/app-state";
 
 import SettingsTab from "./settings-tab";
 
+const ConnectionTab = () => {
+  return;
+};
+
 const renderScene = SceneMap({
   settings: SettingsTab,
 });

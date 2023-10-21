@@ -9,6 +9,7 @@ import { Text, useTheme, XStack, YStack } from "tamagui";
 import NoServer from "../../components/no-server";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
+import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentLibraryAtom,
   currentLibraryIdAtom,
@@ -34,6 +35,8 @@ const HomePage = () => {
     { key: "_personalPage", title: "Home" },
     { key: "_libraryPage", title: "Library" },
   ]);
+
+  const { iconColor } = useIconTheme();
 
   const theme = useTheme();
   const bg = theme.background.get();
@@ -84,6 +87,7 @@ const HomePage = () => {
               {...props}
               style={{ backgroundColor: bg }}
               indicatorStyle={{ backgroundColor: color }}
+              tabStyle={{ flex: 1 }}
               renderLabel={({ route, focused }) => {
                 const Icon = tabs[route.title as TabName];
                 return (
@@ -92,7 +96,7 @@ const HomePage = () => {
                     alignItems="center"
                     opacity={!focused ? 0.5 : 1}
                   >
-                    <Icon />
+                    <Icon color={iconColor} />
                     <Text>{route.title}</Text>
                   </XStack>
                 );

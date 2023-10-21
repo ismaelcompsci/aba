@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Dimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useAtom } from "jotai";
 import { Spinner, XStack } from "tamagui";
 
+import { changingLibraryAtom } from "../../state/app-state";
 import { Library, LibraryItemMinified, User } from "../../types/aba";
 import { LibraryItems, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
@@ -19,7 +21,14 @@ interface LibraryPageProps {
   user: User | null;
 }
 
-const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
+const LibraryPage = ({
+  library,
+  user,
+  serverConfig,
+  currentLibraryId,
+}: LibraryPageProps) => {
+  const [changingLibrary] = useAtom(changingLibraryAtom);
+
   const queryClient = useQueryClient();
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
@@ -39,13 +48,15 @@ const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
   const bookW = screenWidth / numOfColumns;
   const bookWidth = isCoverSquareAspectRatio ? bookW * 1.6 : bookW;
   let columns = Math.floor(screenWidth / bookWidth);
-  columns = columns === 0 ? 1 : columns;
+  columns = columns === 0 || columns === 1 ? 2 : columns;
 
   const {
     data: libraryItems,
     hasNextPage,
     fetchNextPage,
     isInitialLoading,
+    isLoading,
+    isFetching,
   } = useInfiniteQuery({
     queryKey: ["library-items", `${library?.id}`],
     queryFn: async ({ pageParam = 0 }) => {
@@ -85,33 +96,38 @@ const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
     }
   };
 
-  const handleRenderItem = ({
-    item,
-  }: {
-    item: LibraryItemMinified;
-    index: number;
-  }) => {
-    return (
-      <XStack pb={"$3"}>
-        <BookCard
-          serverConfig={serverConfig}
-          isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-          token={user?.token}
-          item={item}
-          w={"100%"}
-        />
-      </XStack>
-    );
-  };
+  const handleRenderItem = useCallback(
+    ({ item }: { item: LibraryItemMinified; index: number }) => {
+      return (
+        <XStack pt={"$3"}>
+          <BookCard
+            serverConfig={serverConfig}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+            token={user?.token}
+            item={item}
+            w={"100%"}
+          />
+        </XStack>
+      );
+    },
+    [currentLibraryId]
+  );
 
   useEffect(() => {
     flattenData = [];
     queryClient.invalidateQueries(["library-items"]);
-  }, [library]);
+  }, [library, currentLibraryId]);
+
+  console.log({
+    len: flattenData?.length,
+    isLoading,
+    isInitialLoading,
+    isFetching,
+  });
 
   return (
     <PageView>
-      {isInitialLoading ? (
+      {isInitialLoading || isLoading || changingLibrary ? (
         <ScreenCenterWithTabBar>
           <Spinner />
         </ScreenCenterWithTabBar>
@@ -124,9 +140,6 @@ const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
           alignItems="center"
         >
           <FlashList
-            ListHeaderComponentStyle={{
-              paddingBottom: 10,
-            }}
             showsVerticalScrollIndicator={false}
             horizontal={false}
             data={flattenData}
@@ -134,7 +147,7 @@ const LibraryPage = ({ library, user, serverConfig }: LibraryPageProps) => {
             onEndReached={loadNextPageData}
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
-            estimatedItemSize={210}
+            estimatedItemSize={bookWidth}
           />
         </XStack>
       )}

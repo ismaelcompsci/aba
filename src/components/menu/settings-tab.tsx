@@ -41,7 +41,10 @@ const SettingsTab = () => {
     const newAppTheme: DefaultSettingsType["theme"] = {
       scheme: scheme,
       color: theme.color,
-      full: theme.color ? `${scheme}_${theme.color}` : null,
+      full:
+        theme.color && theme.color !== "no color"
+          ? `${scheme}_${theme.color}`
+          : null,
     };
 
     setTheme(newAppTheme);
@@ -49,12 +52,12 @@ const SettingsTab = () => {
   }, [checked]);
 
   return (
-    <View height={"100%"} w={"100%"} p={"$3"}>
+    <View height="100%" w="100%" p="$3">
       <YGroup separator={<Separator />}>
         <GroupItem>
           <Label>Dark mode</Label>
           <Switch checked={checked} onCheckedChange={setChecked}>
-            <Switch.Thumb bg={"$color"} animation="quick" />
+            <Switch.Thumb bg="$color" animation="quick" />
           </Switch>
         </GroupItem>
         <GroupItem>

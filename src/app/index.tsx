@@ -72,6 +72,7 @@ export default function IndexPage() {
       if (!pinged.success) {
         Burnt.toast({
           title: "Server ping failed",
+          preset: "error",
         });
         return;
       }
@@ -80,6 +81,7 @@ export default function IndexPage() {
       if (!response) {
         Burnt.toast({
           title: "Token has expired",
+          preset: "error",
         });
         return;
       }
@@ -114,6 +116,7 @@ export default function IndexPage() {
       Burnt.toast({
         title: "Duplicate login",
         message: "username and address already exist",
+        preset: "error",
       });
 
       return;
@@ -166,6 +169,7 @@ export default function IndexPage() {
     if (!config) return;
 
     connectToServer(config);
+    // setAttemptingConnection(false);
   }, []);
 
   useEffect(() => {
