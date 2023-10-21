@@ -1,14 +1,14 @@
 import axios from "axios";
 import * as Burnt from "burnt";
 
-import { ServerConfig } from "../types/types";
 import { LibraryItem, LibraryItemMinified } from "../types/aba";
+import { ServerConfig } from "../types/types";
 
 export const pingServer = async (
   baseUrl: string
 ): Promise<{ success: boolean; title?: string; message?: string }> => {
   try {
-    const response = await axios.get(`${baseUrl}/ping`);
+    const response = await axios.get(`${baseUrl}/ping`, { timeout: 6000 });
     return { success: response.data.success };
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
