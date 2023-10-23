@@ -99,7 +99,7 @@ const HomePage = () => {
                     <TabBarIndicator
                       {...props}
                       style={{
-                        backgroundColor: themeColor.val
+                        backgroundColor: themeColor?.val
                           ? themeColor.val
                           : themeColor,
                       }}

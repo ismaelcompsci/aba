@@ -6,4 +6,5 @@
 ### Todo's
 - [ ] fix back button on server connect page.
 - [ ] fix menu and search button in header
+- [ ] fix popover not working on android
 
