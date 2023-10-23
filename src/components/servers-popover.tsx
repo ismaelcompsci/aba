@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Adapt,
   Popover,
@@ -15,15 +15,15 @@ import {
   currentLibraryIdAtom,
   librariesAtom,
 } from "../state/app-state";
+import { awaitTimeout } from "../utils/utils";
 
 import { IconButton } from "./buttons/button";
 import { iconMap } from "./adbs-icons";
-import { awaitTimeout } from "../utils/utils";
 
 export function ServerSelect({ ...props }: PopoverProps) {
   const libraries = useAtomValue(librariesAtom);
   const library = useAtomValue(currentLibraryAtom);
-  const [currentLibraryId, setCurrentLibraryId] = useAtom(currentLibraryIdAtom);
+  const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
 
   const { iconColor } = useIconTheme();

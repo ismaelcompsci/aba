@@ -74,6 +74,7 @@ export default function IndexPage() {
           title: "Server ping failed",
           preset: "error",
         });
+        setAttemptingConnection(false);
         return;
       }
 
@@ -160,7 +161,10 @@ export default function IndexPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    if (!deviceData.lastServerConnectionConfigId) return;
+    if (!deviceData.lastServerConnectionConfigId) {
+      setAttemptingConnection(false);
+      return;
+    }
 
     const config = deviceData.serverConnectionConfigs.find(
       (s) => s.id == deviceData.lastServerConnectionConfigId

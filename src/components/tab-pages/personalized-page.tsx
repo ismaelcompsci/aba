@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Spinner } from "tamagui";
+import { ScrollView, Spinner, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
@@ -29,29 +29,32 @@ const PersonalizedPage = ({
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
-  const { data: personalizedLibrary, isLoading } = useQuery(
-    ["personalized-library-view", currentLibraryId],
-    {
-      queryFn: async (): Promise<PersonalizedView[]> => {
-        try {
-          const response = await axios.get(
-            `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
-            { headers: { Authorization: `Bearer ${user?.token}` } }
-          );
-          return response.data;
-        } catch (error) {
-          console.log({ error, PEROSONALIZED: "ERROR" });
-          throw new Error();
-        }
-      },
-    }
-  );
+  const {
+    data: personalizedLibrary,
+    isLoading,
+    isInitialLoading,
+  } = useQuery(["personalized-library-view", currentLibraryId], {
+    queryFn: async (): Promise<PersonalizedView[]> => {
+      try {
+        const response = await axios.get(
+          `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
+          { headers: { Authorization: `Bearer ${user?.token}` } }
+        );
+        return response.data;
+      } catch (error) {
+        console.log({ error, PEROSONALIZED: "ERROR" });
+        throw new Error();
+      }
+    },
+  });
+
+  const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
 
   return (
     <PageView>
-      {isLoading || changingLibrary ? (
+      {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
         <ScreenCenter>
-          <Spinner />
+          {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
         </ScreenCenter>
       ) : (
         <ScrollView

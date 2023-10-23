@@ -12,6 +12,8 @@ export const IconButton = styled(Button, {
 });
 
 export const ClearIconButton = styled(View, {
+  justifyContent: "center",
+  alignItems: "center",
   padding: "$2",
   borderWidth: 0,
   pressStyle: {

@@ -13,7 +13,9 @@ const useIconTheme = () => {
     // @ts-ignore
     apptheme.color !== "no color" ? theme[apptheme.color + "10"] : color;
 
-  return { iconColor, bg, color };
+  const themeColor = iconColor;
+
+  return { iconColor, bg, color, themeColor };
 };
 
 export default useIconTheme;

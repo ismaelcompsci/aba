@@ -24,3 +24,10 @@ export const currentServerConfigAtom = atomWithLocalStorage<ServerConfig>(
   GeneralSetting.CurrentServerConfig,
   {} as ServerConfig
 );
+
+export const sortAtom = atomWithLocalStorage<string>(GeneralSetting.Sort, "");
+
+export const descOrderAtom = atomWithLocalStorage<boolean>(
+  GeneralSetting.DescOrder,
+  false
+);

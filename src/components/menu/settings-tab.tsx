@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Appearance } from "react-native";
+import { router } from "expo-router";
 import { useAtom } from "jotai";
 import {
+  Button,
   Label,
   Separator,
   styled,
   Switch,
+  Text,
   View,
   XStack,
   YGroup,
 } from "tamagui";
 
 import { DefaultSettingsType } from "../../state/default-state";
-import { appThemeAtom } from "../../state/local-state";
+import { appThemeAtom, deviceDataAtom } from "../../state/local-state";
 
 import { SelectColor } from "./select-color";
 
@@ -33,9 +36,16 @@ const GroupItem = ({ children }: { children: React.ReactNode }) => {
 
 const SettingsTab = () => {
   const [theme, setTheme] = useAtom(appThemeAtom);
+  const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
 
   const [checked, setChecked] = useState(theme.scheme === "dark");
   const scheme = checked ? "dark" : "light";
+
+  const disconnect = () => {
+    // disconnect socket here
+    setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });
+    router.push("/server-connect/");
+  };
 
   useEffect(() => {
     const newAppTheme: DefaultSettingsType["theme"] = {
@@ -52,7 +62,7 @@ const SettingsTab = () => {
   }, [checked]);
 
   return (
-    <View height="100%" w="100%" p="$3">
+    <View height="100%" w="100%" p="$3" pb="$6" justifyContent="space-between">
       <YGroup separator={<Separator />}>
         <GroupItem>
           <Label>Dark mode</Label>
@@ -65,6 +75,9 @@ const SettingsTab = () => {
           <SelectColor />
         </GroupItem>
       </YGroup>
+      <Button theme={"red_active"} onPress={disconnect}>
+        <Text>Disconnect</Text>
+      </Button>
     </View>
   );
 };

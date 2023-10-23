@@ -3,14 +3,18 @@ import { Dimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useAtom } from "jotai";
-import { Spinner, XStack } from "tamagui";
+import { useAtom, useAtomValue } from "jotai";
+import { Spinner, Text, XStack, YStack } from "tamagui";
 
+import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
+import useIconTheme from "../../hooks/use-icon-theme";
 import { changingLibraryAtom } from "../../state/app-state";
+import { descOrderAtom, sortAtom } from "../../state/local-state";
 import { Library, LibraryItemMinified, User } from "../../types/aba";
 import { LibraryItems, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
 import { ScreenCenterWithTabBar } from "../center";
+import { SortSelect } from "../sort-popover";
 
 import { PageView } from "./page-view";
 
@@ -27,9 +31,12 @@ const LibraryPage = ({
   serverConfig,
   currentLibraryId,
 }: LibraryPageProps) => {
+  const sort = useAtomValue(sortAtom);
+  const descOrder = useAtomValue(descOrderAtom);
   const [changingLibrary] = useAtom(changingLibraryAtom);
 
   const queryClient = useQueryClient();
+  const { themeColor } = useIconTheme();
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
   const screenWidth = Dimensions.get("window").width;
@@ -56,18 +63,20 @@ const LibraryPage = ({
     fetchNextPage,
     isInitialLoading,
     isLoading,
-    isFetching,
   } = useInfiniteQuery({
-    queryKey: ["library-items", `${library?.id}`],
+    queryKey: ["library-items", library?.id, sort, `${descOrder}`],
     queryFn: async ({ pageParam = 0 }) => {
+      const d = descOrder ? 1 : 0;
       const { data }: { data: LibraryItems } = await axios.get(
         `${serverConfig?.serverAddress}/api/libraries/${library?.id}/items`,
         {
           params: {
-            limit: 20,
+            limit: LIBRARY_INFINITE_LIMIT,
             page: pageParam,
             minified: 1,
             include: "rssfeed,numEpisodesIncomplete",
+            sort: sort,
+            desc: d,
           },
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -89,6 +98,8 @@ const LibraryPage = ({
   });
 
   let flattenData = libraryItems?.pages.flatMap((page) => page.data.results);
+
+  const isEmpty = flattenData?.length === 0 && !isLoading;
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -116,41 +127,41 @@ const LibraryPage = ({
   useEffect(() => {
     flattenData = [];
     queryClient.invalidateQueries(["library-items"]);
-  }, [library, currentLibraryId]);
-
-  console.log({
-    len: flattenData?.length,
-    isLoading,
-    isInitialLoading,
-    isFetching,
-  });
+    queryClient.resetQueries({ queryKey: ["library-items"] });
+  }, [library, currentLibraryId, descOrder]);
 
   return (
     <PageView>
-      {isInitialLoading || isLoading || changingLibrary ? (
-        <ScreenCenterWithTabBar>
-          <Spinner />
-        </ScreenCenterWithTabBar>
-      ) : (
+      <YStack bg={"$background"} w={"100%"} h={"100%"}>
+        {/* sort & filter */}
         <XStack
-          bg={"$background"}
           w={"100%"}
-          h={"100%"}
-          justifyContent="center"
+          justifyContent="flex-end"
           alignItems="center"
+          px="$2"
+          bbw={2}
+          bbc={themeColor}
         >
+          <SortSelect placement="bottom-end" />
+        </XStack>
+        {/* items */}
+        {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
+          <ScreenCenterWithTabBar>
+            {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
+          </ScreenCenterWithTabBar>
+        ) : (
           <FlashList
             showsVerticalScrollIndicator={false}
             horizontal={false}
-            data={flattenData}
+            data={flattenData || []}
             numColumns={columns}
             onEndReached={loadNextPageData}
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
             estimatedItemSize={bookWidth}
           />
-        </XStack>
-      )}
+        )}
+      </YStack>
     </PageView>
   );
 };

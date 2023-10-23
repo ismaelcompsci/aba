@@ -38,7 +38,7 @@ const BookCard = ({
   }, [isCoverSquareAspectRatio]);
 
   return (
-    <YStack alignItems="center" {...rest}>
+    <YStack alignItems="center" {...rest} bg={"$background"}>
       <Card
         w={bookWidth + 3}
         height={bookHeight + 2.5}

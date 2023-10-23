@@ -6,4 +6,6 @@ export enum GeneralSetting {
   ServerSettings = "ServerSettings",
   TempBookFiles = "TempBookFiles",
   AppTheme = "AppTheme",
+  Sort = "Sort",
+  DescOrder = "DescOrder",
 }

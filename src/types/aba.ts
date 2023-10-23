@@ -525,7 +525,7 @@ export type PlaybackSession = {
   updatedAt: number; // Time in ms since POSIX epoch
 };
 
-export type VideoTrack = any;
+export type VideoTrack = unknown;
 
 // Define the PlaybackSessionExpanded type
 export type PlaybackSessionExpanded = PlaybackSession & {
