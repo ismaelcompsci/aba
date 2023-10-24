@@ -119,7 +119,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     navigation.setOptions({ gestureEnabled: !showLogo });
   }, [showLogo]);
 
-  if (name === "test/index") {
+  if (name === "test/index" || name === "book/[id]") {
     return null;
   }
 

@@ -12,7 +12,7 @@ import { ParallaxScrollView } from "../../components/custom-components/parallax-
 import { HEADER_HEIGHT } from "../../hooks/use-header-height";
 
 const uri =
-  "http://192.168.1.158:54932/api/items/b5a64be0-31d8-4272-b72e-4554f535d2ef/cover?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyb290IiwidXNlcm5hbWUiOiJvd25lcl9pc21hZWwiLCJpYXQiOjE2NzA4MTU4MDB9.dNy1XejXAjvk_sKw2Zm-V_wM5LKQ5BgecTIk1Nt2rYs";
+  "http://192.168.1.159:54932/api/items/b5a64be0-31d8-4272-b72e-4554f535d2ef/cover?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyb290IiwidXNlcm5hbWUiOiJvd25lcl9pc21hZWwiLCJpYXQiOjE2NzA4MTU4MDB9.dNy1XejXAjvk_sKw2Zm-V_wM5LKQ5BgecTIk1Nt2rYs";
 
 const layout = Dimensions.get("window");
 
@@ -20,9 +20,15 @@ const TestPage = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const bg = theme.background.get();
-  const IHeight = 450;
+  const IHeight = 400;
 
   const renderParallaxHeader = (value: Animated.Value) => {
+    const inputRange = [0, 600];
+    const translateY = value.interpolate({
+      inputRange,
+      outputRange: [0, -IHeight],
+    });
+
     return (
       <View w={"100%"} h={"100%"}>
         <>
@@ -51,14 +57,17 @@ const TestPage = () => {
             reducedTransparencyFallbackColor="white"
           />
         </>
-        <Image
-          position="absolute"
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          zIndex={"$4"}
+        <Animated.Image
           resizeMode={"contain"}
+          style={{
+            position: "absolute",
+            top: -10,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            zIndex: 50,
+            // transform: [{ translateY }],
+          }}
           source={{
             uri: uri,
           }}
@@ -121,6 +130,7 @@ const TestPage = () => {
         parallaxHeader={renderParallaxHeader}
         fixedHeader={renderFixedHeader}
         showsVerticalScrollIndicator={false}
+        // scaleParallaxHeader={false}
       >
         <View
           style={{
@@ -142,10 +152,7 @@ const TestPage = () => {
           />
           <View>
             <View px={10}>
-              <H3 numberOfLines={3} mt={-40}>
-                {book.media.metadata.title +
-                  "fasdf asdfasdf asd fasd asdfa asdfa fdasdfasdfa asdfa fdasdfasdfa asdfa fdasdfasdfa asdfa fdasdfasdfa"}
-              </H3>
+              <H3 numberOfLines={3}>{book.media.metadata.title}</H3>
               <Text bg={"$background"} color={"$gray10"}>
                 {book.media.metadata.authorName}
               </Text>
