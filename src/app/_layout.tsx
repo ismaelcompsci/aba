@@ -119,6 +119,10 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     navigation.setOptions({ gestureEnabled: !showLogo });
   }, [showLogo]);
 
+  if (name === "test/index") {
+    return null;
+  }
+
   return (
     <HeaderSafeArea h={headerHeight}>
       <HeaderFrame pt={top}>

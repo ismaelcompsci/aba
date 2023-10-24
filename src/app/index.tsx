@@ -173,7 +173,6 @@ export default function IndexPage() {
     if (!config) return;
 
     connectToServer(config);
-    // setAttemptingConnection(false);
   }, []);
 
   useEffect(() => {

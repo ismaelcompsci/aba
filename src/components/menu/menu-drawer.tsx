@@ -36,12 +36,12 @@ const MenuDrawer = () => {
       open={open}
       onOpenChange={setOpen}
       dismissOnSnapToBottom
-      animation="medium"
+      animation="quick"
       zIndex={100_000}
       modal
     >
       <Sheet.Overlay
-        animation="lazy"
+        animation="100ms"
         enterStyle={{ opacity: 0 }}
         exitStyle={{ opacity: 0 }}
       />

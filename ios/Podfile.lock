@@ -423,6 +423,8 @@ PODS:
   - React-jsinspector (0.72.5)
   - React-logger (0.72.5):
     - glog
+  - react-native-blur (4.3.2):
+    - React-Core
   - react-native-ios-modal (0.1.8):
     - React
   - react-native-mmkv (2.10.2):
@@ -643,6 +645,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-ios-modal (from `../node_modules/react-native-ios-modal`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
@@ -769,6 +772,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-blur:
+    :path: "../node_modules/@react-native-community/blur"
   react-native-ios-modal:
     :path: "../node_modules/react-native-ios-modal"
   react-native-mmkv:
@@ -873,6 +878,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: ff70a72027dea5cc7d71cfcc6fad7f599f63987a
   React-jsinspector: aef73cbd43b70675f572214d10fa438c89bf11ba
   React-logger: 2e4aee3e11b3ec4fa6cfd8004610bbb3b8d6cca4
+  react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-ios-modal: 2894324e2590b0d5c50572370ccc4d640596e0e7
   react-native-mmkv: 9ae7ca3977e8ef48dbf7f066974eb844c20b5fd7
   react-native-pager-view: 0ccb8bf60e2ebd38b1f3669fa3650ecce81db2df

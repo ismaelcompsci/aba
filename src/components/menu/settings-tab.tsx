@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Appearance } from "react-native";
 import { router } from "expo-router";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import {
   Button,
   Label,
@@ -18,6 +18,7 @@ import { DefaultSettingsType } from "../../state/default-state";
 import { appThemeAtom, deviceDataAtom } from "../../state/local-state";
 
 import { SelectColor } from "./select-color";
+import { openModalAtom } from "../../state/app-state";
 
 const GroupSection = styled(XStack, {
   px: "$2",
@@ -35,6 +36,7 @@ const GroupItem = ({ children }: { children: React.ReactNode }) => {
 };
 
 const SettingsTab = () => {
+  const setOpen = useSetAtom(openModalAtom);
   const [theme, setTheme] = useAtom(appThemeAtom);
   const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
 
@@ -45,6 +47,7 @@ const SettingsTab = () => {
     // disconnect socket here
     setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });
     router.push("/server-connect/");
+    setOpen(false);
   };
 
   useEffect(() => {
@@ -67,7 +70,7 @@ const SettingsTab = () => {
         <GroupItem>
           <Label>Dark mode</Label>
           <Switch checked={checked} onCheckedChange={setChecked}>
-            <Switch.Thumb bg="$color" animation="quick" />
+            <Switch.Thumb animation="quick" />
           </Switch>
         </GroupItem>
         <GroupItem>

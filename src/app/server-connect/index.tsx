@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Platform } from "react-native";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
-import { Button, Card, Text, YStack } from "tamagui";
+import { Button, Card, Spinner, Text, YStack } from "tamagui";
 
 import { ScreenCenter } from "../../components/center";
 import AddServerForm from "../../components/connection-form/add-server-form";
@@ -18,6 +18,9 @@ import { authenticateToken, pingServer } from "../../utils/api";
 import { getRandomThemeColor, stringToBase64 } from "../../utils/utils";
 
 const ServerConnectPage = () => {
+  const [loading, setLoading] = useState(false);
+  const [pressedServer, setPressedServer] = useState<ServerConfig | null>(null);
+
   const [showAddServerForm, setShowAddServerForm] = useState(false);
 
   const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
@@ -128,6 +131,7 @@ const ServerConnectPage = () => {
 
   const connectToServer = async (config: ServerConfig) => {
     try {
+      setLoading(true);
       const pinged = await pingServer(config.serverAddress);
       if (!pinged.success) {
         Burnt.toast({
@@ -151,11 +155,13 @@ const ServerConnectPage = () => {
       await makeConnection(response);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!serverConnections.length) {
+    if (serverConnections.length <= 0) {
       setShowAddServerForm(true);
     }
   }, [deviceData.serverConnectionConfigs]);
@@ -179,7 +185,16 @@ const ServerConnectPage = () => {
               <Button
                 key={server.id}
                 theme={getRandomThemeColor()}
-                onPress={() => connectToServer(server)}
+                disabled={loading}
+                onPress={() => {
+                  setPressedServer(server);
+                  connectToServer(server);
+                }}
+                iconAfter={() =>
+                  pressedServer?.id === server.id && loading ? (
+                    <Spinner />
+                  ) : null
+                }
               >
                 {server.name}
               </Button>

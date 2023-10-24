@@ -8,7 +8,7 @@ export const pingServer = async (
   baseUrl: string
 ): Promise<{ success: boolean; title?: string; message?: string }> => {
   try {
-    const response = await axios.get(`${baseUrl}/ping`, { timeout: 6000 });
+    const response = await axios.get(`${baseUrl}/ping`, { timeout: 4000 });
     return { success: response.data.success };
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
