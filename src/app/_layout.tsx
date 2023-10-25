@@ -109,6 +109,9 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "index" ||
     name === "server-connect/index";
 
+  console.log({ name });
+
+  const isIndex = name === "index";
   const showServerSwitch = name !== "server-connect/index";
 
   const handleBack = () => {
@@ -136,7 +139,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <ChevronLeft />
             </LogoContainer>
           )}
-          {showServerSwitch && <ServerSelect placement="bottom" />}
+          {showServerSwitch && !isIndex && <ServerSelect placement="bottom" />}
         </HeaderLeft>
         <HeaderRight>
           <IconButton onPress={() => router.push("/test/")}>

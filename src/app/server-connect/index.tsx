@@ -16,6 +16,8 @@ import {
 import { LoginServerResponse, ServerConfig } from "../../types/types";
 import { authenticateToken, pingServer } from "../../utils/api";
 import { getRandomThemeColor, stringToBase64 } from "../../utils/utils";
+import { ClearIconButton } from "../../components/buttons/button";
+import { MoreVertical } from "@tamagui/lucide-icons";
 
 const ServerConnectPage = () => {
   const [loading, setLoading] = useState(false);
@@ -184,19 +186,20 @@ const ServerConnectPage = () => {
             serverConnections.map((server) => (
               <Button
                 key={server.id}
-                theme={getRandomThemeColor()}
                 disabled={loading}
                 onPress={() => {
                   setPressedServer(server);
                   connectToServer(server);
                 }}
-                iconAfter={() =>
-                  pressedServer?.id === server.id && loading ? (
-                    <Spinner />
-                  ) : null
-                }
               >
                 {server.name}
+                {pressedServer?.id === server.id && loading ? (
+                  <Spinner />
+                ) : null}
+                {/* TODO add a remove pop over */}
+                <ClearIconButton onPress={() => {}}>
+                  <MoreVertical />
+                </ClearIconButton>
               </Button>
             ))
           ) : (

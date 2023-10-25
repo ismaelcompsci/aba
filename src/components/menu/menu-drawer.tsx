@@ -7,6 +7,7 @@ import { Sheet, Text, useTheme, XStack, YStack } from "tamagui";
 import { openModalAtom } from "../../state/app-state";
 
 import SettingsTab from "./settings-tab";
+import { FullScreen } from "../center";
 
 const ConnectionTab = () => {
   return;
@@ -47,7 +48,7 @@ const MenuDrawer = () => {
       />
       <Sheet.Handle />
       <Sheet.Frame>
-        <YStack h={"100%"} w={"100%"} bg={"$background"}>
+        <FullScreen>
           <TabView
             navigationState={{ index, routes }}
             renderScene={renderScene}
@@ -72,7 +73,7 @@ const MenuDrawer = () => {
               />
             )}
           />
-        </YStack>
+        </FullScreen>
       </Sheet.Frame>
     </Sheet>
   );

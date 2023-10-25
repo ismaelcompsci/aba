@@ -14,11 +14,11 @@ import {
   YGroup,
 } from "tamagui";
 
+import { openModalAtom } from "../../state/app-state";
 import { DefaultSettingsType } from "../../state/default-state";
 import { appThemeAtom, deviceDataAtom } from "../../state/local-state";
 
 import { SelectColor } from "./select-color";
-import { openModalAtom } from "../../state/app-state";
 
 const GroupSection = styled(XStack, {
   px: "$2",
@@ -78,7 +78,7 @@ const SettingsTab = () => {
           <SelectColor />
         </GroupItem>
       </YGroup>
-      <Button theme={"red_active"} onPress={disconnect}>
+      <Button theme="red_active" onPress={disconnect}>
         <Text>Disconnect</Text>
       </Button>
     </View>

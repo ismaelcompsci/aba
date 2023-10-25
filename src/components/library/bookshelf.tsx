@@ -1,5 +1,5 @@
 import { FlatList } from "react-native";
-import { Text, useTheme, View, YStack } from "tamagui";
+import { styled, Text, useTheme, View, YStack } from "tamagui";
 
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
@@ -27,10 +27,8 @@ const BookShelf = ({
     return null;
   }
   return (
-    <YStack w={"100%"} h={"$18"} space={"$2"} bg={"$background"}>
-      <Text pl={"$3"} fontSize={"$6"} bg={"$background"}>
-        {shelf.label}
-      </Text>
+    <Shelf>
+      <ShelfLabel>{shelf.label}</ShelfLabel>
       <FlatList
         data={shelf.entities || []}
         horizontal
@@ -51,8 +49,21 @@ const BookShelf = ({
           />
         )}
       />
-    </YStack>
+    </Shelf>
   );
 };
+
+const Shelf = styled(YStack, {
+  w: "100%",
+  h: "$18",
+  space: "$2",
+  bg: "$background",
+});
+
+const ShelfLabel = styled(Text, {
+  pl: "$3",
+  fontSize: "$6",
+  bg: "$background",
+});
 
 export default BookShelf;

@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Spinner, Text } from "tamagui";
+import { ScrollView, Separator, Spinner, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
@@ -73,6 +73,7 @@ const PersonalizedPage = ({
               token={user?.token}
             />
           ))}
+          <Separator w={0} h={20} />
         </ScrollView>
       )}
     </PageView>

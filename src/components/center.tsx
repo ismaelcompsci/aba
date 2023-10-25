@@ -1,4 +1,4 @@
-import { Stack, styled } from "tamagui";
+import { Stack, styled, YStack } from "tamagui";
 
 import {
   HEADER_HEIGHT,
@@ -16,4 +16,10 @@ export const ScreenCenter = styled(Stack, {
 
 export const ScreenCenterWithTabBar = styled(ScreenCenter, {
   paddingBottom: HEADER_HEIGHT_TAB_BAR,
+});
+
+export const FullScreen = styled(YStack, {
+  width: "100%",
+  height: "100%",
+  backgroundColor: "$background",
 });

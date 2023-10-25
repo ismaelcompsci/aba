@@ -8,6 +8,7 @@ import { LibraryItemMinified } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { cleanString } from "../../utils/utils";
+import { AuthorText } from "../author-text";
 
 interface BookCardProps {
   item: LibraryItemMinified;
@@ -38,7 +39,7 @@ const BookCard = ({
   }, [isCoverSquareAspectRatio]);
 
   return (
-    <YStack alignItems="center" {...rest} bg={"$background"}>
+    <YStack alignItems="center" bg="$background" {...rest}>
       <Card
         w={bookWidth + 3}
         height={bookHeight + 2.5}
@@ -52,7 +53,7 @@ const BookCard = ({
         alignItems="center"
       >
         {!coverUrl || error ? (
-          <BookX size={"$10"} />
+          <BookX size="$10" />
         ) : (
           <FastImage
             resizeMode="cover"
@@ -72,17 +73,17 @@ const BookCard = ({
         )}
       </Card>
       <YStack maxWidth={bookWidth}>
-        <Text numberOfLines={1} fontWeight={"$10"} pt={"$2"}>
+        <Text numberOfLines={1} fontWeight="$10" pt="$2">
           {item.media?.metadata?.title}
         </Text>
-        <Text numberOfLines={1} fontSize={"$1"} color={"$gray10"}>
+        <AuthorText>
           {cleanString(
             "authorName" in item.media.metadata
               ? item.media.metadata.authorName
               : item.media.metadata.author,
             30
           )}
-        </Text>
+        </AuthorText>
       </YStack>
     </YStack>
   );

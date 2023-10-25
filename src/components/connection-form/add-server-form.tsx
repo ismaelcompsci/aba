@@ -9,7 +9,7 @@ import { LoginServerResponse, ServerConfig } from "../../types/types";
 import { pingServer } from "../../utils/api";
 import { ErrorMessage } from "../error-message";
 
-import { AddServerFormFrame } from "./form";
+import { AddServerFormFrame, FormFrame } from "./form";
 
 const loginSchema = z.object({
   serverAddress: z
@@ -130,14 +130,13 @@ const AddServerForm = ({
     }
   };
 
-  //  make render component into a single one
   return (
     <AddServerFormFrame>
       <Controller
         control={form.control}
         name="serverAddress"
         render={({ field, fieldState }) => (
-          <Stack space={"$space.1.5"}>
+          <FormFrame>
             <Label htmlFor="serverAddress">Server Address</Label>
             <Input
               placeholder="http://555.555.5.555:5555"
@@ -150,14 +149,14 @@ const AddServerForm = ({
             {!!fieldState.error?.message && (
               <ErrorMessage>{fieldState.error?.message}</ErrorMessage>
             )}
-          </Stack>
+          </FormFrame>
         )}
       />
       <Controller
         control={form.control}
         name="username"
         render={({ field, fieldState }) => (
-          <Stack space={"$space.1.5"}>
+          <FormFrame>
             <Label htmlFor="username">Username</Label>
             <Input
               placeholder="root"
@@ -170,14 +169,14 @@ const AddServerForm = ({
             {!!fieldState.error?.message && (
               <ErrorMessage>{fieldState.error?.message}</ErrorMessage>
             )}
-          </Stack>
+          </FormFrame>
         )}
       />
       <Controller
         control={form.control}
         name="password"
         render={({ field, fieldState }) => (
-          <Stack space={"$space.1.5"}>
+          <FormFrame>
             <Label htmlFor="password">Password</Label>
             <Input
               placeholder="password"
@@ -192,7 +191,7 @@ const AddServerForm = ({
             {!!fieldState.error?.message && (
               <ErrorMessage>{fieldState.error?.message}</ErrorMessage>
             )}
-          </Stack>
+          </FormFrame>
         )}
       />
 
@@ -202,7 +201,7 @@ const AddServerForm = ({
         </ErrorMessage>
       )}
 
-      <XStack w={"100%"} gap={"$4"}>
+      <XStack w="100%" gap="$4">
         <Button
           theme="red_active"
           flex={1}

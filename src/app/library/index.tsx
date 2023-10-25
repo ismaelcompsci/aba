@@ -11,8 +11,8 @@ import { Home, Library } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
 import { Text, useTheme, XStack, YStack } from "tamagui";
 
+import { FullScreen } from "../../components/center";
 import NoServer from "../../components/no-server";
-import { SortSelect } from "../../components/sort-popover";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
 import useIconTheme from "../../hooks/use-icon-theme";
@@ -85,7 +85,7 @@ const HomePage = () => {
       {!user ? (
         <NoServer />
       ) : (
-        <YStack h="100%" w="100%">
+        <FullScreen>
           <TabView
             navigationState={{ index, routes }}
             renderScene={renderScene}
@@ -120,22 +120,12 @@ const HomePage = () => {
                     );
                   }}
                 />
-                {/* {routes[index].key === "_libraryPage" ? (
-                  <XStack
-                    w={"100%"}
-                    justifyContent="flex-end"
-                    alignItems="center"
-                    px="$2"
-                  >
-                    <SortSelect placement="bottom-end" />
-                  </XStack>
-                ) : null} */}
               </YStack>
             )}
             onIndexChange={setIndex}
             initialLayout={{ width: layout.width }}
           />
-        </YStack>
+        </FullScreen>
       )}
     </YStack>
   );

@@ -1,6 +1,7 @@
 import React from "react";
 import { Animated, Dimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import ReadMore from "@fawazahmed/react-native-read-more";
 import { BlurView } from "@react-native-community/blur";
 import { ChevronLeft, MoreHorizontal } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
@@ -20,6 +21,8 @@ const TestPage = () => {
   const insets = useSafeAreaInsets();
   const theme = useTheme();
   const bg = theme.background.get();
+  const color = theme.color.get();
+  const seeTextColor = theme.blue10.get();
   const IHeight = 400;
 
   const renderParallaxHeader = (value: Animated.Value) => {
@@ -169,7 +172,20 @@ const TestPage = () => {
                   </Button>
                 </XStack>
               </XStack>
-              <Text bg={"$background"}>{book.media.metadata.description}</Text>
+              {/* <Text bg={"$background"}>{book.media.metadata.description}</Text> */}
+              <ReadMore
+                numberOfLines={5}
+                seeMoreText="More"
+                seeLessText="Less"
+                seeLessStyle={{ color: seeTextColor }}
+                seeMoreStyle={{ color: seeTextColor }}
+                style={{
+                  color,
+                }}
+              >
+                {book.media.metadata.description}
+              </ReadMore>
+              <ReadMore />
             </View>
           </View>
         </View>

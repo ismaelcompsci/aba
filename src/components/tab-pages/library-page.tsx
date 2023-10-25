@@ -4,7 +4,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
-import { Spinner, Text, XStack, YStack } from "tamagui";
+import { Separator, Spinner, Text, XStack } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
 import useIconTheme from "../../hooks/use-icon-theme";
@@ -13,7 +13,7 @@ import { descOrderAtom, sortAtom } from "../../state/local-state";
 import { Library, LibraryItemMinified, User } from "../../types/aba";
 import { LibraryItems, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
-import { ScreenCenterWithTabBar } from "../center";
+import { FullScreen, ScreenCenterWithTabBar } from "../center";
 import { SortSelect } from "../sort-popover";
 
 import { PageView } from "./page-view";
@@ -110,13 +110,13 @@ const LibraryPage = ({
   const handleRenderItem = useCallback(
     ({ item }: { item: LibraryItemMinified; index: number }) => {
       return (
-        <XStack pt={"$3"}>
+        <XStack pt="$3">
           <BookCard
             serverConfig={serverConfig}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
             token={user?.token}
             item={item}
-            w={"100%"}
+            w="100%"
           />
         </XStack>
       );
@@ -132,10 +132,10 @@ const LibraryPage = ({
 
   return (
     <PageView>
-      <YStack bg={"$background"} w={"100%"} h={"100%"}>
+      <FullScreen>
         {/* sort & filter */}
         <XStack
-          w={"100%"}
+          w="100%"
           justifyContent="flex-end"
           alignItems="center"
           px="$2"
@@ -147,7 +147,7 @@ const LibraryPage = ({
         {/* items */}
         {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
           <ScreenCenterWithTabBar>
-            {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
+            <Spinner />
           </ScreenCenterWithTabBar>
         ) : (
           <FlashList
@@ -159,9 +159,13 @@ const LibraryPage = ({
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
             estimatedItemSize={bookWidth}
+            ListFooterComponent={() => <Separator w={0} h={30} />}
+            ListEmptyComponent={() => {
+              return <Text>EMPTY</Text>;
+            }}
           />
         )}
-      </YStack>
+      </FullScreen>
     </PageView>
   );
 };
