@@ -60,7 +60,7 @@ const BookPage = () => {
   const IHeight = 400;
 
   const { data: bookItem, isLoading } = useQuery({
-    queryKey: ["item", id],
+    queryKey: ["bookItem", `${Array.isArray(id) ? id[0] : id}`],
     queryFn: async () => {
       const response = await axios.get(
         `${config.serverAddress}/api/items/${id}`,
@@ -77,6 +77,8 @@ const BookPage = () => {
 
       return response.data as LibraryItemExpanded;
     },
+    refetchOnMount: true,
+    staleTime: 0,
   });
 
   const cover = getItemCoverSrc(bookItem, config, user?.token);
@@ -275,6 +277,7 @@ const BookPage = () => {
   const numberChapters = numChapters();
   const ebookFiles = libraryFiles.filter((lf) => lf.fileType === "ebook");
   const tracks = "tracks" in bookItem.media ? bookItem.media.tracks : null;
+  const numTracks = tracks?.length;
   const isMissing = bookItem?.isMissing;
   const isInvalid = bookItem?.isInvalid;
   // const subtitle =
@@ -285,6 +288,8 @@ const BookPage = () => {
   const genres = getGenres();
   const author = getAuthor();
   const series = getSeries();
+
+  console.log("RERENDER");
 
   return (
     <View flex={1} bg="$background">
@@ -365,12 +370,12 @@ const BookPage = () => {
                 </ScrollView>
               ) : null}
               {ebookFiles.length ? (
-                <BookFilesTable ebookFiles={ebookFiles} />
+                <BookFilesTable ebookFiles={ebookFiles} itemId={bookItem.id} />
               ) : null}
               {numberChapters ? (
                 <ChapterFilesTable libraryItem={bookItem} />
               ) : null}
-              {tracks ? <TrackFilesTable tracks={tracks} /> : null}
+              {numTracks ? <TrackFilesTable tracks={tracks} /> : null}
             </View>
           </View>
         </View>

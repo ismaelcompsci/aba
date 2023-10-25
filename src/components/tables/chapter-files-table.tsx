@@ -59,7 +59,7 @@ const ChapterFilesTable = ({ libraryItem }: { libraryItem: LibraryItem }) => {
     <Accordion
       type="single"
       collapsible
-      py="$4"
+      pt="$4"
       value={opened}
       onValueChange={setOpened}
     >

@@ -5,6 +5,10 @@ import {
   ChevronDown,
   MoreVertical,
 } from "@tamagui/lucide-icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import * as Burnt from "burnt";
+import { useAtomValue } from "jotai";
 import {
   Accordion,
   Button,
@@ -15,14 +19,50 @@ import {
   XStack,
   YStack,
 } from "tamagui";
+import { Adapt, Popover, PopoverProps } from "tamagui";
 
+import { currentLibraryAtom, userAtom } from "../../state/app-state";
+import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryFile } from "../../types/aba";
-
 import { ClearIconButton } from "../buttons/button";
 import { DataTable } from "../custom-components/data-table";
 
-const BookFilesTable = ({ ebookFiles }: { ebookFiles: LibraryFile[] }) => {
+const BookFilesTable = ({
+  ebookFiles,
+  itemId,
+}: {
+  ebookFiles: LibraryFile[];
+  itemId: string;
+}) => {
+  const queryClient = useQueryClient();
+  const user = useAtomValue(userAtom);
+  const serverConfig = useAtomValue(currentServerConfigAtom);
+  const library = useAtomValue(currentLibraryAtom);
   const [opened, setOpened] = useState("");
+
+  const userCanUpdate = user?.permissions.update;
+  const isAudiobooksOnly = library?.settings.audiobooksOnly;
+
+  const { mutate: updatePrimaryFile } = useMutation({
+    mutationKey: ["primary-file"],
+    mutationFn: async (item: LibraryFile) => {
+      const response = await axios.patch(
+        `${serverConfig.serverAddress}/api/items/${itemId}/ebook/${item.ino}/status`,
+        null,
+        { headers: { Authorization: `Bearer ${user?.token}` } }
+      );
+
+      console.log(response.data);
+
+      return response.data;
+    },
+    onSuccess: () => {
+      Burnt.toast({ title: "Ebook updated" });
+      queryClient.invalidateQueries({
+        queryKey: ["bookItem"],
+      });
+    },
+  });
 
   const getCheckMark = (item: LibraryFile) => {
     if ("isSupplementary" in item && item.isSupplementary === false) {
@@ -34,6 +74,12 @@ const BookFilesTable = ({ ebookFiles }: { ebookFiles: LibraryFile[] }) => {
     }
 
     return null;
+  };
+
+  const onButtonPress = (item: LibraryFile) => {
+    if (userCanUpdate && !isAudiobooksOnly) {
+      updatePrimaryFile(item);
+    }
   };
 
   const renderItem = (item: LibraryFile) => {
@@ -64,9 +110,10 @@ const BookFilesTable = ({ ebookFiles }: { ebookFiles: LibraryFile[] }) => {
           <ClearIconButton>
             <BookOpen />
           </ClearIconButton>
-          <ClearIconButton>
-            <MoreVertical />
-          </ClearIconButton>
+          <BookFilePopover
+            placement="left-end"
+            onButtonPress={() => onButtonPress(item)}
+          />
         </XStack>
       </XStack>
     );
@@ -76,7 +123,7 @@ const BookFilesTable = ({ ebookFiles }: { ebookFiles: LibraryFile[] }) => {
     <Accordion
       type="single"
       collapsible
-      py="$4"
+      pt="$4"
       value={opened}
       onValueChange={setOpened}
     >
@@ -119,5 +166,56 @@ const BookFilesTable = ({ ebookFiles }: { ebookFiles: LibraryFile[] }) => {
     </Accordion>
   );
 };
+
+export function BookFilePopover({
+  onButtonPress,
+  ...props
+}: PopoverProps & {
+  onButtonPress: () => void;
+}) {
+  return (
+    <Popover size="$5" allowFlip {...props}>
+      <Popover.Trigger asChild>
+        <ClearIconButton>
+          <MoreVertical />
+        </ClearIconButton>
+      </Popover.Trigger>
+
+      <Adapt when={"xxs"} platform="touch">
+        <Popover.Sheet modal dismissOnSnapToBottom>
+          <Popover.Sheet.Frame padding="$4">
+            <Adapt.Contents />
+          </Popover.Sheet.Frame>
+          <Popover.Sheet.Overlay
+            animation="lazy"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
+        </Popover.Sheet>
+      </Adapt>
+
+      <Popover.Content
+        borderWidth={1}
+        borderColor="$borderColor"
+        enterStyle={{ y: -10, opacity: 0 }}
+        exitStyle={{ y: -10, opacity: 0 }}
+        elevate
+        animation={[
+          "quick",
+          {
+            opacity: {
+              overshootClamping: true,
+            },
+          },
+        ]}
+      >
+        <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
+        <XStack>
+          <Button onPress={onButtonPress}>Set as primary</Button>
+        </XStack>
+      </Popover.Content>
+    </Popover>
+  );
+}
 
 export default BookFilesTable;

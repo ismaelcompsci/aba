@@ -31,6 +31,7 @@ export type Library = {
 };
 
 export type LibrarySettings = {
+  audiobooksOnly: boolean;
   coverAspectRatio: 0 | 1;
   disableWatcher: boolean;
   skipMatchingMediaWithAsin: boolean;

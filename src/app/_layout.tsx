@@ -109,8 +109,6 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "index" ||
     name === "server-connect/index";
 
-  console.log({ name });
-
   const isIndex = name === "index";
   const showServerSwitch = name !== "server-connect/index";
 
