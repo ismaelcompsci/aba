@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Dimensions } from "react-native";
 import {
   BookOpen,
   CheckCircle,
@@ -26,6 +27,7 @@ import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryFile } from "../../types/aba";
 import { ClearIconButton } from "../buttons/button";
 import { DataTable } from "../custom-components/data-table";
+import BookFileMenu from "../menus/book-file-menu";
 
 const BookFilesTable = ({
   ebookFiles,
@@ -34,6 +36,7 @@ const BookFilesTable = ({
   ebookFiles: LibraryFile[];
   itemId: string;
 }) => {
+  const layout = Dimensions.get("window");
   const queryClient = useQueryClient();
   const user = useAtomValue(userAtom);
   const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -96,24 +99,21 @@ const BookFilesTable = ({
           fow="700"
           fontFamily="$mono"
           textTransform="none"
+          fontSize={"$2"}
           ai="center"
           jc="center"
-          textAlign="center"
           size="$4"
           numberOfLines={2}
-          width={200}
+          maxWidth={layout.width / 2 + 40}
         >
           {item.metadata.filename}
           {getCheckMark(item)}
         </H4>
-        <XStack pl="$7" flex={1} justifyContent="space-between">
+        <XStack pr={0} flex={1} justifyContent="flex-end">
           <ClearIconButton>
             <BookOpen />
           </ClearIconButton>
-          <BookFilePopover
-            placement="left-end"
-            onButtonPress={() => onButtonPress(item)}
-          />
+          <BookFileMenu item={item} onButtonPress={() => onButtonPress(item)} />
         </XStack>
       </XStack>
     );
@@ -126,6 +126,7 @@ const BookFilesTable = ({
       pt="$4"
       value={opened}
       onValueChange={setOpened}
+      maxWidth={layout.width}
     >
       <Accordion.Item value="a1">
         <Accordion.Trigger
@@ -153,8 +154,8 @@ const BookFilesTable = ({
             );
           }}
         </Accordion.Trigger>
-        <Accordion.Content padding={false}>
-          <XStack w={"100%"}>
+        <Accordion.Content padding={false} maxWidth={layout.width}>
+          <XStack maxWidth={layout.width}>
             <DataTable
               title="Files"
               data={ebookFiles}
@@ -167,6 +168,7 @@ const BookFilesTable = ({
   );
 };
 
+// tamagui popover
 export function BookFilePopover({
   onButtonPress,
   ...props

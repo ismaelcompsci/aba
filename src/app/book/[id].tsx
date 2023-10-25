@@ -224,7 +224,7 @@ const BookPage = () => {
           // onPress={() => router.push(`/reader/${item?.id}`)}
         >
           <BookOpen size="$1" />
-          <Text>Read</Text>
+          <Text>Read {ebookFormat?.toUpperCase()}</Text>
         </ActionButton>
       );
     } else {
@@ -276,6 +276,9 @@ const BookPage = () => {
   const libraryFiles = bookItem.libraryFiles || [];
   const numberChapters = numChapters();
   const ebookFiles = libraryFiles.filter((lf) => lf.fileType === "ebook");
+  const ebookFile =
+    "ebookFile" in bookItem.media ? bookItem.media.ebookFile : null;
+  const ebookFormat = ebookFile?.ebookFormat;
   const tracks = "tracks" in bookItem.media ? bookItem.media.tracks : null;
   const numTracks = tracks?.length;
   const isMissing = bookItem?.isMissing;
@@ -288,8 +291,6 @@ const BookPage = () => {
   const genres = getGenres();
   const author = getAuthor();
   const series = getSeries();
-
-  console.log("RERENDER");
 
   return (
     <View flex={1} bg="$background">

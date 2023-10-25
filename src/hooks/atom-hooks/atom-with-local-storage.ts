@@ -16,13 +16,13 @@ function setItem(key: string, value: string): void {
   }
 }
 
-// function removeItem(key: string): void {
-//   storage.delete(key);
-// }
+function removeItem(key: string): void {
+  storage.delete(key);
+}
 
-// function clearAll(): void {
-//   storage.clearAll();
-// }
+function clearAll(): void {
+  storage.clearAll();
+}
 
 export const atomWithLocalStorage = <Value>(
   key: string,

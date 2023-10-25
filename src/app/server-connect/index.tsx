@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
+import { MoreVertical } from "@tamagui/lucide-icons";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { Button, Card, Spinner, Text, YStack } from "tamagui";
 
+import { ClearIconButton } from "../../components/buttons/button";
 import { ScreenCenter } from "../../components/center";
 import AddServerForm from "../../components/connection-form/add-server-form";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
@@ -15,9 +17,8 @@ import {
 } from "../../state/local-state";
 import { LoginServerResponse, ServerConfig } from "../../types/types";
 import { authenticateToken, pingServer } from "../../utils/api";
-import { getRandomThemeColor, stringToBase64 } from "../../utils/utils";
-import { ClearIconButton } from "../../components/buttons/button";
-import { MoreVertical } from "@tamagui/lucide-icons";
+import { stringToBase64 } from "../../utils/utils";
+import ServerConfigMenu from "../../components/menus/server-config-menu";
 
 const ServerConnectPage = () => {
   const [loading, setLoading] = useState(false);
@@ -163,7 +164,7 @@ const ServerConnectPage = () => {
   };
 
   useEffect(() => {
-    if (serverConnections.length <= 0) {
+    if (serverConnections?.length <= 0) {
       setShowAddServerForm(true);
     }
   }, [deviceData.serverConnectionConfigs]);
@@ -182,7 +183,7 @@ const ServerConnectPage = () => {
               makeConnection={makeConnection}
               setShowAddServerForm={setShowAddServerForm}
             />
-          ) : serverConnections.length ? (
+          ) : serverConnections?.length ? (
             serverConnections.map((server) => (
               <Button
                 key={server.id}
@@ -196,10 +197,7 @@ const ServerConnectPage = () => {
                 {pressedServer?.id === server.id && loading ? (
                   <Spinner />
                 ) : null}
-                {/* TODO add a remove pop over */}
-                <ClearIconButton onPress={() => {}}>
-                  <MoreVertical />
-                </ClearIconButton>
+                <ServerConfigMenu config={server} />
               </Button>
             ))
           ) : (

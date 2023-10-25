@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { ChevronLeft, MoreHorizontal, Search } from "@tamagui/lucide-icons";
+import { ChevronLeft, Search } from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
@@ -19,16 +19,14 @@ import {
 } from "../components/header/header";
 import { LogoContainer } from "../components/header/logo";
 import { Logo } from "../components/logo";
-import MenuDrawer from "../components/menu/menu-drawer";
+import SettingsMenu from "../components/menus/settings-menu";
 import { ServerSelect } from "../components/servers-popover";
 import { useHeaderHeight } from "../hooks/use-header-height";
 import useIconTheme from "../hooks/use-icon-theme";
-import { librariesAtom, openModalAtom, userAtom } from "../state/app-state";
+import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
 SplashScreen.preventAutoHideAsync();
-
-console.log(Platform.OS);
 
 const queryClient = new QueryClient();
 
@@ -82,7 +80,6 @@ export default function Layout() {
         name={(appTheme.full ? appTheme.full : appTheme.scheme) as ThemeName}
       >
         <QueryClientProvider client={queryClient}>
-          <MenuDrawer />
           <Stack
             initialRouteName="index"
             screenOptions={{
@@ -98,8 +95,6 @@ export default function Layout() {
 }
 
 const Header = ({ navigation, route }: NativeStackHeaderProps) => {
-  const setOpen = useSetAtom(openModalAtom);
-
   const { headerHeight, top } = useHeaderHeight();
   const { iconColor } = useIconTheme();
   const { name } = route;
@@ -143,9 +138,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
           <IconButton onPress={() => router.push("/test/")}>
             <Search color={iconColor} />
           </IconButton>
-          <IconButton onPress={() => setOpen((prev) => !prev)}>
-            <MoreHorizontal color={iconColor} />
-          </IconButton>
+          <SettingsMenu />
         </HeaderRight>
       </HeaderFrame>
     </HeaderSafeArea>
