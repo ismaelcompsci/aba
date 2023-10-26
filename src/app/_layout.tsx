@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Platform } from "react-native";
+import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { ChevronLeft, Search } from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -71,6 +71,10 @@ export default function Layout() {
       getLibraries();
     }
   }, [user, serverConfig]);
+
+  useEffect(() => {
+    Appearance.setColorScheme(appTheme.scheme);
+  }, []);
 
   if (!loaded) return null;
 

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Animated, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { useAtom } from "jotai";
-import { Sheet, Text, useTheme, XStack, YStack } from "tamagui";
+import { Sheet, Text, useTheme, XStack } from "tamagui";
 
 import { openModalAtom } from "../../state/app-state";
+import { FullScreen } from "../center";
 
 import SettingsTab from "./settings-tab";
-import { FullScreen } from "../center";
 
 const ConnectionTab = () => {
   return;

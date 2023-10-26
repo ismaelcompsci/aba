@@ -21,13 +21,15 @@ import {
   YStack,
 } from "tamagui";
 import { Adapt, Popover, PopoverProps } from "tamagui";
+import * as ContextMenu from "zeego/context-menu";
 
 import { currentLibraryAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryFile } from "../../types/aba";
+import { humanFileSize } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
 import { DataTable } from "../custom-components/data-table";
-import BookFileMenu from "../menus/book-file-menu";
+import PressBookFileMenu from "../menus/book-file-menu";
 
 const BookFilesTable = ({
   ebookFiles,
@@ -54,8 +56,6 @@ const BookFilesTable = ({
         null,
         { headers: { Authorization: `Bearer ${user?.token}` } }
       );
-
-      console.log(response.data);
 
       return response.data;
     },
@@ -87,35 +87,85 @@ const BookFilesTable = ({
 
   const renderItem = (item: LibraryFile) => {
     return (
-      <XStack
-        ai="center"
-        pos="relative"
-        py="$3"
-        px="$4"
-        key={item.metadata.filename}
-      >
-        <H4
-          color="$color"
-          fow="700"
-          fontFamily="$mono"
-          textTransform="none"
-          fontSize={"$2"}
-          ai="center"
-          jc="center"
-          size="$4"
-          numberOfLines={2}
-          maxWidth={layout.width / 2 + 40}
-        >
-          {item.metadata.filename}
-          {getCheckMark(item)}
-        </H4>
-        <XStack pr={0} flex={1} justifyContent="flex-end">
-          <ClearIconButton>
-            <BookOpen />
-          </ClearIconButton>
-          <BookFileMenu item={item} onButtonPress={() => onButtonPress(item)} />
-        </XStack>
-      </XStack>
+      <ContextMenu.Root style={{ width: "100%" }}>
+        <ContextMenu.Trigger action="press" asChild>
+          <XStack
+            ai="center"
+            pos="relative"
+            py="$3"
+            px="$4"
+            key={item.metadata.filename}
+            w={"100%"}
+          >
+            <H4
+              color="$color"
+              fow="700"
+              fontFamily="$mono"
+              textTransform="none"
+              fontSize={"$2"}
+              ai="center"
+              jc="center"
+              size="$4"
+              numberOfLines={2}
+              maxWidth={layout.width / 2 + 40}
+            >
+              {item.metadata.filename}
+              {getCheckMark(item)}
+            </H4>
+            <XStack pr={0} flex={1} justifyContent="flex-end">
+              <ClearIconButton>
+                <BookOpen />
+              </ClearIconButton>
+              <PressBookFileMenu onButtonPress={() => onButtonPress(item)} />
+            </XStack>
+          </XStack>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Preview size="INHERIT">
+            {() => (
+              <YStack
+                bg={"$background"}
+                h={"$9"}
+                w={layout.width - 50}
+                key={item.metadata.filename}
+                jc="center"
+                space="$1"
+                px="$4"
+              >
+                <Text
+                  numberOfLines={2}
+                  color="$color"
+                  fow="700"
+                  fontFamily="$mono"
+                  textTransform="none"
+                  fontSize={"$2"}
+                >
+                  {item.metadata.filename}
+                </Text>
+                <XStack ai="center" justifyContent="space-between" w={"100%"}>
+                  <YStack space={"$1"}>
+                    <Text fontSize={"$2"} color={"$gray9"}>
+                      Size
+                    </Text>
+                    <Text>{humanFileSize(item.metadata.size || 0, true)}</Text>
+                  </YStack>
+                  <YStack space={"$1"}>
+                    <Text fontSize={"$2"} color={"$gray9"}>
+                      Format
+                    </Text>
+                    <Text>{item.metadata.ext.toUpperCase()}</Text>
+                  </YStack>
+                </XStack>
+              </YStack>
+            )}
+          </ContextMenu.Preview>
+          <ContextMenu.Label>File</ContextMenu.Label>
+
+          <ContextMenu.Item key="primary" onSelect={() => onButtonPress(item)}>
+            <ContextMenu.ItemTitle>Set as primary</ContextMenu.ItemTitle>
+          </ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>
     );
   };
 
