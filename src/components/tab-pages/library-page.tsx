@@ -4,7 +4,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
-import { Separator, Spinner, Text, XStack } from "tamagui";
+import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
 import useIconTheme from "../../hooks/use-icon-theme";
@@ -136,12 +136,15 @@ const LibraryPage = ({
         {/* sort & filter */}
         <XStack
           w="100%"
-          justifyContent="flex-end"
+          justifyContent="space-between"
           alignItems="center"
           px="$2"
-          bbw={2}
-          bbc={themeColor}
+          bg={"$background"}
+          elevation={"$0.5"}
         >
+          <Text fontWeight="$8">
+            {libraryItems?.pages[0]?.data.total} Books
+          </Text>
           <SortSelect placement="bottom-end" />
         </XStack>
         {/* items */}
@@ -150,20 +153,22 @@ const LibraryPage = ({
             <Spinner />
           </ScreenCenterWithTabBar>
         ) : (
-          <FlashList
-            showsVerticalScrollIndicator={false}
-            horizontal={false}
-            data={flattenData || []}
-            numColumns={columns}
-            onEndReached={loadNextPageData}
-            keyExtractor={(item) => `${item.id}}`}
-            renderItem={handleRenderItem}
-            estimatedItemSize={bookWidth}
-            ListFooterComponent={() => <Separator w={0} h={30} />}
-            ListEmptyComponent={() => {
-              return <Text>EMPTY</Text>;
-            }}
-          />
+          <YStack w="100%" h="100%">
+            <FlashList
+              showsVerticalScrollIndicator={false}
+              horizontal={false}
+              data={flattenData || []}
+              numColumns={columns}
+              onEndReached={loadNextPageData}
+              keyExtractor={(item) => `${item.id}}`}
+              renderItem={handleRenderItem}
+              estimatedItemSize={bookWidth}
+              ListFooterComponent={() => <Separator w={0} h={30} />}
+              ListEmptyComponent={() => {
+                return <Text>EMPTY</Text>;
+              }}
+            />
+          </YStack>
         )}
       </FullScreen>
     </PageView>

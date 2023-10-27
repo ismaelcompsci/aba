@@ -474,6 +474,7 @@ export type MediaProgress = {
   startedAt: number;
   finishedAt: number | null;
   ebookLocation?: string;
+  ebookProgress?: number;
 };
 
 export type MediaProgressWithMedia = MediaProgress & {

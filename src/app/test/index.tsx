@@ -1,3 +1,4 @@
+import CircularProgress from "react-native-circular-progress-indicator";
 import { Button, Text } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
@@ -13,6 +14,12 @@ export const DropdownMenuItem = DropdownMenu.Item;
 const TestPage = () => {
   return (
     <ScreenCenter>
+      <CircularProgress
+        value={58}
+        radius={20}
+        activeStrokeWidth={4}
+        inActiveStrokeWidth={5}
+      />
       <DropdownMenuRoot>
         <DropdownMenuTrigger asChild>
           <Button>Open</Button>

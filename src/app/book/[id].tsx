@@ -1,5 +1,6 @@
 import React from "react";
 import { Animated, Dimensions } from "react-native";
+import CircularProgress from "react-native-circular-progress-indicator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ReadMore from "@fawazahmed/react-native-read-more";
 import { BlurView } from "@react-native-community/blur";
@@ -13,7 +14,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Button,
   H3,
@@ -36,7 +37,7 @@ import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
 import { HEADER_HEIGHT } from "../../hooks/use-header-height";
-import { userAtom } from "../../state/app-state";
+import { currentItemAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
@@ -47,10 +48,15 @@ const layout = Dimensions.get("window");
 const DEFAULT_TRUNCATE = 5;
 
 const BookPage = () => {
-  const { id } = useLocalSearchParams();
+  // @ts-ignore
+  const { id, percent } = useLocalSearchParams<{
+    id: string;
+    percent?: number;
+  }>();
 
   const user = useAtomValue(userAtom);
   const config = useAtomValue(currentServerConfigAtom);
+  const setCurrentItem = useSetAtom(currentItemAtom);
 
   const insets = useSafeAreaInsets();
   const theme = useTheme();
@@ -75,6 +81,7 @@ const BookPage = () => {
         }
       );
 
+      setCurrentItem(response.data);
       return response.data as LibraryItemExpanded;
     },
     refetchOnMount: true,
@@ -221,7 +228,7 @@ const BookPage = () => {
       return (
         <ActionButton
           bg={"$blue10"}
-          // onPress={() => router.push(`/reader/${item?.id}`)}
+          onPress={() => router.push(`/reader/${bookItem.id}`)}
         >
           <BookOpen size="$1" />
           <Text>Read {ebookFormat?.toUpperCase()}</Text>
@@ -329,7 +336,22 @@ const BookPage = () => {
                 justifyContent="space-between"
               >
                 {getActionButton()}
-                <XStack flex={1} justifyContent="flex-end">
+                <XStack
+                  flex={1}
+                  justifyContent="flex-end"
+                  gap="$4"
+                  alignItems="center"
+                >
+                  {percent ? (
+                    <CircularProgress
+                      value={percent * 100}
+                      radius={22}
+                      activeStrokeWidth={5}
+                      inActiveStrokeWidth={6}
+                      progressValueFontSize={14}
+                      inActiveStrokeOpacity={0.4}
+                    />
+                  ) : null}
                   <Button>
                     <MoreHorizontal />
                   </Button>

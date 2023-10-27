@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, ArrowUpDown } from "@tamagui/lucide-icons";
+import { ArrowDown, ArrowDownWideNarrow, ArrowUp } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
 import { Adapt, Popover, PopoverProps, Text, ToggleGroup } from "tamagui";
 
@@ -69,7 +69,7 @@ export function SortSelect({ ...props }: PopoverProps) {
           justifyContent="center"
           alignItems="center"
         >
-          <ArrowUpDown />
+          <ArrowDownWideNarrow />
         </ClearIconButton>
       </Popover.Trigger>
 

@@ -1,4 +1,5 @@
 import { ThemeName } from "tamagui";
+import { EbookFile } from "../types/aba";
 
 global.Buffer = require("buffer").Buffer;
 
@@ -126,3 +127,12 @@ export function humanFileSize(bytes: number, si = false, dp = 1) {
 
   return bytes.toFixed(dp) + " " + units[u];
 }
+
+export const ebookFormat = (ebookFile: EbookFile | undefined | null) => {
+  if (!ebookFile) return null;
+
+  if (!ebookFile.ebookFormat) {
+    return ebookFile.metadata.ext.toLowerCase().slice(1);
+  }
+  return ebookFile.ebookFormat;
+};

@@ -8,7 +8,6 @@ const useIconTheme = () => {
   const theme = useTheme();
   const bg = theme.background.get();
   const color = theme.color.get();
-
   const iconColor =
     // @ts-ignore
     apptheme.color !== "no color" ? theme[apptheme.color + "10"] : color;

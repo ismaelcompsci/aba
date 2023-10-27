@@ -42,10 +42,11 @@ const HomePage = () => {
     { key: "_libraryPage", title: "Library" },
   ]);
 
-  const { iconColor, themeColor } = useIconTheme();
+  const { iconColor } = useIconTheme();
 
   const theme = useTheme();
   const bg = theme.background.get();
+  const tabBg = theme.backgroundPress.get();
   const color = theme.color.get();
 
   const renderScene = ({
@@ -93,15 +94,13 @@ const HomePage = () => {
               <YStack>
                 <TabBar
                   {...props}
-                  style={{ backgroundColor: bg }}
+                  style={{ backgroundColor: tabBg }}
                   indicatorStyle={{ backgroundColor: color }}
                   renderIndicator={(props) => (
                     <TabBarIndicator
                       {...props}
                       style={{
-                        backgroundColor: themeColor?.val
-                          ? themeColor.val
-                          : themeColor,
+                        backgroundColor: color,
                       }}
                     />
                   )}
