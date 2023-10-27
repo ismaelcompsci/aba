@@ -1,24 +1,19 @@
 import { useEffect, useState } from "react";
 import { atom, useAtom } from "jotai";
 import RNFetchBlob from "rn-fetch-blob";
-import { Text } from "tamagui";
+import { YStack } from "tamagui";
 
 import { epubDir } from "../../constants/consts";
 import { LibraryItemExpanded } from "../../types/aba";
+import { EpubReaderLoading } from "../../types/types";
 import { ebookFormat } from "../../utils/utils";
-import { ScreenCenter } from "../center";
+import LoadingBook from "../loading-book";
 
 interface EBookReaderProps {
   book: LibraryItemExpanded;
   userToken: string;
   url: string;
 }
-
-type EpubReaderLoading = {
-  loading: boolean;
-  part: string;
-  percent?: number;
-};
 
 const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,
@@ -45,6 +40,7 @@ const EBookReader = ({ book, url, userToken }: EBookReaderProps) => {
       setEpubReaderLoading({
         loading: true,
         part: "Downloading",
+        percent: 0,
       });
 
       RNFetchBlob.config({
@@ -73,18 +69,19 @@ const EBookReader = ({ book, url, userToken }: EBookReaderProps) => {
         .finally(() => {
           setEpubReaderLoading({
             loading: true,
-            part: "Opening",
+            part: "Downloading",
+            percent: 1,
           });
         });
     })();
   }, []);
 
-  console.log({ epubReaderLoading });
-
   return (
-    <ScreenCenter paddingBottom={0}>
-      <Text>HELLO</Text>
-    </ScreenCenter>
+    <YStack w="100%" h="100%">
+      {epubReaderLoading.loading ? (
+        <LoadingBook info={epubReaderLoading} />
+      ) : null}
+    </YStack>
   );
 };
 
