@@ -26,6 +26,7 @@ import {
   useTheme,
   View,
   XStack,
+  YStack,
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
@@ -38,7 +39,7 @@ import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
 import { HEADER_HEIGHT } from "../../hooks/use-header-height";
 import { currentItemAtom, userAtom } from "../../state/app-state";
-import { currentServerConfigAtom } from "../../state/local-state";
+import { appThemeAtom, currentServerConfigAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { getGradient } from "../../utils/utils";
@@ -53,6 +54,7 @@ const BookPage = () => {
     id: string;
     percent?: number;
   }>();
+  const appScheme = useAtomValue(appThemeAtom);
 
   const user = useAtomValue(userAtom);
   const config = useAtomValue(currentServerConfigAtom);
@@ -94,17 +96,19 @@ const BookPage = () => {
     return (
       <View w="100%" h="100%">
         <>
-          <Image
-            position="absolute"
-            top={0}
-            left={0}
-            bottom={0}
-            right={0}
-            resizeMode="cover"
-            source={{
-              uri: cover || "",
-            }}
-          />
+          {cover ? (
+            <Image
+              position="absolute"
+              top={0}
+              left={0}
+              bottom={0}
+              right={0}
+              resizeMode="cover"
+              source={{
+                uri: cover || "",
+              }}
+            />
+          ) : null}
           <BlurView
             style={{
               height: "100%",
@@ -114,25 +118,31 @@ const BookPage = () => {
               bottom: 0,
               right: 0,
             }}
-            blurType="light"
+            blurType={appScheme.scheme}
             blurAmount={3}
-            reducedTransparencyFallbackColor="white"
+            reducedTransparencyFallbackColor="black"
           />
         </>
-        <Animated.Image
-          resizeMode="contain"
-          style={{
-            position: "absolute",
-            top: -10,
-            left: 0,
-            bottom: 0,
-            right: 0,
-            zIndex: 50,
-          }}
-          source={{
-            uri: cover || "",
-          }}
-        />
+        {!cover || cover === "" ? (
+          <YStack jc="center" h="100%" w="100%" alignItems="center">
+            <BookX size="$19" />
+          </YStack>
+        ) : (
+          <Animated.Image
+            resizeMode="contain"
+            style={{
+              position: "absolute",
+              top: -10,
+              left: 0,
+              bottom: 0,
+              right: 0,
+              zIndex: 50,
+            }}
+            source={{
+              uri: cover || "",
+            }}
+          />
+        )}
       </View>
     );
   };
@@ -342,7 +352,7 @@ const BookPage = () => {
                   gap="$4"
                   alignItems="center"
                 >
-                  {percent ? (
+                  {percent && percent > 0 ? (
                     <CircularProgress
                       value={percent * 100}
                       radius={22}

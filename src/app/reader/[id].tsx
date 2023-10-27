@@ -29,7 +29,7 @@ const ReaderPage = () => {
   return (
     <ReaderProvider>
       <YStack h={"100%"} w={"100%"} bg={"$background"}>
-        <EBookReader url={url} book={currentItem!} userToken={user.token} />
+        <EBookReader url={url} book={currentItem!} user={user} />
       </YStack>
     </ReaderProvider>
   );

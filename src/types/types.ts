@@ -73,6 +73,6 @@ export type Tabs = {
 
 export type EpubReaderLoading = {
   loading: boolean;
-  part: string;
+  part?: string;
   percent?: number;
 };

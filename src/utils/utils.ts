@@ -1,5 +1,5 @@
 import { ThemeName } from "tamagui";
-import { EbookFile } from "../types/aba";
+import { EbookFile, User } from "../types/aba";
 
 global.Buffer = require("buffer").Buffer;
 
@@ -135,4 +135,13 @@ export const ebookFormat = (ebookFile: EbookFile | undefined | null) => {
     return ebookFile.metadata.ext.toLowerCase().slice(1);
   }
   return ebookFile.ebookFormat;
+};
+
+export const getUserMediaProgress = (
+  user: User | null,
+  libraryItemId: string
+) => {
+  if (!user?.mediaProgress || !libraryItemId) return;
+
+  return user?.mediaProgress.find((md) => md.libraryItemId == libraryItemId);
 };

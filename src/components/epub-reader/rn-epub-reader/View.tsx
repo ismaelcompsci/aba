@@ -6,8 +6,9 @@ import {
   GestureDetector,
   GestureTouchEvent,
 } from "react-native-gesture-handler";
+import { runOnJS } from "react-native-reanimated";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
-// import RNFetchBlob from "rn-fetch-blob";
+import RNFetchBlob from "rn-fetch-blob";
 import { Spinner, Text, YStack } from "tamagui";
 
 import { OpeningBook } from "./utils/OpeningBook";
@@ -112,7 +113,9 @@ export function View({
     const touch = e.allTouches[0];
     const touchX = touch.absoluteX;
 
-    return touchX > start && touchX < end;
+    if (touchX > start && touchX < end) {
+      onPress();
+    }
   };
 
   const leftFlingGesture = Gesture.Fling()
@@ -127,15 +130,12 @@ export function View({
     .direction(I18nManager.isRTL ? Directions.RIGHT : Directions.LEFT)
     .onStart(() => {
       if (enableSwipe) {
-        goNext();
+        runOnJS(goNext)();
       }
     });
 
   const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
-    const isValid = centerOfScreenHorizontal(_event);
-    if (isValid) {
-      onPress();
-    }
+    runOnJS(centerOfScreenHorizontal)(_event);
   });
 
   /**
@@ -152,7 +152,7 @@ export function View({
           height: height,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: theme.backgroundColor,
+          // backgroundColor: theme.backgroundColor,
           width: width,
         }}
       >
@@ -179,7 +179,7 @@ export function View({
           scrollEnabled={true}
           mixedContentMode="compatibility"
           onMessage={onMessage}
-          allowingReadAccessToURL={`${allowedUris}`} // ,${RNFetchBlob.fs.dirs.DocumentDir}
+          allowingReadAccessToURL={`${allowedUris},${RNFetchBlob.fs.dirs.DocumentDir}`}
           allowUniversalAccessFromFileURLs={true}
           allowFileAccessFromFileURLs={true}
           allowFileAccess={true}
@@ -196,7 +196,7 @@ export function View({
             overflow: "hidden",
             height,
             flex: 1,
-            backgroundColor: theme.backgroundColor,
+            // backgroundColor: theme.backgroundColor,
           }}
         />
       </RNView>

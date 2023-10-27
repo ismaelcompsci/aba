@@ -11796,7 +11796,7 @@ aside[epub|type~="rearnote"] {
             }
           });
           if (!this.#isPdf) {
-            this.initalLocation
+            this.initalLocation 
               ? await this.view.goTo(this.initalLocation)
               : this.view.renderer.next();
           } else this.view.renderer.next();

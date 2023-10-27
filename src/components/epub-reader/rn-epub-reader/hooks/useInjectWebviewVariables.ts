@@ -15,6 +15,8 @@ export function useInjectWebVieWVariables() {
       book: string;
       location?: string;
     }) => {
+      const bookLocation = location ? `'${location}'` : "undefined";
+
       return template
         .replace(
           /<script id="pdf"><\/script>/,
@@ -27,7 +29,7 @@ export function useInjectWebVieWVariables() {
         .replace(/const bookPath = undefined;/, `const bookPath = '${book}';`)
         .replace(
           /const bookLocation = undefined;/,
-          `const bookLocation = '${location}';`
+          `const bookLocation = ${bookLocation};`
         );
     },
     []
