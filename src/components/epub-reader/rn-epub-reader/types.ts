@@ -35,7 +35,7 @@ export type Theme = {
   maxColumnCount: number;
   scrolled: boolean;
   fontSize: number;
-  theme: "dark" | "light";
+  theme: "dark" | "light" | "sepia";
 };
 
 export type Mark = "highlight" | "underline";

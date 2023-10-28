@@ -9,7 +9,8 @@ import {
 import { runOnJS } from "react-native-reanimated";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import RNFetchBlob from "rn-fetch-blob";
-import { Spinner, Text, YStack } from "tamagui";
+
+import { themes } from "../components/themes";
 
 import { OpeningBook } from "./utils/OpeningBook";
 import { ReaderContext } from "./context";
@@ -32,6 +33,7 @@ export function View({
   enableSwipe = false,
   width,
   height,
+  defaultTheme,
   renderOpeningBookComponent = () => (
     <OpeningBook width={width} height={height} />
   ),
@@ -43,6 +45,7 @@ export function View({
     goPrevious,
     theme,
     isRendering,
+    changeTheme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
   const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
@@ -73,8 +76,11 @@ export function View({
 
     if (type === "onReady") {
       const { book } = parsedEvent;
-      setIsRendering(false);
+      if (defaultTheme) {
+        changeTheme(defaultTheme);
+      }
 
+      setIsRendering(false);
       onReady(book);
     }
 
@@ -138,6 +144,8 @@ export function View({
     runOnJS(centerOfScreenHorizontal)(_event);
   });
 
+  const t = themes.find((th) => th.name === theme.theme);
+
   /**
    * TODO figure out the white flash
    * and stop it from happenings
@@ -152,23 +160,10 @@ export function View({
           height: height,
           justifyContent: "center",
           alignItems: "center",
-          // backgroundColor: theme.backgroundColor,
+          backgroundColor: t?.bg,
           width: width,
         }}
       >
-        {isRendering && (
-          <RNView
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              top: 0,
-              zIndex: 2,
-            }}
-          >
-            {renderOpeningBookComponent()}
-          </RNView>
-        )}
         <WebView
           ref={book}
           source={{ uri: templateUri }}
@@ -188,34 +183,15 @@ export function View({
           automaticallyAdjustContentInsets={false}
           allowsLinkPreview={false}
           startInLoadingState={true}
-          renderLoading={() => {
-            return <LoadingFileComponent />;
-          }}
           style={{
             width,
             overflow: "hidden",
             height,
             flex: 1,
-            // backgroundColor: theme.backgroundColor,
+            backgroundColor: t?.bg,
           }}
         />
       </RNView>
     </GestureDetector>
   );
 }
-
-const LoadingFileComponent = () => {
-  return (
-    <YStack
-      pos={"absolute"}
-      bg={"$background"}
-      h={"100%"}
-      w={"100%"}
-      alignItems="center"
-      justifyContent="center"
-    >
-      <Spinner />
-      <Text>Loading File...</Text>
-    </YStack>
-  );
-};

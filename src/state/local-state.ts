@@ -31,3 +31,8 @@ export const descOrderAtom = atomWithLocalStorage<boolean>(
   GeneralSetting.DescOrder,
   false
 );
+
+export const ebookSettignsAtom = atomWithLocalStorage(
+  GeneralSetting.EbookSettings,
+  DefaultSettings.ebookSettings
+);

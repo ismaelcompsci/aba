@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
-import { useWindowDimensions } from "react-native";
+import { StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system"; // for Expo project
 import * as Burnt from "burnt";
-import { atom, useAtom } from "jotai";
+import { atom, useAtom, useAtomValue } from "jotai";
 import RNFetchBlob from "rn-fetch-blob";
-import { XStack, YStack } from "tamagui";
+import { YStack } from "tamagui";
 
 import { epubDir } from "../../constants/consts";
-import { HEADER_HEIGHT } from "../../hooks/use-header-height";
+import { ebookSettignsAtom } from "../../state/local-state";
 import { LibraryItemExpanded, User } from "../../types/aba";
 import { EpubReaderLoading } from "../../types/types";
-import { ebookFormat, getUserMediaProgress } from "../../utils/utils";
+import {
+  awaitTimeout,
+  ebookFormat,
+  getUserMediaProgress,
+} from "../../utils/utils";
 import LoadingBook from "../loading-book";
 
+import Menu from "./components/menu";
 import { Reader, useReader } from "./rn-epub-reader";
 
 interface EBookReaderProps {
@@ -29,16 +34,32 @@ const epubReaderLoadingAtom = atom<EpubReaderLoading>({
 
 const EBookReader = ({ book, url, user }: EBookReaderProps) => {
   const { width, height } = useWindowDimensions();
-  const { isRendering, isLoading } = useReader();
+  const { changeTheme } = useReader();
 
   const [epubReaderLoading, setEpubReaderLoading] = useAtom(
     epubReaderLoadingAtom
   );
+  const ebookSettings = useAtomValue(ebookSettignsAtom);
   const [bookPath, setBookPath] = useState("");
   const [hide, setHide] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const ebookFile = "ebookFile" in book.media ? book.media.ebookFile : null;
   const enableSwipe = bookPath.endsWith(".pdf");
+
+  const initialLocation = () => {
+    if (!book || !book.id) return;
+    const prog = getUserMediaProgress(user, book.id);
+
+    if (!prog || !prog.ebookLocation) return;
+
+    return prog.ebookLocation;
+  };
+
+  useEffect(() => {
+    StatusBar.setHidden(!hide);
+    return () => StatusBar.setHidden(false);
+  }, [hide]);
 
   useEffect(() => {
     if (!ebookFile) return;
@@ -88,68 +109,44 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
     })();
   }, []);
 
-  const initialLocation = () => {
-    if (!book || !book.id) return;
-    const prog = getUserMediaProgress(user, book.id);
-
-    if (!prog || !prog.ebookLocation) return;
-
-    return prog.ebookLocation;
+  const onReady = async () => {
+    setEpubReaderLoading({ loading: false, part: "Opening Book..." });
+    changeTheme(ebookSettings);
+    await awaitTimeout(100);
+    setReady(true);
   };
 
   return (
-    <YStack w="100%" h="100%">
-      {hide ? (
-        <>
-          <XStack
-            h={HEADER_HEIGHT}
-            bg="red"
-            pos="absolute"
-            top={0}
-            left={0}
-            right={0}
-            zIndex="$5"
+    <Menu hide={hide} title={book.media.metadata.title}>
+      <YStack w="100%" h="100%">
+        {epubReaderLoading.loading || !ready ? (
+          <LoadingBook info={epubReaderLoading} />
+        ) : null}
+        {bookPath ? (
+          <Reader
+            height={height}
+            width={width}
+            src={bookPath}
+            enableSwipe={enableSwipe}
+            defaultTheme={ebookSettings}
+            fileSystem={useFileSystem}
+            onPress={() => setHide((p) => !p)}
+            initialLocation={initialLocation()}
+            onStarted={() =>
+              setEpubReaderLoading({ loading: true, part: "Opening Book..." })
+            }
+            onReady={onReady}
+            onDisplayError={(reason) => {
+              Burnt.toast({
+                preset: "error",
+                title: reason,
+              });
+              setEpubReaderLoading({ loading: false });
+            }}
           />
-          <XStack
-            h={HEADER_HEIGHT}
-            bg="red"
-            pos="absolute"
-            bottom={0}
-            left={0}
-            right={0}
-            zIndex="$5"
-          />
-        </>
-      ) : null}
-
-      {epubReaderLoading.loading ? (
-        <LoadingBook info={epubReaderLoading} />
-      ) : null}
-      {bookPath ? (
-        <Reader
-          height={height}
-          width={width}
-          src={bookPath}
-          enableSwipe={enableSwipe}
-          fileSystem={useFileSystem}
-          onPress={() => setHide((p) => !p)}
-          initialLocation={initialLocation()}
-          onStarted={() =>
-            setEpubReaderLoading({ loading: true, part: "Opening Book..." })
-          }
-          onReady={() =>
-            setEpubReaderLoading({ loading: false, part: "Opening Book..." })
-          }
-          onDisplayError={(reason) => {
-            Burnt.toast({
-              preset: "error",
-              title: reason,
-            });
-            setEpubReaderLoading({ loading: false });
-          }}
-        />
-      ) : null}
-    </YStack>
+        ) : null}
+      </YStack>
+    </Menu>
   );
 };
 

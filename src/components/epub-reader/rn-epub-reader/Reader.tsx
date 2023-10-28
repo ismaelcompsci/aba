@@ -208,7 +208,6 @@ export function Reader({
       allowedUris={allowedUris}
       width={width}
       height={height}
-      // defaultTheme={defaultTheme}
       {...rest}
     />
   );

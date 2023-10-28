@@ -5,9 +5,11 @@ import React, {
   useReducer,
   useRef,
 } from "react";
+import { Dimensions } from "react-native";
 import type WebView from "react-native-webview";
 
-import { themes } from "./themes";
+import { themes } from "../components/themes";
+
 import type { ePubCfi, Location, SearchResult, Theme } from "./types";
 
 type ActionMap<M extends { [index: string]: unknown }> = {
@@ -91,12 +93,14 @@ type InitialState = {
   searchResults: SearchResult[];
 };
 
+const w = Dimensions.get("window").width;
+
 export const defaultTheme: Theme = {
   lineHeight: 1.5,
   justify: true,
   hyphenate: true,
   gap: 0.06,
-  maxInlineSize: 720,
+  maxInlineSize: w,
   maxBlockSize: 1440,
   maxColumnCount: 1,
   scrolled: false,
@@ -463,6 +467,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const changeTheme = useCallback((newTheme: Theme) => {
     const t = themes.find((theme) => theme.name === newTheme.theme);
+    console.log({ t });
     const _newTheme = {
       style: {
         lineHeight: newTheme.lineHeight,

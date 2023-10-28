@@ -11,7 +11,7 @@ const LoadingBook = ({ info }: { info: EpubReaderLoading }) => {
       px="$8"
       space="$4"
       pos="absolute"
-      zIndex={99999}
+      zIndex={88888}
     >
       <XStack gap="$4" ai="center">
         {info.percent ? (
@@ -21,7 +21,7 @@ const LoadingBook = ({ info }: { info: EpubReaderLoading }) => {
         ) : null}
         <Text>{info.percent ? Math.trunc(info.percent * 100) : 0}%</Text>
       </XStack>
-      <Text>{info.part}...</Text>
+      <Text>{info.part ? info.part : "Opening"}...</Text>
     </ScreenCenter>
   );
 };

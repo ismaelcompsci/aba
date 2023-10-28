@@ -46,7 +46,11 @@ export function ServerSelect({ ...props }: PopoverProps) {
   return (
     <Popover size="$5" allowFlip {...props}>
       <Popover.Trigger asChild>
-        <IconButton bordered icon={<Icon size={"$1"} color={iconColor} />}>
+        <IconButton
+          bordered
+          icon={<Icon size={14} color={iconColor} />}
+          size="$2"
+        >
           <Text
             color={"$colorPress"}
             fontWeight={"$7"}

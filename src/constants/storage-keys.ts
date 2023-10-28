@@ -8,4 +8,5 @@ export enum GeneralSetting {
   AppTheme = "AppTheme",
   Sort = "Sort",
   DescOrder = "DescOrder",
+  EbookSettings = "EbookSettings",
 }
