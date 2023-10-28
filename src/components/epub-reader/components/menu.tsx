@@ -1,5 +1,4 @@
-import { memo, useEffect, useState } from "react";
-import { Dimensions } from "react-native";
+import { useEffect, useState } from "react";
 import {
   ChevronLeft,
   ChevronsDownUp,
@@ -11,16 +10,7 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
-import {
-  AnimatePresence,
-  H6,
-  Label,
-  Separator,
-  Switch,
-  XGroup,
-  XStack,
-  XStackProps,
-} from "tamagui";
+import { H6, Label, Separator, Switch, XGroup, XStack } from "tamagui";
 
 import {
   HEADER_HEIGHT,
@@ -31,7 +21,7 @@ import { ebookSettignsAtom } from "../../../state/local-state";
 import { ClearIconButton } from "../../buttons/button";
 import { HeaderFrame, HeaderLeft, HeaderRight } from "../../header/header";
 import { LogoContainer } from "../../header/logo";
-import { Theme, useReader } from "../rn-epub-reader";
+import { useReader } from "../rn-epub-reader";
 
 import { Footer, Header } from "./header-footer";
 import { MenuContainer, ThemeButton, XGroupButton } from "./menu-items";
@@ -51,7 +41,6 @@ const Menu = ({
   title: string;
 }) => {
   const { changeTheme } = useReader();
-  const layout = Dimensions.get("window");
 
   const { top } = useHeaderHeight();
   const { color } = useIconTheme();
@@ -84,23 +73,11 @@ const Menu = ({
     });
   };
 
-  const animation: XStackProps = {
-    animation: "quick",
-    enterStyle: {
-      opacity: 0,
-    },
-    exitStyle: {
-      opacity: 0,
-      y: -HEADER_HEIGHT,
-    },
-  };
-
-  const footerAnimation = {
-    ...animation,
-    exitStyle: {
-      opacity: 0,
-      y: HEADER_HEIGHT,
-    },
+  const onLineSpaceChange = (step: number) => {
+    setReaderSettigns({
+      ...readerSettings,
+      lineHeight: Math.max(0, readerSettings.lineHeight + step),
+    });
   };
 
   useEffect(() => {
@@ -115,14 +92,8 @@ const Menu = ({
 
   return (
     <>
-      {/* <AnimatePresence> */}
       {hide && (
-        <Header
-          key="header"
-          // {...animation}
-          bbw={0.25}
-          bbc={color}
-        >
+        <Header key="header" bbw={0.25} bbc={color}>
           <HeaderFrame pt={top}>
             <HeaderLeft ai="center">
               <LogoContainer>
@@ -159,7 +130,9 @@ const Menu = ({
                       bg={theme.bg}
                       color={theme.fg}
                       borderColor={
-                        readerSettings.theme === theme.name ? "$blue10" : null
+                        readerSettings.theme === theme.name
+                          ? "$blue10"
+                          : undefined
                       }
                     >
                       Aa
@@ -215,28 +188,26 @@ const Menu = ({
               {/* line space */}
               <XStack justifyContent="flex-end">
                 <XGroup>
-                  <XGroupButton icon={ChevronsDownUp} px={16.5} />
-                  <XGroupButton icon={ChevronsUpDown} px={16.5} />
+                  <XGroupButton
+                    onPress={() => onLineSpaceChange(-LINESTEP)}
+                    icon={ChevronsDownUp}
+                    px={16.5}
+                  />
+                  <XGroupButton
+                    onPress={() => onLineSpaceChange(LINESTEP)}
+                    icon={ChevronsUpDown}
+                    px={16.5}
+                  />
                 </XGroup>
               </XStack>
             </MenuContainer>
           ) : null}
         </Header>
       )}
-      {/* </AnimatePresence> */}
 
       {children}
 
-      {/* <AnimatePresence> */}
-      {hide && (
-        <Footer
-          key="footer"
-          btw={0.25}
-          btc={color}
-          // {...footerAnimation}
-        ></Footer>
-      )}
-      {/* </AnimatePresence> */}
+      {hide && <Footer key="footer" btw={0.25} btc={color}></Footer>}
     </>
   );
 };

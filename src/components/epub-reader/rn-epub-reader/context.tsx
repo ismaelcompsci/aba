@@ -467,7 +467,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const changeTheme = useCallback((newTheme: Theme) => {
     const t = themes.find((theme) => theme.name === newTheme.theme);
-    console.log({ t });
     const _newTheme = {
       style: {
         lineHeight: newTheme.lineHeight,

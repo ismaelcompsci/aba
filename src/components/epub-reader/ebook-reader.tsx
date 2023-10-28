@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { StatusBar, useWindowDimensions } from "react-native";
-import { useFileSystem } from "@epubjs-react-native/expo-file-system"; // for Expo project
+import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import * as Burnt from "burnt";
 import { atom, useAtom, useAtomValue } from "jotai";
 import RNFetchBlob from "rn-fetch-blob";
@@ -18,6 +18,7 @@ import {
 import LoadingBook from "../loading-book";
 
 import Menu from "./components/menu";
+import ScrollLabels from "./components/scroll-labels";
 import { Reader, useReader } from "./rn-epub-reader";
 
 interface EBookReaderProps {
@@ -43,6 +44,9 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
   const [bookPath, setBookPath] = useState("");
   const [hide, setHide] = useState(false);
   const [ready, setReady] = useState(false);
+  const [showingNext, setShowingNext] = useState(false);
+  const [showingPrev, setShowingPrev] = useState(false);
+  const [currentLabel, setCurrentLabel] = useState("");
 
   const ebookFile = "ebookFile" in book.media ? book.media.ebookFile : null;
   const enableSwipe = bookPath.endsWith(".pdf");
@@ -54,6 +58,31 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
     if (!prog || !prog.ebookLocation) return;
 
     return prog.ebookLocation;
+  };
+
+  const onReady = async () => {
+    setEpubReaderLoading({ loading: false, part: "Opening Book..." });
+    changeTheme(ebookSettings);
+    await awaitTimeout(100);
+    setReady(true);
+  };
+
+  const onShowPrevious = (show: boolean, label: string) => {
+    setCurrentLabel((prev) => (label ? label : prev));
+    setShowingPrev(show);
+  };
+
+  const onShowNext = (show: boolean, label: string) => {
+    setCurrentLabel((prev) => (label ? label : prev));
+    setShowingNext(show);
+  };
+
+  const onDisplayError = (reason: string) => {
+    Burnt.toast({
+      preset: "error",
+      title: reason,
+    });
+    setEpubReaderLoading({ loading: false });
   };
 
   useEffect(() => {
@@ -109,42 +138,35 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
     })();
   }, []);
 
-  const onReady = async () => {
-    setEpubReaderLoading({ loading: false, part: "Opening Book..." });
-    changeTheme(ebookSettings);
-    await awaitTimeout(100);
-    setReady(true);
-  };
-
   return (
-    <Menu hide={hide} title={book.media.metadata.title}>
+    <Menu hide={hide} title={book.media.metadata.title || ""}>
       <YStack w="100%" h="100%">
         {epubReaderLoading.loading || !ready ? (
           <LoadingBook info={epubReaderLoading} />
         ) : null}
-        {bookPath ? (
-          <Reader
-            height={height}
-            width={width}
-            src={bookPath}
-            enableSwipe={enableSwipe}
-            defaultTheme={ebookSettings}
-            fileSystem={useFileSystem}
-            onPress={() => setHide((p) => !p)}
-            initialLocation={initialLocation()}
-            onStarted={() =>
-              setEpubReaderLoading({ loading: true, part: "Opening Book..." })
-            }
-            onReady={onReady}
-            onDisplayError={(reason) => {
-              Burnt.toast({
-                preset: "error",
-                title: reason,
-              });
-              setEpubReaderLoading({ loading: false });
-            }}
-          />
-        ) : null}
+        <ScrollLabels
+          showingNext={showingNext}
+          showingPrev={showingPrev}
+          label={currentLabel}
+          readerSettings={ebookSettings}
+        />
+        <Reader
+          height={height}
+          width={width}
+          src={bookPath}
+          enableSwipe={enableSwipe}
+          defaultTheme={ebookSettings}
+          fileSystem={useFileSystem}
+          onPress={() => setHide((p) => !p)}
+          initialLocation={initialLocation()}
+          onShowNext={onShowNext}
+          onShowPrevious={onShowPrevious}
+          onStarted={() =>
+            setEpubReaderLoading({ loading: true, part: "Opening Book..." })
+          }
+          onReady={onReady}
+          onDisplayError={onDisplayError}
+        />
       </YStack>
     </Menu>
   );
