@@ -9,7 +9,7 @@ export const Header = styled(XStack, {
   top: 0,
   left: 0,
   right: 0,
-  zIndex: "$5",
+  zIndex: "$4",
 });
 
 export const Footer = styled(XStack, {
@@ -19,5 +19,5 @@ export const Footer = styled(XStack, {
   bottom: 0,
   left: 0,
   right: 0,
-  zIndex: "$5",
+  zIndex: "$4",
 });

@@ -3,7 +3,7 @@ import { styled, XStack, YStack } from "tamagui";
 export const HeaderSafeArea = styled(YStack, {
   name: "HeaderSafeArea",
   backgroundColor: "$background",
-  bbw: 0.2,
+  // bbw: 0.2,
 });
 
 export const HeaderFrame = styled(XStack, {

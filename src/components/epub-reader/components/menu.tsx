@@ -93,7 +93,7 @@ const Menu = ({
   return (
     <>
       {hide && (
-        <Header key="header" bbw={0.25} bbc={color}>
+        <Header key="header" bbw={0.25} bbc={color} zIndex={8888}>
           <HeaderFrame pt={top}>
             <HeaderLeft ai="center">
               <LogoContainer>

@@ -1,5 +1,5 @@
 import { FlatList } from "react-native";
-import { styled, Text, useTheme, View, YStack } from "tamagui";
+import { styled, Text, useTheme, View, XStack, YStack } from "tamagui";
 
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
@@ -36,17 +36,18 @@ const BookShelf = ({
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         style={{
-          paddingHorizontal: 12,
           backgroundColor: bg,
         }}
-        renderItem={({ item }) => (
-          <BookCard
-            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-            key={item.id}
-            serverConfig={serverConfig}
-            item={item}
-            token={token}
-          />
+        renderItem={({ item, index }) => (
+          <XStack pl={index === 0 ? "$4" : null}>
+            <BookCard
+              isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+              key={item.id}
+              serverConfig={serverConfig}
+              item={item}
+              token={token}
+            />
+          </XStack>
         )}
       />
     </Shelf>
@@ -61,7 +62,7 @@ const Shelf = styled(YStack, {
 });
 
 const ShelfLabel = styled(Text, {
-  pl: "$3",
+  pl: "$4",
   fontSize: "$6",
   bg: "$background",
 });

@@ -16,6 +16,11 @@ export const ScreenCenter = styled(Stack, {
 
 export const ScreenCenterWithTabBar = styled(ScreenCenter, {
   paddingBottom: HEADER_HEIGHT_TAB_BAR,
+  width: "100%",
+  height: "100%",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "$background",
 });
 
 export const FullScreen = styled(YStack, {

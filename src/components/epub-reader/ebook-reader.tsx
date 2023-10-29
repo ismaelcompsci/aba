@@ -149,6 +149,7 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
           showingPrev={showingPrev}
           label={currentLabel}
           readerSettings={ebookSettings}
+          menuHidden={hide}
         />
         <Reader
           height={height}

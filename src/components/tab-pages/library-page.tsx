@@ -87,17 +87,19 @@ const LibraryPage = ({
       return { data, nextPage: pageParam + 1 };
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.data.page >= lastPage.data.total) {
+      if (lastPage?.data.page >= lastPage?.data.total) {
         return undefined;
       }
 
-      return lastPage.nextPage;
+      return lastPage?.nextPage;
     },
     staleTime: 1000 * 60 * 60,
     refetchOnMount: true,
   });
 
   let flattenData = libraryItems?.pages.flatMap((page) => page.data.results);
+
+  console.log({ flattenData });
 
   const isEmpty = flattenData?.length === 0 && !isLoading;
 
@@ -139,7 +141,7 @@ const LibraryPage = ({
           justifyContent="space-between"
           alignItems="center"
           px="$2"
-          bg={"$background"}
+          bg={"$backgroundHover"}
           elevation={"$0.5"}
         >
           <Text fontWeight="$8">
@@ -150,7 +152,7 @@ const LibraryPage = ({
         {/* items */}
         {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
           <ScreenCenterWithTabBar>
-            <Spinner />
+            {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
           </ScreenCenterWithTabBar>
         ) : (
           <YStack w="100%" h="100%">
@@ -164,9 +166,6 @@ const LibraryPage = ({
               renderItem={handleRenderItem}
               estimatedItemSize={bookWidth}
               ListFooterComponent={() => <Separator w={0} h={30} />}
-              ListEmptyComponent={() => {
-                return <Text>EMPTY</Text>;
-              }}
             />
           </YStack>
         )}

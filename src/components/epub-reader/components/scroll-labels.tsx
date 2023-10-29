@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { AnimatePresence, Button, Text, XStack, YStack } from "tamagui";
 
+import { HEADER_HEIGHT } from "../../../hooks/use-header-height";
 import { Theme } from "../rn-epub-reader";
 
 import { themes } from "./themes";
@@ -10,11 +11,13 @@ const ScrollLabels = ({
   showingPrev,
   label,
   readerSettings,
+  menuHidden,
 }: {
   showingNext: boolean;
   showingPrev: boolean;
   label: string;
   readerSettings: Theme;
+  menuHidden: boolean;
 }) => {
   const theme = themes.find((t) => t.name === readerSettings.theme);
   return (
@@ -22,7 +25,7 @@ const ScrollLabels = ({
       <AnimatePresence>
         {showingPrev ? (
           <XStack
-            zIndex={"$5"}
+            zIndex={9999}
             animation={"100ms"}
             enterStyle={{
               scale: 1.2,
@@ -36,7 +39,7 @@ const ScrollLabels = ({
             }}
             pos={"absolute"}
             justifyContent="center"
-            top={"$10"}
+            top={!menuHidden ? "$10" : HEADER_HEIGHT + 10}
             left={0}
             right={0}
             margin={"auto"}
@@ -68,8 +71,8 @@ const ScrollLabels = ({
             }}
             pos={"absolute"}
             justifyContent="center"
-            bottom={"$10"}
-            zIndex={"$5"}
+            bottom={!menuHidden ? "$10" : HEADER_HEIGHT + 10}
+            zIndex={9999}
             left={0}
             right={0}
             margin={"auto"}
