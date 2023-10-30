@@ -140,7 +140,7 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
 
   return (
     <Menu hide={hide} title={book.media.metadata.title || ""}>
-      <YStack w="100%" h="100%">
+      <YStack w="100%" h="100%" pos="absolute" t={0} b={0} r={0} l={0}>
         {epubReaderLoading.loading || !ready ? (
           <LoadingBook info={epubReaderLoading} />
         ) : null}

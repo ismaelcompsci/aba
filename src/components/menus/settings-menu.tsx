@@ -1,5 +1,5 @@
 import { Appearance } from "react-native";
-import { Check, CircleOff, MoreHorizontal } from "@tamagui/lucide-icons";
+import { CircleOff, MoreHorizontal } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";

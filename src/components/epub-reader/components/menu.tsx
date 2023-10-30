@@ -10,7 +10,16 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
-import { H6, Label, Separator, Switch, Text, XGroup, XStack } from "tamagui";
+import {
+  H6,
+  Label,
+  Separator,
+  Switch,
+  Text,
+  XGroup,
+  XStack,
+  YStack,
+} from "tamagui";
 
 import {
   HEADER_HEIGHT,
@@ -91,7 +100,13 @@ const Menu = ({
   }, [hide]);
 
   return (
-    <>
+    <YStack
+      pos={"relative"}
+      h={"100%"}
+      w={"100%"}
+      alignItems="center"
+      justifyContent="center"
+    >
       {hide && (
         <Header key="header" bbw={0.25} bbc={color} zIndex={8888}>
           <HeaderFrame pt={top}>
@@ -209,7 +224,7 @@ const Menu = ({
       {children}
 
       {hide && <Footer key="footer" btw={0.25} btc={color}></Footer>}
-    </>
+    </YStack>
   );
 };
 
