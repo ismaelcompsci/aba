@@ -27,11 +27,11 @@ const ReaderPage = () => {
   const url = ebookUrl();
 
   return (
-    <ReaderProvider>
-      <YStack h={"100%"} w={"100%"} bg={"$background"}>
+    <YStack h={"100%"} w={"100%"} bg={"$background"} pos="relative">
+      <ReaderProvider>
         <EBookReader url={url} book={currentItem!} user={user} />
-      </YStack>
-    </ReaderProvider>
+      </ReaderProvider>
+    </YStack>
   );
 };
 
