@@ -1,9 +1,10 @@
 import FastImage from "react-native-fast-image";
-import { XStack, YStack, ZStack } from "tamagui";
+import { Image, Text, XStack, YStack, ZStack } from "tamagui";
 
 import { LibraryItem, Series } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
+import { BlurView } from "@react-native-community/blur";
 
 const SeriesSearchCard = ({
   series,
@@ -21,50 +22,77 @@ const SeriesSearchCard = ({
   const seriesCardWidth = 80;
   const seriesCardHeight = 60;
 
-  //   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
-  //   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
-
   const totalBooks = books.length;
 
+  const bgImg = getItemCoverSrc(books[0], serverConfig, serverConfig?.token);
+
   return (
-    <ZStack
-      maxWidth={seriesCardWidth}
-      maxHeight={seriesCardHeight}
-      width={100}
-      flex={1}
-    >
-      {books.map((book, i) => {
-        const src = getItemCoverSrc(book, serverConfig, token);
+    <XStack w="100%" pressStyle={{ opacity: 0.8 }} gap="$2">
+      {bgImg ? (
+        <Image
+          position="absolute"
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          resizeMode="cover"
+          source={{
+            uri: bgImg || "",
+            width: seriesCardWidth,
+            height: seriesCardHeight,
+          }}
+        />
+      ) : null}
+      <BlurView
+        style={{
+          height: seriesCardHeight,
+          position: "absolute",
+          width: seriesCardWidth,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+        }}
+        blurType={"dark"}
+        blurAmount={3}
+        reducedTransparencyFallbackColor="black"
+      />
+      {/* book images */}
+      <ZStack height={seriesCardHeight} width={seriesCardWidth}>
+        {books.map((book, i) => {
+          const src = getItemCoverSrc(book, serverConfig, token);
 
-        let coverWidth = seriesCardWidth;
-        let widthPer = seriesCardWidth;
+          let coverWidth = seriesCardWidth;
+          let widthPer = seriesCardWidth;
 
-        if (totalBooks > 1) {
-          // coverWidth = isCoverSquareAspectRatio
-          //   ? bookHeight * 1.6
-          //   : bookHeight * 1;
-          widthPer = (seriesCardWidth - coverWidth) / (totalBooks - 1);
-        }
+          if (totalBooks > 1) {
+            coverWidth = isCoverSquareAspectRatio ? 60 * 1.6 : 60 * 1;
+            widthPer = (seriesCardWidth - coverWidth) / (totalBooks - 1);
+          }
 
-        const offsetLeft = widthPer * i;
+          const offsetLeft = widthPer * i;
 
-        return (
-          <YStack key={i} x={offsetLeft}>
-            <FastImage
-              key={i}
-              style={{
-                //   height: bookHeight,
-                width: coverWidth,
-              }}
-              resizeMode="contain"
-              source={{
-                uri: src + `&format=webp`,
-              }}
-            />
-          </YStack>
-        );
-      })}
-    </ZStack>
+          return (
+            <YStack key={i} x={offsetLeft}>
+              <FastImage
+                key={i}
+                style={{
+                  height: seriesCardHeight,
+                  width: coverWidth,
+                }}
+                resizeMode="contain"
+                source={{
+                  uri: src + `&format=webp`,
+                }}
+              />
+            </YStack>
+          );
+        })}
+      </ZStack>
+      <YStack flex={1}>
+        <Text>{series.name}</Text>
+      </YStack>
+    </XStack>
   );
 };
 

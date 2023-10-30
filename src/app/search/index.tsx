@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Search } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Spinner, Text, XStack, YStack } from "tamagui";
+import { ScrollView, Separator, Spinner, Text, XStack, YStack } from "tamagui";
 
+import AuthorSearchCard from "../../components/cards/author-search-card";
 import ItemSearchCard from "../../components/cards/item-search-card";
 import SeriesSearchCard from "../../components/cards/series-search-card";
 import { ScreenCenter } from "../../components/center";
@@ -16,6 +18,7 @@ import {
   userAtom,
 } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
+import { AuthorExpanded } from "../../types/aba";
 import { SearchResult, SearchSeriesResult } from "../../types/types";
 
 const SearchPage = () => {
@@ -27,11 +30,12 @@ const SearchPage = () => {
   const [bookResults, setBookResults] = useState<SearchResult[]>([]);
   const [podcastResults, setPodcastResults] = useState<SearchResult[]>([]);
   const [seriesResults, setSeriesResults] = useState<SearchSeriesResult[]>([]);
-  const [authorResults, setAuthorResults] = useState<SearchResult[]>([]);
+  const [authorResults, setAuthorResults] = useState<AuthorExpanded[]>([]);
   const [narratorResults, setNarratorResults] = useState<SearchResult[]>([]);
   const [searchInput, setSearchInput] = useState("");
 
   const [debouncedSearchInput] = useDebounce(searchInput, 500);
+  const { bottom } = useSafeAreaInsets();
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
@@ -82,10 +86,10 @@ const SearchPage = () => {
 
   const clearResults = () => {
     setBookResults([]);
-    setPodcastResults([]);
-    setAuthorResults([]);
-    setNarratorResults([]);
     setSeriesResults([]);
+    setAuthorResults([]);
+    setPodcastResults([]);
+    setNarratorResults([]);
   };
 
   return (
@@ -147,39 +151,28 @@ const SearchPage = () => {
         {podcastResults.length ? (
           <YStack space="$4">
             <Text>Books</Text>
-            {bookResults.map(({ libraryItem }) => {
-              return (
-                <Text key={libraryItem.id}>
-                  {libraryItem.media.metadata.title}
-                </Text>
-              );
+            {podcastResults.map((_, i) => {
+              return <Text key={i}>podcast</Text>;
             })}
           </YStack>
         ) : null}
         {authorResults.length ? (
           <YStack space="$4">
             <Text>Authors</Text>
-            {bookResults.map(({ libraryItem }) => {
-              return (
-                <Text key={libraryItem.id}>
-                  {libraryItem.media.metadata.title}
-                </Text>
-              );
+            {authorResults.map((_, i) => {
+              return <AuthorSearchCard key={i} />;
             })}
           </YStack>
         ) : null}
         {narratorResults.length ? (
           <YStack space="$4">
             <Text>Narrators</Text>
-            {bookResults.map(({ libraryItem }) => {
-              return (
-                <Text key={libraryItem.id}>
-                  {libraryItem.media.metadata.title}
-                </Text>
-              );
+            {narratorResults.map((_, i) => {
+              return <Text key={i}>narr</Text>;
             })}
           </YStack>
         ) : null}
+        <Separator w={0} h={bottom} />
       </ScrollView>
     </YStack>
   );
