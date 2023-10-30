@@ -78,6 +78,8 @@ export default function Layout() {
 
   if (!loaded) return null;
 
+  const animation = Platform.OS === "ios" ? "fade" : "default";
+
   return (
     <TamaguiProvider config={appConfig}>
       <Theme
@@ -89,7 +91,7 @@ export default function Layout() {
             screenOptions={{
               header: Header,
               // TODO CHANGE DYNAMICALLY DEPENDING ON ROUTE
-              animation: "fade",
+              animation: animation,
             }}
           />
         </QueryClientProvider>
