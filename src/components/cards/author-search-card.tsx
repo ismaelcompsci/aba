@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FastImage from "react-native-fast-image";
 import { User } from "@tamagui/lucide-icons";
+import { router } from "expo-router";
 import { Stack, Text, XStack } from "tamagui";
 
 import { AuthorExpanded } from "../../types/aba";
@@ -25,7 +26,9 @@ const AuthorSearchCard = ({
 
   const imageWidth = 60;
   const imageHeight = 80;
-  const handlePress = () => {};
+  const handlePress = () => {
+    router.push(`/library/author/${author.id}`);
+  };
   return (
     <XStack
       onPress={handlePress}

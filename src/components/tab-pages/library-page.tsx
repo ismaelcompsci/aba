@@ -104,7 +104,8 @@ const LibraryPage = ({
     refetchOnMount: true,
   });
 
-  let flattenData = libraryItems?.pages.flatMap((page) => page.data.results);
+  let flattenData =
+    libraryItems?.pages.flatMap((page) => page.data.results) || [];
 
   const isEmpty = flattenData?.length === 0 && !isLoading;
 
@@ -141,7 +142,11 @@ const LibraryPage = ({
     queryClient.resetQueries({ queryKey: ["library-items"] });
   };
 
-  const seriesName = flattenData?.[0].media.metadata.series?.name;
+  const seriesName =
+    flattenData.length && "series" in flattenData[0].media.metadata
+      ? // @ts-ignore todo
+        flattenData?.[0].media.metadata.series?.name
+      : null;
 
   return (
     <PageView>
@@ -158,7 +163,7 @@ const LibraryPage = ({
           <Text fontWeight="$8">
             {libraryItems?.pages[0]?.data.total} Books
           </Text>
-          {filter ? (
+          {filter && seriesName ? (
             <Text numberOfLines={1} maxWidth={screenWidth / 1.6}>
               {seriesName}
             </Text>

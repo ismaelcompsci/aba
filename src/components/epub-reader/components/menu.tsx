@@ -10,7 +10,7 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
-import { H6, Label, Separator, Switch, XGroup, XStack } from "tamagui";
+import { H6, Label, Separator, Switch, Text, XGroup, XStack } from "tamagui";
 
 import {
   HEADER_HEIGHT,
@@ -156,7 +156,7 @@ const Menu = ({
               </XStack>
               {/* Scroll & gap  */}
               <XStack justifyContent="space-between">
-                <XStack alignItems="center" space="$4">
+                <XStack alignItems="center" space="$2">
                   <Label
                     paddingRight="$0"
                     minWidth={90}
@@ -164,7 +164,8 @@ const Menu = ({
                   >
                     Scrolling View
                   </Label>
-                  <Separator minHeight={20} vertical />
+                  <Text fontSize={8}>(beta)</Text>
+                  <Separator minHeight={20} vertical pl={"$4"} />
                   <Switch
                     defaultChecked={readerSettings.scrolled}
                     onCheckedChange={onScrollViewChange}

@@ -290,6 +290,29 @@ const BookPage = () => {
     return 0;
   };
 
+  const handleAuthorPress = () => {
+    const authorId =
+      "authors" in bookItem.media.metadata
+        ? bookItem.media.metadata.authors[0].id
+        : null;
+
+    if (authorId) router.push(`/library/author/${authorId}`);
+  };
+  const handleSeriesPress = () => {
+    return null;
+    /**
+     * TODO
+     * not working
+     */
+    // const seriesId =
+    //   "ebookFile" in bookItem.media && "series" in bookItem.media.metadata
+    //     ? bookItem.media.metadata.series[0].id
+    //     : null;
+
+    // console.log({ series: bookItem.media.metadata.series });
+    // if (seriesId) router.push(`/library/series/${id}`);
+  };
+
   const libraryFiles = bookItem.libraryFiles || [];
   const numberChapters = numChapters();
   const ebookFiles = libraryFiles.filter((lf) => lf.fileType === "ebook");
@@ -335,10 +358,18 @@ const BookPage = () => {
               <H3 numberOfLines={3} mt={-20}>
                 {bookItem.media.metadata.title}
               </H3>
-              <H6>{series}</H6>
-              <Text numberOfLines={2} bg="$background" color="$gray10">
-                {author}
-              </Text>
+              {series ? <H6 onPress={handleSeriesPress}>{series}</H6> : null}
+              {author ? (
+                <Text
+                  numberOfLines={2}
+                  bg="$background"
+                  color="$gray10"
+                  textDecorationLine="underline"
+                  onPress={handleAuthorPress}
+                >
+                  {author}
+                </Text>
+              ) : null}
               <XStack
                 bg="$background"
                 py="$2"
