@@ -31,9 +31,9 @@ const TrackFilesTable = ({ tracks }: { tracks: AudioTrack[] }) => {
       .padStart(2, "0")}`;
   };
 
-  const renderItem = (track: AudioTrack) => {
+  const renderItem = ({ item }: { item: AudioTrack }) => {
     return (
-      <XStack ai="center" pos="relative" py="$3" px="$4" key={track.index}>
+      <XStack ai="center" pos="relative" py="$3" px="$4" key={item.index}>
         <H4
           color="$color"
           fow="700"
@@ -43,10 +43,10 @@ const TrackFilesTable = ({ tracks }: { tracks: AudioTrack[] }) => {
           numberOfLines={2}
           width={200}
         >
-          {track.title}
+          {item.title}
         </H4>
         <XStack pl="$7" flex={1} justifyContent="flex-end">
-          <Text>{secondsToTimestamp(track.duration)}</Text>
+          <Text>{secondsToTimestamp(item.duration)}</Text>
         </XStack>
       </XStack>
     );

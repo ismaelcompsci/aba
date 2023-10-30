@@ -1,7 +1,11 @@
 import axios from "axios";
 import * as Burnt from "burnt";
 
-import { LibraryItem, LibraryItemMinified } from "../types/aba";
+import {
+  LibraryItem,
+  LibraryItemExpanded,
+  LibraryItemMinified,
+} from "../types/aba";
 import { ServerConfig } from "../types/types";
 
 export const pingServer = async (
@@ -61,7 +65,12 @@ export const authenticateToken = async (config: ServerConfig) => {
 };
 
 export const getItemCoverSrc = (
-  libraryItem: LibraryItemMinified | LibraryItem | undefined | null,
+  libraryItem:
+    | LibraryItemExpanded
+    | LibraryItemMinified
+    | LibraryItem
+    | undefined
+    | null,
   config: ServerConfig | null,
   token?: string
 ) => {

@@ -1,5 +1,8 @@
 import {
+  LibraryItem,
+  LibraryItemExpanded,
   LibraryItemMinified,
+  Series,
   SeriesBooksMinified,
   ServerSettings,
   User,
@@ -76,3 +79,11 @@ export type EpubReaderLoading = {
   part?: string;
   percent?: number;
 };
+
+export interface SearchResult {
+  libraryItem: LibraryItemExpanded;
+  matchKey: string | null;
+  matchText: string | null;
+}
+
+export type SearchSeriesResult = { books: LibraryItem[]; series: Series };

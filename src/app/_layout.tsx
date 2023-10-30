@@ -139,7 +139,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
           {showServerSwitch && !isIndex && <ServerSelect placement="bottom" />}
         </HeaderLeft>
         <HeaderRight>
-          <IconButton onPress={() => router.push("/test/")}>
+          <IconButton onPress={() => router.push("/search/")}>
             <Search color={iconColor} />
           </IconButton>
           <SettingsMenu />

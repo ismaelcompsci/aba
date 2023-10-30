@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { Dimensions } from "react-native";
-import {
-  BookOpen,
-  CheckCircle,
-  ChevronDown,
-  MoreVertical,
-} from "@tamagui/lucide-icons";
+import { BookOpen, CheckCircle, ChevronDown } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import * as Burnt from "burnt";
@@ -14,13 +9,13 @@ import {
   Accordion,
   Button,
   H4,
+  ListItem,
   Paragraph,
   Square,
   Text,
   XStack,
   YStack,
 } from "tamagui";
-import { Adapt, Popover, PopoverProps } from "tamagui";
 import * as ContextMenu from "zeego/context-menu";
 
 import { currentLibraryAtom, userAtom } from "../../state/app-state";
@@ -85,87 +80,94 @@ const BookFilesTable = ({
     }
   };
 
-  const renderItem = (item: LibraryFile) => {
+  const renderItem = ({ item }: { item: LibraryFile }) => {
     return (
-      <ContextMenu.Root style={{ width: "100%" }}>
-        <ContextMenu.Trigger action="press" asChild>
-          <XStack
-            ai="center"
-            pos="relative"
-            py="$3"
-            px="$4"
-            key={item.metadata.filename}
-            w={"100%"}
-          >
-            <H4
-              color="$color"
-              fow="700"
-              fontFamily="$mono"
-              textTransform="none"
-              fontSize={"$2"}
+      <ListItem p={0}>
+        <ContextMenu.Root style={{ width: "100%" }}>
+          <ContextMenu.Trigger action="press" asChild>
+            <XStack
               ai="center"
-              jc="center"
-              size="$4"
-              numberOfLines={2}
-              maxWidth={layout.width / 2 + 40}
+              pos="relative"
+              py="$3"
+              px="$4"
+              key={item.metadata.filename}
+              w={"100%"}
             >
-              {item.metadata.filename}
-              {getCheckMark(item)}
-            </H4>
-            <XStack pr={0} flex={1} justifyContent="flex-end">
-              <ClearIconButton>
-                <BookOpen />
-              </ClearIconButton>
-              <PressBookFileMenu onButtonPress={() => onButtonPress(item)} />
-            </XStack>
-          </XStack>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Preview size="INHERIT">
-            {() => (
-              <YStack
-                bg={"$background"}
-                h={"$9"}
-                w={layout.width - 50}
-                key={item.metadata.filename}
+              <H4
+                color="$color"
+                fow="700"
+                fontFamily="$mono"
+                textTransform="none"
+                fontSize={"$2"}
+                ai="center"
                 jc="center"
-                space="$1"
-                px="$4"
+                size="$4"
+                numberOfLines={2}
+                maxWidth={layout.width / 2 + 40}
               >
-                <Text
-                  numberOfLines={2}
-                  color="$color"
-                  fow="700"
-                  fontFamily="$mono"
-                  textTransform="none"
-                  fontSize={"$2"}
+                {item.metadata.filename}
+                {getCheckMark(item)}
+              </H4>
+              <XStack pr={0} flex={1} justifyContent="flex-end">
+                <ClearIconButton>
+                  <BookOpen />
+                </ClearIconButton>
+                <PressBookFileMenu onButtonPress={() => onButtonPress(item)} />
+              </XStack>
+            </XStack>
+          </ContextMenu.Trigger>
+          <ContextMenu.Content>
+            <ContextMenu.Preview size="INHERIT">
+              {() => (
+                <YStack
+                  bg={"$background"}
+                  h={"$9"}
+                  w={layout.width - 50}
+                  key={item.metadata.filename}
+                  jc="center"
+                  space="$1"
+                  px="$4"
                 >
-                  {item.metadata.filename}
-                </Text>
-                <XStack ai="center" justifyContent="space-between" w={"100%"}>
-                  <YStack space={"$1"}>
-                    <Text fontSize={"$2"} color={"$gray9"}>
-                      Size
-                    </Text>
-                    <Text>{humanFileSize(item.metadata.size || 0, true)}</Text>
-                  </YStack>
-                  <YStack space={"$1"}>
-                    <Text fontSize={"$2"} color={"$gray9"}>
-                      Format
-                    </Text>
-                    <Text>{item.metadata.ext.toUpperCase()}</Text>
-                  </YStack>
-                </XStack>
-              </YStack>
-            )}
-          </ContextMenu.Preview>
-          <ContextMenu.Label>File</ContextMenu.Label>
+                  <Text
+                    numberOfLines={2}
+                    color="$color"
+                    fow="700"
+                    fontFamily="$mono"
+                    textTransform="none"
+                    fontSize={"$2"}
+                  >
+                    {item.metadata.filename}
+                  </Text>
+                  <XStack ai="center" justifyContent="space-between" w={"100%"}>
+                    <YStack space={"$1"}>
+                      <Text fontSize={"$2"} color={"$gray9"}>
+                        Size
+                      </Text>
+                      <Text>
+                        {humanFileSize(item.metadata.size || 0, true)}
+                      </Text>
+                    </YStack>
+                    <YStack space={"$1"}>
+                      <Text fontSize={"$2"} color={"$gray9"}>
+                        Format
+                      </Text>
+                      <Text>{item.metadata.ext.toUpperCase()}</Text>
+                    </YStack>
+                  </XStack>
+                </YStack>
+              )}
+            </ContextMenu.Preview>
+            <ContextMenu.Label>File</ContextMenu.Label>
 
-          <ContextMenu.Item key="primary" onSelect={() => onButtonPress(item)}>
-            <ContextMenu.ItemTitle>Set as primary</ContextMenu.ItemTitle>
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>
+            <ContextMenu.Item
+              key="primary"
+              onSelect={() => onButtonPress(item)}
+            >
+              <ContextMenu.ItemTitle>Set as primary</ContextMenu.ItemTitle>
+            </ContextMenu.Item>
+          </ContextMenu.Content>
+        </ContextMenu.Root>
+      </ListItem>
     );
   };
 
@@ -217,57 +219,5 @@ const BookFilesTable = ({
     </Accordion>
   );
 };
-
-// tamagui popover
-export function BookFilePopover({
-  onButtonPress,
-  ...props
-}: PopoverProps & {
-  onButtonPress: () => void;
-}) {
-  return (
-    <Popover size="$5" allowFlip {...props}>
-      <Popover.Trigger asChild>
-        <ClearIconButton>
-          <MoreVertical />
-        </ClearIconButton>
-      </Popover.Trigger>
-
-      <Adapt when={"xxs"} platform="touch">
-        <Popover.Sheet modal dismissOnSnapToBottom>
-          <Popover.Sheet.Frame padding="$4">
-            <Adapt.Contents />
-          </Popover.Sheet.Frame>
-          <Popover.Sheet.Overlay
-            animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Popover.Sheet>
-      </Adapt>
-
-      <Popover.Content
-        borderWidth={1}
-        borderColor="$borderColor"
-        enterStyle={{ y: -10, opacity: 0 }}
-        exitStyle={{ y: -10, opacity: 0 }}
-        elevate
-        animation={[
-          "quick",
-          {
-            opacity: {
-              overshootClamping: true,
-            },
-          },
-        ]}
-      >
-        <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
-        <XStack>
-          <Button onPress={onButtonPress}>Set as primary</Button>
-        </XStack>
-      </Popover.Content>
-    </Popover>
-  );
-}
 
 export default BookFilesTable;

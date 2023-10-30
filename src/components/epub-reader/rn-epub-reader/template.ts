@@ -25,6 +25,7 @@ export default `
         font-family: system-ui, sans-serif;
         background: var(--bg);
         color: var(--fg);
+        overscroll-behavior: contain;
       }
     </style>
   </head>

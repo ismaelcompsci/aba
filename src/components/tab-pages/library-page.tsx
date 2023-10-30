@@ -99,8 +99,6 @@ const LibraryPage = ({
 
   let flattenData = libraryItems?.pages.flatMap((page) => page.data.results);
 
-  console.log({ flattenData });
-
   const isEmpty = flattenData?.length === 0 && !isLoading;
 
   const loadNextPageData = () => {

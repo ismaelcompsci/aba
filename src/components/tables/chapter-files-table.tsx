@@ -34,7 +34,7 @@ const ChapterFilesTable = ({ libraryItem }: { libraryItem: LibraryItem }) => {
       .padStart(2, "0")}`;
   };
 
-  const renderItem = (item: BookChapter) => {
+  const renderItem = ({ item }: { item: BookChapter }) => {
     return (
       <XStack ai="center" pos="relative" py="$3" px="$4" key={item.id}>
         <H4

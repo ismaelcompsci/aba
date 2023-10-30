@@ -1,5 +1,6 @@
 import FastImage from "react-native-fast-image";
 import { BlurView } from "@react-native-community/blur";
+import { router } from "expo-router";
 import { Card, Image, Text, XStack, YStack, ZStack } from "tamagui";
 
 import { SeriesBooksMinified } from "../../types/aba";
@@ -29,6 +30,10 @@ const SeriesCard = ({
     serverConfig?.token
   );
 
+  const handlePress = () => {
+    router.push(`/library/series/${item.id}`);
+  };
+
   return (
     <Card
       w={bookWidth * 2}
@@ -41,6 +46,9 @@ const SeriesCard = ({
       br={"$4"}
       elevate
       elevation={"$0.75"}
+      pressStyle={{ scale: 0.875 }}
+      animation="bouncy"
+      onPress={handlePress}
     >
       {bgImg ? (
         <Image
