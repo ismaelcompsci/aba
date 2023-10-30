@@ -8,6 +8,7 @@ import { ScrollView, Separator, Spinner, Text, XStack, YStack } from "tamagui";
 
 import AuthorSearchCard from "../../components/cards/author-search-card";
 import ItemSearchCard from "../../components/cards/item-search-card";
+import NarratorSearchCard from "../../components/cards/narrator-search-card";
 import SeriesSearchCard from "../../components/cards/series-search-card";
 import { ScreenCenter } from "../../components/center";
 import InputWithIcon from "../../components/custom-components/input-with-icon";
@@ -19,7 +20,11 @@ import {
 } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { AuthorExpanded } from "../../types/aba";
-import { SearchResult, SearchSeriesResult } from "../../types/types";
+import {
+  SearchNarratorResult,
+  SearchResult,
+  SearchSeriesResult,
+} from "../../types/types";
 
 const SearchPage = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -31,7 +36,9 @@ const SearchPage = () => {
   const [podcastResults, setPodcastResults] = useState<SearchResult[]>([]);
   const [seriesResults, setSeriesResults] = useState<SearchSeriesResult[]>([]);
   const [authorResults, setAuthorResults] = useState<AuthorExpanded[]>([]);
-  const [narratorResults, setNarratorResults] = useState<SearchResult[]>([]);
+  const [narratorResults, setNarratorResults] = useState<
+    SearchNarratorResult[]
+  >([]);
   const [searchInput, setSearchInput] = useState("");
 
   const [debouncedSearchInput] = useDebounce(searchInput, 500);
@@ -159,16 +166,23 @@ const SearchPage = () => {
         {authorResults.length ? (
           <YStack space="$4">
             <Text>Authors</Text>
-            {authorResults.map((_, i) => {
-              return <AuthorSearchCard key={i} />;
+            {authorResults.map((author, i) => {
+              return (
+                <AuthorSearchCard
+                  key={i}
+                  author={author}
+                  serverConfig={serverConfig}
+                  token={user?.token}
+                />
+              );
             })}
           </YStack>
         ) : null}
         {narratorResults.length ? (
           <YStack space="$4">
             <Text>Narrators</Text>
-            {narratorResults.map((_, i) => {
-              return <Text key={i}>narr</Text>;
+            {narratorResults.map((narrator, i) => {
+              return <NarratorSearchCard key={i} narrator={narrator} />;
             })}
           </YStack>
         ) : null}

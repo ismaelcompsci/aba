@@ -145,3 +145,6 @@ export const getUserMediaProgress = (
 
   return user?.mediaProgress.find((md) => md.libraryItemId == libraryItemId);
 };
+
+export const encode = (text: string) =>
+  encodeURIComponent(Buffer.from(text).toString("base64"));

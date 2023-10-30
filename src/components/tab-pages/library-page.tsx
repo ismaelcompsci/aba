@@ -7,7 +7,6 @@ import { useAtom, useAtomValue } from "jotai";
 import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
-import useIconTheme from "../../hooks/use-icon-theme";
 import { changingLibraryAtom } from "../../state/app-state";
 import { descOrderAtom, sortAtom } from "../../state/local-state";
 import { Library, LibraryItemMinified, User } from "../../types/aba";
@@ -23,6 +22,7 @@ interface LibraryPageProps {
   serverConfig: ServerConfig | null;
   library: Library | null;
   user: User | null;
+  filter?: string;
 }
 
 const LibraryPage = ({
@@ -30,13 +30,13 @@ const LibraryPage = ({
   user,
   serverConfig,
   currentLibraryId,
+  filter,
 }: LibraryPageProps) => {
   const sort = useAtomValue(sortAtom);
   const descOrder = useAtomValue(descOrderAtom);
   const [changingLibrary] = useAtom(changingLibraryAtom);
 
   const queryClient = useQueryClient();
-  const { themeColor } = useIconTheme();
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
   const screenWidth = Dimensions.get("window").width;
@@ -64,7 +64,13 @@ const LibraryPage = ({
     isInitialLoading,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ["library-items", library?.id, sort, `${descOrder}`],
+    queryKey: [
+      "library-items",
+      library?.id,
+      sort,
+      `${descOrder}`,
+      filter ? filter : null,
+    ],
     queryFn: async ({ pageParam = 0 }) => {
       const d = descOrder ? 1 : 0;
       const { data }: { data: LibraryItems } = await axios.get(
@@ -77,6 +83,7 @@ const LibraryPage = ({
             include: "rssfeed,numEpisodesIncomplete",
             sort: sort,
             desc: d,
+            filter: filter,
           },
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -125,10 +132,16 @@ const LibraryPage = ({
   );
 
   useEffect(() => {
+    resetQuery();
+  }, [library, currentLibraryId, descOrder]);
+
+  const resetQuery = () => {
     flattenData = [];
     queryClient.invalidateQueries(["library-items"]);
     queryClient.resetQueries({ queryKey: ["library-items"] });
-  }, [library, currentLibraryId, descOrder]);
+  };
+
+  const seriesName = flattenData?.[0].media.metadata.series?.name;
 
   return (
     <PageView>
@@ -145,6 +158,11 @@ const LibraryPage = ({
           <Text fontWeight="$8">
             {libraryItems?.pages[0]?.data.total} Books
           </Text>
+          {filter ? (
+            <Text numberOfLines={1} maxWidth={screenWidth / 1.6}>
+              {seriesName}
+            </Text>
+          ) : null}
           <SortSelect placement="bottom-end" />
         </XStack>
         {/* items */}

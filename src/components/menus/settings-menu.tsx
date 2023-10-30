@@ -1,5 +1,5 @@
 import { Appearance } from "react-native";
-import { Check, MoreHorizontal } from "@tamagui/lucide-icons";
+import { Check, CircleOff, MoreHorizontal } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";
@@ -35,13 +35,17 @@ const SettingsMenu = () => {
           key="dark"
         >
           <DropdownMenu.ItemTitle>Dark mode</DropdownMenu.ItemTitle>
-          <DropdownMenu.ItemIndicator>
-            <Check size={"$1"} />
-          </DropdownMenu.ItemIndicator>
         </DropdownMenu.CheckboxItem>
 
         <DropdownMenu.Item key="disconnect" destructive onSelect={disconnect}>
           <DropdownMenu.ItemTitle>Disconnect</DropdownMenu.ItemTitle>
+          <DropdownMenu.ItemIcon
+            ios={{
+              name: "icloud.slash.fill", // required
+            }}
+          >
+            <CircleOff />
+          </DropdownMenu.ItemIcon>
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>

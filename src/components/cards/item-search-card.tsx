@@ -1,4 +1,5 @@
 import FastImage from "react-native-fast-image";
+import { router } from "expo-router";
 import { Text, XStack, YStack } from "tamagui";
 
 import { LibraryItemExpanded } from "../../types/aba";
@@ -21,10 +22,21 @@ const ItemSearchCard = ({
   const src = getItemCoverSrc(item, serverConfig, token);
 
   const bookWidth = isCoverSquareAspectRatio ? 50 * 1.2 : 50;
-  const bookHeight = isCoverSquareAspectRatio ? bookWidth * 1.6 : bookWidth;
+  const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
+
+  const handlePress = () => {
+    router.push(`/book/${item.id}`);
+  };
 
   return (
-    <XStack height={bookHeight} w="100%" pressStyle={{ opacity: 0.8 }}>
+    <XStack
+      onPress={handlePress}
+      height={bookHeight}
+      w="100%"
+      pressStyle={{ opacity: 0.8 }}
+      gap="$2"
+      ai="center"
+    >
       <FastImage
         style={{
           width: bookWidth,
