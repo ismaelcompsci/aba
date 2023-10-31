@@ -62,12 +62,12 @@ export default function Layout() {
     const getLibraries = async () => {
       const response = await axios.get(
         `${serverConfig.serverAddress}/api/libraries`,
-        { headers: { Authorization: `Bearer ${user?.token}` } }
+        { headers: { Authorization: `Bearer ${user?.token}` }, timeout: 3000 }
       );
       setLibraries(response.data.libraries);
     };
 
-    if (user) {
+    if (user?.id && serverConfig.serverAddress) {
       getLibraries();
     }
   }, [user, serverConfig]);
