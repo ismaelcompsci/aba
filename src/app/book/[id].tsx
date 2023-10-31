@@ -298,6 +298,10 @@ const BookPage = () => {
 
     if (authorId) router.push(`/library/author/${authorId}`);
   };
+  const handleGenrePress = (genre: string) => {
+    router.push(`/library/genre/${genre}`);
+  };
+
   const handleSeriesPress = () => {
     return null;
     /**
@@ -427,6 +431,7 @@ const BookPage = () => {
                       key={gen}
                       bordered
                       transparent
+                      onPress={() => handleGenrePress(gen)}
                     >
                       <Text>{gen}</Text>
                     </Button>

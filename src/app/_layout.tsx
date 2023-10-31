@@ -143,7 +143,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <Logo />
             </LogoContainer>
           ) : (
-            <LogoContainer onPress={handleBack}>
+            <LogoContainer onPress={handleBack} pressStyle={{ opacity: 0.8 }}>
               <ChevronLeft />
             </LogoContainer>
           )}
