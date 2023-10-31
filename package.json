@@ -2,13 +2,14 @@
   "name": "aba",
   "version": "1.0.0",
   "scripts": {
-    "android": "expo run:android",
+    "android": "TAMAGUI_TARGET=native expo run:android",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
-    "ios": "expo run:ios",
-    "start": "expo start",
+    "ios": "TAMAGUI_TARGET=nativeexpo run:ios",
+    "start": "TAMAGUI_TARGET=native expo start",
     "web": "expo start --web",
     "client": "TAMAGUI_TARGET=native expo start --dev-client",
-    "xcode": "xed ./ios"
+    "xcode": "xed ./ios",
+    "prod": "TAMAGUI_TARGET=native npx expo start --no-dev --minify"
   },
   "dependencies": {
     "@epubjs-react-native/expo-file-system": "^1.0.0",

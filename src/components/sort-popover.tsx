@@ -2,49 +2,10 @@ import { ArrowDown, ArrowDownWideNarrow, ArrowUp } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
 import { Adapt, Popover, PopoverProps, Text, ToggleGroup } from "tamagui";
 
+import { sorts } from "../constants/consts";
 import { descOrderAtom, sortAtom } from "../state/local-state";
 
 import { ClearIconButton } from "./buttons/button";
-
-// https://github.com/advplyr/audiobookshelf-app/blob/6b164bdb276b835df9d0dc14bf43c43910009fa9/components/modals/OrderModal.vue#L30C18-L67C8
-const sorts = [
-  {
-    text: "Title",
-    value: "media.metadata.title",
-  },
-  {
-    text: "Author (First Last)",
-    value: "media.metadata.authorName",
-  },
-  {
-    text: "Author (Last, First)",
-    value: "media.metadata.authorNameLF",
-  },
-  {
-    text: "Published Year",
-    value: "media.metadata.publishedYear",
-  },
-  {
-    text: "Added At",
-    value: "addedAt",
-  },
-  {
-    text: "Size",
-    value: "size",
-  },
-  {
-    text: "Duration",
-    value: "media.duration",
-  },
-  {
-    text: "File Birthtime",
-    value: "birthtimeMs",
-  },
-  {
-    text: "File Modified",
-    value: "mtimeMs",
-  },
-];
 
 export function SortSelect({ ...props }: PopoverProps) {
   const [orderSort, setSort] = useAtom(sortAtom);
