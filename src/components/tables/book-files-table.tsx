@@ -94,7 +94,7 @@ const BookFilesTable = ({
     return (
       <ListItem p={0}>
         <ContextMenu.Root style={{ width: "100%" }}>
-          <ContextMenu.Trigger action="press" asChild>
+          <ContextMenu.Trigger action="press">
             <XStack
               ai="center"
               pos="relative"
