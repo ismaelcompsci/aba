@@ -8,17 +8,16 @@ import {
   XStack,
 } from "tamagui";
 
-import useIconTheme from "../hooks/use-icon-theme";
+import useIconTheme from "../../hooks/use-icon-theme";
 import {
   changingLibraryAtom,
   currentLibraryAtom,
   currentLibraryIdAtom,
   librariesAtom,
-} from "../state/app-state";
-import { awaitTimeout } from "../utils/utils";
-
-import { IconButton } from "./buttons/button";
-import { iconMap } from "./adbs-icons";
+} from "../../state/app-state";
+import { awaitTimeout } from "../../utils/utils";
+import { iconMap } from "../adbs-icons";
+import { IconButton } from "../buttons/button";
 
 export function ServerSelect({ ...props }: PopoverProps) {
   const libraries = useAtomValue(librariesAtom);

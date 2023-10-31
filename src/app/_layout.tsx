@@ -20,7 +20,8 @@ import {
 import { LogoContainer } from "../components/header/logo";
 import { Logo } from "../components/logo";
 import SettingsMenu from "../components/menus/settings-menu";
-import { ServerSelect } from "../components/servers-popover";
+import AndroidServerSelect from "../components/server-selects/server-select.android";
+import { ServerSelect } from "../components/server-selects/servers-select";
 import { useHeaderHeight } from "../hooks/use-header-height";
 import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
@@ -125,6 +126,14 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     return null;
   }
 
+  const getServerSelect = () => {
+    if (Platform.OS === "android") {
+      return <AndroidServerSelect />;
+    } else {
+      return <ServerSelect placement="bottom" />;
+    }
+  };
+
   return (
     <HeaderSafeArea h={headerHeight}>
       <HeaderFrame pt={top}>
@@ -138,7 +147,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <ChevronLeft />
             </LogoContainer>
           )}
-          {showServerSwitch && !isIndex && <ServerSelect placement="bottom" />}
+          {showServerSwitch && !isIndex && getServerSelect()}
         </HeaderLeft>
         <HeaderRight>
           <IconButton onPress={() => router.push("/search/")}>
