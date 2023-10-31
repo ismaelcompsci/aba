@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { useAtomValue } from "jotai";
 import { ScrollView, Separator, Spinner, Text } from "tamagui";
 
@@ -11,7 +11,6 @@ import { PersonalizedView, ServerConfig } from "../../types/types";
 import { ScreenCenter } from "../center";
 
 import { PageView } from "./page-view";
-import { prettyLog } from "../../utils/utils";
 
 interface PersonalizedPageProps {
   library: Library | null;
@@ -30,8 +29,6 @@ const PersonalizedPage = ({
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
-  console.log({ serverConfig });
-
   const {
     data: personalizedLibrary,
     isLoading,
@@ -39,7 +36,6 @@ const PersonalizedPage = ({
   } = useQuery(["personalized-library-view", currentLibraryId, user?.id], {
     queryFn: async (): Promise<PersonalizedView[]> => {
       try {
-        console.log({ serverConfig });
         const response = await axios.get(
           `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
           { headers: { Authorization: `Bearer ${user?.token}` } }

@@ -44,22 +44,32 @@ const SeriesPage = ({
   } = useInfiniteQuery({
     queryKey: ["library-series", `${library?.id}`, user?.id],
     queryFn: async ({ pageParam = 0 }) => {
-      const { data }: { data: LibrarySeries } = await axios.get(
-        `${serverConfig?.serverAddress}/api/libraries/${library?.id}/series`,
-        {
-          params: {
-            limit: SERIES_INFINITE_LIMIT,
-            page: pageParam,
-            minified: 1,
-            include: "rssfeed,numEpisodesIncomplete",
-          },
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
+      try {
+        const { data }: { data: LibrarySeries } = await axios.get(
+          `${serverConfig?.serverAddress}/api/libraries/${library?.id}/series`,
+          {
+            params: {
+              limit: SERIES_INFINITE_LIMIT,
+              page: pageParam,
+              minified: 1,
+              include: "rssfeed,numEpisodesIncomplete",
+            },
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
 
-      return { data, nextPage: pageParam + 1 };
+        return { data, nextPage: pageParam + 1 };
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.log(error);
+          // prettyLog(error);
+        }
+        console.log({ error, SERIES: "ERROR" });
+
+        throw new Error();
+      }
     },
     getNextPageParam: (lastPage) => {
       if (lastPage?.data.page >= lastPage?.data.total) {
