@@ -70,6 +70,7 @@ const LibraryPage = ({
       sort,
       `${descOrder}`,
       filter ? filter : null,
+      user?.id,
     ],
     queryFn: async ({ pageParam = 0 }) => {
       const d = descOrder ? 1 : 0;

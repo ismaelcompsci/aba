@@ -9,6 +9,7 @@ import { Button, Card, Spinner, Text, YStack } from "tamagui";
 import { ClearIconButton } from "../../components/buttons/button";
 import { ScreenCenter } from "../../components/center";
 import AddServerForm from "../../components/connection-form/add-server-form";
+import ServerConfigMenu from "../../components/menus/server-config-menu";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
 import {
   currentServerConfigAtom,
@@ -18,7 +19,6 @@ import {
 import { LoginServerResponse, ServerConfig } from "../../types/types";
 import { authenticateToken, pingServer } from "../../utils/api";
 import { stringToBase64 } from "../../utils/utils";
-import ServerConfigMenu from "../../components/menus/server-config-menu";
 
 const ServerConnectPage = () => {
   const [loading, setLoading] = useState(false);

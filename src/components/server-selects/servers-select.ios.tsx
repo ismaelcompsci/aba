@@ -1,3 +1,4 @@
+import { Dimensions } from "react-native";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   Adapt,
@@ -26,6 +27,7 @@ export function ServerSelect({ ...props }: PopoverProps) {
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
 
   const { iconColor } = useIconTheme();
+  const { width } = Dimensions.get("screen");
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
 
   const onValueChange = async (value: string) => {
@@ -46,6 +48,7 @@ export function ServerSelect({ ...props }: PopoverProps) {
     <Popover size="$5" allowFlip {...props}>
       <Popover.Trigger asChild>
         <IconButton
+          minWidth={80}
           bordered
           icon={<Icon size={14} color={iconColor} />}
           size="$2"
@@ -75,6 +78,8 @@ export function ServerSelect({ ...props }: PopoverProps) {
       </Adapt>
 
       <Popover.Content
+        p={"$1"}
+        ml={20}
         borderWidth={1}
         borderColor="$borderColor"
         enterStyle={{ y: -10, opacity: 0 }}
@@ -94,7 +99,7 @@ export function ServerSelect({ ...props }: PopoverProps) {
         <ToggleGroup
           orientation={"vertical"}
           type={"single"}
-          size={"$3"}
+          // size={"$3"}
           defaultValue={library?.name}
           onValueChange={onValueChange}
           disableDeactivation
@@ -105,7 +110,8 @@ export function ServerSelect({ ...props }: PopoverProps) {
             return (
               <ToggleGroup.Item value={lib?.name} key={lib?.id}>
                 <XStack
-                  w={200}
+                  maxWidth={width / 2 - 50}
+                  minWidth={150}
                   alignItems="center"
                   justifyContent="space-between"
                 >

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Burnt from "burnt";
 import { Redirect, router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
@@ -30,6 +31,8 @@ export default function IndexPage() {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
+
+  const queryClient = useQueryClient();
 
   const makeConnection = async ({
     user,

@@ -48,7 +48,7 @@ const HomePage = () => {
   const { iconColor } = useIconTheme();
 
   const theme = useTheme();
-  const tabBg = theme.backgroundPress.get();
+  // const tabBg = theme.backgroundPress.get();
   const color = theme.color.get();
 
   const renderScene = ({

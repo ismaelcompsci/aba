@@ -49,7 +49,7 @@ const BookFilesTable = ({
       const response = await axios.patch(
         `${serverConfig.serverAddress}/api/items/${itemId}/ebook/${item.ino}/status`,
         null,
-        { headers: { Authorization: `Bearer ${user?.token}` } }
+        { headers: { Authorization: `Bearer ${user?.token}` }, timeout: 5000 }
       );
 
       return response.data;
@@ -77,6 +77,12 @@ const BookFilesTable = ({
   const onButtonPress = (item: LibraryFile) => {
     if (userCanUpdate && !isAudiobooksOnly) {
       updatePrimaryFile(item);
+    } else {
+      Burnt.toast({
+        title: "You do not have permission.",
+        preset: "error",
+        haptic: "error",
+      });
     }
   };
 

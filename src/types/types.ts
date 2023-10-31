@@ -71,7 +71,7 @@ export interface LibrarySeries {
 export type TabName = "Home" | "Library" | "Series";
 
 export type Tabs = {
-  [key in TabName]: React.ComponentType<unknown>; // Assuming Home and Library are React components
+  [key in TabName]: React.ComponentType<any>; // Assuming Home and Library are React components
 };
 
 export type EpubReaderLoading = {

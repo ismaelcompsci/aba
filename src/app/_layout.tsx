@@ -21,7 +21,7 @@ import { LogoContainer } from "../components/header/logo";
 import { Logo } from "../components/logo";
 import SettingsMenu from "../components/menus/settings-menu";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
-import { ServerSelect } from "../components/server-selects/servers-select";
+import { ServerSelect } from "../components/server-selects/servers-select.ios";
 import { useHeaderHeight } from "../hooks/use-header-height";
 import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
@@ -130,7 +130,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     if (Platform.OS === "android") {
       return <AndroidServerSelect />;
     } else {
-      return <ServerSelect placement="bottom" />;
+      return <ServerSelect placement="bottom-end" />;
     }
   };
 
