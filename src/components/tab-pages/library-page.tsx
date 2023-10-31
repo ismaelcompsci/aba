@@ -71,9 +71,13 @@ const LibraryPage = ({
       `${descOrder}`,
       filter ? filter : null,
       user?.id,
+      serverConfig?.id,
     ],
     queryFn: async ({ pageParam = 0 }) => {
       try {
+        if (!serverConfig?.id)
+          return { data: { results: [], page: 0, total: 0 } };
+
         const d = descOrder ? 1 : 0;
         const { data }: { data: LibraryItems } = await axios.get(
           `${serverConfig?.serverAddress}/api/libraries/${library?.id}/items`,

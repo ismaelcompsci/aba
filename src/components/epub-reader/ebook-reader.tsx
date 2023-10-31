@@ -25,6 +25,7 @@ interface EBookReaderProps {
   book: LibraryItemExpanded;
   user: User;
   url: string;
+  ino?: string;
 }
 
 const epubReaderLoadingAtom = atom<EpubReaderLoading>({
@@ -33,7 +34,7 @@ const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   percent: undefined,
 });
 
-const EBookReader = ({ book, url, user }: EBookReaderProps) => {
+const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
   const { width, height } = useWindowDimensions();
   const { changeTheme } = useReader();
 
@@ -48,7 +49,12 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
   const [showingPrev, setShowingPrev] = useState(false);
   const [currentLabel, setCurrentLabel] = useState("");
 
-  const ebookFile = "ebookFile" in book.media ? book.media.ebookFile : null;
+  const ebookFile =
+    "ebookFile" in book.media
+      ? ino
+        ? book.libraryFiles.find((lf) => lf.ino === ino)
+        : book.media.ebookFile
+      : null;
   const enableSwipe = bookPath.endsWith(".pdf");
 
   const initialLocation = () => {
@@ -95,6 +101,7 @@ const EBookReader = ({ book, url, user }: EBookReaderProps) => {
 
     (async () => {
       const bookDownloadName = `${book.media.libraryItemId}.${ebookFormat(
+        // @ts-ignore TODO
         ebookFile
       )}`;
       const bookDownloadPath = `${epubDir}/${bookDownloadName}`;

@@ -1,8 +1,8 @@
+import { Dimensions } from "react-native";
 import { ThemeName } from "tamagui";
 
-import { DeviceData } from "../types/types";
-import { Dimensions } from "react-native";
 import { Theme } from "../components/epub-reader/rn-epub-reader";
+import { DeviceData } from "../types/types";
 
 export type ThemeNames = ThemeName | "no color";
 

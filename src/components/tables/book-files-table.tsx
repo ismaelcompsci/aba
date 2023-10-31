@@ -4,6 +4,7 @@ import { BookOpen, CheckCircle, ChevronDown } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import * as Burnt from "burnt";
+import { router } from "expo-router";
 import { useAtomValue } from "jotai";
 import {
   Accordion,
@@ -85,6 +86,9 @@ const BookFilesTable = ({
       });
     }
   };
+  const onBookOpenPressed = (item: LibraryFile) => {
+    router.push(`/reader/${itemId}?ino=${item.ino}`);
+  };
 
   const renderItem = ({ item }: { item: LibraryFile }) => {
     return (
@@ -115,7 +119,7 @@ const BookFilesTable = ({
                 {getCheckMark(item)}
               </H4>
               <XStack pr={0} flex={1} justifyContent="flex-end">
-                <ClearIconButton>
+                <ClearIconButton onPress={() => onBookOpenPressed(item)}>
                   <BookOpen />
                 </ClearIconButton>
                 <PressBookFileMenu onButtonPress={() => onButtonPress(item)} />

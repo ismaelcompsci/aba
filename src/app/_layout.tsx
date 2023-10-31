@@ -10,14 +10,13 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TamaguiProvider, Theme, ThemeName } from "tamagui";
 
 import appConfig from "../../tamagui.config";
-import { IconButton } from "../components/buttons/button";
+import { ClearIconButton, IconButton } from "../components/buttons/button";
 import {
   HeaderFrame,
   HeaderLeft,
   HeaderRight,
   HeaderSafeArea,
 } from "../components/header/header";
-import { LogoContainer } from "../components/header/logo";
 import { Logo } from "../components/logo";
 import SettingsMenu from "../components/menus/settings-menu";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
@@ -36,9 +35,6 @@ export default function Layout() {
   const user = useAtomValue(userAtom);
   const appTheme = useAtomValue(appThemeAtom);
   const setLibraries = useSetAtom(librariesAtom);
-
-  // const pathname = usePathname();
-  // const animation = pathname === "/" ? "fade" : "default";
 
   const [loaded, error] = useFonts({
     Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
@@ -137,15 +133,15 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   return (
     <HeaderSafeArea h={headerHeight}>
       <HeaderFrame pt={top}>
-        <HeaderLeft>
+        <HeaderLeft ai={"center"}>
           {showLogo ? (
-            <LogoContainer>
+            <ClearIconButton>
               <Logo />
-            </LogoContainer>
+            </ClearIconButton>
           ) : (
-            <LogoContainer onPress={handleBack} pressStyle={{ opacity: 0.8 }}>
+            <ClearIconButton p={0} onPress={handleBack}>
               <ChevronLeft />
-            </LogoContainer>
+            </ClearIconButton>
           )}
           {showServerSwitch && !isIndex && getServerSelect()}
         </HeaderLeft>

@@ -9,7 +9,6 @@ import {
   userAtom,
 } from "../../../state/app-state";
 import { currentServerConfigAtom } from "../../../state/local-state";
-import { encode } from "../../../utils/utils";
 
 const GenrePage = () => {
   const { genre } = useLocalSearchParams();
@@ -25,7 +24,7 @@ const GenrePage = () => {
         serverConfig={serverConfig}
         library={library}
         user={user}
-        filter={`genres.${encode(genre)}`}
+        filter={`genres.${genre}`}
       />
     </PageView>
   );

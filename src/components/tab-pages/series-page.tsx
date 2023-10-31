@@ -42,9 +42,11 @@ const SeriesPage = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["library-series", `${library?.id}`, user?.id],
+    queryKey: ["library-series", `${library?.id}`, user?.id, serverConfig?.id],
     queryFn: async ({ pageParam = 0 }) => {
       try {
+        if (!serverConfig?.id)
+          return { data: { results: [], page: 0, total: 0 } };
         const { data }: { data: LibrarySeries } = await axios.get(
           `${serverConfig?.serverAddress}/api/libraries/${library?.id}/series`,
           {

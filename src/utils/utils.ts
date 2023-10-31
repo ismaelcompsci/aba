@@ -1,4 +1,5 @@
 import { ThemeName } from "tamagui";
+
 import { EbookFile, User } from "../types/aba";
 
 global.Buffer = require("buffer").Buffer;
@@ -148,3 +149,8 @@ export const getUserMediaProgress = (
 
 export const encode = (text: string) =>
   encodeURIComponent(Buffer.from(text).toString("base64"));
+
+export function randomIntFromInterval(min: number, max: number) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}

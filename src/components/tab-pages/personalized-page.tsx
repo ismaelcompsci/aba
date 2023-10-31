@@ -1,13 +1,27 @@
-/* eslint-disable react/prop-types */
+import { useMemo } from "react";
+import { Dimensions } from "react-native";
+import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { ScrollView, Separator, Spinner, Text } from "tamagui";
+import {
+  ScrollView,
+  Separator,
+  Spinner,
+  Stack,
+  Text,
+  XStack,
+  YStack,
+} from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
-import { Library, User } from "../../types/aba";
+import { Library, LibraryFilterData, User } from "../../types/aba";
 import { PersonalizedView, ServerConfig } from "../../types/types";
+import { randomIntFromInterval } from "../../utils/utils";
+import { ClearIconButton } from "../buttons/button";
+import GenreCard from "../cards/genre-card";
 import { ScreenCenter } from "../center";
 
 import { PageView } from "./page-view";
@@ -26,6 +40,7 @@ const PersonalizedPage = ({
   user,
 }: PersonalizedPageProps) => {
   const changingLibrary = useAtomValue(changingLibraryAtom);
+  const { width } = Dimensions.get("window");
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
@@ -33,27 +48,73 @@ const PersonalizedPage = ({
     data: personalizedLibrary,
     isLoading,
     isInitialLoading,
-  } = useQuery(["personalized-library-view", currentLibraryId, user?.id], {
-    queryFn: async (): Promise<PersonalizedView[]> => {
-      try {
-        const response = await axios.get(
-          `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
-          { headers: { Authorization: `Bearer ${user?.token}` } }
-        );
-        return response.data;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.log(error);
-          // prettyLog(error);
-        }
-        console.log({ error, PEROSONALIZED: "ERROR" });
+  } = useQuery(
+    ["personalized-library-view", currentLibraryId, user?.id, serverConfig?.id],
+    {
+      queryFn: async (): Promise<PersonalizedView[]> => {
+        try {
+          if (!serverConfig?.id) return [];
+          const response = await axios.get(
+            `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
+            { headers: { Authorization: `Bearer ${user?.token}` } }
+          );
 
-        throw new Error();
-      }
+          return response.data;
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            console.log({ error, PEROSONALIZED: "ERROR" });
+          }
+          throw new Error();
+        }
+      },
+      staleTime: 1000 * 60 * 60,
+      refetchOnMount: true,
+    }
+  );
+
+  const { data: filterData } = useQuery({
+    queryKey: ["filter-data", currentLibraryId, user?.id, serverConfig?.id],
+    queryFn: async () => {
+      if (!serverConfig?.id) return null;
+      const { data }: { data: LibraryFilterData } = await axios.get(
+        `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/filterdata`,
+        { headers: { Authorization: `Bearer ${user?.token}` } }
+      );
+
+      return data;
     },
+    staleTime: 1000 * 60 * 60,
+    refetchOnMount: true,
   });
 
   const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
+  const genres = filterData?.genres || [];
+  const genreLength = genres.length || 0;
+
+  const showGenres = useMemo(() => {
+    const showGenreCards = [];
+
+    const genreCardWidth = 124;
+    let cardsNum = Math.ceil((width / genreCardWidth) * 2);
+
+    if (cardsNum > genreLength) {
+      cardsNum = genreLength;
+    }
+
+    const usedNumbers = new Set();
+
+    for (let i = 0; i < cardsNum; i++) {
+      let random;
+
+      do {
+        random = randomIntFromInterval(0, genreLength);
+      } while (usedNumbers.has(random));
+
+      showGenreCards.push(genres[random]);
+    }
+
+    return showGenreCards;
+  }, [width, genreLength]);
 
   return (
     <PageView>
@@ -69,6 +130,29 @@ const PersonalizedPage = ({
           space={"$3"}
           pt={"$3"}
         >
+          {genreLength ? (
+            <YStack space="$2">
+              <XStack px="$4" jc="space-between" ai="center">
+                <Text fontSize="$6" bg="$background">
+                  Genres
+                </Text>
+                <ClearIconButton onPress={() => router.push("/genres/")}>
+                  <Maximize2 size={"$1"} />
+                </ClearIconButton>
+              </XStack>
+              <ScrollView
+                showsHorizontalScrollIndicator={false}
+                horizontal
+                space="$4"
+              >
+                {showGenres.map((genre, index) => (
+                  <Stack pl={index === 0 ? "$4" : null} key={genre + index}>
+                    <GenreCard genre={genre} />
+                  </Stack>
+                ))}
+              </ScrollView>
+            </YStack>
+          ) : null}
           {personalizedLibrary?.map((library: PersonalizedView) => (
             <BookShelf
               isCoverSquareAspectRatio={isCoverSquareAspectRatio}

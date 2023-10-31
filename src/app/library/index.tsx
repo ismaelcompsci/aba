@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
   SceneRendererProps,
@@ -48,7 +48,6 @@ const HomePage = () => {
   const { iconColor } = useIconTheme();
 
   const theme = useTheme();
-  // const tabBg = theme.backgroundPress.get();
   const color = theme.color.get();
 
   const renderScene = ({
@@ -91,6 +90,8 @@ const HomePage = () => {
         return null;
     }
   };
+  // [serverConfig?.id, currentLibraryId, library?.id, user?.id]
+  // );
 
   return (
     <YStack h="100%" bg="$background">

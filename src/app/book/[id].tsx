@@ -42,7 +42,7 @@ import { currentItemAtom, userAtom } from "../../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
-import { getGradient } from "../../utils/utils";
+import { encode, getGradient } from "../../utils/utils";
 
 const layout = Dimensions.get("window");
 
@@ -299,7 +299,7 @@ const BookPage = () => {
     if (authorId) router.push(`/library/author/${authorId}`);
   };
   const handleGenrePress = (genre: string) => {
-    router.push(`/library/genre/${genre}`);
+    router.push(`/library/genre/${encode(genre)}`);
   };
 
   const handleSeriesPress = () => {
@@ -433,7 +433,9 @@ const BookPage = () => {
                       transparent
                       onPress={() => handleGenrePress(gen)}
                     >
-                      <Text>{gen}</Text>
+                      <Text numberOfLines={1} maxWidth={200}>
+                        {gen}
+                      </Text>
                     </Button>
                   ))}
                 </ScrollView>
