@@ -7,6 +7,7 @@ import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { cleanString } from "../../utils/utils";
 import { AuthorText } from "../author-text";
+import { SearchCard } from "./search-card";
 
 const ItemSearchCard = ({
   item,
@@ -29,14 +30,7 @@ const ItemSearchCard = ({
   };
 
   return (
-    <XStack
-      onPress={handlePress}
-      height={bookHeight}
-      w="100%"
-      pressStyle={{ opacity: 0.8 }}
-      gap="$2"
-      ai="center"
-    >
+    <SearchCard onPress={handlePress} height={bookHeight}>
       <FastImage
         style={{
           width: bookWidth,
@@ -59,7 +53,7 @@ const ItemSearchCard = ({
           )}
         </AuthorText>
       </YStack>
-    </XStack>
+    </SearchCard>
   );
 };
 

@@ -32,7 +32,7 @@ import { LinearGradient } from "tamagui/linear-gradient";
 
 import { ActionButton } from "../../components/book-info";
 import { ClearIconButton } from "../../components/buttons/button";
-import { ScreenCenter } from "../../components/center";
+import { FullScreen, ScreenCenter } from "../../components/center";
 import { ParallaxScrollView } from "../../components/custom-components/parallax-scroll-view";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
@@ -94,35 +94,33 @@ const BookPage = () => {
 
   const renderParallaxHeader = () => {
     return (
-      <View w="100%" h="100%">
-        <>
-          {cover ? (
-            <Image
-              position="absolute"
-              top={0}
-              left={0}
-              bottom={0}
-              right={0}
-              resizeMode="cover"
-              source={{
-                uri: cover || "",
-              }}
-            />
-          ) : null}
-          <BlurView
-            style={{
-              height: "100%",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
+      <FullScreen w="100%" h="100%">
+        {cover ? (
+          <Image
+            position="absolute"
+            top={0}
+            left={0}
+            bottom={0}
+            right={0}
+            resizeMode="cover"
+            source={{
+              uri: cover || "",
             }}
-            blurType={appScheme.scheme}
-            blurAmount={3}
-            reducedTransparencyFallbackColor="black"
           />
-        </>
+        ) : null}
+        <BlurView
+          style={{
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+          }}
+          blurType={appScheme.scheme}
+          blurAmount={3}
+          reducedTransparencyFallbackColor="black"
+        />
         {!cover || cover === "" ? (
           <YStack jc="center" h="100%" w="100%" alignItems="center">
             <BookX size="$19" />
@@ -143,7 +141,7 @@ const BookPage = () => {
             }}
           />
         )}
-      </View>
+      </FullScreen>
     );
   };
   const renderFixedHeader = (value: Animated.Value) => {
@@ -327,17 +325,13 @@ const BookPage = () => {
   const numTracks = tracks?.length;
   const isMissing = bookItem?.isMissing;
   const isInvalid = bookItem?.isInvalid;
-  // const subtitle =
-  //   bookItem && "subtitle" in bookItem.media.metadata
-  //     ? bookItem.media.metadata.subtitle
-  //     : null;
 
   const genres = getGenres();
   const author = getAuthor();
   const series = getSeries();
 
   return (
-    <View flex={1} bg="$background">
+    <FullScreen>
       <ParallaxScrollView
         style={{ flex: 1 }}
         parallaxHeaderHeight={IHeight}
@@ -345,7 +339,7 @@ const BookPage = () => {
         fixedHeader={renderFixedHeader}
         showsVerticalScrollIndicator={false}
       >
-        <View w="100%" bg="$background" paddingBottom={insets.bottom}>
+        <FullScreen paddingBottom={insets.bottom}>
           <LinearGradient
             colors={getGradient(backgroundColor)}
             start={{ x: 0, y: 1 }}
@@ -449,9 +443,9 @@ const BookPage = () => {
               {numTracks ? <TrackFilesTable tracks={tracks} /> : null}
             </View>
           </View>
-        </View>
+        </FullScreen>
       </ParallaxScrollView>
-    </View>
+    </FullScreen>
   );
 };
 

@@ -1,11 +1,13 @@
 import FastImage from "react-native-fast-image";
 import { BlurView } from "@react-native-community/blur";
-import { Image, Text, XStack, YStack, ZStack } from "tamagui";
+import { router } from "expo-router";
+import { Image, Text, YStack, ZStack } from "tamagui";
 
 import { LibraryItem, Series } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
-import { router } from "expo-router";
+
+import { SearchCard } from "./search-card";
 
 const SeriesSearchCard = ({
   series,
@@ -31,13 +33,7 @@ const SeriesSearchCard = ({
     router.push(`/library/series/${series.id}`);
   };
   return (
-    <XStack
-      onPress={handlePress}
-      w="100%"
-      pressStyle={{ opacity: 0.8 }}
-      gap="$2"
-      ai="center"
-    >
+    <SearchCard onPress={handlePress}>
       {bgImg ? (
         <Image
           position="absolute"
@@ -102,7 +98,7 @@ const SeriesSearchCard = ({
       <YStack flex={1}>
         <Text>{series.name}</Text>
       </YStack>
-    </XStack>
+    </SearchCard>
   );
 };
 

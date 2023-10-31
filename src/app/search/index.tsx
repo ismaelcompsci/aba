@@ -4,13 +4,21 @@ import { Search } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Separator, Spinner, Text, XStack, YStack } from "tamagui";
+import {
+  ScrollView,
+  Separator,
+  Spinner,
+  Text,
+  XStack,
+  YStack,
+  styled,
+} from "tamagui";
 
 import AuthorSearchCard from "../../components/cards/author-search-card";
 import ItemSearchCard from "../../components/cards/item-search-card";
 import NarratorSearchCard from "../../components/cards/narrator-search-card";
 import SeriesSearchCard from "../../components/cards/series-search-card";
-import { ScreenCenter } from "../../components/center";
+import { FullScreen, ScreenCenter } from "../../components/center";
 import InputWithIcon from "../../components/custom-components/input-with-icon";
 import useDebounce from "../../hooks/use-debounce";
 import {
@@ -100,7 +108,7 @@ const SearchPage = () => {
   };
 
   return (
-    <YStack h="100%" w="100%" bg="$background" px="$2">
+    <FullScreen px="$2">
       {/* search */}
       <XStack alignItems="center" pt="$4">
         <InputWithIcon
@@ -123,7 +131,7 @@ const SearchPage = () => {
         ) : null}
 
         {bookResults.length ? (
-          <YStack space="$4" w="100%">
+          <ResultSection space="$4" w="100%">
             <Text>Books</Text>
             {bookResults.map(({ libraryItem }) => {
               return (
@@ -136,10 +144,10 @@ const SearchPage = () => {
                 />
               );
             })}
-          </YStack>
+          </ResultSection>
         ) : null}
         {seriesResults.length ? (
-          <YStack space="$4">
+          <ResultSection space="$4">
             <Text>Series</Text>
             {seriesResults.map(({ books, series }) => {
               return (
@@ -153,18 +161,18 @@ const SearchPage = () => {
                 />
               );
             })}
-          </YStack>
+          </ResultSection>
         ) : null}
         {podcastResults.length ? (
-          <YStack space="$4">
+          <ResultSection space="$4">
             <Text>Books</Text>
             {podcastResults.map((_, i) => {
               return <Text key={i}>podcast</Text>;
             })}
-          </YStack>
+          </ResultSection>
         ) : null}
         {authorResults.length ? (
-          <YStack space="$4">
+          <ResultSection space="$4">
             <Text>Authors</Text>
             {authorResults.map((author, i) => {
               return (
@@ -176,20 +184,24 @@ const SearchPage = () => {
                 />
               );
             })}
-          </YStack>
+          </ResultSection>
         ) : null}
         {narratorResults.length ? (
-          <YStack space="$4">
+          <ResultSection space="$4">
             <Text>Narrators</Text>
             {narratorResults.map((narrator, i) => {
               return <NarratorSearchCard key={i} narrator={narrator} />;
             })}
-          </YStack>
+          </ResultSection>
         ) : null}
         <Separator w={0} h={bottom} />
       </ScrollView>
-    </YStack>
+    </FullScreen>
   );
 };
+
+const ResultSection = styled(YStack, {
+  space: "$4",
+});
 
 export default SearchPage;

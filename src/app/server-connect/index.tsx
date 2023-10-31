@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
-import { MoreVertical } from "@tamagui/lucide-icons";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { Button, Card, Spinner, Text, YStack } from "tamagui";
 
-import { ClearIconButton } from "../../components/buttons/button";
 import { ScreenCenter } from "../../components/center";
 import AddServerForm from "../../components/connection-form/add-server-form";
 import ServerConfigMenu from "../../components/menus/server-config-menu";

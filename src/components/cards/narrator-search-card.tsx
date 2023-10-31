@@ -1,8 +1,10 @@
 import { SatelliteDish } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { Stack, Text, XStack } from "tamagui";
+import { Stack, Text } from "tamagui";
 
 import { SearchNarratorResult } from "../../types/types";
+
+import { SearchCard } from "./search-card";
 
 const NarratorSearchCard = ({
   narrator,
@@ -13,13 +15,7 @@ const NarratorSearchCard = ({
     router.push(`/library/narrator/${narrator.name}`);
   };
   return (
-    <XStack
-      onPress={handlePress}
-      pressStyle={{ opacity: 0.8 }}
-      ai="center"
-      w="100%"
-      gap="$2"
-    >
+    <SearchCard onPress={handlePress}>
       <Stack
         w={40}
         h={40}
@@ -31,7 +27,7 @@ const NarratorSearchCard = ({
         <SatelliteDish />
       </Stack>
       <Text>{narrator.name}</Text>
-    </XStack>
+    </SearchCard>
   );
 };
 

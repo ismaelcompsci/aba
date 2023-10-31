@@ -22,9 +22,7 @@ import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
 import GenreCard from "../cards/genre-card";
-import { ScreenCenter } from "../center";
-
-import { PageView } from "./page-view";
+import { FullScreen, ScreenCenter } from "../center";
 
 interface PersonalizedPageProps {
   library: Library | null;
@@ -117,7 +115,7 @@ const PersonalizedPage = ({
   }, [width, genreLength]);
 
   return (
-    <PageView>
+    <FullScreen>
       {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
         <ScreenCenter>
           {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
@@ -165,7 +163,7 @@ const PersonalizedPage = ({
           <Separator w={0} h={20} />
         </ScrollView>
       )}
-    </PageView>
+    </FullScreen>
   );
 };
 

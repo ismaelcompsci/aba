@@ -6,6 +6,7 @@ import { Stack, Text, XStack } from "tamagui";
 
 import { AuthorExpanded } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
+import { SearchCard } from "./search-card";
 
 const AuthorSearchCard = ({
   author,
@@ -30,14 +31,7 @@ const AuthorSearchCard = ({
     router.push(`/library/author/${author.id}`);
   };
   return (
-    <XStack
-      onPress={handlePress}
-      pressStyle={{ opacity: 0.8 }}
-      w="100%"
-      gap="$2"
-      h={imageHeight}
-      ai="center"
-    >
+    <SearchCard onPress={handlePress} h={imageHeight}>
       {error ? (
         <Stack
           borderRadius={"$4"}
@@ -63,7 +57,7 @@ const AuthorSearchCard = ({
         />
       )}
       <Text>{author.name}</Text>
-    </XStack>
+    </SearchCard>
   );
 };
 

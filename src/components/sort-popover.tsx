@@ -23,7 +23,7 @@ export function SortSelect({ ...props }: PopoverProps) {
   };
 
   return (
-    <Popover stayInFrame strategy="absolute" size="$5" allowFlip {...props}>
+    <Popover stayInFrame strategy="absolute" size="$3" allowFlip {...props}>
       <Popover.Trigger asChild>
         <ClearIconButton
           height={"$4"}

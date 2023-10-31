@@ -11,8 +11,6 @@ import { LibrarySeries, ServerConfig } from "../../types/types";
 import SeriesCard from "../cards/series-card";
 import { FullScreen, ScreenCenterWithTabBar } from "../center";
 
-import { PageView } from "./page-view";
-
 interface SeriesPageProps {
   library: Library | null;
   currentLibraryId: string | null;
@@ -109,33 +107,31 @@ const SeriesPage = ({
   );
 
   return (
-    <PageView>
-      <FullScreen>
-        {isInitialLoading || isLoading || isEmpty ? (
-          <ScreenCenterWithTabBar>
-            {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
-          </ScreenCenterWithTabBar>
-        ) : (
-          <YStack w="100%" h="100%">
-            <FlashList
-              showsVerticalScrollIndicator={false}
-              horizontal={false}
-              data={flattenData || []}
-              numColumns={columns}
-              onEndReached={loadNextPageData}
-              keyExtractor={(item) => `${item.id}}`}
-              renderItem={handleRenderItem}
-              ItemSeparatorComponent={() => <Separator w={0} h={10} />}
-              estimatedItemSize={bookWidth}
-              ListFooterComponent={() => <Separator w={0} h={30} />}
-              ListEmptyComponent={() => {
-                return <Text>EMPTY</Text>;
-              }}
-            />
-          </YStack>
-        )}
-      </FullScreen>
-    </PageView>
+    <FullScreen>
+      {isInitialLoading || isLoading || isEmpty ? (
+        <ScreenCenterWithTabBar>
+          {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
+        </ScreenCenterWithTabBar>
+      ) : (
+        <YStack w="100%" h="100%">
+          <FlashList
+            showsVerticalScrollIndicator={false}
+            horizontal={false}
+            data={flattenData || []}
+            numColumns={columns}
+            onEndReached={loadNextPageData}
+            keyExtractor={(item) => `${item.id}}`}
+            renderItem={handleRenderItem}
+            ItemSeparatorComponent={() => <Separator w={0} h={10} />}
+            estimatedItemSize={bookWidth}
+            ListFooterComponent={() => <Separator w={0} h={30} />}
+            ListEmptyComponent={() => {
+              return <Text>EMPTY</Text>;
+            }}
+          />
+        </YStack>
+      )}
+    </FullScreen>
   );
 };
 

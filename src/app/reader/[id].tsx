@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
-import { YStack } from "tamagui";
 
+import { FullScreen } from "../../components/center";
 import EBookReader from "../../components/epub-reader/ebook-reader";
 import { ReaderProvider } from "../../components/epub-reader/rn-epub-reader";
 import { currentItemAtom, userAtom } from "../../state/app-state";
@@ -29,7 +29,7 @@ const ReaderPage = () => {
   const url = ebookUrl();
 
   return (
-    <YStack h={"100%"} w={"100%"} bg={"$background"} pos="relative">
+    <FullScreen pos="relative">
       <ReaderProvider>
         <EBookReader
           url={url}
@@ -38,7 +38,7 @@ const ReaderPage = () => {
           ino={ino as string}
         />
       </ReaderProvider>
-    </YStack>
+    </FullScreen>
   );
 };
 

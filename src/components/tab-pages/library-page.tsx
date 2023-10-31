@@ -15,8 +15,6 @@ import BookCard from "../cards/book-card";
 import { FullScreen, ScreenCenterWithTabBar } from "../center";
 import { SortSelect } from "../sort-popover";
 
-import { PageView } from "./page-view";
-
 interface LibraryPageProps {
   currentLibraryId?: string | null;
   serverConfig: ServerConfig | null;
@@ -162,49 +160,45 @@ const LibraryPage = ({
       : null;
 
   return (
-    <PageView>
-      <FullScreen>
-        {/* sort & filter */}
-        <XStack
-          w="100%"
-          justifyContent="space-between"
-          alignItems="center"
-          px="$2"
-          bg={"$backgroundHover"}
-          elevation={"$0.5"}
-        >
-          <Text fontWeight="$8">
-            {libraryItems?.pages[0]?.data.total} Books
+    <FullScreen>
+      {/* sort & filter */}
+      <XStack
+        w="100%"
+        justifyContent="space-between"
+        alignItems="center"
+        px="$2"
+        bg={"$backgroundHover"}
+        elevation={"$0.5"}
+      >
+        <Text fontWeight="$8">{libraryItems?.pages[0]?.data.total} Books</Text>
+        {filter && seriesName ? (
+          <Text numberOfLines={1} maxWidth={screenWidth / 1.6}>
+            {seriesName}
           </Text>
-          {filter && seriesName ? (
-            <Text numberOfLines={1} maxWidth={screenWidth / 1.6}>
-              {seriesName}
-            </Text>
-          ) : null}
-          <SortSelect placement="bottom-end" />
-        </XStack>
-        {/* items */}
-        {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-          <ScreenCenterWithTabBar>
-            {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
-          </ScreenCenterWithTabBar>
-        ) : (
-          <YStack w="100%" h="100%">
-            <FlashList
-              showsVerticalScrollIndicator={false}
-              horizontal={false}
-              data={flattenData || []}
-              numColumns={columns}
-              onEndReached={loadNextPageData}
-              keyExtractor={(item) => `${item.id}}`}
-              renderItem={handleRenderItem}
-              estimatedItemSize={bookWidth}
-              ListFooterComponent={() => <Separator w={0} h={30} />}
-            />
-          </YStack>
-        )}
-      </FullScreen>
-    </PageView>
+        ) : null}
+        <SortSelect placement="bottom-end" />
+      </XStack>
+      {/* items */}
+      {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
+        <ScreenCenterWithTabBar>
+          {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
+        </ScreenCenterWithTabBar>
+      ) : (
+        <YStack w="100%" h="100%">
+          <FlashList
+            showsVerticalScrollIndicator={false}
+            horizontal={false}
+            data={flattenData || []}
+            numColumns={columns}
+            onEndReached={loadNextPageData}
+            keyExtractor={(item) => `${item.id}}`}
+            renderItem={handleRenderItem}
+            estimatedItemSize={bookWidth}
+            ListFooterComponent={() => <Separator w={0} h={30} />}
+          />
+        </YStack>
+      )}
+    </FullScreen>
   );
 };
 

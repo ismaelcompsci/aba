@@ -4,7 +4,6 @@ import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import * as Burnt from "burnt";
 import { atom, useAtom, useAtomValue } from "jotai";
 import RNFetchBlob from "rn-fetch-blob";
-import { YStack } from "tamagui";
 
 import { epubDir } from "../../constants/consts";
 import { ebookSettignsAtom } from "../../state/local-state";
@@ -15,6 +14,7 @@ import {
   ebookFormat,
   getUserMediaProgress,
 } from "../../utils/utils";
+import { FullScreen } from "../center";
 import LoadingBook from "../loading-book";
 
 import Menu from "./components/menu";
@@ -147,7 +147,7 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
 
   return (
     <Menu hide={hide} title={book.media.metadata.title || ""}>
-      <YStack w="100%" h="100%" pos="absolute" t={0} b={0} r={0} l={0}>
+      <FullScreen pos="absolute" t={0} b={0} r={0} l={0}>
         {epubReaderLoading.loading || !ready ? (
           <LoadingBook info={epubReaderLoading} />
         ) : null}
@@ -175,7 +175,7 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
           onReady={onReady}
           onDisplayError={onDisplayError}
         />
-      </YStack>
+      </FullScreen>
     </Menu>
   );
 };

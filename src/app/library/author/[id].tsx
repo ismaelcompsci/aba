@@ -1,8 +1,8 @@
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 
+import { FullScreen } from "../../../components/center";
 import LibraryPage from "../../../components/tab-pages/library-page";
-import { PageView } from "../../../components/tab-pages/page-view";
 import {
   currentLibraryAtom,
   currentLibraryIdAtom,
@@ -20,7 +20,7 @@ const AuthorPage = () => {
   const user = useAtomValue(userAtom);
 
   return (
-    <PageView flex={1}>
+    <FullScreen>
       <LibraryPage
         currentLibraryId={currentLibraryId}
         serverConfig={serverConfig}
@@ -28,7 +28,7 @@ const AuthorPage = () => {
         user={user}
         filter={`authors.${encode(id)}`}
       />
-    </PageView>
+    </FullScreen>
   );
 };
 

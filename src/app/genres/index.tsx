@@ -13,7 +13,7 @@ import {
   YStack,
 } from "tamagui";
 
-import { ScreenCenter } from "../../components/center";
+import { FullScreen, ScreenCenter } from "../../components/center";
 import { progressFilters } from "../../constants/consts";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
@@ -60,7 +60,7 @@ const GenresPage = () => {
   const narrators = filterData?.narrators || [];
 
   return (
-    <YStack flex={1}>
+    <FullScreen flex={1}>
       <ScrollView bg="$background" flex={1} p={"$4"} space="$4">
         {isLoading ? (
           <ScreenCenter>
@@ -130,7 +130,7 @@ const GenresPage = () => {
         ) : null}
         <Separator h={bottom} w={0} />
       </ScrollView>
-    </YStack>
+    </FullScreen>
   );
 };
 

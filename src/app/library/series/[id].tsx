@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 
+import { FullScreen } from "../../../components/center";
 import LibraryPage from "../../../components/tab-pages/library-page";
-import { PageView } from "../../../components/tab-pages/page-view";
 import {
   currentLibraryAtom,
   currentLibraryIdAtom,
@@ -24,7 +24,7 @@ const SeriesPage = () => {
   }
 
   return (
-    <PageView flex={1}>
+    <FullScreen>
       <LibraryPage
         currentLibraryId={currentLibraryId}
         serverConfig={serverConfig}
@@ -33,7 +33,7 @@ const SeriesPage = () => {
         // @ts-ignore todo
         filter={`series.${encode(id)}`}
       />
-    </PageView>
+    </FullScreen>
   );
 };
 

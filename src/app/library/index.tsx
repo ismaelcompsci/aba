@@ -94,7 +94,7 @@ const HomePage = () => {
   // );
 
   return (
-    <YStack h="100%" bg="$background">
+    <FullScreen>
       {!user ? (
         <NoServer />
       ) : (
@@ -138,7 +138,7 @@ const HomePage = () => {
           />
         </FullScreen>
       )}
-    </YStack>
+    </FullScreen>
   );
 };
 

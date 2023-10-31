@@ -99,7 +99,6 @@ export function ServerSelect({ ...props }: PopoverProps) {
         <ToggleGroup
           orientation={"vertical"}
           type={"single"}
-          // size={"$3"}
           defaultValue={library?.name}
           onValueChange={onValueChange}
           disableDeactivation
