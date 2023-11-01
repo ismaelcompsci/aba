@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { ChevronLeft, Search } from "@tamagui/lucide-icons";
+import { ChevronLeft, Library, Search } from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
@@ -17,7 +17,6 @@ import {
   HeaderRight,
   HeaderSafeArea,
 } from "../components/header/header";
-import { Logo } from "../components/logo";
 import SettingsMenu from "../components/menus/settings-menu";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
 import { ServerSelect } from "../components/server-selects/servers-select.ios";
@@ -136,7 +135,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
         <HeaderLeft ai={"center"}>
           {showLogo ? (
             <ClearIconButton>
-              <Logo />
+              <Library />
             </ClearIconButton>
           ) : (
             <ClearIconButton p={0} onPress={handleBack}>

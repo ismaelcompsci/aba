@@ -32,8 +32,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/ic_foreground.png",
+        "backgroundImage": "./assets/ic_background.png"
       },
       "package": "com.ismael.aba"
     }

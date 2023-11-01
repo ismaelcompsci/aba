@@ -22,7 +22,7 @@ import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
 import GenreCard from "../cards/genre-card";
-import { FullScreen, ScreenCenter } from "../center";
+import { FullScreen, ScreenCenter, ScreenCenterWithTabBar } from "../center";
 
 interface PersonalizedPageProps {
   library: Library | null;
@@ -105,21 +105,21 @@ const PersonalizedPage = ({
       let random;
 
       do {
-        random = randomIntFromInterval(0, genreLength);
+        random = randomIntFromInterval(0, genreLength - 1);
       } while (usedNumbers.has(random));
 
       showGenreCards.push(genres[random]);
     }
 
     return showGenreCards;
-  }, [width, genreLength]);
+  }, [width, genreLength, currentLibraryId]);
 
   return (
     <FullScreen>
       {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-        <ScreenCenter>
+        <ScreenCenterWithTabBar>
           {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
-        </ScreenCenter>
+        </ScreenCenterWithTabBar>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -142,9 +142,10 @@ const PersonalizedPage = ({
                 showsHorizontalScrollIndicator={false}
                 horizontal
                 space="$4"
+                pb="$2"
               >
                 {showGenres.map((genre, index) => (
-                  <Stack pl={index === 0 ? "$4" : null} key={genre + index}>
+                  <Stack pl={index === 0 ? "$4" : null} key={index}>
                     <GenreCard genre={genre} />
                   </Stack>
                 ))}

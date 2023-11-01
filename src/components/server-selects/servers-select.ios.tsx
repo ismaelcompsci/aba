@@ -1,5 +1,5 @@
 import { Dimensions } from "react-native";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   Adapt,
   Popover,
@@ -16,6 +16,7 @@ import {
   currentLibraryIdAtom,
   librariesAtom,
 } from "../../state/app-state";
+import { deviceDataAtom } from "../../state/local-state";
 import { awaitTimeout } from "../../utils/utils";
 import { iconMap } from "../adbs-icons";
 import { IconButton } from "../buttons/button";

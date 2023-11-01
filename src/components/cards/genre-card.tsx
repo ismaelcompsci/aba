@@ -9,6 +9,7 @@ const GenreCard = ({ genre }: { genre: string }) => {
   const { bg, color } = useIconTheme();
 
   const handleGenreCardPress = () => {
+    if (!genre) return;
     router.push(`/library/genres/${encode(genre)}`);
   };
 
@@ -21,6 +22,7 @@ const GenreCard = ({ genre }: { genre: string }) => {
       pressStyle={{ scale: 0.8 }}
       animation={"bouncy"}
       onPress={handleGenreCardPress}
+      bg={"$backgroundPress"}
     >
       <YStack flex={1}>
         <YStack

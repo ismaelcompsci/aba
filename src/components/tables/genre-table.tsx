@@ -1,7 +1,8 @@
+import { memo } from "react";
 import { FlatList } from "react-native";
-import { H3, ListItem } from "tamagui";
+import { H3, ListItem, Text } from "tamagui";
 
-export const GenreList = ({
+const _GenreList = ({
   data,
   title,
   filter,
@@ -35,18 +36,21 @@ export const GenreList = ({
 
         return (
           <ListItem
+            pressTheme={true}
             borderWidth={"$0.5"}
             borderBottomWidth={isLast ? "$0.5" : "$0"}
             onPress={() => onPress && onPress({ item, filter })}
             {...radiusStyles}
           >
-            {item}
+            <Text numberOfLines={2}>{item}</Text>
           </ListItem>
         );
       }}
     />
   );
 };
+
+export const GenreList = memo(_GenreList);
 
 type DisablePassBorderRadius = boolean | "bottom" | "top" | "start" | "end";
 

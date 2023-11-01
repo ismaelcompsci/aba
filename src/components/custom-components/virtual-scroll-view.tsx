@@ -1,6 +1,7 @@
+import { memo } from "react";
 import { FlatList, ScrollViewProps } from "react-native";
 
-const VirtualScrollView = (props: ScrollViewProps) => {
+const VirtualScrollView = memo((props: ScrollViewProps) => {
   return (
     <FlatList
       {...props}
@@ -11,6 +12,7 @@ const VirtualScrollView = (props: ScrollViewProps) => {
       ListHeaderComponent={() => <>{props.children}</>}
     />
   );
-};
+});
 
+VirtualScrollView.displayName = "VirtualScrollView";
 export default VirtualScrollView;

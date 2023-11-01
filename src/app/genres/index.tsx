@@ -55,14 +55,15 @@ const GenresPage = () => {
 
   return (
     <FullScreen flex={1} bg="$background" p={"$4"} space="$4">
+      {isLoading ? (
+        <ScreenCenter>
+          <Spinner />
+        </ScreenCenter>
+      ) : null}
       <VirtualScrollView showsVerticalScrollIndicator={false}>
-        {isLoading ? (
-          <ScreenCenter>
-            <Spinner />
-          </ScreenCenter>
-        ) : null}
         {progressFilters.length ? (
           <GenreList
+            key={"progress"}
             filter="progress"
             data={progressFilters}
             title="Progress"
@@ -71,6 +72,7 @@ const GenresPage = () => {
         ) : null}
         {genres.length ? (
           <GenreList
+            key={"genres"}
             data={genres}
             title="Genres"
             filter="genres"
@@ -80,6 +82,7 @@ const GenresPage = () => {
 
         {tags.length ? (
           <GenreList
+            key={"tags"}
             data={tags}
             title="Tags"
             filter="tags"
@@ -88,6 +91,7 @@ const GenresPage = () => {
         ) : null}
         {languages.length ? (
           <GenreList
+            key={"languages"}
             data={languages}
             title="Languages"
             filter="languages"
@@ -96,6 +100,7 @@ const GenresPage = () => {
         ) : null}
         {narrators.length ? (
           <GenreList
+            key={"narrators"}
             data={narrators}
             title="Narrators"
             filter="narrators"
