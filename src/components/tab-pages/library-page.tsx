@@ -161,6 +161,12 @@ const LibraryPage = ({
         flattenData?.[0].media.metadata.series?.name
       : null;
 
+  useEffect(() => {
+    console.log("MOUNTED LIBRARY PAGE");
+
+    return () => console.log("UNMOUNTED LIBRARY PAGE");
+  }, []);
+
   return (
     <FullScreen>
       {/* sort & filter */}

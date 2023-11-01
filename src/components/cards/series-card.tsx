@@ -1,7 +1,7 @@
 import FastImage from "react-native-fast-image";
 import { BlurView } from "@react-native-community/blur";
 import { router } from "expo-router";
-import { Card, Image, Text, XStack, YStack, ZStack } from "tamagui";
+import { Text, XStack, YStack, ZStack } from "tamagui";
 
 import { SeriesBooksMinified } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
@@ -36,7 +36,7 @@ const SeriesCard = ({
   };
 
   return (
-    <Card
+    <YStack
       w={bookWidth * 2}
       overflow="hidden"
       justifyContent="center"
@@ -45,19 +45,21 @@ const SeriesCard = ({
       borderWidth={1}
       mt="$4"
       br={"$4"}
-      elevate
-      elevation={"$0.75"}
       pressStyle={{ scale: 0.875 }}
       animation="bouncy"
       onPress={handlePress}
+      elevation={"$0.75"}
+      bg={"$background"}
     >
       {bgImg ? (
-        <Image
-          position="absolute"
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
+        <FastImage
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+          }}
           resizeMode="cover"
           source={{
             uri: bgImg || "",
@@ -79,7 +81,7 @@ const SeriesCard = ({
         reducedTransparencyFallbackColor="black"
       />
       {/* book images */}
-      <ZStack maxWidth={50} maxHeight={bookHeight} width={100} flex={1}>
+      <ZStack height={bookHeight} width={100} flex={1}>
         {item.books.map((book, i) => {
           const src = getItemCoverSrc(book, serverConfig, serverConfig?.token);
 
@@ -127,7 +129,7 @@ const SeriesCard = ({
           {item.name}
         </Text>
       </XStack>
-    </Card>
+    </YStack>
   );
 };
 

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Dimensions } from "react-native";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -113,6 +113,12 @@ const PersonalizedPage = ({
 
     return showGenreCards;
   }, [width, genreLength, currentLibraryId]);
+
+  useEffect(() => {
+    console.log("MOUNTED PERSONALIZED PAGE");
+
+    return () => console.log("UNMOUNTED PERSONALIZED PAGE");
+  }, []);
 
   return (
     <FullScreen>

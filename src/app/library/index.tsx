@@ -1,15 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWindowDimensions } from "react-native";
-import {
-  SceneRendererProps,
-  TabBar,
-  TabBarIndicator,
-  TabView,
-} from "react-native-tab-view";
+import { SceneRendererProps, TabBar, TabView } from "react-native-tab-view";
 import { Backpack, Home, Library } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
-import { Text, useTheme, XStack, YStack } from "tamagui";
+import { useTheme } from "tamagui";
 
 import { FullScreen } from "../../components/center";
 import NoServer from "../../components/no-server";
@@ -91,8 +86,12 @@ const HomePage = () => {
         return null;
     }
   };
-  // [serverConfig?.id, currentLibraryId, library?.id, user?.id]
-  // );
+
+  useEffect(() => {
+    console.log("MOUNTED HOME PAGE");
+
+    return () => console.log("UNMOUNTED HOME PAGE");
+  }, []);
 
   return (
     <FullScreen>
@@ -101,24 +100,16 @@ const HomePage = () => {
       ) : (
         <FullScreen>
           <TabView
+            lazy
             navigationState={{ index, routes }}
             renderScene={renderScene}
             renderTabBar={(props) => {
               return (
                 <TabBar
-                  {...props}
                   style={{
                     backgroundColor: bg,
                   }}
                   indicatorStyle={{ backgroundColor: color }}
-                  // renderLabel={({ route, focused }) => {
-                  //   return (
-                  //     // <XStack alignItems="center" opacity={!focused ? 0.5 : 1}>
-                  //     <Text>{route.title}</Text>
-                  //     // </XStack>
-                  //   );
-                  // }}
-                  // renderTabBarItem={}
                   renderIcon={({ route, focused }) => {
                     const Icon = tabs[route.title as TabName];
                     return (
@@ -129,11 +120,13 @@ const HomePage = () => {
                       />
                     );
                   }}
+                  labelStyle={{ color: color }}
+                  {...props}
                 />
               );
             }}
             onIndexChange={setIndex}
-            initialLayout={{ width: layout.width }}
+            initialLayout={{ width: layout.width, height: layout.height }}
           />
         </FullScreen>
       )}

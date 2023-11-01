@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Dimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -105,6 +105,12 @@ const SeriesPage = ({
     },
     [currentLibraryId]
   );
+
+  useEffect(() => {
+    console.log("MOUNTED SERIES PAGE");
+
+    return () => console.log("UNMOUNTED SERIES PAGE");
+  }, []);
 
   return (
     <FullScreen>
