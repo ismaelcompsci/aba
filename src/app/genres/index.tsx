@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -33,7 +34,6 @@ const GenresPage = () => {
       return data;
     },
     staleTime: 1000 * 60 * 60,
-    refetchOnMount: true,
   });
 
   const genres = filterData?.genres || [];
@@ -53,14 +53,12 @@ const GenresPage = () => {
     router.push(`/library/${filter}/${encode(item)}`);
   };
 
-  return (
-    <FullScreen flex={1} bg="$background" p={"$4"} space="$4">
-      {isLoading ? (
-        <ScreenCenter>
-          <Spinner />
-        </ScreenCenter>
-      ) : null}
-      <VirtualScrollView showsVerticalScrollIndicator={false}>
+  const FilterLists = useMemo(
+    () => (
+      <VirtualScrollView
+        showsVerticalScrollIndicator={false}
+        style={{ paddingVertical: 20 }}
+      >
         {progressFilters.length ? (
           <GenreList
             key={"progress"}
@@ -98,7 +96,7 @@ const GenresPage = () => {
             onPress={onFilterPressed}
           />
         ) : null}
-        {narrators.length ? (
+        {/* {narrators.length ? (
           <GenreList
             key={"narrators"}
             data={narrators}
@@ -106,9 +104,21 @@ const GenresPage = () => {
             filter="narrators"
             onPress={onFilterPressed}
           />
-        ) : null}
+        ) : null} */}
         <Separator h={bottom} w={0} />
       </VirtualScrollView>
+    ),
+    [genres.length, languages.length, tags.length]
+  );
+
+  return (
+    <FullScreen flex={1} bg="$background" px={"$4"} space="$4">
+      {isLoading ? (
+        <ScreenCenter>
+          <Spinner />
+        </ScreenCenter>
+      ) : null}
+      {FilterLists}
     </FullScreen>
   );
 };

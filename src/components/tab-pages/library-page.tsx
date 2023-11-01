@@ -126,22 +126,24 @@ const LibraryPage = ({
     }
   };
 
-  const handleRenderItem = useCallback(
-    ({ item }: { item: LibraryItemMinified; index: number }) => {
-      return (
-        <XStack pt="$3">
-          <BookCard
-            serverConfig={serverConfig}
-            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-            token={user?.token}
-            item={item}
-            w="100%"
-          />
-        </XStack>
-      );
-    },
-    [currentLibraryId]
-  );
+  const handleRenderItem = ({
+    item,
+  }: {
+    item: LibraryItemMinified;
+    index: number;
+  }) => {
+    return (
+      <XStack pt="$3">
+        <BookCard
+          serverConfig={serverConfig}
+          isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+          token={user?.token}
+          item={item}
+          w="100%"
+        />
+      </XStack>
+    );
+  };
 
   useEffect(() => {
     resetQuery();
