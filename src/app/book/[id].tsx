@@ -30,6 +30,7 @@ import {
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
+import { showPlayerAtom } from "../../components/audio-player/audio-player";
 import { ActionButton } from "../../components/book-info";
 import { ClearIconButton } from "../../components/buttons/button";
 import { FullScreen, ScreenCenter } from "../../components/center";
@@ -59,6 +60,7 @@ const BookPage = () => {
   const user = useAtomValue(userAtom);
   const config = useAtomValue(currentServerConfigAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
+  const setShowPlayer = useSetAtom(showPlayerAtom);
 
   const insets = useSafeAreaInsets();
   const theme = useTheme();
@@ -225,7 +227,9 @@ const BookPage = () => {
     if (showPlay) {
       return (
         <ActionButton
-          onPress={() => console.log("TODO: OPEN PLAYER")}
+          onPress={() => {
+            setShowPlayer({ playing: true, libraryItemId: bookItem.id });
+          }}
           bg={"$green10"}
         >
           <Play size="$1" />

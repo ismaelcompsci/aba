@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Dimensions } from "react-native";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +22,7 @@ import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
 import GenreCard from "../cards/genre-card";
-import { FullScreen, ScreenCenter, ScreenCenterWithTabBar } from "../center";
+import { FullScreen, ScreenCenterWithTabBar } from "../center";
 
 interface PersonalizedPageProps {
   library: Library | null;
@@ -113,12 +113,6 @@ const PersonalizedPage = ({
 
     return showGenreCards;
   }, [width, genreLength, currentLibraryId]);
-
-  useEffect(() => {
-    console.log("MOUNTED PERSONALIZED PAGE");
-
-    return () => console.log("UNMOUNTED PERSONALIZED PAGE");
-  }, []);
 
   return (
     <FullScreen>

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { SceneRendererProps, TabBar, TabView } from "react-native-tab-view";
 import { Backpack, Home, Library } from "@tamagui/lucide-icons";
@@ -87,12 +87,6 @@ const HomePage = () => {
     }
   };
 
-  useEffect(() => {
-    console.log("MOUNTED HOME PAGE");
-
-    return () => console.log("UNMOUNTED HOME PAGE");
-  }, []);
-
   return (
     <FullScreen>
       {!user ? (
@@ -135,17 +129,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-{
-  /* <ToggleGroup.Item
-  opacity={index === 2 ? 1 : 0.75}
-  onPress={() => {
-    setIndex(2);
-  }}
-  flex={1}
-  value="series"
->
-  <Backpack color={index === 2 ? "$blue10" : null} />
-  <Text>Series</Text>
-</ToggleGroup.Item> */
-}

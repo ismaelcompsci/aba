@@ -9,4 +9,5 @@ export enum GeneralSetting {
   Sort = "Sort",
   DescOrder = "DescOrder",
   EbookSettings = "EbookSettings",
+  DeviceId = "DeviceId",
 }

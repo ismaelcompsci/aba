@@ -106,12 +106,6 @@ const SeriesPage = ({
     [currentLibraryId]
   );
 
-  useEffect(() => {
-    console.log("MOUNTED SERIES PAGE");
-
-    return () => console.log("UNMOUNTED SERIES PAGE");
-  }, []);
-
   return (
     <FullScreen>
       {isInitialLoading || isLoading || isEmpty ? (

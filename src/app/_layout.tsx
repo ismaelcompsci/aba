@@ -10,6 +10,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TamaguiProvider, Theme, ThemeName } from "tamagui";
 
 import appConfig from "../../tamagui.config";
+import AudioPlayer from "../components/audio-player/audio-player";
 import { ClearIconButton, IconButton } from "../components/buttons/button";
 import {
   HeaderFrame,
@@ -82,14 +83,16 @@ export default function Layout() {
         name={(appTheme.full ? appTheme.full : appTheme.scheme) as ThemeName}
       >
         <QueryClientProvider client={queryClient}>
+          {/* <View style={{ height: "100%", width: "100%", position: "relative" }}> */}
           <Stack
             initialRouteName="index"
             screenOptions={{
               header: Header,
-              // TODO CHANGE DYNAMICALLY DEPENDING ON ROUTE
               animation: animation,
             }}
           />
+          <AudioPlayer />
+          {/* </View> */}
         </QueryClientProvider>
       </Theme>
     </TamaguiProvider>

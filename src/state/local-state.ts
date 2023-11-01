@@ -36,3 +36,8 @@ export const ebookSettignsAtom = atomWithLocalStorage(
   GeneralSetting.EbookSettings,
   DefaultSettings.ebookSettings
 );
+
+export const deviceIdAtom = atomWithLocalStorage<string | null>(
+  GeneralSetting.DeviceId,
+  null
+);
