@@ -294,10 +294,10 @@ const BookPage = () => {
         ? bookItem.media.metadata.authors[0].id
         : null;
 
-    if (authorId) router.push(`/library/author/${authorId}`);
+    if (authorId) router.push(`/library/authors/${encode(authorId)}`);
   };
   const handleGenrePress = (genre: string) => {
-    router.push(`/library/genre/${encode(genre)}`);
+    router.push(`/library/genres/${encode(genre)}`);
   };
 
   const handleSeriesPress = () => {

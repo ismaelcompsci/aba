@@ -9,7 +9,7 @@ const GenreCard = ({ genre }: { genre: string }) => {
   const { bg, color } = useIconTheme();
 
   const handleGenreCardPress = () => {
-    router.push(`/library/genre/${encode(genre)}`);
+    router.push(`/library/genres/${encode(genre)}`);
   };
 
   return (

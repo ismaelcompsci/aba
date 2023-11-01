@@ -1,34 +1,18 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { router } from "expo-router";
 import { useAtom } from "jotai";
-import {
-  GroupProps,
-  H3,
-  ListItem,
-  ScrollView,
-  Separator,
-  Spinner,
-  YGroup,
-  YStack,
-} from "tamagui";
+import { Separator, Spinner } from "tamagui";
 
 import { FullScreen, ScreenCenter } from "../../components/center";
+import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
+import { GenreList } from "../../components/tables/genre-table";
 import { progressFilters } from "../../constants/consts";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryFilterData } from "../../types/aba";
-
-const GenreContainer = ({
-  children,
-  ...rest
-}: { children: React.ReactNode } & GroupProps) => {
-  return (
-    <YGroup bordered alignSelf="center" separator={<Separator />} {...rest}>
-      {children}
-    </YGroup>
-  );
-};
+import { encode } from "../../utils/utils";
 
 const GenresPage = () => {
   const [user] = useAtom(userAtom);
@@ -59,77 +43,67 @@ const GenresPage = () => {
   // const series = filterData?.series || [];
   const narrators = filterData?.narrators || [];
 
+  const onFilterPressed = ({
+    item,
+    filter,
+  }: {
+    item: string;
+    filter: string;
+  }) => {
+    router.push(`/library/${filter}/${encode(item)}`);
+  };
+
   return (
-    <FullScreen flex={1}>
-      <ScrollView bg="$background" flex={1} p={"$4"} space="$4">
+    <FullScreen flex={1} bg="$background" p={"$4"} space="$4">
+      <VirtualScrollView showsVerticalScrollIndicator={false}>
         {isLoading ? (
           <ScreenCenter>
             <Spinner />
           </ScreenCenter>
         ) : null}
-        {progressFilters ? (
-          <>
-            <H3>Progress</H3>
-            <GenreContainer>
-              {progressFilters.map((filter) => (
-                <YGroup.Item key={filter}>
-                  <ListItem>{filter}</ListItem>
-                </YGroup.Item>
-              ))}
-            </GenreContainer>
-          </>
+        {progressFilters.length ? (
+          <GenreList
+            filter="progress"
+            data={progressFilters}
+            title="Progress"
+            onPress={onFilterPressed}
+          />
         ) : null}
         {genres.length ? (
-          <>
-            <H3>Genres</H3>
-            <GenreContainer>
-              {genres.map((gen) => (
-                <YGroup.Item key={gen}>
-                  <ListItem>{gen}</ListItem>
-                </YGroup.Item>
-              ))}
-            </GenreContainer>
-          </>
+          <GenreList
+            data={genres}
+            title="Genres"
+            filter="genres"
+            onPress={onFilterPressed}
+          />
         ) : null}
 
         {tags.length ? (
-          <>
-            <H3>tags</H3>
-            <GenreContainer>
-              {tags.map((tag) => (
-                <YGroup.Item key={tag}>
-                  <ListItem>{tag}</ListItem>
-                </YGroup.Item>
-              ))}
-            </GenreContainer>
-          </>
+          <GenreList
+            data={tags}
+            title="Tags"
+            filter="tags"
+            onPress={onFilterPressed}
+          />
         ) : null}
         {languages.length ? (
-          <>
-            <H3>languages</H3>
-            <GenreContainer>
-              {languages.map((language) => (
-                <YGroup.Item key={language}>
-                  <ListItem>{language}</ListItem>
-                </YGroup.Item>
-              ))}
-            </GenreContainer>
-          </>
+          <GenreList
+            data={languages}
+            title="Languages"
+            filter="languages"
+            onPress={onFilterPressed}
+          />
         ) : null}
         {narrators.length ? (
-          <>
-            <H3>narrators</H3>
-            <GenreContainer>
-              {narrators.map((narrator) => (
-                <YGroup.Item key={narrator}>
-                  <ListItem>{narrator}</ListItem>
-                </YGroup.Item>
-              ))}
-            </GenreContainer>
-          </>
+          <GenreList
+            data={narrators}
+            title="Narrators"
+            filter="narrators"
+            onPress={onFilterPressed}
+          />
         ) : null}
         <Separator h={bottom} w={0} />
-      </ScrollView>
+      </VirtualScrollView>
     </FullScreen>
   );
 };

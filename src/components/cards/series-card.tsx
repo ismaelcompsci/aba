@@ -6,6 +6,7 @@ import { Card, Image, Text, XStack, YStack, ZStack } from "tamagui";
 import { SeriesBooksMinified } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
+import { encode } from "../../utils/utils";
 
 interface SeriesCardProps {
   item: SeriesBooksMinified;
@@ -31,7 +32,7 @@ const SeriesCard = ({
   );
 
   const handlePress = () => {
-    router.push(`/library/series/${item.id}`);
+    router.push(`/library/series/${encode(item.id)}`);
   };
 
   return (

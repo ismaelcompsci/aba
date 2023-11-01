@@ -2,10 +2,12 @@ import { useState } from "react";
 import FastImage from "react-native-fast-image";
 import { User } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { Stack, Text, XStack } from "tamagui";
+import { Stack, Text } from "tamagui";
 
 import { AuthorExpanded } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
+import { encode } from "../../utils/utils";
+
 import { SearchCard } from "./search-card";
 
 const AuthorSearchCard = ({
@@ -28,7 +30,7 @@ const AuthorSearchCard = ({
   const imageWidth = 60;
   const imageHeight = 80;
   const handlePress = () => {
-    router.push(`/library/author/${author.id}`);
+    router.push(`/library/authors/${encode(author.id)}`);
   };
   return (
     <SearchCard onPress={handlePress} h={imageHeight}>

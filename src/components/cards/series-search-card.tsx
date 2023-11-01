@@ -8,6 +8,7 @@ import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 
 import { SearchCard } from "./search-card";
+import { encode } from "../../utils/utils";
 
 const SeriesSearchCard = ({
   series,
@@ -30,7 +31,7 @@ const SeriesSearchCard = ({
   const bgImg = getItemCoverSrc(books[0], serverConfig, serverConfig?.token);
 
   const handlePress = () => {
-    router.push(`/library/series/${series.id}`);
+    router.push(`/library/series/${encode(series.id)}`);
   };
   return (
     <SearchCard onPress={handlePress}>

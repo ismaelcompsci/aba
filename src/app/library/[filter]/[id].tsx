@@ -9,10 +9,9 @@ import {
   userAtom,
 } from "../../../state/app-state";
 import { currentServerConfigAtom } from "../../../state/local-state";
-import { encode } from "../../../utils/utils";
 
-const AuthorPage = () => {
-  const { id } = useLocalSearchParams();
+const FilterPage = () => {
+  const { filter, id } = useLocalSearchParams();
 
   const currentLibraryId = useAtomValue(currentLibraryIdAtom);
   const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -26,10 +25,10 @@ const AuthorPage = () => {
         serverConfig={serverConfig}
         library={library}
         user={user}
-        filter={`authors.${encode(id)}`}
+        filter={`${filter}.${id}`}
       />
     </FullScreen>
   );
 };
 
-export default AuthorPage;
+export default FilterPage;
