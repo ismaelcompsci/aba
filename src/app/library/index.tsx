@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
   SceneRendererProps,
@@ -48,6 +48,7 @@ const HomePage = () => {
   const { iconColor } = useIconTheme();
 
   const theme = useTheme();
+  const bg = theme.background.get();
   const color = theme.color.get();
 
   const renderScene = ({
@@ -102,37 +103,35 @@ const HomePage = () => {
           <TabView
             navigationState={{ index, routes }}
             renderScene={renderScene}
-            renderTabBar={(props) => (
-              <YStack>
+            renderTabBar={(props) => {
+              return (
                 <TabBar
                   {...props}
-                  style={{ backgroundColor: theme.background.get() }}
+                  style={{
+                    backgroundColor: bg,
+                  }}
                   indicatorStyle={{ backgroundColor: color }}
-                  renderIndicator={(props) => (
-                    <TabBarIndicator
-                      {...props}
-                      style={{
-                        backgroundColor: color,
-                      }}
-                    />
-                  )}
-                  tabStyle={{ flex: 1 }}
-                  renderLabel={({ route, focused }) => {
+                  // renderLabel={({ route, focused }) => {
+                  //   return (
+                  //     // <XStack alignItems="center" opacity={!focused ? 0.5 : 1}>
+                  //     <Text>{route.title}</Text>
+                  //     // </XStack>
+                  //   );
+                  // }}
+                  // renderTabBarItem={}
+                  renderIcon={({ route, focused }) => {
                     const Icon = tabs[route.title as TabName];
                     return (
-                      <XStack
-                        gap="$2"
-                        alignItems="center"
+                      <Icon
+                        size={"$1"}
                         opacity={!focused ? 0.5 : 1}
-                      >
-                        <Icon color={iconColor} />
-                        <Text>{route.title}</Text>
-                      </XStack>
+                        color={iconColor}
+                      />
                     );
                   }}
                 />
-              </YStack>
-            )}
+              );
+            }}
             onIndexChange={setIndex}
             initialLayout={{ width: layout.width }}
           />
