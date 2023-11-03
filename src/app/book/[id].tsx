@@ -39,7 +39,11 @@ import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
 import { HEADER_HEIGHT } from "../../hooks/use-header-height";
-import { currentItemAtom, userAtom } from "../../state/app-state";
+import {
+  currentItemAtom,
+  currentLibraryAtom,
+  userAtom,
+} from "../../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
@@ -58,6 +62,7 @@ const BookPage = () => {
   const appScheme = useAtomValue(appThemeAtom);
 
   const user = useAtomValue(userAtom);
+  const library = useAtomValue(currentLibraryAtom);
   const config = useAtomValue(currentServerConfigAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
   const setShowPlayer = useSetAtom(showPlayerAtom);
@@ -95,6 +100,11 @@ const BookPage = () => {
   const cover = getItemCoverSrc(bookItem, config, user?.token);
 
   const renderParallaxHeader = () => {
+    const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
+    const imageWidth = isCoverSquareAspectRatio
+      ? layout.width * 0.75
+      : undefined;
+
     return (
       <FullScreen w="100%" h="100%">
         {cover ? (
@@ -132,14 +142,17 @@ const BookPage = () => {
             resizeMode="contain"
             style={{
               position: "absolute",
-              top: -10,
-              left: 0,
-              bottom: 0,
-              right: 0,
               zIndex: 50,
+              top: -10,
+              bottom: 0,
+              left: isCoverSquareAspectRatio
+                ? layout.width / 2 - imageWidth! / 2
+                : 0,
+              right: 0,
             }}
             source={{
               uri: cover || "",
+              width: imageWidth,
             }}
           />
         )}

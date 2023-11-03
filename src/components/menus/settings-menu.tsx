@@ -63,6 +63,18 @@ const SettingsMenu = () => {
           <DropdownMenu.ItemTitle>Dark mode</DropdownMenu.ItemTitle>
         </DropdownMenu.CheckboxItem>
 
+        <DropdownMenu.Item
+          key="test-page"
+          onSelect={() => router.push("/test/")}
+        >
+          <DropdownMenu.ItemTitle>Test page</DropdownMenu.ItemTitle>
+          <DropdownMenu.ItemIcon
+            ios={{
+              name: "teletype.answer", // required
+            }}
+          ></DropdownMenu.ItemIcon>
+        </DropdownMenu.Item>
+
         <DropdownMenu.Item key="disconnect" destructive onSelect={disconnect}>
           <DropdownMenu.ItemTitle>Disconnect</DropdownMenu.ItemTitle>
           <DropdownMenu.ItemIcon

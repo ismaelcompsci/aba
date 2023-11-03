@@ -1,4 +1,10 @@
 import { useEffect, useState } from "react";
+import { Dimensions } from "react-native";
+import Animated, {
+  FadeInDown,
+  FadeOutDown,
+  Keyframe,
+} from "react-native-reanimated";
 import TrackPlayer, {
   Capability,
   Event,
@@ -6,7 +12,7 @@ import TrackPlayer, {
   useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
-import { Pause, Play, SkipBack, SkipForward } from "@tamagui/lucide-icons";
+import { FastForward, Pause, Play, Rewind } from "@tamagui/lucide-icons";
 import axios from "axios";
 import { atom, useAtom, useAtomValue } from "jotai";
 import {
@@ -52,13 +58,46 @@ const formatSeconds = (time: number) =>
 
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
 
+const ExitActionButton = new Keyframe({
+  0: {
+    transform: [{ scale: 1 }],
+    opacity: 1,
+  },
+  50: {
+    transform: [{ scale: 0.5 }],
+    opacity: 0.5,
+  },
+  100: {
+    transform: [{ scale: 0 }],
+    opacity: 0,
+  },
+});
+
+const EnterActionButton = new Keyframe({
+  0: {
+    transform: [{ scale: 0 }],
+    opacity: 0,
+  },
+  50: {
+    transform: [{ scale: 0.5 }],
+    opacity: 0.5,
+  },
+  100: {
+    transform: [{ scale: 1 }],
+    opacity: 1,
+  },
+});
+
+const { width, height } = Dimensions.get("window");
+const SMALL_PLAYER_HEIGHT = 80;
+const SKIP_INTERVAL = 30;
+
 const AudioPlayer = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const user = useAtomValue(userAtom);
   const [deviceId, setDeviceId] = useAtom(deviceIdAtom);
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
 
-  const [trackTitle, setTrackTitle] = useState("");
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
   const [audioTracks, setAudioTracks] = useState<AudioPlayerTrack[]>([]);
   const [acitveTrack, setActiveTrack] = useState<AudioPlayerTrack | null>(null);
@@ -70,7 +109,7 @@ const AudioPlayer = () => {
 
   const setupPlayer = async (playbackSession: PlaybackSessionExpanded) => {
     try {
-      console.log(`[AUDIO-PLAYER] SETTING UP PLAYER`);
+      console.log(`[AUDIOPLAYER] SETTING UP PLAYER`);
 
       const tracks: AudioPlayerTrack[] = [];
       let trackIndex = 0;
@@ -83,7 +122,7 @@ const AudioPlayer = () => {
           startOffset: track.startOffset,
         })
       );
-      console.log(`[AUDIO-PLAYER] TRACKS LENGTH ${tracks.length}`);
+      console.log(`[AUDIOPLAYER] TRACKS LENGTH ${tracks.length}`);
       setAudioTracks(tracks);
 
       const currentTrackIndex = Math.max(
@@ -97,7 +136,7 @@ const AudioPlayer = () => {
 
       const currentTrack = tracks[currentTrackIndex];
 
-      console.log(`[AUDIO-PLAYER] LOADING TRACK ${currentTrack.title}`);
+      console.log(`[AUDIOPLAYER] LOADING TRACK ${currentTrack.title}`);
 
       await TrackPlayer.reset();
       await TrackPlayer.add(tracks);
@@ -112,9 +151,8 @@ const AudioPlayer = () => {
       }
 
       await TrackPlayer.play();
-      console.log("[AUDIO-PLAYER] PLAYING AUDIO");
     } catch (error) {
-      console.log("[AUDIO_PLAYER] ", error);
+      console.log("[AUDIOPLAYER] ", error);
     }
   };
 
@@ -132,8 +170,6 @@ const AudioPlayer = () => {
       ) {
         const track = await TrackPlayer.getTrack(event.index);
         setActiveTrack(track as AudioPlayerTrack);
-        const { title } = track || {};
-        setTrackTitle(title || "");
       }
     }
   );
@@ -158,26 +194,34 @@ const AudioPlayer = () => {
       forceTranscode: false,
     };
 
-    const { data }: { data: PlaybackSessionExpanded } = await axios.post(
-      apiRoute,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      }
-    );
+    try {
+      const { data }: { data: PlaybackSessionExpanded } = await axios.post(
+        apiRoute,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
 
-    console.log(`[AUDIO-PLAYER] RECIVED SESSION FOR ${data.displayTitle}`);
-    const cover = getItemCoverSrc(data.libraryItem, serverConfig, user?.token);
+      console.log(`[AUDIOPLAYER] RECIVED SESSION FOR ${data.displayTitle}`);
+      const cover = getItemCoverSrc(
+        data.libraryItem,
+        serverConfig,
+        user?.token
+      );
 
-    setAudiobookInfo({
-      title: data.displayTitle,
-      author: data.displayAuthor,
-      cover: cover,
-    });
+      setAudiobookInfo({
+        title: data.displayTitle,
+        author: data.displayAuthor,
+        cover: cover,
+      });
 
-    await setupPlayer(data);
+      await setupPlayer(data);
+    } catch (error) {
+      console.log("[AUDIOPLAYER] ERROR ", error);
+    }
   };
 
   const stopPlayer = async () => {
@@ -191,7 +235,6 @@ const AudioPlayer = () => {
       setActiveTrack(null);
       setAudioTracks([]);
       setAudiobookInfo({});
-      setTrackTitle("");
 
       startSession();
     }
@@ -212,7 +255,7 @@ const AudioPlayer = () => {
     });
 
     return () => {
-      console.log("[AUDIO-PLAYER] UNMOUNTED");
+      console.log("[AUDIOPLAYER] UNMOUNTED");
     };
   }, []);
 
@@ -228,89 +271,191 @@ const AudioPlayer = () => {
   const totalDuration = getTotalDuration();
 
   if (!showPlayer.playing) return null;
-  return (
-    <AudioPlayerContainer
-      animation={"medium"}
-      enterStyle={{
-        y: 100,
-      }}
-    >
-      <AudioPlayerWrapper>
-        {/* info */}
-        <XStack width="100%" gap="$3" alignItems="center">
-          {audiobookInfo.cover ? (
-            <Image
-              width={52}
-              height={52}
-              resizeMode="contain"
-              source={{
-                uri: audiobookInfo.cover,
-              }}
-            />
-          ) : null}
-          <YStack gap="$1">
-            <Text fontSize={14} fontWeight={"$7"}>
-              {audiobookInfo.title}
-            </Text>
-            <Text fontSize={14} color={"$gray10"}>
-              {audiobookInfo.author}
-            </Text>
-          </YStack>
-        </XStack>
-        {/* slider */}
-        <XStack width="100%" gap={"$1"} alignItems="center" mt={12}>
-          <Text fontSize="$2">
-            {formatSeconds(overallCurrentTime) || "00:00:00"}
-          </Text>
-          {overallCurrentTime && totalDuration ? (
-            <Slider
-              width="70%"
-              min={0}
-              defaultValue={[overallCurrentTime ? overallCurrentTime : 0]}
-              max={totalDuration ? Math.floor(totalDuration) : 100}
-              step={1}
-            >
-              <Slider.Track>
-                <Slider.TrackActive />
-              </Slider.Track>
-              <Slider.Thumb size="$1" index={0} circular elevate />
-            </Slider>
-          ) : (
-            <PlaceHolderSlider />
-          )}
-          <Text fontSize="$2">
-            {formatSeconds(totalDuration) || "00:00:00"}
-          </Text>
-        </XStack>
 
-        {/* play pause next prev */}
-        <XStack
-          width="100%"
-          alignItems="center"
-          justifyContent="center"
-          gap={16}
-          mt="$4"
-        >
-          <SkipBack size="$2" fill={color} />
-          <View
-            onPress={() => (playing ? TrackPlayer.pause() : TrackPlayer.play())}
-          >
-            {playing ? (
-              <Pause size="$3.5" fill={color} />
-            ) : (
-              <Play size="$3.5" fill={color} />
-            )}
-          </View>
-          <SkipForward size="$2" fill={color} />
-        </XStack>
-      </AudioPlayerWrapper>
+  return (
+    <AudioPlayerContainer>
+      <SmallAudioPlayerWrapper>
+        {/* info */}
+        <AudioPlayerInfo
+          audiobookInfo={audiobookInfo}
+          stopPlayer={stopPlayer}
+          playing={playing || false}
+          color={color}
+        />
+        <ProgressSlider
+          overallCurrentTime={overallCurrentTime}
+          totalDuration={totalDuration}
+          color={color}
+        />
+      </SmallAudioPlayerWrapper>
+      <FullAudioPlayerWrapper></FullAudioPlayerWrapper>
     </AudioPlayerContainer>
   );
 };
 
+const AudioPlayerContainer = styled(Animated.View, {
+  transform: [{ translateY: height - SMALL_PLAYER_HEIGHT - 16 }],
+  paddingHorizontal: "$2",
+  alignItems: "center",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  zIndex: 10000,
+  height,
+  width,
+});
+
+export const SmallAudioPlayerWrapper = styled(YStack, {
+  bg: "$backgroundFocus",
+  height: SMALL_PLAYER_HEIGHT,
+  borderRadius: "$7",
+  padding: "$3",
+  width: "100%",
+});
+
+const FullAudioPlayerWrapper = styled(YStack, {
+  height,
+  width,
+  position: "absolute",
+  opacity: 0,
+});
+
+export const AudioPlayerInfo = ({
+  audiobookInfo,
+  playing,
+  stopPlayer,
+  color,
+}: {
+  audiobookInfo: AudiobookInfo;
+  stopPlayer?: () => void;
+  playing: boolean;
+  color: string;
+}) => {
+  return (
+    <XStack width={"100%"} gap="$3" alignItems="center">
+      {audiobookInfo.cover ? (
+        <Image
+          width={42}
+          height={42}
+          resizeMode="contain"
+          source={{
+            uri: audiobookInfo.cover,
+          }}
+        />
+      ) : null}
+      <XStack alignItems="center" flex={1}>
+        <YStack gap="$1" flex={1}>
+          <Text fontSize={14} fontWeight={"$7"}>
+            {audiobookInfo.title}
+          </Text>
+          <Text fontSize={14} color={"$gray10"}>
+            {audiobookInfo.author}
+          </Text>
+        </YStack>
+
+        <AudioPlayerControls playing={playing} color={color} />
+      </XStack>
+    </XStack>
+  );
+};
+
+export const AudioPlayerControls = ({
+  playing,
+  color,
+}: {
+  playing: boolean;
+  color: string;
+}) => {
+  return (
+    <AudioPlayerControlsContainer>
+      <View onPress={() => TrackPlayer.seekBy(-SKIP_INTERVAL)}>
+        <Rewind size="$2" fill={color} />
+      </View>
+
+      {playing ? (
+        <Animated.View
+          key="pause"
+          entering={EnterActionButton.duration(150)}
+          exiting={ExitActionButton.duration(150)}
+        >
+          <View onPress={() => TrackPlayer.pause()}>
+            <Pause size="$3.5" fill={color} />
+          </View>
+        </Animated.View>
+      ) : (
+        <Animated.View
+          key="play"
+          entering={EnterActionButton.duration(150)}
+          exiting={ExitActionButton.duration(150)}
+        >
+          <View onPress={() => TrackPlayer.play()}>
+            <Play size="$3.5" fill={color} />
+          </View>
+        </Animated.View>
+      )}
+
+      <View onPress={() => TrackPlayer.seekBy(SKIP_INTERVAL)}>
+        <FastForward size="$2" fill={color} />
+      </View>
+    </AudioPlayerControlsContainer>
+  );
+};
+
+export const ProgressSlider = ({
+  overallCurrentTime,
+  totalDuration,
+  color,
+}: {
+  overallCurrentTime: number;
+  totalDuration: number;
+  color: string;
+}) => {
+  return (
+    <ProgressContainer>
+      {/* <ProgressTimerText>
+        {formatSeconds(overallCurrentTime) || "00:00:00"}
+      </ProgressTimerText> */}
+      {!!overallCurrentTime && !!totalDuration ? (
+        <Slider
+          flex={1}
+          min={0}
+          defaultValue={[overallCurrentTime ? overallCurrentTime : 0]}
+          max={totalDuration ? Math.floor(totalDuration) : 100}
+          step={1}
+          size={"$2"}
+        >
+          <Slider.Track>
+            <Slider.TrackActive bg={color} />
+          </Slider.Track>
+          {/* <Slider.Thumb size="$1" index={0} circular elevate /> */}
+        </Slider>
+      ) : (
+        <PlaceHolderSlider />
+      )}
+      {/* <ProgressTimerText>
+        {formatSeconds(totalDuration) || "00:00:00"}
+      </ProgressTimerText> */}
+    </ProgressContainer>
+  );
+};
+
+const ProgressContainer = styled(XStack, {
+  flex: 1,
+  gap: "$1",
+  alignItems: "center",
+  justifyContent: "space-between",
+  mt: 4,
+});
+
+const ProgressTimerText = styled(Text, {
+  numberOfLines: 1,
+  fontSize: "$2",
+  minWidth: "$5",
+});
+
 const PlaceHolderSlider = () => {
   return (
-    <Slider width="70%" defaultValue={[0]} max={100} step={1}>
+    <Slider flex={1} defaultValue={[0]} max={100} step={1}>
       <Slider.Track>
         <Slider.TrackActive />
       </Slider.Track>
@@ -318,23 +463,11 @@ const PlaceHolderSlider = () => {
     </Slider>
   );
 };
-const AudioPlayerContainer = styled(YStack, {
-  jc: "center",
-  alignItems: "center",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  width: "100%",
-  height: 152 + 32,
-  zIndex: 10000,
-});
 
-const AudioPlayerWrapper = styled(YStack, {
-  bg: "$backgroundFocus",
-  height: "100%",
-  borderRadius: "$7",
-  padding: "$3",
-  width: "100%",
+const AudioPlayerControlsContainer = styled(XStack, {
+  alignItems: "center",
+  gap: 16,
+  justifyContent: "center",
 });
 
 const CirlceButton = styled(Button, {
