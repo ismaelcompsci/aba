@@ -114,7 +114,6 @@ const Menu = ({
       setAudioplayerMode(true);
     }
   };
-  console.log(readerSettings.maxBlockSize);
 
   useEffect(() => {
     changeTheme(readerSettings);
