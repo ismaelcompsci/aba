@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dimensions } from "react-native";
-import Animated, {
-  FadeInDown,
-  FadeOutDown,
-  Keyframe,
-} from "react-native-reanimated";
+import FastImage from "react-native-fast-image";
+import Animated, { Keyframe } from "react-native-reanimated";
 import TrackPlayer, {
   Capability,
   Event,
@@ -12,13 +9,25 @@ import TrackPlayer, {
   useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
-import { FastForward, Pause, Play, Rewind } from "@tamagui/lucide-icons";
+import {
+  ChevronDown,
+  FastForward,
+  Pause,
+  Play,
+  Rewind,
+  SkipBack,
+  SkipForward,
+} from "@tamagui/lucide-icons";
 import axios from "axios";
 import { atom, useAtom, useAtomValue } from "jotai";
 import {
   Button,
+  H3,
+  H6,
   Image,
   Slider,
+  SliderTrackProps,
+  Stack,
   styled,
   Text,
   View,
@@ -32,6 +41,7 @@ import { currentServerConfigAtom, deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
+import Sheet from "../custom-components/sheet";
 
 type PlayingState = {
   playing: boolean;
@@ -105,7 +115,7 @@ const AudioPlayer = () => {
   const { playing } = useIsPlaying();
   const { position } = useProgress();
 
-  const { color } = useIconTheme();
+  const { color, bg, bgPress } = useIconTheme();
 
   const setupPlayer = async (playbackSession: PlaybackSessionExpanded) => {
     try {
@@ -272,67 +282,141 @@ const AudioPlayer = () => {
 
   if (!showPlayer.playing) return null;
 
-  return (
-    <AudioPlayerContainer>
-      <SmallAudioPlayerWrapper>
-        {/* info */}
+  const renderHeader = () => {
+    return (
+      <SmallAudioPlayerWrapper
+        bg={"$backgroundHover"}
+        mx={"$4"}
+        justifyContent="center"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 5,
+          },
+          shadowOpacity: 0.23,
+          shadowRadius: 2.62,
+        }}
+      >
         <AudioPlayerInfo
           audiobookInfo={audiobookInfo}
-          stopPlayer={stopPlayer}
-          playing={playing || false}
-          color={color}
+          playing={playing === undefined ? false : playing}
+          color="white"
         />
         <ProgressSlider
-          overallCurrentTime={overallCurrentTime}
-          totalDuration={totalDuration}
+          showThumb={false}
           color={color}
+          totalDuration={totalDuration}
+          overallCurrentTime={overallCurrentTime}
         />
       </SmallAudioPlayerWrapper>
-      <FullAudioPlayerWrapper></FullAudioPlayerWrapper>
-    </AudioPlayerContainer>
+    );
+  };
+
+  const imageWidth = width * 0.7;
+  const imageHeight = imageWidth;
+
+  return (
+    <Sheet
+      icon={<ChevronDown />}
+      navigationStyle={{ backgroundColor: bgPress }}
+      sheetStyles={{ backgroundColor: "transparent" }}
+      renderHeader={renderHeader}
+    >
+      <YStack bg={"$backgroundPress"} width={"100%"} height={"100%"} px={"$4"}>
+        {/* IMAGE */}
+        <XStack width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
+          <Stack $gtSm={{ pt: "$0" }} $gtMd={{ pt: "$9" }}>
+            <FastImage
+              style={{
+                width: imageWidth,
+                height: imageHeight,
+                borderRadius: 16,
+              }}
+              resizeMode="cover"
+              source={{
+                uri: audiobookInfo.cover || "",
+              }}
+            />
+          </Stack>
+        </XStack>
+        {/* INFO */}
+        <YStack paddingTop={"$8"}>
+          <H3>{audiobookInfo.title}</H3>
+          <H6>{audiobookInfo.author}</H6>
+        </YStack>
+        {/* PROGRESS */}
+        <YStack space={"$2"} pt={"$4"} width={"100%"}>
+          <ProgressSlider
+            showThumb
+            color={color}
+            overallCurrentTime={overallCurrentTime}
+            totalDuration={totalDuration}
+          />
+
+          <XStack ai={"center"} jc={"space-between"}>
+            <Text fontSize={"$1"} color={"$gray10"}>
+              {formatSeconds(overallCurrentTime)}
+            </Text>
+            <Text fontSize={"$1"} color={"$gray10"}>
+              {formatSeconds(totalDuration)}
+            </Text>
+          </XStack>
+        </YStack>
+        {/* CONTROLS */}
+        <XStack ai={"center"} width={"100%"} pt={"$4"}>
+          <CirlceButton>
+            <SkipBack />
+          </CirlceButton>
+          <XStack ai={"center"} justifyContent="center" flex={1} gap={"$3"}>
+            <CirlceButton
+              h={"$6"}
+              w={"$6"}
+              onPress={() => TrackPlayer.seekBy(-SKIP_INTERVAL)}
+            >
+              <Rewind size="$3" fill={color} />
+            </CirlceButton>
+            <PlayPauseControl
+              small={false}
+              playing={playing === undefined ? false : playing}
+              color={color}
+            />
+            <CirlceButton
+              h={"$6"}
+              w={"$6"}
+              onPress={() => TrackPlayer.seekBy(SKIP_INTERVAL)}
+            >
+              <FastForward size="$3" fill={color} />
+            </CirlceButton>
+          </XStack>
+          <CirlceButton>
+            <SkipForward />
+          </CirlceButton>
+        </XStack>
+        {/* ACTIONS */}
+      </YStack>
+    </Sheet>
   );
 };
 
-const AudioPlayerContainer = styled(Animated.View, {
-  transform: [{ translateY: height - SMALL_PLAYER_HEIGHT - 16 }],
-  paddingHorizontal: "$2",
-  alignItems: "center",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  zIndex: 10000,
-  height,
-  width,
-});
-
 export const SmallAudioPlayerWrapper = styled(YStack, {
-  bg: "$backgroundFocus",
+  // bg: "$backgroundFocus",
   height: SMALL_PLAYER_HEIGHT,
   borderRadius: "$7",
   padding: "$3",
-  width: "100%",
-});
-
-const FullAudioPlayerWrapper = styled(YStack, {
-  height,
-  width,
-  position: "absolute",
-  opacity: 0,
 });
 
 export const AudioPlayerInfo = ({
   audiobookInfo,
   playing,
-  stopPlayer,
   color,
 }: {
   audiobookInfo: AudiobookInfo;
-  stopPlayer?: () => void;
   playing: boolean;
   color: string;
 }) => {
   return (
-    <XStack width={"100%"} gap="$3" alignItems="center">
+    <XStack flex={1} gap="$3" alignItems="center">
       {audiobookInfo.cover ? (
         <Image
           width={42}
@@ -353,7 +437,10 @@ export const AudioPlayerInfo = ({
           </Text>
         </YStack>
 
-        <AudioPlayerControls playing={playing} color={color} />
+        <AudioPlayerControls
+          playing={playing ? playing : false}
+          color={color}
+        />
       </XStack>
     </XStack>
   );
@@ -372,27 +459,7 @@ export const AudioPlayerControls = ({
         <Rewind size="$2" fill={color} />
       </View>
 
-      {playing ? (
-        <Animated.View
-          key="pause"
-          entering={EnterActionButton.duration(150)}
-          exiting={ExitActionButton.duration(150)}
-        >
-          <View onPress={() => TrackPlayer.pause()}>
-            <Pause size="$3.5" fill={color} />
-          </View>
-        </Animated.View>
-      ) : (
-        <Animated.View
-          key="play"
-          entering={EnterActionButton.duration(150)}
-          exiting={ExitActionButton.duration(150)}
-        >
-          <View onPress={() => TrackPlayer.play()}>
-            <Play size="$3.5" fill={color} />
-          </View>
-        </Animated.View>
-      )}
+      <PlayPauseControl playing={playing} color={color} small />
 
       <View onPress={() => TrackPlayer.seekBy(SKIP_INTERVAL)}>
         <FastForward size="$2" fill={color} />
@@ -401,20 +468,79 @@ export const AudioPlayerControls = ({
   );
 };
 
+const PlayPauseControl = ({
+  playing,
+  color,
+  small = true,
+}: {
+  playing: boolean;
+  color: string;
+  small?: boolean;
+}) => {
+  return (
+    <>
+      {playing ? (
+        <Animated.View
+          key="pause"
+          entering={EnterActionButton.duration(150)}
+          exiting={ExitActionButton.duration(150)}
+        >
+          {small ? (
+            <View onPress={() => TrackPlayer.pause()}>
+              <Pause size="$3.5" fill={color} />
+            </View>
+          ) : (
+            <CirlceButton
+              bg={"$backgroundStrong"}
+              h={"$7"}
+              w={"$7"}
+              onPress={() => TrackPlayer.pause()}
+            >
+              <Pause size="$3" fill={color} />
+            </CirlceButton>
+          )}
+        </Animated.View>
+      ) : (
+        <Animated.View
+          key="play"
+          entering={EnterActionButton.duration(150)}
+          exiting={ExitActionButton.duration(150)}
+        >
+          {small ? (
+            <View onPress={() => TrackPlayer.play()}>
+              <Play size="$3.5" fill={color} />
+            </View>
+          ) : (
+            <CirlceButton
+              bg={"$backgroundStrong"}
+              h={"$7"}
+              w={"$7"}
+              onPress={() => TrackPlayer.play()}
+            >
+              <Play size="$3" fill={color} />
+            </CirlceButton>
+          )}
+        </Animated.View>
+      )}
+    </>
+  );
+};
+
 export const ProgressSlider = ({
   overallCurrentTime,
   totalDuration,
   color,
+  trackProps,
+  showThumb,
 }: {
   overallCurrentTime: number;
   totalDuration: number;
   color: string;
+  trackProps?: SliderTrackProps;
+  showThumb: boolean;
 }) => {
   return (
     <ProgressContainer>
-      {/* <ProgressTimerText>
-        {formatSeconds(overallCurrentTime) || "00:00:00"}
-      </ProgressTimerText> */}
       {!!overallCurrentTime && !!totalDuration ? (
         <Slider
           flex={1}
@@ -423,34 +549,28 @@ export const ProgressSlider = ({
           max={totalDuration ? Math.floor(totalDuration) : 100}
           step={1}
           size={"$2"}
+          disabled={!showThumb}
         >
-          <Slider.Track>
+          <Slider.Track {...trackProps}>
             <Slider.TrackActive bg={color} />
           </Slider.Track>
-          {/* <Slider.Thumb size="$1" index={0} circular elevate /> */}
+          {showThumb ? (
+            <Slider.Thumb size="$2" index={0} circular elevate />
+          ) : null}
         </Slider>
       ) : (
         <PlaceHolderSlider />
       )}
-      {/* <ProgressTimerText>
-        {formatSeconds(totalDuration) || "00:00:00"}
-      </ProgressTimerText> */}
     </ProgressContainer>
   );
 };
 
 const ProgressContainer = styled(XStack, {
-  flex: 1,
+  // flex: 1,
   gap: "$1",
   alignItems: "center",
   justifyContent: "space-between",
   mt: 4,
-});
-
-const ProgressTimerText = styled(Text, {
-  numberOfLines: 1,
-  fontSize: "$2",
-  minWidth: "$5",
 });
 
 const PlaceHolderSlider = () => {
@@ -470,7 +590,7 @@ const AudioPlayerControlsContainer = styled(XStack, {
   justifyContent: "center",
 });
 
-const CirlceButton = styled(Button, {
+export const CirlceButton = styled(Button, {
   borderRadius: "$12",
   padding: "$0",
   width: "$4",

@@ -1,55 +1,27 @@
+/**
+ * https://www.adapptor.com.au/blog/sliding-sheets
+ */
+
 import { useEffect, useState } from "react";
 import {
   Dimensions,
   SafeAreaView,
   StyleProp,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
   ViewStyle,
 } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
+  runOnJS,
   useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   WithSpringConfig,
 } from "react-native-reanimated";
-import {
-  ChevronDown,
-  FastForward,
-  Play,
-  Rewind,
-  SkipBack,
-  SkipForward,
-  X,
-} from "@tamagui/lucide-icons";
-import {
-  H3,
-  H5,
-  H6,
-  Slider,
-  Stack,
-  Text,
-  useTheme,
-  XStack,
-  YStack,
-} from "tamagui";
-
-import {
-  AudioPlayerInfo,
-  CirlceButton,
-  ProgressSlider,
-  SmallAudioPlayerWrapper,
-} from "../../components/audio-player/audio-player";
-import { FullScreen } from "../../components/center";
-import FastImage from "react-native-fast-image";
-import { BlurView } from "@react-native-community/blur";
-
-/**
- * https://www.adapptor.com.au/blog/sliding-sheets
- */
 
 interface SheetProps {
   minHeight?: number;
@@ -72,6 +44,7 @@ const NAV_HEIGHT = 48;
 
 const Sheet = (props: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
+  const [mountChildren, setMountChildren] = useState(false);
 
   useEffect(() => {
     const listener = Dimensions.addEventListener(
@@ -111,6 +84,7 @@ const Sheet = (props: SheetProps) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onStart: (_ev, ctx: any) => {
       ctx.offsetY = sheetHeight.value;
+      runOnJS(setMountChildren)(true);
     },
     // Update the sheet's height value based on the gesture
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -137,12 +111,13 @@ const Sheet = (props: SheetProps) => {
         -sheetHeight.value > minHeight + DRAG_BUFFER;
 
       if (shouldMaximize) {
-        navHeight.value = withSpring(NAV_HEIGHT + 10, springConfig);
+        navHeight.value = NAV_HEIGHT + 10;
         sheetHeight.value = withSpring(-maxHeight, springConfig);
         headerOpacity.value = withSpring(0, springConfig);
 
         position.value = "maximised";
       } else if (shouldMinimize) {
+        runOnJS(setMountChildren)(false);
         navHeight.value = withSpring(0, springConfig);
         sheetHeight.value = withSpring(-minHeight, springConfig);
         headerOpacity.value = withSpring(1, springConfig);
@@ -220,9 +195,11 @@ const Sheet = (props: SheetProps) => {
                   height: dimensions.window.height,
                 }}
               >
-                <Animated.View style={[childrenAnimatedStyle]}>
-                  {props.children}
-                </Animated.View>
+                {mountChildren ? (
+                  <Animated.View style={[childrenAnimatedStyle]}>
+                    {props.children}
+                  </Animated.View>
+                ) : null}
               </View>
             </SafeAreaView>
           </Animated.View>
@@ -278,134 +255,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const TestPage = () => {
-  const theme = useTheme();
-  const color = theme.color.get();
-  const bg = theme.backgroundPress.get();
-
-  const renderHeader = () => {
-    return (
-      <SmallAudioPlayerWrapper
-        bg={"$backgroundHover"}
-        mx={"$4"}
-        justifyContent="center"
-        style={{
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 5,
-          },
-          shadowOpacity: 0.23,
-          shadowRadius: 2.62,
-        }}
-      >
-        <AudioPlayerInfo
-          audiobookInfo={{
-            author: "Brandon Sanderson",
-            cover:
-              "http://192.168.1.158:54932/api/items/ab91ea56-c8a4-4fd4-83c4-8e3ae8accefa/cover?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyb290IiwidXNlcm5hbWUiOiJvd25lcl9pc21hZWwiLCJpYXQiOjE2NzA4MTU4MDB9.dNy1XejXAjvk_sKw2Zm-V_wM5LKQ5BgecTIk1Nt2rYs&ts=1698265454387",
-            title: "The final empire",
-          }}
-          playing={false}
-          color="white"
-        />
-        <ProgressSlider
-          color={color}
-          totalDuration={100}
-          overallCurrentTime={20}
-        />
-      </SmallAudioPlayerWrapper>
-    );
-  };
-
-  const imageWidth = window.width * 0.9;
-  const imageHeight = imageWidth;
-
-  return (
-    <FullScreen>
-      <XStack
-        flex={1}
-        bg={"$backgroundPress"}
-        justifyContent="center"
-        ai={"center"}
-      >
-        <Text>CONTENT</Text>
-      </XStack>
-      <Sheet
-        icon={<ChevronDown />}
-        navigationStyle={{ backgroundColor: bg }}
-        sheetStyles={{ backgroundColor: "transparent" }}
-        renderHeader={renderHeader}
-      >
-        <YStack
-          bg={"$backgroundPress"}
-          width={"100%"}
-          height={"100%"}
-          px={"$4"}
-        >
-          {/* IMAGE */}
-          <XStack width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
-            <Stack>
-              <FastImage
-                style={{
-                  width: imageWidth,
-                  height: imageHeight,
-                  borderRadius: 16,
-                }}
-                resizeMode="cover"
-                source={{
-                  uri: "http://192.168.1.158:54932/api/items/ab91ea56-c8a4-4fd4-83c4-8e3ae8accefa/cover?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyb290IiwidXNlcm5hbWUiOiJvd25lcl9pc21hZWwiLCJpYXQiOjE2NzA4MTU4MDB9.dNy1XejXAjvk_sKw2Zm-V_wM5LKQ5BgecTIk1Nt2rYs&ts=1698265454387",
-                }}
-              />
-            </Stack>
-          </XStack>
-          {/* INFO */}
-          <YStack paddingTop={"$8"}>
-            <H3>The final empire</H3>
-            <H6>Brandon Sanderson</H6>
-          </YStack>
-          {/* PROGRESS */}
-          <YStack space={"$2"} pt={"$4"} width={"100%"}>
-            <Slider min={0} defaultValue={[0]} max={100} step={1} size={"$2"}>
-              <Slider.Track bg={"$backgroundHover"}>
-                <Slider.TrackActive bg={"$backgroundStrong"} />
-              </Slider.Track>
-              <Slider.Thumb size="$1" index={0} circular elevate />
-            </Slider>
-            <XStack ai={"center"} jc={"space-between"}>
-              <Text fontSize={"$1"} color={"$gray10"}>
-                00:00:00
-              </Text>
-              <Text fontSize={"$1"} color={"$gray10"}>
-                00:00:00
-              </Text>
-            </XStack>
-          </YStack>
-          {/* CONTROLS */}
-          <XStack ai={"center"} width={"100%"} pt={"$4"}>
-            <CirlceButton>
-              <SkipBack />
-            </CirlceButton>
-            <XStack ai={"center"} justifyContent="center" flex={1} gap={"$3"}>
-              <CirlceButton h={"$6"} w={"$6"}>
-                <Rewind size="$3" fill={color} />
-              </CirlceButton>
-              <CirlceButton bg={"$backgroundStrong"} h={"$7"} w={"$7"}>
-                <Play size="$3" fill={color} />
-              </CirlceButton>
-              <CirlceButton h={"$6"} w={"$6"}>
-                <FastForward size="$3" fill={color} />
-              </CirlceButton>
-            </XStack>
-            <CirlceButton>
-              <SkipForward />
-            </CirlceButton>
-          </XStack>
-          {/* ACTIONS */}
-        </YStack>
-      </Sheet>
-    </FullScreen>
-  );
-};
-
-export default TestPage;
+export default Sheet;

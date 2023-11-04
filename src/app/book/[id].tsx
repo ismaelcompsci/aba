@@ -2,6 +2,10 @@ import React from "react";
 import { Animated, Dimensions } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import TrackPlayer, {
+  State,
+  usePlaybackState,
+} from "react-native-track-player";
 import ReadMore from "@fawazahmed/react-native-read-more";
 import { BlurView } from "@react-native-community/blur";
 import {
@@ -9,12 +13,13 @@ import {
   BookX,
   ChevronLeft,
   MoreHorizontal,
+  Pause,
   Play,
 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   Button,
   H3,
@@ -65,7 +70,10 @@ const BookPage = () => {
   const library = useAtomValue(currentLibraryAtom);
   const config = useAtomValue(currentServerConfigAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
-  const setShowPlayer = useSetAtom(showPlayerAtom);
+  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+
+  const playerState = usePlaybackState();
+  const isPlaying = playerState.state === State.Playing;
 
   const insets = useSafeAreaInsets();
   const theme = useTheme();
@@ -241,12 +249,25 @@ const BookPage = () => {
       return (
         <ActionButton
           onPress={() => {
-            setShowPlayer({ playing: true, libraryItemId: bookItem.id });
+            isPlaying
+              ? TrackPlayer.pause()
+              : showPlayer.playing
+              ? TrackPlayer.play()
+              : setShowPlayer({ playing: true, libraryItemId: bookItem.id });
           }}
           bg={"$green10"}
         >
-          <Play size="$1" />
-          <Text>Play</Text>
+          {isPlaying ? (
+            <>
+              <Pause />
+              <Text>Pause</Text>
+            </>
+          ) : (
+            <>
+              <Play size="$1" />
+              <Text>Play</Text>
+            </>
+          )}
         </ActionButton>
       );
     } else if (showRead) {
