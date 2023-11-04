@@ -101,10 +101,7 @@ const BigAudioPlayer = ({
           flex={1}
           borderRadius={"$7"}
           paddingTop={48 + 10}
-          $gtSm={{ space: "$4" }}
-          $gtMd={{
-            space: "$7",
-          }}
+          space={"$2"}
         >
           <XStack ai={"center"} width={"100%"} justifyContent="flex-end">
             <CirlceButton
@@ -131,7 +128,7 @@ const BigAudioPlayer = ({
             </Stack>
           </XStack>
           {/* INFO */}
-          <YStack paddingTop={"$8"}>
+          <YStack paddingTop={"$5"} $gtSm={{ paddingTop: "$12" }}>
             <H3>{audiobookInfo.title}</H3>
             <H6>{audiobookInfo.author}</H6>
           </YStack>
@@ -157,11 +154,22 @@ const BigAudioPlayer = ({
             </XStack>
           </YStack>
           {/* CONTROLS */}
-          <XStack ai={"center"} width={"100%"} pt={"$4"}>
-            <CirlceButton>
+          <XStack
+            ai={"center"}
+            width={"100%"}
+            pt={"$4"}
+            $gtSm={{ justifyContent: "center" }}
+          >
+            <CirlceButton onPress={() => TrackPlayer.skipToPrevious()}>
               <SkipBack fill={color} />
             </CirlceButton>
-            <XStack ai={"center"} justifyContent="center" flex={1} gap={"$3"}>
+            <XStack
+              ai={"center"}
+              justifyContent="center"
+              flex={1}
+              $gtSm={{ flex: 0 }}
+              gap={"$3"}
+            >
               <CirlceButton
                 h={"$6"}
                 w={"$6"}
@@ -182,7 +190,7 @@ const BigAudioPlayer = ({
                 <FastForward size="$3" fill={color} />
               </CirlceButton>
             </XStack>
-            <CirlceButton>
+            <CirlceButton onPress={() => TrackPlayer.skipToNext()}>
               <SkipForward fill={color} />
             </CirlceButton>
           </XStack>

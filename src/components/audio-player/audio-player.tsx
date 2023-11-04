@@ -257,7 +257,6 @@ const AudioPlayerContainer = () => {
 
   if (!showPlayer.playing) return null;
 
-  console.log({ open });
   const renderHeader = () => {
     return (
       <SmallAudioPlayerWrapper
@@ -295,8 +294,8 @@ const AudioPlayerContainer = () => {
       icon={<ChevronDown />}
       sheetStyles={{ backgroundColor: "transparent" }}
       renderHeader={renderHeader}
-      // open={open}
-      // onOpenChange={setOpen}
+      open={open}
+      onOpenChange={setOpen}
     >
       <BigAudioPlayer
         audiobookInfo={audiobookInfo}
