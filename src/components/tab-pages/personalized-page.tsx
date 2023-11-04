@@ -108,6 +108,7 @@ const PersonalizedPage = ({
         random = randomIntFromInterval(0, genreLength - 1);
       } while (usedNumbers.has(random));
 
+      usedNumbers.add(random);
       showGenreCards.push(genres[random]);
     }
 
