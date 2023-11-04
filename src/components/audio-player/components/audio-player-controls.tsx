@@ -7,7 +7,6 @@ import { PlayPauseControl } from "./play-pause-control";
 export const SEEK_INTERVAL = 30;
 
 export const AudioPlayerControls = ({ color }: { color: string }) => {
-  console.log("[AUDIOPLAYER] AudioPlayerControls RERENDER");
   return (
     <AudioPlayerControlsContainer>
       <View onPress={() => TrackPlayer.seekBy(-SEEK_INTERVAL)}>

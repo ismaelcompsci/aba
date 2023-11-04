@@ -26,37 +26,43 @@ export const ProgressSlider = ({
   showThumb: boolean;
   audiobookInfo: AudiobookInfo;
 }) => {
-  const [audioTracks, setAudioTracks] = useState<TrackExtended[]>([]);
+  const [audioTracks, setAudioTracks] = useState<TrackExtended[] | null>(null);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const { position } = useProgress();
 
   const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;
   const overallCurrentTime = currentTrackOffset + position;
 
-  useTrackPlayerEvents([Event.PlaybackProgressUpdated], async (event) => {
-    if (event.type === Event.PlaybackProgressUpdated) {
-      TrackPlayer.updateNowPlayingMetadata({
-        artwork: audiobookInfo.cover || "",
-        title: audiobookInfo.title,
-        artist: audiobookInfo.author,
-        duration: totalDuration,
-        elapsedTime: overallCurrentTime,
-      });
+  useTrackPlayerEvents(
+    [Event.PlaybackProgressUpdated, Event.PlaybackActiveTrackChanged],
+    async (event) => {
+      if (event.type === Event.PlaybackProgressUpdated) {
+        TrackPlayer.updateNowPlayingMetadata({
+          artwork: audiobookInfo.cover || "",
+          title: audiobookInfo.title,
+          artist: audiobookInfo.author,
+          duration: totalDuration,
+          elapsedTime: overallCurrentTime,
+        });
+      }
+      if (event.type === Event.PlaybackActiveTrackChanged) {
+        event.track && setCurrentTrack(event.track);
+      }
     }
-  });
+  );
 
   const getTotalDuration = () => {
     let total = 0;
     audioTracks?.forEach((t) => (total += t.duration || 0));
     return total;
   };
-
   const totalDuration = getTotalDuration();
 
   useEffect(() => {
     (async () => {
       const track = await TrackPlayer.getActiveTrack();
       const tracks = await TrackPlayer.getQueue();
+
       setAudioTracks(tracks);
       setCurrentTrack(track ? track : null);
     })();

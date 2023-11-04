@@ -39,6 +39,7 @@ const AudioPlayerContainer = () => {
   const user = useAtomValue(userAtom);
   const [deviceId, setDeviceId] = useAtom(deviceIdAtom);
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+  const [ready, setReady] = useState(false);
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
 
@@ -96,6 +97,7 @@ const AudioPlayerContainer = () => {
         artist: metadata.author,
       });
 
+      setReady(true);
       await TrackPlayer.play();
     } catch (error) {
       console.log("[AUDIOPLAYER] ", error);
@@ -213,8 +215,8 @@ const AudioPlayerContainer = () => {
         Capability.SkipToNext,
         Capability.SkipToPrevious,
         // Capability.SeekTo,
-        // Capability.JumpForward,
-        // Capability.JumpBackward,
+        Capability.JumpForward,
+        Capability.JumpBackward,
       ],
       compactCapabilities: [Capability.Play, Capability.Pause],
       progressUpdateEventInterval: 1,
@@ -229,8 +231,6 @@ const AudioPlayerContainer = () => {
   }, []);
 
   if (!showPlayer.playing) return null;
-
-  console.log("[AUDIOPLAYER] AUDIOPLAYER RERENDER OG");
 
   const renderHeader = () => {
     return (
@@ -250,11 +250,13 @@ const AudioPlayerContainer = () => {
         }}
       >
         <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
-        <ProgressSlider
-          showThumb={false}
-          color={color}
-          audiobookInfo={audiobookInfo}
-        />
+        {ready ? (
+          <ProgressSlider
+            showThumb={false}
+            color={color}
+            audiobookInfo={audiobookInfo}
+          />
+        ) : null}
       </SmallAudioPlayerWrapper>
     );
   };

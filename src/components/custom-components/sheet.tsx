@@ -59,6 +59,7 @@ const Sheet = ({
 }: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
   const [mountChildren, setMountChildren] = useState(false);
+  const [mountHeader, setMountHeader] = useState(true);
 
   useEffect(() => {
     const listener = Dimensions.addEventListener(
@@ -102,7 +103,15 @@ const Sheet = ({
     // Update the sheet's height value based on the gesture
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onActive: (ev, ctx: any) => {
-      sheetHeight.value = ctx.offsetY + ev.translationY;
+      const height = ctx.offsetY + ev.translationY;
+      sheetHeight.value = height;
+
+      if (-height < -ctx.offsetY - DRAG_BUFFER) {
+        runOnJS(setMountHeader)(true);
+      } else if (-height > -ctx.offsetY + DRAG_BUFFER) {
+        runOnJS(setMountHeader)(false);
+      }
+
       if (-sheetHeight.value > _minHeight + DRAG_BUFFER) {
         headerOpacity.value = withSpring(0);
       }
@@ -127,10 +136,12 @@ const Sheet = ({
         navHeight.value = NAV_HEIGHT + 10;
         sheetHeight.value = withSpring(-_maxHeight, springConfig);
         headerOpacity.value = withSpring(0, springConfig);
+        runOnJS(setMountHeader)(false);
         runOnJS(onOpenChange)(true);
         position.value = "maximised";
       } else if (shouldMinimize) {
         runOnJS(setMountChildren)(false);
+        runOnJS(setMountHeader)(true);
         navHeight.value = withSpring(0, springConfig);
         sheetHeight.value = withSpring(-_minHeight, springConfig);
         headerOpacity.value = withSpring(1, springConfig);
@@ -178,6 +189,7 @@ const Sheet = ({
       navHeight.value = NAV_HEIGHT + 10;
       sheetHeight.value = withSpring(-_maxHeight, springConfig);
       headerOpacity.value = withSpring(0, springConfig);
+      setMountHeader(false);
 
       position.value = "maximised";
     } else {
@@ -185,6 +197,7 @@ const Sheet = ({
       navHeight.value = withSpring(0, springConfig);
       sheetHeight.value = withSpring(-_minHeight, springConfig);
       headerOpacity.value = withSpring(1);
+      setMountHeader(true);
       position.value = "minimised";
     }
   }, [open]);
@@ -222,7 +235,7 @@ const Sheet = ({
             </Animated.View>
             <SafeAreaView>
               <Animated.View style={[headerAnimatedStyle]}>
-                {renderHeader()}
+                {mountHeader ? renderHeader() : null}
               </Animated.View>
               <View
                 style={{
@@ -261,14 +274,14 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     minHeight: 80,
     // Add a shadow to the top of the sheet
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: -2,
+    // },
+    // shadowOpacity: 0.23,
+    // shadowRadius: 2.62,
+    // elevation: 4,
   },
   handleContainer: {
     alignItems: "center",

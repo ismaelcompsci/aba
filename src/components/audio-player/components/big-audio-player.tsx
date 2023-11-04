@@ -75,7 +75,6 @@ const BigAudioPlayer = ({
       }
     })();
   }, []);
-  console.log("[AUDIOPLAYER] BIG AUDIOPLAYER RERENDER");
 
   return (
     <YStack
