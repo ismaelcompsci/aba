@@ -11,10 +11,10 @@ import {
   SkipBack,
   SkipForward,
 } from "@tamagui/lucide-icons";
-import { H3, H6, Stack, Text, XStack, YStack } from "tamagui";
+import { H3, H6, Stack, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
-import { formatSeconds } from "../../../utils/utils";
+import { AudioPlayerTrack } from "../../../types/types";
 
 import { SEEK_INTERVAL } from "./audio-player-controls";
 import { CirlceButton } from "./circle-button";
@@ -32,14 +32,14 @@ const initialState = {
 
 const BigAudioPlayer = ({
   audiobookInfo,
-  overallCurrentTime,
-  totalDuration,
   playing,
+  activeTrack,
+  audioTracks,
 }: {
   audiobookInfo: AudiobookInfo;
-  overallCurrentTime: number;
-  totalDuration: number;
   playing: boolean;
+  activeTrack: AudioPlayerTrack | null;
+  audioTracks: AudioPlayerTrack[];
 }) => {
   const [colors, setColors] = useState(initialState);
   const { width } = Dimensions.get("window");
@@ -82,6 +82,7 @@ const BigAudioPlayer = ({
       }
     })();
   }, []);
+  console.log("[AUDIOPLAYER] BIG AUDIOPLAYER RERENDER");
 
   return (
     <YStack
@@ -136,22 +137,14 @@ const BigAudioPlayer = ({
           <YStack space={"$2"} pt={"$4"} width={"100%"}>
             <ProgressSlider
               showThumb
+              activeTrack={activeTrack}
+              audioTracks={audioTracks}
               color={color}
-              overallCurrentTime={overallCurrentTime}
-              totalDuration={totalDuration}
               trackProps={{
                 bg: "$backgroundStrong",
               }}
+              audiobookInfo={audiobookInfo}
             />
-
-            <XStack ai={"center"} jc={"space-between"}>
-              <Text fontSize={"$1"} color={"$gray10"}>
-                {formatSeconds(overallCurrentTime)}
-              </Text>
-              <Text fontSize={"$1"} color={"$gray10"}>
-                -{formatSeconds(totalDuration - overallCurrentTime)}
-              </Text>
-            </XStack>
           </YStack>
           {/* CONTROLS */}
           <XStack

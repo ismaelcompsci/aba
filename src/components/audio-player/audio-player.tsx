@@ -15,6 +15,7 @@ import useIconTheme from "../../hooks/use-icon-theme";
 import { userAtom } from "../../state/app-state";
 import { currentServerConfigAtom, deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
+import { AudioPlayerTrack } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
 import Sheet from "../custom-components/sheet";
@@ -33,14 +34,6 @@ type PlayingState = {
   startTime?: number;
 };
 
-type AudioPlayerTrack = {
-  id: number;
-  url: string;
-  duration: number;
-  title: string;
-  startOffset: number;
-};
-
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
 
 const AudioPlayerContainer = () => {
@@ -51,12 +44,12 @@ const AudioPlayerContainer = () => {
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
   const [audioTracks, setAudioTracks] = useState<AudioPlayerTrack[]>([]);
-  const [acitveTrack, setActiveTrack] = useState<AudioPlayerTrack | null>(null);
+  const [activeTrack, setActiveTrack] = useState<AudioPlayerTrack | null>(null);
 
   const [open, setOpen] = useState(false);
 
   const { playing } = useIsPlaying();
-  const { position } = useProgress();
+  // const { position } = useProgress();
 
   const { color, bgPress } = useIconTheme();
 
@@ -125,8 +118,8 @@ const AudioPlayerContainer = () => {
           artwork: audiobookInfo.cover || "",
           title: audiobookInfo.title,
           artist: audiobookInfo.author,
-          duration: totalDuration,
-          elapsedTime: overallCurrentTime,
+          // duration: totalDuration,
+          // elapsedTime: overallCurrentTime,
         });
       }
 
@@ -244,16 +237,16 @@ const AudioPlayerContainer = () => {
     };
   }, []);
 
-  const currentTrackOffset = acitveTrack ? acitveTrack.startOffset : 0;
-  const overallCurrentTime = currentTrackOffset + position;
+  // const currentTrackOffset = activeTrack ? activeTrack.startOffset : 0;
+  // const overallCurrentTime = currentTrackOffset + position;
 
-  const getTotalDuration = () => {
-    let total = 0;
-    audioTracks.forEach((t) => (total += t.duration));
-    return total;
-  };
+  // const getTotalDuration = () => {
+  //   let total = 0;
+  //   audioTracks.forEach((t) => (total += t.duration));
+  //   return total;
+  // };
 
-  const totalDuration = getTotalDuration();
+  // const totalDuration = getTotalDuration();
 
   if (!showPlayer.playing) return null;
 
@@ -280,10 +273,11 @@ const AudioPlayerContainer = () => {
           color="white"
         />
         <ProgressSlider
+          activeTrack={activeTrack}
+          audioTracks={audioTracks}
           showThumb={false}
           color={color}
-          totalDuration={totalDuration}
-          overallCurrentTime={overallCurrentTime}
+          audiobookInfo={audiobookInfo}
         />
       </SmallAudioPlayerWrapper>
     );
@@ -299,9 +293,9 @@ const AudioPlayerContainer = () => {
     >
       <BigAudioPlayer
         audiobookInfo={audiobookInfo}
-        totalDuration={totalDuration}
+        audioTracks={audioTracks}
+        activeTrack={activeTrack}
         playing={playing === undefined ? false : playing}
-        overallCurrentTime={overallCurrentTime}
       />
     </Sheet>
   );

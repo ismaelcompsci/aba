@@ -88,3 +88,11 @@ export interface SearchResult {
 
 export type SearchSeriesResult = { books: LibraryItem[]; series: Series };
 export type SearchNarratorResult = { name: string; numBook: number };
+
+export type AudioPlayerTrack = {
+  id: number;
+  url: string;
+  duration: number;
+  title: string;
+  startOffset: number;
+};
