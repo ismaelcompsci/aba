@@ -62,6 +62,10 @@ const Menu = ({
   const [openSettings, setOpenSettings] = useState(false);
   const [readerSettings, setReaderSettigns] = useAtom(ebookSettignsAtom);
 
+  const [audioplayerMode, setAudioplayerMode] = useState(
+    readerSettings.maxBlockSize !== height
+  );
+
   const onThemeChange = (theme: { name: string; bg: string; fg: string }) => {
     if (theme.name === readerSettings.theme) return;
     setReaderSettigns({ ...readerSettings, theme: theme.name });
@@ -95,21 +99,22 @@ const Menu = ({
   };
 
   const onBlockSizeChange = () => {
-    const size = height - 120 * 2 + 10;
-    console.log({ size, blocksize: readerSettings.maxBlockSize });
-
+    const size = height - 120 * 2 - 30;
     if (readerSettings.maxBlockSize === size) {
       setReaderSettigns({
         ...readerSettings,
         maxBlockSize: height,
       });
+      setAudioplayerMode(false);
     } else {
       setReaderSettigns({
         ...readerSettings,
         maxBlockSize: size,
       });
+      setAudioplayerMode(true);
     }
   };
+  console.log(readerSettings.maxBlockSize);
 
   useEffect(() => {
     changeTheme(readerSettings);
@@ -231,7 +236,10 @@ const Menu = ({
               <XStack justifyContent="space-between">
                 <XStack ai="center" space="$4">
                   <Text>AudioPlayer mode</Text>
-                  <Button onPress={onBlockSizeChange}>
+                  <Button
+                    onPress={onBlockSizeChange}
+                    borderColor={audioplayerMode ? "$blue10" : undefined}
+                  >
                     <Fullscreen />
                   </Button>
                 </XStack>
