@@ -1,33 +1,36 @@
+import { useEffect, useState } from "react";
 import TrackPlayer, {
   Event,
+  Track,
   useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import { Slider, SliderTrackProps, styled, Text, XStack } from "tamagui";
 
-import { AudioPlayerTrack } from "../../../types/types";
 import { formatSeconds } from "../../../utils/utils";
 
 import { AudiobookInfo } from "./small-audio-player";
+
+type TrackExtended = Track & {
+  url: string;
+};
 
 export const ProgressSlider = ({
   color,
   trackProps,
   showThumb,
-  audioTracks,
-  activeTrack,
   audiobookInfo,
 }: {
   color: string;
   trackProps?: SliderTrackProps;
   showThumb: boolean;
-  audioTracks: AudioPlayerTrack[];
-  activeTrack: AudioPlayerTrack | null;
   audiobookInfo: AudiobookInfo;
 }) => {
+  const [audioTracks, setAudioTracks] = useState<TrackExtended[]>([]);
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const { position } = useProgress();
 
-  const currentTrackOffset = activeTrack ? activeTrack.startOffset : 0;
+  const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;
   const overallCurrentTime = currentTrackOffset + position;
 
   useTrackPlayerEvents([Event.PlaybackProgressUpdated], async (event) => {
@@ -44,11 +47,20 @@ export const ProgressSlider = ({
 
   const getTotalDuration = () => {
     let total = 0;
-    audioTracks.forEach((t) => (total += t.duration));
+    audioTracks?.forEach((t) => (total += t.duration || 0));
     return total;
   };
 
   const totalDuration = getTotalDuration();
+
+  useEffect(() => {
+    (async () => {
+      const track = await TrackPlayer.getActiveTrack();
+      const tracks = await TrackPlayer.getQueue();
+      setAudioTracks(tracks);
+      setCurrentTrack(track ? track : null);
+    })();
+  }, []);
 
   return (
     <>

@@ -6,20 +6,15 @@ import { PlayPauseControl } from "./play-pause-control";
 
 export const SEEK_INTERVAL = 30;
 
-export const AudioPlayerControls = ({
-  playing,
-  color,
-}: {
-  playing: boolean;
-  color: string;
-}) => {
+export const AudioPlayerControls = ({ color }: { color: string }) => {
+  console.log("[AUDIOPLAYER] AudioPlayerControls RERENDER");
   return (
     <AudioPlayerControlsContainer>
       <View onPress={() => TrackPlayer.seekBy(-SEEK_INTERVAL)}>
         <Rewind size="$2" fill={color} />
       </View>
 
-      <PlayPauseControl playing={playing} color={color} small />
+      <PlayPauseControl color={color} small />
 
       <View onPress={() => TrackPlayer.seekBy(SEEK_INTERVAL)}>
         <FastForward size="$2" fill={color} />

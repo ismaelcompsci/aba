@@ -12,11 +12,9 @@ export type AudiobookInfo = {
 
 export const AudioPlayerInfo = ({
   audiobookInfo,
-  playing,
   color,
 }: {
   audiobookInfo: AudiobookInfo;
-  playing: boolean;
   color: string;
 }) => {
   return (
@@ -41,10 +39,7 @@ export const AudioPlayerInfo = ({
           </Text>
         </YStack>
 
-        <AudioPlayerControls
-          playing={playing ? playing : false}
-          color={color}
-        />
+        <AudioPlayerControls color={color} />
       </XStack>
     </XStack>
   );

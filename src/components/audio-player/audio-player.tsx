@@ -3,8 +3,6 @@ import { getColors } from "react-native-image-colors";
 import TrackPlayer, {
   Capability,
   Event,
-  useIsPlaying,
-  useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import { ChevronDown } from "@tamagui/lucide-icons";
@@ -43,13 +41,8 @@ const AudioPlayerContainer = () => {
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
-  const [audioTracks, setAudioTracks] = useState<AudioPlayerTrack[]>([]);
-  const [activeTrack, setActiveTrack] = useState<AudioPlayerTrack | null>(null);
 
   const [open, setOpen] = useState(false);
-
-  const { playing } = useIsPlaying();
-  // const { position } = useProgress();
 
   const { color, bgPress } = useIconTheme();
 
@@ -72,7 +65,6 @@ const AudioPlayerContainer = () => {
         })
       );
       console.log(`[AUDIOPLAYER] TRACKS LENGTH ${tracks.length}`);
-      setAudioTracks(tracks);
 
       const currentTrackIndex = Math.max(
         0,
@@ -123,14 +115,14 @@ const AudioPlayerContainer = () => {
         });
       }
 
-      if (
-        event.type === Event.PlaybackActiveTrackChanged &&
-        event.track != null &&
-        event.index != null
-      ) {
-        const track = await TrackPlayer.getTrack(event.index);
-        setActiveTrack(track as AudioPlayerTrack);
-      }
+      // if (
+      //   event.type === Event.PlaybackActiveTrackChanged &&
+      //   event.track != null &&
+      //   event.index != null
+      // ) {
+      //   const track = await TrackPlayer.getTrack(event.index);
+      //   setActiveTrack(track as AudioPlayerTrack);
+      // }
     }
   );
 
@@ -186,6 +178,7 @@ const AudioPlayerContainer = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stopPlayer = async () => {
     setShowPlayer({ playing: false });
     await TrackPlayer.pause();
@@ -204,8 +197,6 @@ const AudioPlayerContainer = () => {
 
   useEffect(() => {
     if (showPlayer.playing) {
-      setActiveTrack(null);
-      setAudioTracks([]);
       setAudiobookInfo({});
 
       startSession();
@@ -237,18 +228,9 @@ const AudioPlayerContainer = () => {
     };
   }, []);
 
-  // const currentTrackOffset = activeTrack ? activeTrack.startOffset : 0;
-  // const overallCurrentTime = currentTrackOffset + position;
-
-  // const getTotalDuration = () => {
-  //   let total = 0;
-  //   audioTracks.forEach((t) => (total += t.duration));
-  //   return total;
-  // };
-
-  // const totalDuration = getTotalDuration();
-
   if (!showPlayer.playing) return null;
+
+  console.log("[AUDIOPLAYER] AUDIOPLAYER RERENDER OG");
 
   const renderHeader = () => {
     return (
@@ -267,14 +249,8 @@ const AudioPlayerContainer = () => {
           shadowRadius: 2.62,
         }}
       >
-        <AudioPlayerInfo
-          audiobookInfo={audiobookInfo}
-          playing={playing === undefined ? false : playing}
-          color="white"
-        />
+        <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
         <ProgressSlider
-          activeTrack={activeTrack}
-          audioTracks={audioTracks}
           showThumb={false}
           color={color}
           audiobookInfo={audiobookInfo}
@@ -291,12 +267,7 @@ const AudioPlayerContainer = () => {
       open={open}
       onOpenChange={setOpen}
     >
-      <BigAudioPlayer
-        audiobookInfo={audiobookInfo}
-        audioTracks={audioTracks}
-        activeTrack={activeTrack}
-        playing={playing === undefined ? false : playing}
-      />
+      <BigAudioPlayer audiobookInfo={audiobookInfo} />
     </Sheet>
   );
 };

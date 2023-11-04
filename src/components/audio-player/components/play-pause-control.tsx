@@ -1,5 +1,5 @@
 import Animated, { Keyframe } from "react-native-reanimated";
-import TrackPlayer from "react-native-track-player";
+import TrackPlayer, { useIsPlaying } from "react-native-track-player";
 import { Pause, Play } from "@tamagui/lucide-icons";
 import { View } from "tamagui";
 
@@ -36,14 +36,13 @@ const EnterActionButton = new Keyframe({
 });
 
 export const PlayPauseControl = ({
-  playing,
   color,
   small = true,
 }: {
-  playing: boolean;
   color: string;
   small?: boolean;
 }) => {
+  const { playing } = useIsPlaying();
   return (
     <>
       {playing ? (

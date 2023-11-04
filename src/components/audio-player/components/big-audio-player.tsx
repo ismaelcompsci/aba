@@ -14,7 +14,6 @@ import {
 import { H3, H6, Stack, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
-import { AudioPlayerTrack } from "../../../types/types";
 
 import { SEEK_INTERVAL } from "./audio-player-controls";
 import { CirlceButton } from "./circle-button";
@@ -32,14 +31,8 @@ const initialState = {
 
 const BigAudioPlayer = ({
   audiobookInfo,
-  playing,
-  activeTrack,
-  audioTracks,
 }: {
   audiobookInfo: AudiobookInfo;
-  playing: boolean;
-  activeTrack: AudioPlayerTrack | null;
-  audioTracks: AudioPlayerTrack[];
 }) => {
   const [colors, setColors] = useState(initialState);
   const { width } = Dimensions.get("window");
@@ -137,8 +130,6 @@ const BigAudioPlayer = ({
           <YStack space={"$2"} pt={"$4"} width={"100%"}>
             <ProgressSlider
               showThumb
-              activeTrack={activeTrack}
-              audioTracks={audioTracks}
               color={color}
               trackProps={{
                 bg: "$backgroundStrong",
@@ -170,11 +161,7 @@ const BigAudioPlayer = ({
               >
                 <Rewind size="$3" fill={color} />
               </CirlceButton>
-              <PlayPauseControl
-                small={false}
-                playing={playing === undefined ? false : playing}
-                color={color}
-              />
+              <PlayPauseControl small={false} color={color} />
               <CirlceButton
                 h={"$6"}
                 w={"$6"}
