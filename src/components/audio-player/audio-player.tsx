@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dimensions } from "react-native";
 import FastImage from "react-native-fast-image";
-import Animated, { Keyframe } from "react-native-reanimated";
 import TrackPlayer, {
   Capability,
   Event,
@@ -12,28 +11,13 @@ import TrackPlayer, {
 import {
   ChevronDown,
   FastForward,
-  Pause,
-  Play,
   Rewind,
   SkipBack,
   SkipForward,
 } from "@tamagui/lucide-icons";
 import axios from "axios";
 import { atom, useAtom, useAtomValue } from "jotai";
-import {
-  Button,
-  H3,
-  H6,
-  Image,
-  Slider,
-  SliderTrackProps,
-  Stack,
-  styled,
-  Text,
-  View,
-  XStack,
-  YStack,
-} from "tamagui";
+import { H3, H6, Stack, Text, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
 import { userAtom } from "../../state/app-state";
@@ -42,6 +26,16 @@ import { PlaybackSessionExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
 import Sheet from "../custom-components/sheet";
+
+import { SKIP_INTERVAL } from "./components/audio-player-controls";
+import { CirlceButton } from "./components/circle-button";
+import { PlayPauseControl } from "./components/play-pause-control";
+import { ProgressSlider } from "./components/progress-slider";
+import {
+  AudiobookInfo,
+  AudioPlayerInfo,
+  SmallAudioPlayerWrapper,
+} from "./components/small-audio-player";
 
 type PlayingState = {
   playing: boolean;
@@ -57,50 +51,12 @@ type AudioPlayerTrack = {
   startOffset: number;
 };
 
-type AudiobookInfo = {
-  title?: string;
-  author?: string;
-  cover?: string | null | undefined;
-};
-
 const formatSeconds = (time: number) =>
   new Date(time * 1000).toISOString().slice(11, 19);
 
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
 
-const ExitActionButton = new Keyframe({
-  0: {
-    transform: [{ scale: 1 }],
-    opacity: 1,
-  },
-  50: {
-    transform: [{ scale: 0.5 }],
-    opacity: 0.5,
-  },
-  100: {
-    transform: [{ scale: 0 }],
-    opacity: 0,
-  },
-});
-
-const EnterActionButton = new Keyframe({
-  0: {
-    transform: [{ scale: 0 }],
-    opacity: 0,
-  },
-  50: {
-    transform: [{ scale: 0.5 }],
-    opacity: 0.5,
-  },
-  100: {
-    transform: [{ scale: 1 }],
-    opacity: 1,
-  },
-});
-
 const { width, height } = Dimensions.get("window");
-const SMALL_PLAYER_HEIGHT = 80;
-const SKIP_INTERVAL = 30;
 
 const AudioPlayer = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -155,7 +111,6 @@ const AudioPlayer = () => {
         playbackSession.currentTime - currentTrack.startOffset;
 
       if (playbackSession.currentTime && currentTrack) {
-        console.log(currentTrack);
         await TrackPlayer.skip(currentTrack.id);
         await TrackPlayer.seekTo(initialPosition);
       }
@@ -366,7 +321,7 @@ const AudioPlayer = () => {
         {/* CONTROLS */}
         <XStack ai={"center"} width={"100%"} pt={"$4"}>
           <CirlceButton>
-            <SkipBack />
+            <SkipBack fill={color} />
           </CirlceButton>
           <XStack ai={"center"} justifyContent="center" flex={1} gap={"$3"}>
             <CirlceButton
@@ -390,7 +345,7 @@ const AudioPlayer = () => {
             </CirlceButton>
           </XStack>
           <CirlceButton>
-            <SkipForward />
+            <SkipForward fill={color} />
           </CirlceButton>
         </XStack>
         {/* ACTIONS */}
@@ -398,205 +353,5 @@ const AudioPlayer = () => {
     </Sheet>
   );
 };
-
-export const SmallAudioPlayerWrapper = styled(YStack, {
-  // bg: "$backgroundFocus",
-  height: SMALL_PLAYER_HEIGHT,
-  borderRadius: "$7",
-  padding: "$3",
-});
-
-export const AudioPlayerInfo = ({
-  audiobookInfo,
-  playing,
-  color,
-}: {
-  audiobookInfo: AudiobookInfo;
-  playing: boolean;
-  color: string;
-}) => {
-  return (
-    <XStack flex={1} gap="$3" alignItems="center">
-      {audiobookInfo.cover ? (
-        <Image
-          width={42}
-          height={42}
-          resizeMode="contain"
-          source={{
-            uri: audiobookInfo.cover,
-          }}
-        />
-      ) : null}
-      <XStack alignItems="center" flex={1}>
-        <YStack gap="$1" flex={1}>
-          <Text fontSize={14} fontWeight={"$7"}>
-            {audiobookInfo.title}
-          </Text>
-          <Text fontSize={14} color={"$gray10"}>
-            {audiobookInfo.author}
-          </Text>
-        </YStack>
-
-        <AudioPlayerControls
-          playing={playing ? playing : false}
-          color={color}
-        />
-      </XStack>
-    </XStack>
-  );
-};
-
-export const AudioPlayerControls = ({
-  playing,
-  color,
-}: {
-  playing: boolean;
-  color: string;
-}) => {
-  return (
-    <AudioPlayerControlsContainer>
-      <View onPress={() => TrackPlayer.seekBy(-SKIP_INTERVAL)}>
-        <Rewind size="$2" fill={color} />
-      </View>
-
-      <PlayPauseControl playing={playing} color={color} small />
-
-      <View onPress={() => TrackPlayer.seekBy(SKIP_INTERVAL)}>
-        <FastForward size="$2" fill={color} />
-      </View>
-    </AudioPlayerControlsContainer>
-  );
-};
-
-const PlayPauseControl = ({
-  playing,
-  color,
-  small = true,
-}: {
-  playing: boolean;
-  color: string;
-  small?: boolean;
-}) => {
-  return (
-    <>
-      {playing ? (
-        <Animated.View
-          key="pause"
-          entering={EnterActionButton.duration(150)}
-          exiting={ExitActionButton.duration(150)}
-        >
-          {small ? (
-            <View onPress={() => TrackPlayer.pause()}>
-              <Pause size="$3.5" fill={color} />
-            </View>
-          ) : (
-            <CirlceButton
-              bg={"$backgroundStrong"}
-              h={"$7"}
-              w={"$7"}
-              onPress={() => TrackPlayer.pause()}
-            >
-              <Pause size="$3" fill={color} />
-            </CirlceButton>
-          )}
-        </Animated.View>
-      ) : (
-        <Animated.View
-          key="play"
-          entering={EnterActionButton.duration(150)}
-          exiting={ExitActionButton.duration(150)}
-        >
-          {small ? (
-            <View onPress={() => TrackPlayer.play()}>
-              <Play size="$3.5" fill={color} />
-            </View>
-          ) : (
-            <CirlceButton
-              bg={"$backgroundStrong"}
-              h={"$7"}
-              w={"$7"}
-              onPress={() => TrackPlayer.play()}
-            >
-              <Play size="$3" fill={color} />
-            </CirlceButton>
-          )}
-        </Animated.View>
-      )}
-    </>
-  );
-};
-
-export const ProgressSlider = ({
-  overallCurrentTime,
-  totalDuration,
-  color,
-  trackProps,
-  showThumb,
-}: {
-  overallCurrentTime: number;
-  totalDuration: number;
-  color: string;
-  trackProps?: SliderTrackProps;
-  showThumb: boolean;
-}) => {
-  return (
-    <ProgressContainer>
-      {!!overallCurrentTime && !!totalDuration ? (
-        <Slider
-          flex={1}
-          min={0}
-          defaultValue={[overallCurrentTime ? overallCurrentTime : 0]}
-          max={totalDuration ? Math.floor(totalDuration) : 100}
-          step={1}
-          size={"$2"}
-          disabled={!showThumb}
-        >
-          <Slider.Track {...trackProps}>
-            <Slider.TrackActive bg={color} />
-          </Slider.Track>
-          {showThumb ? (
-            <Slider.Thumb size="$2" index={0} circular elevate />
-          ) : null}
-        </Slider>
-      ) : (
-        <PlaceHolderSlider />
-      )}
-    </ProgressContainer>
-  );
-};
-
-const ProgressContainer = styled(XStack, {
-  // flex: 1,
-  gap: "$1",
-  alignItems: "center",
-  justifyContent: "space-between",
-  mt: 4,
-});
-
-const PlaceHolderSlider = () => {
-  return (
-    <Slider flex={1} defaultValue={[0]} max={100} step={1}>
-      <Slider.Track>
-        <Slider.TrackActive />
-      </Slider.Track>
-      <Slider.Thumb size="$1" index={0} circular elevate />
-    </Slider>
-  );
-};
-
-const AudioPlayerControlsContainer = styled(XStack, {
-  alignItems: "center",
-  gap: 16,
-  justifyContent: "center",
-});
-
-export const CirlceButton = styled(Button, {
-  borderRadius: "$12",
-  padding: "$0",
-  width: "$4",
-  height: "$4",
-  alignItems: "center",
-  justifyContent: "center",
-});
 
 export default AudioPlayer;
