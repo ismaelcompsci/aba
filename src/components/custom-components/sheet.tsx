@@ -33,6 +33,8 @@ interface SheetProps {
   handle?: boolean;
   icon: JSX.Element;
   renderHeader: () => React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 type SheetPositions = "minimised" | "maximised" | "expanded";
@@ -42,7 +44,19 @@ const screen = Dimensions.get("screen");
 
 const NAV_HEIGHT = 48;
 
-const Sheet = (props: SheetProps) => {
+const Sheet = ({
+  minHeight,
+  icon,
+  renderHeader,
+  children,
+  expandedHeight,
+  handle,
+  maxHeight,
+  navigationStyle,
+  onOpenChange = () => {},
+  open,
+  sheetStyles,
+}: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
   const [mountChildren, setMountChildren] = useState(false);
 
@@ -58,10 +72,9 @@ const Sheet = (props: SheetProps) => {
   }, []);
 
   // Fixed values (for snap positions)
-  const minHeight = props.minHeight || 120;
-  const maxHeight = props.maxHeight || dimensions.screen.height;
-  const expandedHeight =
-    props.expandedHeight || dimensions.screen.height * 0.25;
+  const _minHeight = minHeight || 120;
+  const _maxHeight = maxHeight || dimensions.screen.height;
+  const _expandedHeight = expandedHeight || dimensions.screen.height * 0.25;
 
   const springConfig: WithSpringConfig = {
     damping: 50,
@@ -73,7 +86,7 @@ const Sheet = (props: SheetProps) => {
   };
 
   const position = useSharedValue<SheetPositions>("minimised");
-  const sheetHeight = useSharedValue(-minHeight);
+  const sheetHeight = useSharedValue(-_minHeight);
   const navHeight = useSharedValue(0);
   const headerOpacity = useSharedValue(1);
 
@@ -90,11 +103,11 @@ const Sheet = (props: SheetProps) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onActive: (ev, ctx: any) => {
       sheetHeight.value = ctx.offsetY + ev.translationY;
-      if (-sheetHeight.value > minHeight + DRAG_BUFFER) {
+      if (-sheetHeight.value > _minHeight + DRAG_BUFFER) {
         headerOpacity.value = withSpring(0);
       }
 
-      if (-sheetHeight.value < minHeight + DRAG_BUFFER) {
+      if (-sheetHeight.value < _minHeight + DRAG_BUFFER) {
         headerOpacity.value = withSpring(1);
       }
     },
@@ -108,27 +121,28 @@ const Sheet = (props: SheetProps) => {
       // Snap to maximised position if the sheet is dragged up from expanded position
       const shouldMaximize =
         position.value === "minimised" &&
-        -sheetHeight.value > minHeight + DRAG_BUFFER;
+        -sheetHeight.value > _minHeight + DRAG_BUFFER;
 
       if (shouldMaximize) {
         navHeight.value = NAV_HEIGHT + 10;
-        sheetHeight.value = withSpring(-maxHeight, springConfig);
+        sheetHeight.value = withSpring(-_maxHeight, springConfig);
         headerOpacity.value = withSpring(0, springConfig);
-
+        runOnJS(onOpenChange)(true);
         position.value = "maximised";
       } else if (shouldMinimize) {
         runOnJS(setMountChildren)(false);
         navHeight.value = withSpring(0, springConfig);
-        sheetHeight.value = withSpring(-minHeight, springConfig);
+        sheetHeight.value = withSpring(-_minHeight, springConfig);
         headerOpacity.value = withSpring(1, springConfig);
+        runOnJS(onOpenChange)(false);
         position.value = "minimised";
       } else {
         sheetHeight.value = withSpring(
           position.value === "expanded"
-            ? -expandedHeight
+            ? -_expandedHeight
             : position.value === "maximised"
-            ? -maxHeight
-            : -minHeight,
+            ? -_maxHeight
+            : -_minHeight,
           springConfig
         );
       }
@@ -140,53 +154,75 @@ const Sheet = (props: SheetProps) => {
   }));
 
   const sheetContentAnimatedStyle = useAnimatedStyle(() => ({
-    paddingBottom: position.value === "maximised" ? 180 : 0,
-    paddingTop: position.value === "maximised" ? 40 : 20,
+    // paddingBottom: position.value === "maximised" ? 180 : 0,
+    // paddingTop: position.value === "maximised" ? 40 : 20,
   }));
 
-  const sheetNavigationAnimatedStyle = useAnimatedStyle(() => ({
-    height: navHeight.value,
-    overflow: "hidden",
-  }));
+  // const sheetNavigationAnimatedStyle = useAnimatedStyle(() => ({
+  //   height: navHeight.value,
+  //   overflow: "hidden",
+  // }));
 
   const headerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: headerOpacity.value,
+    zIndex: position.value === "minimised" ? 9999 : 0,
   }));
 
   const childrenAnimatedStyle = useAnimatedStyle(() => ({
     opacity: 1 - headerOpacity.value,
   }));
 
+  useEffect(() => {
+    if (open) {
+      if (position.value === "maximised") return;
+      navHeight.value = NAV_HEIGHT + 10;
+      sheetHeight.value = withSpring(-_maxHeight, springConfig);
+      headerOpacity.value = withSpring(0, springConfig);
+
+      position.value = "maximised";
+    } else {
+      if (position.value === "minimised") return;
+      navHeight.value = withSpring(0, springConfig);
+      sheetHeight.value = withSpring(-_minHeight, springConfig);
+      headerOpacity.value = withSpring(1);
+      position.value = "minimised";
+    }
+  }, [open]);
+
   return (
     <View style={styles.container}>
       <PanGestureHandler onGestureEvent={onGestureEvent}>
         <Animated.View
-          style={[sheetHeightAnimatedStyle, styles.sheet, props.sheetStyles]}
+          style={[sheetHeightAnimatedStyle, styles.sheet, sheetStyles]}
         >
-          {props.handle ? (
+          {handle ? (
             <View style={styles.handleContainer}>
               <View style={styles.handle} />
             </View>
           ) : null}
           <Animated.View style={[sheetContentAnimatedStyle]}>
             <Animated.View
-              style={[sheetNavigationAnimatedStyle, props.navigationStyle]}
+              style={[
+                childrenAnimatedStyle,
+                navigationStyle,
+                { position: "absolute", zIndex: 9999, top: NAV_HEIGHT + 10 },
+              ]}
             >
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => {
                   navHeight.value = withSpring(0, springConfig);
-                  sheetHeight.value = withSpring(-minHeight, springConfig);
+                  sheetHeight.value = withSpring(-_minHeight, springConfig);
                   headerOpacity.value = withSpring(1);
                   position.value = "minimised";
                 }}
               >
-                {props.icon ? props.icon : <Text>{`❌`}</Text>}
+                {icon ? icon : <Text>{`❌`}</Text>}
               </TouchableOpacity>
             </Animated.View>
             <SafeAreaView>
-              <Animated.View style={[headerAnimatedStyle, { zIndex: 9999 }]}>
-                {props.renderHeader()}
+              <Animated.View style={[headerAnimatedStyle]}>
+                {renderHeader()}
               </Animated.View>
               <View
                 style={{
@@ -197,7 +233,7 @@ const Sheet = (props: SheetProps) => {
               >
                 {mountChildren ? (
                   <Animated.View style={[childrenAnimatedStyle]}>
-                    {props.children}
+                    {children}
                   </Animated.View>
                 ) : null}
               </View>
@@ -245,13 +281,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#CCCCCC",
   },
   closeButton: {
-    width: NAV_HEIGHT,
-    height: NAV_HEIGHT,
-    borderRadius: NAV_HEIGHT,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingLeft: 18,
+    // width: NAV_HEIGHT,
+    // height: NAV_HEIGHT,
+    // borderRadius: NAV_HEIGHT,
+    // alignItems: "center",
+    // justifyContent: "center"
     alignSelf: "flex-start",
-    marginBottom: 10,
+    // marginBottom: 10,
   },
 });
 
