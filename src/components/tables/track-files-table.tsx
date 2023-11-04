@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { ChevronDown } from "@tamagui/lucide-icons";
 import {
   Accordion,
@@ -13,7 +13,7 @@ import {
 import { AudioTrack } from "../../types/aba";
 import { DataTable } from "../custom-components/data-table";
 
-const TrackFilesTable = ({ tracks }: { tracks: AudioTrack[] }) => {
+const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
   const [opened, setOpened] = useState("");
 
   const secondsToTimestamp = (seconds: number) => {
@@ -94,6 +94,8 @@ const TrackFilesTable = ({ tracks }: { tracks: AudioTrack[] }) => {
       </Accordion.Item>
     </Accordion>
   );
-};
+});
+
+TrackFilesTable.displayName = "TrackFilesTable";
 
 export default TrackFilesTable;
