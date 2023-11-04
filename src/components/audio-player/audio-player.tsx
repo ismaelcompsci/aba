@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
-import FastImage from "react-native-fast-image";
+import { getColors } from "react-native-image-colors";
 import TrackPlayer, {
   Capability,
   Event,
@@ -8,16 +7,9 @@ import TrackPlayer, {
   useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
-import {
-  ChevronDown,
-  FastForward,
-  Rewind,
-  SkipBack,
-  SkipForward,
-} from "@tamagui/lucide-icons";
+import { ChevronDown } from "@tamagui/lucide-icons";
 import axios from "axios";
 import { atom, useAtom, useAtomValue } from "jotai";
-import { H3, H6, Stack, Text, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
 import { userAtom } from "../../state/app-state";
@@ -27,9 +19,7 @@ import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
 import Sheet from "../custom-components/sheet";
 
-import { SKIP_INTERVAL } from "./components/audio-player-controls";
-import { CirlceButton } from "./components/circle-button";
-import { PlayPauseControl } from "./components/play-pause-control";
+import BigAudioPlayer from "./components/big-audio-player";
 import { ProgressSlider } from "./components/progress-slider";
 import {
   AudiobookInfo,
@@ -51,14 +41,9 @@ type AudioPlayerTrack = {
   startOffset: number;
 };
 
-const formatSeconds = (time: number) =>
-  new Date(time * 1000).toISOString().slice(11, 19);
-
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
 
-const { width, height } = Dimensions.get("window");
-
-const AudioPlayer = () => {
+const AudioPlayerContainer = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const user = useAtomValue(userAtom);
   const [deviceId, setDeviceId] = useAtom(deviceIdAtom);
@@ -68,12 +53,17 @@ const AudioPlayer = () => {
   const [audioTracks, setAudioTracks] = useState<AudioPlayerTrack[]>([]);
   const [acitveTrack, setActiveTrack] = useState<AudioPlayerTrack | null>(null);
 
+  const [open, setOpen] = useState(false);
+
   const { playing } = useIsPlaying();
   const { position } = useProgress();
 
-  const { color, bg, bgPress } = useIconTheme();
+  const { color, bgPress } = useIconTheme();
 
-  const setupPlayer = async (playbackSession: PlaybackSessionExpanded) => {
+  const setupPlayer = async (
+    playbackSession: PlaybackSessionExpanded,
+    metadata: { cover: string; title: string; author: string }
+  ) => {
     try {
       console.log(`[AUDIOPLAYER] SETTING UP PLAYER`);
 
@@ -115,6 +105,12 @@ const AudioPlayer = () => {
         await TrackPlayer.seekTo(initialPosition);
       }
 
+      TrackPlayer.updateNowPlayingMetadata({
+        artwork: metadata.cover,
+        title: metadata.title,
+        artist: metadata.author,
+      });
+
       await TrackPlayer.play();
     } catch (error) {
       console.log("[AUDIOPLAYER] ", error);
@@ -122,10 +118,16 @@ const AudioPlayer = () => {
   };
 
   useTrackPlayerEvents(
-    [Event.PlaybackState, Event.PlaybackActiveTrackChanged],
+    [Event.PlaybackActiveTrackChanged, Event.PlaybackProgressUpdated],
     async (event) => {
-      if (event.type === Event.PlaybackState) {
-        // console.log(event);
+      if (event.type === Event.PlaybackProgressUpdated) {
+        TrackPlayer.updateNowPlayingMetadata({
+          artwork: audiobookInfo.cover || "",
+          title: audiobookInfo.title,
+          artist: audiobookInfo.author,
+          duration: totalDuration,
+          elapsedTime: overallCurrentTime,
+        });
       }
 
       if (
@@ -177,13 +179,15 @@ const AudioPlayer = () => {
         user?.token
       );
 
-      setAudiobookInfo({
+      const metadata = {
         title: data.displayTitle,
         author: data.displayAuthor,
-        cover: cover,
-      });
+        cover: cover || "",
+      };
 
-      await setupPlayer(data);
+      setAudiobookInfo(metadata);
+
+      await setupPlayer(data, metadata);
     } catch (error) {
       console.log("[AUDIOPLAYER] ERROR ", error);
     }
@@ -194,6 +198,16 @@ const AudioPlayer = () => {
     await TrackPlayer.pause();
     await TrackPlayer.reset();
   };
+
+  useEffect(() => {
+    if (!audiobookInfo.cover) return;
+
+    getColors(audiobookInfo.cover, {
+      fallback: bgPress,
+      cache: true,
+      key: audiobookInfo.cover || "cover",
+    });
+  }, [audiobookInfo]);
 
   useEffect(() => {
     if (showPlayer.playing) {
@@ -214,9 +228,15 @@ const AudioPlayer = () => {
         Capability.Pause,
         Capability.SkipToNext,
         Capability.SkipToPrevious,
+        // Capability.SeekTo,
+        // Capability.JumpForward,
+        // Capability.JumpBackward,
       ],
       compactCapabilities: [Capability.Play, Capability.Pause],
       progressUpdateEventInterval: 1,
+      backwardJumpInterval: 30,
+      forwardJumpInterval: 30,
+      notificationCapabilities: [Capability.Play, Capability.Pause],
     });
 
     return () => {
@@ -237,9 +257,11 @@ const AudioPlayer = () => {
 
   if (!showPlayer.playing) return null;
 
+  console.log({ open });
   const renderHeader = () => {
     return (
       <SmallAudioPlayerWrapper
+        onPress={() => setOpen(true)}
         bg={"$backgroundHover"}
         mx={"$4"}
         justifyContent="center"
@@ -268,90 +290,22 @@ const AudioPlayer = () => {
     );
   };
 
-  const imageWidth = width * 0.7;
-  const imageHeight = imageWidth;
-
   return (
     <Sheet
       icon={<ChevronDown />}
-      navigationStyle={{ backgroundColor: bgPress }}
       sheetStyles={{ backgroundColor: "transparent" }}
       renderHeader={renderHeader}
+      // open={open}
+      // onOpenChange={setOpen}
     >
-      <YStack bg={"$backgroundPress"} width={"100%"} height={"100%"} px={"$4"}>
-        {/* IMAGE */}
-        <XStack width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
-          <Stack $gtSm={{ pt: "$0" }} $gtMd={{ pt: "$9" }}>
-            <FastImage
-              style={{
-                width: imageWidth,
-                height: imageHeight,
-                borderRadius: 16,
-              }}
-              resizeMode="cover"
-              source={{
-                uri: audiobookInfo.cover || "",
-              }}
-            />
-          </Stack>
-        </XStack>
-        {/* INFO */}
-        <YStack paddingTop={"$8"}>
-          <H3>{audiobookInfo.title}</H3>
-          <H6>{audiobookInfo.author}</H6>
-        </YStack>
-        {/* PROGRESS */}
-        <YStack space={"$2"} pt={"$4"} width={"100%"}>
-          <ProgressSlider
-            showThumb
-            color={color}
-            overallCurrentTime={overallCurrentTime}
-            totalDuration={totalDuration}
-          />
-
-          <XStack ai={"center"} jc={"space-between"}>
-            <Text fontSize={"$1"} color={"$gray10"}>
-              {formatSeconds(overallCurrentTime)}
-            </Text>
-            <Text fontSize={"$1"} color={"$gray10"}>
-              {formatSeconds(totalDuration)}
-            </Text>
-          </XStack>
-        </YStack>
-        {/* CONTROLS */}
-        <XStack ai={"center"} width={"100%"} pt={"$4"}>
-          <CirlceButton>
-            <SkipBack fill={color} />
-          </CirlceButton>
-          <XStack ai={"center"} justifyContent="center" flex={1} gap={"$3"}>
-            <CirlceButton
-              h={"$6"}
-              w={"$6"}
-              onPress={() => TrackPlayer.seekBy(-SKIP_INTERVAL)}
-            >
-              <Rewind size="$3" fill={color} />
-            </CirlceButton>
-            <PlayPauseControl
-              small={false}
-              playing={playing === undefined ? false : playing}
-              color={color}
-            />
-            <CirlceButton
-              h={"$6"}
-              w={"$6"}
-              onPress={() => TrackPlayer.seekBy(SKIP_INTERVAL)}
-            >
-              <FastForward size="$3" fill={color} />
-            </CirlceButton>
-          </XStack>
-          <CirlceButton>
-            <SkipForward fill={color} />
-          </CirlceButton>
-        </XStack>
-        {/* ACTIONS */}
-      </YStack>
+      <BigAudioPlayer
+        audiobookInfo={audiobookInfo}
+        totalDuration={totalDuration}
+        playing={playing === undefined ? false : playing}
+        overallCurrentTime={overallCurrentTime}
+      />
     </Sheet>
   );
 };
 
-export default AudioPlayer;
+export default AudioPlayerContainer;

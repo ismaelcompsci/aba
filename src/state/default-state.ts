@@ -16,7 +16,7 @@ export type DefaultSettingsType = {
   ebookSettings: Theme;
 };
 
-const w = Dimensions.get("window").width;
+const { width, height } = Dimensions.get("window");
 
 export const DefaultSettings: DefaultSettingsType = {
   theme: { scheme: "dark" },
@@ -29,8 +29,8 @@ export const DefaultSettings: DefaultSettingsType = {
     justify: true,
     hyphenate: true,
     gap: 0.06,
-    maxInlineSize: w,
-    maxBlockSize: 1440,
+    maxInlineSize: width,
+    maxBlockSize: height,
     maxColumnCount: 1,
     scrolled: false,
     fontSize: 100,

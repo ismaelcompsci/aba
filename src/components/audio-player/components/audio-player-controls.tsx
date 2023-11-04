@@ -4,7 +4,7 @@ import { styled, View, XStack } from "tamagui";
 
 import { PlayPauseControl } from "./play-pause-control";
 
-export const SKIP_INTERVAL = 30;
+export const SEEK_INTERVAL = 30;
 
 export const AudioPlayerControls = ({
   playing,
@@ -15,13 +15,13 @@ export const AudioPlayerControls = ({
 }) => {
   return (
     <AudioPlayerControlsContainer>
-      <View onPress={() => TrackPlayer.seekBy(-SKIP_INTERVAL)}>
+      <View onPress={() => TrackPlayer.seekBy(-SEEK_INTERVAL)}>
         <Rewind size="$2" fill={color} />
       </View>
 
       <PlayPauseControl playing={playing} color={color} small />
 
-      <View onPress={() => TrackPlayer.seekBy(SKIP_INTERVAL)}>
+      <View onPress={() => TrackPlayer.seekBy(SEEK_INTERVAL)}>
         <FastForward size="$2" fill={color} />
       </View>
     </AudioPlayerControlsContainer>

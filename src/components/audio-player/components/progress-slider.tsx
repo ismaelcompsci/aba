@@ -29,7 +29,7 @@ export const ProgressSlider = ({
             <Slider.TrackActive bg={color} />
           </Slider.Track>
           {showThumb ? (
-            <Slider.Thumb size="$2" index={0} circular elevate />
+            <Slider.Thumb size="$1" index={0} circular elevate />
           ) : null}
         </Slider>
       ) : (

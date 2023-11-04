@@ -250,14 +250,16 @@ const BookPage = () => {
         <ActionButton
           onPress={() => {
             isPlaying
-              ? TrackPlayer.pause()
-              : showPlayer.playing
+              ? showPlayer.libraryItemId === id
+                ? TrackPlayer.pause()
+                : setShowPlayer({ playing: true, libraryItemId: bookItem.id })
+              : showPlayer.playing && showPlayer.libraryItemId === id
               ? TrackPlayer.play()
               : setShowPlayer({ playing: true, libraryItemId: bookItem.id });
           }}
           bg={"$green10"}
         >
-          {isPlaying ? (
+          {isPlaying && showPlayer.libraryItemId === id ? (
             <>
               <Pause />
               <Text>Pause</Text>

@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
+import { Dimensions, Platform } from "react-native";
 import {
   ChevronLeft,
   ChevronsDownUp,
   ChevronsLeftRight,
   ChevronsRightLeft,
   ChevronsUpDown,
+  Fullscreen,
   List,
   Settings2,
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
 import {
+  Button,
   H6,
   Label,
   Separator,
@@ -39,6 +42,8 @@ import { themes } from "./themes";
 const FONT_STEP = 5;
 const GAPSTEP = 0.01;
 const LINESTEP = 0.1;
+
+const { height } = Dimensions.get("window");
 
 const Menu = ({
   children,
@@ -87,6 +92,23 @@ const Menu = ({
       ...readerSettings,
       lineHeight: Math.max(0, readerSettings.lineHeight + step),
     });
+  };
+
+  const onBlockSizeChange = () => {
+    const size = height - 120 * 2 + 10;
+    console.log({ size, blocksize: readerSettings.maxBlockSize });
+
+    if (readerSettings.maxBlockSize === size) {
+      setReaderSettigns({
+        ...readerSettings,
+        maxBlockSize: height,
+      });
+    } else {
+      setReaderSettigns({
+        ...readerSettings,
+        maxBlockSize: size,
+      });
+    }
   };
 
   useEffect(() => {
@@ -172,21 +194,25 @@ const Menu = ({
               {/* Scroll & gap  */}
               <XStack justifyContent="space-between">
                 <XStack alignItems="center" space="$2">
-                  <Label
-                    paddingRight="$0"
-                    minWidth={90}
-                    justifyContent="flex-end"
-                  >
-                    Scrolling View
-                  </Label>
-                  <Text fontSize={8}>(beta)</Text>
-                  <Separator minHeight={20} vertical pl={"$4"} />
-                  <Switch
-                    defaultChecked={readerSettings.scrolled}
-                    onCheckedChange={onScrollViewChange}
-                  >
-                    <Switch.Thumb animation="quick" />
-                  </Switch>
+                  {Platform.OS === "ios" ? (
+                    <>
+                      <Label
+                        paddingRight="$0"
+                        minWidth={90}
+                        justifyContent="flex-end"
+                      >
+                        Scrolling View
+                      </Label>
+                      <Text fontSize={8}>(beta)</Text>
+                      <Separator minHeight={20} vertical pl={"$4"} />
+                      <Switch
+                        defaultChecked={readerSettings.scrolled}
+                        onCheckedChange={onScrollViewChange}
+                      >
+                        <Switch.Thumb animation="quick" />
+                      </Switch>
+                    </>
+                  ) : null}
                 </XStack>
                 <XGroup>
                   <XGroupButton
@@ -202,7 +228,13 @@ const Menu = ({
                 </XGroup>
               </XStack>
               {/* line space */}
-              <XStack justifyContent="flex-end">
+              <XStack justifyContent="space-between">
+                <XStack ai="center" space="$4">
+                  <Text>AudioPlayer mode</Text>
+                  <Button onPress={onBlockSizeChange}>
+                    <Fullscreen />
+                  </Button>
+                </XStack>
                 <XGroup>
                   <XGroupButton
                     onPress={() => onLineSpaceChange(-LINESTEP)}
@@ -216,6 +248,7 @@ const Menu = ({
                   />
                 </XGroup>
               </XStack>
+              <XStack></XStack>
             </MenuContainer>
           ) : null}
         </Header>

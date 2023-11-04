@@ -163,3 +163,6 @@ export function generateUUID(digits: number) {
   }
   return uuid.join("");
 }
+
+export const formatSeconds = (time: number) =>
+  new Date(time * 1000).toISOString().slice(11, 19);
