@@ -106,9 +106,9 @@ const Sheet = ({
       const height = ctx.offsetY + ev.translationY;
       sheetHeight.value = height;
 
-      if (-height < -ctx.offsetY - DRAG_BUFFER) {
+      if (-height < -ctx.offsetY + DRAG_BUFFER && !mountHeader) {
         runOnJS(setMountHeader)(true);
-      } else if (-height > -ctx.offsetY + DRAG_BUFFER) {
+      } else if (-height > -ctx.offsetY + DRAG_BUFFER + 30 && mountHeader) {
         runOnJS(setMountHeader)(false);
       }
 
@@ -148,6 +148,14 @@ const Sheet = ({
         runOnJS(onOpenChange)(false);
         position.value = "minimised";
       } else {
+        if (
+          position.value === "minimised" &&
+          headerOpacity.value !== 1 &&
+          !mountHeader
+        ) {
+          headerOpacity.value = withSpring(1, springConfig);
+          runOnJS(setMountHeader)(true);
+        }
         sheetHeight.value = withSpring(
           position.value === "expanded"
             ? -_expandedHeight
