@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Dimensions } from "react-native";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -27,6 +28,8 @@ export function ServerSelect({ ...props }: PopoverProps) {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
 
+  const [open, setOpen] = useState(false);
+
   const { iconColor } = useIconTheme();
   const { width } = Dimensions.get("screen");
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
@@ -42,11 +45,12 @@ export function ServerSelect({ ...props }: PopoverProps) {
 
     setCurrentLibraryId(updatedLib?.id);
     await awaitTimeout(50);
+    setOpen(false);
     setChangingLibrary(false);
   };
 
   return (
-    <Popover size="$5" allowFlip {...props}>
+    <Popover size="$5" allowFlip {...props} open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <IconButton
           minWidth={80}
