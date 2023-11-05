@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { GestureResponderEvent } from "react-native";
 import TrackPlayer, {
   Event,
   Track,
@@ -26,6 +27,8 @@ export const ProgressSlider = ({
   showThumb: boolean;
   audiobookInfo: AudiobookInfo;
 }) => {
+  const [seek, setSeek] = useState(0);
+  const [isSeeking, setIsSeeking] = useState(false);
   const [audioTracks, setAudioTracks] = useState<TrackExtended[] | null>(null);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const { position } = useProgress();
@@ -68,25 +71,55 @@ export const ProgressSlider = ({
     })();
   }, []);
 
+  const handleSliderEnd = async (
+    event: GestureResponderEvent,
+    value: number
+  ) => {
+    if (!audioTracks?.length) return;
+
+    const trackIndex = Math.max(
+      0,
+      audioTracks.findIndex(
+        (t) =>
+          Math.floor(t.startOffset) <= value &&
+          Math.floor(t.startOffset + t.duration) > value
+      )
+    );
+
+    const initialPosition = value - audioTracks[trackIndex].startOffset;
+    await TrackPlayer.skip(trackIndex, initialPosition);
+    /**
+     * stops the slider from bouncing
+     */
+    TrackPlayer.play().then(() => {
+      setTimeout(() => {
+        setIsSeeking(false);
+      }, 1500);
+    });
+  };
+
   return (
     <>
       <ProgressContainer>
         {!!overallCurrentTime && !!totalDuration ? (
           <Slider
             flex={1}
+            size={"$4"}
             min={0}
-            defaultValue={[overallCurrentTime ? overallCurrentTime : 0]}
-            value={[overallCurrentTime ? overallCurrentTime : 0]}
+            value={[isSeeking ? seek : overallCurrentTime]}
             max={totalDuration ? Math.floor(totalDuration) : 100}
-            step={1}
-            size={"$2"}
-            disabled={!showThumb}
+            step={5}
+            onValueChange={(value) => {
+              setIsSeeking(true);
+              setSeek(value[0]);
+            }}
+            onSlideEnd={handleSliderEnd}
           >
             <Slider.Track {...trackProps}>
               <Slider.TrackActive bg={color} />
             </Slider.Track>
             {showThumb ? (
-              <Slider.Thumb size="$1" index={0} circular elevate />
+              <Slider.Thumb size="$2" index={0} circular elevate />
             ) : null}
           </Slider>
         ) : (
@@ -94,12 +127,15 @@ export const ProgressSlider = ({
         )}
       </ProgressContainer>
       {showThumb ? (
-        <XStack ai={"center"} jc={"space-between"}>
+        <XStack ai={"center"} jc={"space-between"} pt={"$1.5"}>
           <Text fontSize={"$1"} color={"$gray10"}>
-            {formatSeconds(overallCurrentTime)}
+            {formatSeconds(isSeeking ? seek : overallCurrentTime)}
           </Text>
           <Text fontSize={"$1"} color={"$gray10"}>
-            -{formatSeconds(totalDuration - overallCurrentTime)}
+            -
+            {formatSeconds(
+              totalDuration - (isSeeking ? seek : overallCurrentTime)
+            )}
           </Text>
         </XStack>
       ) : null}
@@ -108,7 +144,6 @@ export const ProgressSlider = ({
 };
 
 const ProgressContainer = styled(XStack, {
-  // flex: 1,
   gap: "$1",
   alignItems: "center",
   justifyContent: "space-between",
