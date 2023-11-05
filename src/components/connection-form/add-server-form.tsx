@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Button, Input, Label, Spinner, Stack, Text, XStack } from "tamagui";
+import { Button, Input, Label, Spinner, Text, XStack } from "tamagui";
 import { z } from "zod";
 
 import { LoginServerResponse, ServerConfig } from "../../types/types";

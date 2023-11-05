@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dimensions } from "react-native";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Adapt,
   Popover,
@@ -17,7 +17,6 @@ import {
   currentLibraryIdAtom,
   librariesAtom,
 } from "../../state/app-state";
-import { deviceDataAtom } from "../../state/local-state";
 import { awaitTimeout } from "../../utils/utils";
 import { iconMap } from "../adbs-icons";
 import { IconButton } from "../buttons/button";
@@ -43,9 +42,9 @@ export function ServerSelect({ ...props }: PopoverProps) {
       return;
     }
 
-    setCurrentLibraryId(updatedLib?.id);
-    await awaitTimeout(50);
     setOpen(false);
+    setCurrentLibraryId(updatedLib?.id);
+    await awaitTimeout(30);
     setChangingLibrary(false);
   };
 

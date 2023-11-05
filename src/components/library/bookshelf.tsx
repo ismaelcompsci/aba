@@ -39,7 +39,10 @@ const BookShelf = ({
           backgroundColor: bg,
         }}
         renderItem={({ item, index }) => (
-          <XStack pl={index === 0 ? "$4" : null}>
+          <XStack
+            pl={index === 0 ? "$4" : null}
+            pr={index === shelf.entities.length - 1 ? "$4" : null}
+          >
             <BookCard
               isCoverSquareAspectRatio={isCoverSquareAspectRatio}
               key={item.id}

@@ -107,6 +107,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "index" ||
     name === "server-connect/index";
 
+  const showSearch = name !== "server-connect/index";
+
   const isIndex = name === "index";
   const showServerSwitch = name !== "server-connect/index";
 
@@ -146,9 +148,11 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
           {showServerSwitch && !isIndex && getServerSelect()}
         </HeaderLeft>
         <HeaderRight>
-          <IconButton onPress={() => router.push("/search/")}>
-            <Search color={iconColor} />
-          </IconButton>
+          {showSearch ? (
+            <IconButton onPress={() => router.push("/search/")}>
+              <Search color={iconColor} />
+            </IconButton>
+          ) : null}
           <SettingsMenu />
         </HeaderRight>
       </HeaderFrame>

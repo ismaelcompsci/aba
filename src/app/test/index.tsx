@@ -37,7 +37,16 @@
 //   YStack,
 // } from "tamagui";
 
-import { Text } from "tamagui";
+import { useState } from "react";
+import { Sheet, Text, XStack, YStack, useSheet } from "tamagui";
+
+import BigAudioPlayer from "../../components/audio-player/components/big-audio-player";
+import { ProgressSlider } from "../../components/audio-player/components/progress-slider";
+import {
+  AudioPlayerInfo,
+  SmallAudioPlayerWrapper,
+} from "../../components/audio-player/components/small-audio-player";
+import { FullScreen } from "../../components/center";
 
 // import {
 //   AudioPlayerInfo,
@@ -412,8 +421,66 @@ import { Text } from "tamagui";
 
 // export default TestPage;
 
+const audiobookInfo = {
+  cover:
+    "http://192.168.1.158:54932/api/items/ab91ea56-c8a4-4fd4-83c4-8e3ae8accefa/cover?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyb290IiwidXNlcm5hbWUiOiJvd25lcl9pc21hZWwiLCJpYXQiOjE2NzA4MTU4MDB9.dNy1XejXAjvk_sKw2Zm-V_wM5LKQ5BgecTIk1Nt2rYs&ts=1698265454387",
+  title: "The Final Empire",
+  author: "Brandon Sanderson",
+};
+
 const TestPage = () => {
-  return <Text>Text</Text>;
+  const [open, setOpen] = useState(true);
+  const [pos, setPos] = useState(1);
+
+  return (
+    <FullScreen bg={"red"}>
+      <XStack h={"$20"}>
+        <Text>HELLO</Text>
+      </XStack>
+      <Sheet
+        open={open}
+        onOpenChange={setOpen}
+        defaultPosition={1}
+        snapPoints={[100, 13]}
+        snapPointsMode="percent"
+        native
+        dismissOnOverlayPress={false}
+        onPositionChange={(pos) => {
+          setPos(pos);
+        }}
+      >
+        {/* <Sheet.Overlay /> */}
+        <Sheet.Handle />
+        <Sheet.Frame bg={"transparent"}>
+          {pos === 1 ? (
+            <SmallAudioPlayerWrapper
+              bg={"$backgroundHover"}
+              mx={"$4"}
+              justifyContent="center"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: {
+                  width: 0,
+                  height: 5,
+                },
+                shadowOpacity: 0.23,
+                shadowRadius: 2.62,
+              }}
+            >
+              <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
+              <ProgressSlider
+                showThumb={false}
+                color={"white"}
+                audiobookInfo={audiobookInfo}
+              />
+            </SmallAudioPlayerWrapper>
+          ) : (
+            <BigAudioPlayer audiobookInfo={audiobookInfo} />
+          )}
+        </Sheet.Frame>
+      </Sheet>
+    </FullScreen>
+  );
 };
 
 export default TestPage;

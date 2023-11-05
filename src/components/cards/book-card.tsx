@@ -32,7 +32,7 @@ const BookCard = ({
   const [error, setError] = useState(false);
   const coverUrl = getItemCoverSrc(item, serverConfig, token);
 
-  const { color } = useIconTheme();
+  const { color, bgPress } = useIconTheme();
 
   const mediaProgress = user?.mediaProgress;
   const userMediaProgress = mediaProgress?.find(
@@ -88,7 +88,8 @@ const BookCard = ({
               activeStrokeWidth={2}
               inActiveStrokeWidth={3}
               progressValueFontSize={8}
-              circleBackgroundColor={color}
+              circleBackgroundColor={bgPress}
+              activeStrokeColor={color}
             />
           </XStack>
         ) : null}

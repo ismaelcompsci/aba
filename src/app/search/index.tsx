@@ -8,10 +8,10 @@ import {
   ScrollView,
   Separator,
   Spinner,
+  styled,
   Text,
   XStack,
   YStack,
-  styled,
 } from "tamagui";
 
 import AuthorSearchCard from "../../components/cards/author-search-card";

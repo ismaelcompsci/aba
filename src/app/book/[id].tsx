@@ -35,7 +35,6 @@ import {
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
-import { showPlayerAtom } from "../../components/audio-player/audio-player";
 import { ActionButton } from "../../components/book-info";
 import { ClearIconButton } from "../../components/buttons/button";
 import { FullScreen, ScreenCenter } from "../../components/center";
@@ -47,6 +46,7 @@ import { HEADER_HEIGHT } from "../../hooks/use-header-height";
 import {
   currentItemAtom,
   currentLibraryAtom,
+  showPlayerAtom,
   userAtom,
 } from "../../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../../state/local-state";

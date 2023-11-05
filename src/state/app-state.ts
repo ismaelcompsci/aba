@@ -1,6 +1,7 @@
 import { atom } from "jotai";
 
 import { Library, LibraryItemExpanded, User } from "../types/aba";
+import { PlayingState } from "../types/types";
 
 export const userAtom = atom<User | null>(null);
 export const attemptingConnectionAtom = atom<boolean>(true);
@@ -9,6 +10,7 @@ export const librariesAtom = atom<Library[]>([]);
 export const openModalAtom = atom(false);
 export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
+export const showPlayerAtom = atom<PlayingState>({ playing: false });
 
 /**
  * Derived Atoms

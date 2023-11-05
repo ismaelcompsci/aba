@@ -7,15 +7,17 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import { ChevronDown } from "@tamagui/lucide-icons";
 import axios from "axios";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { Spinner } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
-import { userAtom } from "../../state/app-state";
+import { showPlayerAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom, deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
+import { ScreenCenter } from "../center";
 import Sheet from "../custom-components/sheet";
 
 import BigAudioPlayer from "./components/big-audio-player";
@@ -26,14 +28,6 @@ import {
   SmallAudioPlayerWrapper,
 } from "./components/small-audio-player";
 
-type PlayingState = {
-  playing: boolean;
-  libraryItemId?: string;
-  startTime?: number;
-};
-
-export const showPlayerAtom = atom<PlayingState>({ playing: false });
-
 const AudioPlayerContainer = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const user = useAtomValue(userAtom);
@@ -43,7 +37,7 @@ const AudioPlayerContainer = () => {
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const { color, bgPress } = useIconTheme();
 
@@ -182,7 +176,7 @@ const AudioPlayerContainer = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stopPlayer = async () => {
-    setShowPlayer({ playing: false });
+    showPlayer.playing && setShowPlayer({ playing: false });
     await TrackPlayer.pause();
     await TrackPlayer.reset();
   };
@@ -200,8 +194,12 @@ const AudioPlayerContainer = () => {
   useEffect(() => {
     if (showPlayer.playing) {
       setAudiobookInfo({});
-
+      setReady(false);
       startSession();
+    }
+
+    if (showPlayer.playing === false && ready) {
+      stopPlayer();
     }
   }, [showPlayer]);
 
@@ -214,7 +212,7 @@ const AudioPlayerContainer = () => {
         Capability.Pause,
         Capability.SkipToNext,
         Capability.SkipToPrevious,
-        // Capability.SeekTo,
+        Capability.SeekTo,
         Capability.JumpForward,
         Capability.JumpBackward,
       ],
@@ -234,30 +232,22 @@ const AudioPlayerContainer = () => {
 
   const renderHeader = () => {
     return (
-      <SmallAudioPlayerWrapper
-        onPress={() => setOpen(true)}
-        bg={"$backgroundHover"}
-        mx={"$4"}
-        justifyContent="center"
-        style={{
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 5,
-          },
-          shadowOpacity: 0.23,
-          shadowRadius: 2.62,
-        }}
-      >
-        <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
+      <>
         {ready ? (
-          <ProgressSlider
-            showThumb={false}
-            color={color}
-            audiobookInfo={audiobookInfo}
-          />
-        ) : null}
-      </SmallAudioPlayerWrapper>
+          <SmallAudioPlayerWrapper onPress={() => setOpen(true)}>
+            <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
+            <ProgressSlider
+              showThumb={false}
+              color={color}
+              audiobookInfo={audiobookInfo}
+            />
+          </SmallAudioPlayerWrapper>
+        ) : (
+          <SmallAudioPlayerWrapper ai="center">
+            <Spinner />
+          </SmallAudioPlayerWrapper>
+        )}
+      </>
     );
   };
 
@@ -269,7 +259,17 @@ const AudioPlayerContainer = () => {
       open={open}
       onOpenChange={setOpen}
     >
-      <BigAudioPlayer audiobookInfo={audiobookInfo} />
+      {ready ? (
+        <BigAudioPlayer audiobookInfo={audiobookInfo} />
+      ) : (
+        <ScreenCenter
+          bg={"$backgroundPress"}
+          borderRadius={"$7"}
+          paddingBottom={0}
+        >
+          <Spinner />
+        </ScreenCenter>
+      )}
     </Sheet>
   );
 };

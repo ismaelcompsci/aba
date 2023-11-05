@@ -11,9 +11,11 @@ import {
   SkipBack,
   SkipForward,
 } from "@tamagui/lucide-icons";
+import { useSetAtom } from "jotai";
 import { H3, H6, Stack, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
+import { showPlayerAtom } from "../../../state/app-state";
 
 import { SEEK_INTERVAL } from "./audio-player-controls";
 import { CirlceButton } from "./circle-button";
@@ -34,6 +36,8 @@ const BigAudioPlayer = ({
 }: {
   audiobookInfo: AudiobookInfo;
 }) => {
+  const setShowPlayer = useSetAtom(showPlayerAtom);
+
   const [colors, setColors] = useState(initialState);
   const { width } = Dimensions.get("window");
 
@@ -44,37 +48,45 @@ const BigAudioPlayer = ({
 
   useEffect(() => {
     (async () => {
-      const result = await getColors(audiobookInfo.cover || "", {
-        fallback: bgPress,
-        cache: true,
-        key: audiobookInfo.cover || "cover",
-      });
+      try {
+        const result = await getColors(audiobookInfo.cover || "", {
+          fallback: bgPress,
+          cache: true,
+          key: audiobookInfo.cover || "cover",
+        });
 
-      switch (result.platform) {
-        case "android":
-        case "web":
-          setColors({
-            colorOne: { value: result.lightVibrant, name: "lightVibrant" },
-            colorTwo: { value: result.dominant, name: "dominant" },
-            colorThree: { value: result.vibrant, name: "vibrant" },
-            colorFour: { value: result.darkVibrant, name: "darkVibrant" },
-            rawResult: JSON.stringify(result),
-          });
-          break;
-        case "ios":
-          setColors({
-            colorOne: { value: result.background, name: "background" },
-            colorTwo: { value: result.detail, name: "detail" },
-            colorThree: { value: result.primary, name: "primary" },
-            colorFour: { value: result.secondary, name: "secondary" },
-            rawResult: JSON.stringify(result),
-          });
-          break;
-        default:
-          throw new Error("Unexpected platform");
+        switch (result.platform) {
+          case "android":
+          case "web":
+            setColors({
+              colorOne: { value: result.lightVibrant, name: "lightVibrant" },
+              colorTwo: { value: result.dominant, name: "dominant" },
+              colorThree: { value: result.vibrant, name: "vibrant" },
+              colorFour: { value: result.darkVibrant, name: "darkVibrant" },
+              rawResult: JSON.stringify(result),
+            });
+            break;
+          case "ios":
+            setColors({
+              colorOne: { value: result.background, name: "background" },
+              colorTwo: { value: result.detail, name: "detail" },
+              colorThree: { value: result.primary, name: "primary" },
+              colorFour: { value: result.secondary, name: "secondary" },
+              rawResult: JSON.stringify(result),
+            });
+            break;
+          default:
+            throw new Error("Unexpected platform");
+        }
+      } catch (error) {
+        console.log(
+          "[BIGAUDIOPLAYER] get colors error ",
+          error,
+          audiobookInfo.cover
+        );
       }
     })();
-  }, []);
+  }, [audiobookInfo]);
 
   return (
     <YStack
@@ -100,6 +112,7 @@ const BigAudioPlayer = ({
             <CirlceButton
               bg={"transparent"}
               pressStyle={{ bg: "transparent", borderWidth: 0, opacity: 0.5 }}
+              onPress={() => setShowPlayer({ playing: false })}
             >
               <MoreVertical />
             </CirlceButton>
@@ -126,7 +139,7 @@ const BigAudioPlayer = ({
             <H6>{audiobookInfo.author}</H6>
           </YStack>
           {/* PROGRESS */}
-          <YStack space={"$2"} pt={"$4"} width={"100%"}>
+          <YStack space={"$2"} pt={"$4"} width={"100%"} bg={"red"}>
             <ProgressSlider
               showThumb
               color={color}

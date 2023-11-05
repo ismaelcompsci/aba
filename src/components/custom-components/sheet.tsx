@@ -200,7 +200,13 @@ const Sheet = ({
 
   return (
     <View style={styles.container}>
-      <PanGestureHandler onGestureEvent={onGestureEvent}>
+      <PanGestureHandler
+        onGestureEvent={onGestureEvent}
+        hitSlop={{
+          height: dimensions.window.height,
+          top: dimensions.window.height / 2 - DRAG_BUFFER * 2,
+        }}
+      >
         <Animated.View
           style={[sheetHeightAnimatedStyle, styles.sheet, sheetStyles]}
         >

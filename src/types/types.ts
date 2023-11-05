@@ -96,3 +96,9 @@ export type AudioPlayerTrack = {
   title: string;
   startOffset: number;
 };
+
+export type PlayingState = {
+  playing: boolean;
+  libraryItemId?: string;
+  startTime?: number;
+};

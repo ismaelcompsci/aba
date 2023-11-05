@@ -46,8 +46,17 @@ export const AudioPlayerInfo = ({
 };
 
 export const SmallAudioPlayerWrapper = styled(YStack, {
-  // bg: "$backgroundFocus",
   height: SMALL_PLAYER_HEIGHT,
   borderRadius: "$7",
   padding: "$3",
+  bg: "$backgroundHover",
+  mx: "$4",
+  justifyContent: "center",
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 5,
+  },
+  shadowOpacity: 0.23,
+  shadowRadius: 2.62,
 });

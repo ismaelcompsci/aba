@@ -1,7 +1,6 @@
 import Animated, { Keyframe } from "react-native-reanimated";
 import TrackPlayer, { useIsPlaying } from "react-native-track-player";
 import { Pause, Play } from "@tamagui/lucide-icons";
-import { View } from "tamagui";
 
 import { CirlceButton } from "./circle-button";
 
@@ -50,17 +49,29 @@ export const PlayPauseControl = ({
           key="pause"
           entering={EnterActionButton.duration(150)}
           exiting={ExitActionButton.duration(150)}
+          style={{ zIndex: 10000 }}
         >
           {small ? (
-            <View onPress={() => TrackPlayer.pause()}>
+            <CirlceButton
+              onPress={() => TrackPlayer.pause()}
+              onTouchEnd={(ev) => ev.stopPropagation()}
+              bg={"transparent"}
+              h={"$4"}
+              w={"$4"}
+              pressStyle={{
+                bg: "transparent",
+                borderWidth: 0,
+              }}
+            >
               <Pause size="$3.5" fill={color} />
-            </View>
+            </CirlceButton>
           ) : (
             <CirlceButton
               bg={"$backgroundStrong"}
               h={"$7"}
               w={"$7"}
               onPress={() => TrackPlayer.pause()}
+              onTouchEnd={(ev) => ev.stopPropagation()}
             >
               <Pause size="$3" fill={color} />
             </CirlceButton>
@@ -73,15 +84,26 @@ export const PlayPauseControl = ({
           exiting={ExitActionButton.duration(150)}
         >
           {small ? (
-            <View onPress={() => TrackPlayer.play()}>
+            <CirlceButton
+              onTouchEnd={(ev) => ev.stopPropagation()}
+              onPress={() => TrackPlayer.play()}
+              bg={"transparent"}
+              h={"$4"}
+              w={"$4"}
+              pressStyle={{
+                bg: "transparent",
+                borderWidth: 0,
+              }}
+            >
               <Play size="$3.5" fill={color} />
-            </View>
+            </CirlceButton>
           ) : (
             <CirlceButton
               bg={"$backgroundStrong"}
               h={"$7"}
               w={"$7"}
               onPress={() => TrackPlayer.play()}
+              onTouchEnd={(ev) => ev.stopPropagation()}
             >
               <Play size="$3" fill={color} />
             </CirlceButton>
