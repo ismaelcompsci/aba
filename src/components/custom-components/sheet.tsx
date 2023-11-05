@@ -53,13 +53,11 @@ const Sheet = ({
   handle,
   maxHeight,
   navigationStyle,
-  onOpenChange = () => {},
+  onOpenChange,
   open,
   sheetStyles,
 }: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
-  const [mountChildren, setMountChildren] = useState(false);
-  const [mountHeader, setMountHeader] = useState(true);
 
   useEffect(() => {
     const listener = Dimensions.addEventListener(
@@ -98,7 +96,6 @@ const Sheet = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onStart: (_ev, ctx: any) => {
       ctx.offsetY = sheetHeight.value;
-      runOnJS(setMountChildren)(true);
     },
     // Update the sheet's height value based on the gesture
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,17 +103,17 @@ const Sheet = ({
       const height = ctx.offsetY + ev.translationY;
       sheetHeight.value = height;
 
-      if (-height < -ctx.offsetY + DRAG_BUFFER && !mountHeader) {
-        runOnJS(setMountHeader)(true);
-      } else if (-height > -ctx.offsetY + DRAG_BUFFER + 30 && mountHeader) {
-        runOnJS(setMountHeader)(false);
-      }
-
-      if (-sheetHeight.value > _minHeight + DRAG_BUFFER) {
+      if (
+        -sheetHeight.value > _minHeight + DRAG_BUFFER &&
+        headerOpacity.value !== 0
+      ) {
         headerOpacity.value = withSpring(0);
       }
 
-      if (-sheetHeight.value < _minHeight + DRAG_BUFFER) {
+      if (
+        -sheetHeight.value < _minHeight + DRAG_BUFFER &&
+        headerOpacity.value !== 1
+      ) {
         headerOpacity.value = withSpring(1);
       }
     },
@@ -136,25 +133,17 @@ const Sheet = ({
         navHeight.value = NAV_HEIGHT + 10;
         sheetHeight.value = withSpring(-_maxHeight, springConfig);
         headerOpacity.value = withSpring(0, springConfig);
-        runOnJS(setMountHeader)(false);
-        runOnJS(onOpenChange)(true);
         position.value = "maximised";
+        onOpenChange && runOnJS(onOpenChange)(true);
       } else if (shouldMinimize) {
-        runOnJS(setMountChildren)(false);
-        runOnJS(setMountHeader)(true);
         navHeight.value = withSpring(0, springConfig);
         sheetHeight.value = withSpring(-_minHeight, springConfig);
         headerOpacity.value = withSpring(1, springConfig);
-        runOnJS(onOpenChange)(false);
         position.value = "minimised";
+        onOpenChange && runOnJS(onOpenChange)(false);
       } else {
-        if (
-          position.value === "minimised" &&
-          headerOpacity.value !== 1 &&
-          !mountHeader
-        ) {
+        if (position.value === "minimised" && headerOpacity.value !== 1) {
           headerOpacity.value = withSpring(1, springConfig);
-          runOnJS(setMountHeader)(true);
         }
         sheetHeight.value = withSpring(
           position.value === "expanded"
@@ -197,7 +186,6 @@ const Sheet = ({
       navHeight.value = NAV_HEIGHT + 10;
       sheetHeight.value = withSpring(-_maxHeight, springConfig);
       headerOpacity.value = withSpring(0, springConfig);
-      setMountHeader(false);
 
       position.value = "maximised";
     } else {
@@ -205,7 +193,7 @@ const Sheet = ({
       navHeight.value = withSpring(0, springConfig);
       sheetHeight.value = withSpring(-_minHeight, springConfig);
       headerOpacity.value = withSpring(1);
-      setMountHeader(true);
+
       position.value = "minimised";
     }
   }, [open]);
@@ -235,6 +223,7 @@ const Sheet = ({
                   navHeight.value = withSpring(0, springConfig);
                   sheetHeight.value = withSpring(-_minHeight, springConfig);
                   headerOpacity.value = withSpring(1);
+                  // setMountHeader(true);
                   position.value = "minimised";
                 }}
               >
@@ -243,7 +232,7 @@ const Sheet = ({
             </Animated.View>
             <SafeAreaView>
               <Animated.View style={[headerAnimatedStyle]}>
-                {mountHeader ? renderHeader() : null}
+                {renderHeader()}
               </Animated.View>
               <View
                 style={{
@@ -252,11 +241,9 @@ const Sheet = ({
                   height: dimensions.window.height,
                 }}
               >
-                {mountChildren ? (
-                  <Animated.View style={[childrenAnimatedStyle]}>
-                    {children}
-                  </Animated.View>
-                ) : null}
+                <Animated.View style={[childrenAnimatedStyle]}>
+                  {children}
+                </Animated.View>
               </View>
             </SafeAreaView>
           </Animated.View>
