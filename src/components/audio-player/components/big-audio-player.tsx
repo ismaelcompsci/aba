@@ -2,20 +2,22 @@ import { useEffect, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import FastImage from "react-native-fast-image";
 import { getColors } from "react-native-image-colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TrackPlayer from "react-native-track-player";
 import { LinearGradient } from "@tamagui/linear-gradient";
 import {
+  Bookmark,
+  ChevronDown,
   FastForward,
-  MoreVertical,
+  List,
   Rewind,
   SkipBack,
   SkipForward,
 } from "@tamagui/lucide-icons";
-import { useSetAtom } from "jotai";
-import { H3, H6, Stack, XStack, YStack } from "tamagui";
+import { H3, H6, Stack, Text, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
-import { showPlayerAtom } from "../../../state/app-state";
+import AudioPlayerMore from "../../menus/audio-player-more";
 
 import { SEEK_INTERVAL } from "./audio-player-controls";
 import { CirlceButton } from "./circle-button";
@@ -33,13 +35,14 @@ const initialState = {
 
 const BigAudioPlayer = ({
   audiobookInfo,
+  setOpen,
 }: {
   audiobookInfo: AudiobookInfo;
+  setOpen: (open: boolean) => void;
 }) => {
-  const setShowPlayer = useSetAtom(showPlayerAtom);
-
   const [colors, setColors] = useState(initialState);
   const { width } = useWindowDimensions();
+  const { bottom } = useSafeAreaInsets();
 
   const { color, bgPress } = useIconTheme();
 
@@ -108,14 +111,11 @@ const BigAudioPlayer = ({
           paddingTop={48 + 10}
           space={"$2"}
         >
-          <XStack ai={"center"} width={"100%"} justifyContent="flex-end">
-            <CirlceButton
-              bg={"transparent"}
-              pressStyle={{ bg: "transparent", borderWidth: 0, opacity: 0.5 }}
-              onPress={() => setShowPlayer({ playing: false })}
-            >
-              <MoreVertical />
+          <XStack ai={"center"} width={"100%"} justifyContent="space-between">
+            <CirlceButton onPress={() => setOpen(false)}>
+              <ChevronDown />
             </CirlceButton>
+            <AudioPlayerMore />
           </XStack>
           {/* IMAGE */}
           <XStack width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
@@ -185,6 +185,24 @@ const BigAudioPlayer = ({
             <CirlceButton onPress={() => TrackPlayer.skipToNext()}>
               <SkipForward fill={color} />
             </CirlceButton>
+          </XStack>
+          <XStack ai="flex-end" flex={1}>
+            <XStack
+              p={"$4"}
+              pb={bottom}
+              justifyContent="space-between"
+              w={"100%"}
+            >
+              <CirlceButton bg={"$backgroundFocus"}>
+                <Bookmark />
+              </CirlceButton>
+              <CirlceButton bg={"$backgroundFocus"}>
+                <Text>1x</Text>
+              </CirlceButton>
+              <CirlceButton bg={"$backgroundFocus"}>
+                <List />
+              </CirlceButton>
+            </XStack>
           </XStack>
         </YStack>
       </LinearGradient>

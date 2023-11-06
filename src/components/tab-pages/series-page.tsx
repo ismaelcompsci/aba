@@ -65,25 +65,29 @@ const SeriesPage = ({
       } catch (error) {
         if (axios.isAxiosError(error)) {
           console.log(error);
-          // prettyLog(error);
         }
         console.log({ error, SERIES: "ERROR" });
 
-        throw new Error();
+        return {};
       }
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage?.data.page >= lastPage?.data.total) {
+      if (!lastPage?.data) {
+        return undefined;
+      }
+
+      if (lastPage?.data?.page >= lastPage?.data?.total) {
         return undefined;
       }
 
       return lastPage?.nextPage;
     },
     staleTime: 1000 * 60 * 60, // 1 hour in future use server events to invalidate data
-    refetchOnMount: true,
   });
 
-  const flattenData = seriesItems?.pages.flatMap((page) => page?.data?.results);
+  const flattenData = seriesItems?.pages.flatMap(
+    (page) => page?.data?.results || []
+  );
   const isEmpty = flattenData?.length === 0 && !isLoading;
 
   const loadNextPageData = () => {
@@ -124,7 +128,7 @@ const SeriesPage = ({
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
             ItemSeparatorComponent={() => <Separator w={0} h={10} />}
-            estimatedItemSize={bookWidth}
+            estimatedItemSize={bookWidth * 2}
             ListFooterComponent={() => <Separator w={0} h={30} />}
             ListEmptyComponent={() => {
               return <Text>EMPTY</Text>;

@@ -34,11 +34,13 @@ import {
   YStack,
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
+import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { ActionButton } from "../../components/book-info";
 import { ClearIconButton } from "../../components/buttons/button";
 import { FullScreen, ScreenCenter } from "../../components/center";
 import { ParallaxScrollView } from "../../components/custom-components/parallax-scroll-view";
+import { appDialogAtom } from "../../components/dialogs/app-dialog";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
@@ -46,6 +48,7 @@ import { HEADER_HEIGHT } from "../../hooks/use-header-height";
 import {
   currentItemAtom,
   currentLibraryAtom,
+  mediaProgressAtom,
   showPlayerAtom,
   userAtom,
 } from "../../state/app-state";
@@ -58,11 +61,15 @@ const DEFAULT_TRUNCATE = 5;
 
 const BookPage = () => {
   // @ts-ignore
-  const { id, percent } = useLocalSearchParams<{
+  const { id } = useLocalSearchParams<{
     id: string;
-    percent?: number;
   }>();
+  const setAppDialog = useSetAtom(appDialogAtom);
   const appScheme = useAtomValue(appThemeAtom);
+  const mediaProgress = useAtomValue(mediaProgressAtom);
+  const userMediaProgress = mediaProgress?.find(
+    (prog) => prog.libraryItemId === id
+  );
 
   const { width, height } = useWindowDimensions();
 
@@ -351,6 +358,22 @@ const BookPage = () => {
     // if (seriesId) router.push(`/library/series/${id}`);
   };
 
+  let useEBookProgress;
+  if (!userMediaProgress || userMediaProgress.progress)
+    useEBookProgress = false;
+  else if (userMediaProgress.ebookProgress)
+    useEBookProgress = userMediaProgress.ebookProgress > 0;
+
+  let userProgressPercent: number;
+  if (useEBookProgress && userMediaProgress?.ebookProgress) {
+    userProgressPercent = Math.max(
+      Math.min(1, userMediaProgress.ebookProgress),
+      0
+    );
+  } else
+    userProgressPercent =
+      Math.max(Math.min(1, userMediaProgress?.progress || 0), 0) || 0;
+
   const libraryFiles = bookItem.libraryFiles || [];
   const numberChapters = numChapters();
   const ebookFiles = libraryFiles.filter((lf) => lf.fileType === "ebook");
@@ -417,9 +440,9 @@ const BookPage = () => {
                   gap="$4"
                   alignItems="center"
                 >
-                  {percent && percent > 0 ? (
+                  {userProgressPercent && userProgressPercent > 0 ? (
                     <CircularProgress
-                      value={percent * 100}
+                      value={userProgressPercent * 100}
                       radius={22}
                       activeStrokeWidth={5}
                       inActiveStrokeWidth={6}
@@ -427,9 +450,34 @@ const BookPage = () => {
                       inActiveStrokeOpacity={0.4}
                     />
                   ) : null}
-                  <Button>
-                    <MoreHorizontal />
-                  </Button>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <Button>
+                        <MoreHorizontal />
+                      </Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content>
+                      <DropdownMenu.Item
+                        key="discard_progress"
+                        destructive
+                        onSelect={() =>
+                          setAppDialog({
+                            open: true,
+                            title: "Discard Progress",
+                            description:
+                              "Ary you sure you want to discard progress",
+                            action: "progress",
+                            progressId: userMediaProgress?.id,
+                          })
+                        }
+                      >
+                        <DropdownMenu.ItemTitle>
+                          Discard Progress
+                        </DropdownMenu.ItemTitle>
+                        <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
                 </XStack>
               </XStack>
               <ReadMore

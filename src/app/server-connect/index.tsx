@@ -190,6 +190,7 @@ const ServerConnectPage = () => {
                   setPressedServer(server);
                   connectToServer(server);
                 }}
+                $gtSm={{ jc: "space-between" }}
               >
                 {server.name}
                 {pressedServer?.id === server.id && loading ? (

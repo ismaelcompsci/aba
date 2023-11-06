@@ -101,10 +101,11 @@ const LibraryPage = ({
           console.log(error);
         }
         console.log({ error, LIBRARY: "ERROR" });
-        throw new Error();
       }
+      return {};
     },
     getNextPageParam: (lastPage) => {
+      if (!lastPage?.data) return;
       if (lastPage?.data.page >= lastPage?.data.total) {
         return undefined;
       }
@@ -116,7 +117,7 @@ const LibraryPage = ({
   });
 
   let flattenData =
-    libraryItems?.pages.flatMap((page) => page.data.results) || [];
+    libraryItems?.pages.flatMap((page) => page?.data?.results || []) || [];
 
   const isEmpty = flattenData?.length === 0 && !isLoading;
 
@@ -172,7 +173,7 @@ const LibraryPage = ({
         bg={"$backgroundHover"}
         elevation={"$0.5"}
       >
-        <Text fontWeight="$8">{libraryItems?.pages[0]?.data.total} Books</Text>
+        <Text fontWeight="$8">{libraryItems?.pages[0]?.data?.total} Books</Text>
         {filter && seriesName ? (
           <Text numberOfLines={1} maxWidth={screenWidth / 1.6}>
             {seriesName}

@@ -31,10 +31,11 @@ interface SheetProps {
   sheetStyles?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
   navigationStyle?: StyleProp<Animated.AnimateStyle<StyleProp<ViewStyle>>>;
   handle?: boolean;
-  icon: JSX.Element;
+  icon?: JSX.Element;
   renderHeader: () => React.ReactNode;
   open?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
+  controlled: boolean;
 }
 
 type SheetPositions = "minimised" | "maximised" | "expanded";
@@ -56,6 +57,7 @@ const Sheet = ({
   onOpenChange,
   open,
   sheetStyles,
+  controlled,
 }: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
 
@@ -223,18 +225,20 @@ const Sheet = ({
                 { position: "absolute", zIndex: 9999, top: NAV_HEIGHT + 10 },
               ]}
             >
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => {
-                  navHeight.value = withSpring(0, springConfig);
-                  sheetHeight.value = withSpring(-_minHeight, springConfig);
-                  headerOpacity.value = withSpring(1);
-                  // setMountHeader(true);
-                  position.value = "minimised";
-                }}
-              >
-                {icon ? icon : <Text>{`❌`}</Text>}
-              </TouchableOpacity>
+              {!controlled ? (
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => {
+                    navHeight.value = withSpring(0, springConfig);
+                    sheetHeight.value = withSpring(-_minHeight, springConfig);
+                    headerOpacity.value = withSpring(1);
+                    // setMountHeader(true);
+                    position.value = "minimised";
+                  }}
+                >
+                  {icon ? icon : <Text>{`❌`}</Text>}
+                </TouchableOpacity>
+              ) : null}
             </Animated.View>
             <SafeAreaView>
               <Animated.View style={[headerAnimatedStyle]}>

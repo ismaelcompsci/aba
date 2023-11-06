@@ -1,6 +1,11 @@
-import { atom } from "jotai";
+import { atom, Getter } from "jotai";
 
-import { Library, LibraryItemExpanded, User } from "../types/aba";
+import {
+  Library,
+  LibraryItemExpanded,
+  MediaProgress,
+  User,
+} from "../types/aba";
 import { PlayingState } from "../types/types";
 
 export const userAtom = atom<User | null>(null);
@@ -22,3 +27,21 @@ export const currentLibraryAtom = atom<Library | null>((get) => {
 
   return libs?.find((lib) => lib.id === libId) || null;
 });
+
+export const mediaProgressAtom = atom((get: Getter) => {
+  const user = get(userAtom);
+  const userMediaProgress = user?.mediaProgress;
+
+  return userMediaProgress;
+});
+
+export const setMediaProgressAtom = atom(
+  null,
+  (get, set, update: MediaProgress[]) => {
+    const user = get(userAtom);
+
+    if (user) {
+      set(userAtom, { ...user, mediaProgress: update });
+    }
+  }
+);

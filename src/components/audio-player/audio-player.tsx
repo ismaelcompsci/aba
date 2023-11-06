@@ -254,14 +254,14 @@ const AudioPlayerContainer = () => {
 
   return (
     <Sheet
-      icon={<ChevronDown />}
       sheetStyles={{ backgroundColor: "transparent" }}
       renderHeader={renderHeader}
       open={open}
       onOpenChange={setOpen}
+      controlled
     >
       {ready ? (
-        <BigAudioPlayer audiobookInfo={audiobookInfo} />
+        <BigAudioPlayer audiobookInfo={audiobookInfo} setOpen={setOpen} />
       ) : (
         <ScreenCenter
           bg={"$backgroundPress"}

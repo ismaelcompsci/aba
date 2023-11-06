@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { Card, Text, XStack, YStack, YStackProps } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
-import { userAtom } from "../../state/app-state";
+import { mediaProgressAtom } from "../../state/app-state";
 import { LibraryItemMinified } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
@@ -28,13 +28,12 @@ const BookCard = ({
   isCoverSquareAspectRatio,
   ...rest
 }: BookCardProps & YStackProps) => {
-  const user = useAtomValue(userAtom);
+  const mediaProgress = useAtomValue(mediaProgressAtom);
   const [error, setError] = useState(false);
   const coverUrl = getItemCoverSrc(item, serverConfig, token);
 
   const { color, bgPress } = useIconTheme();
 
-  const mediaProgress = user?.mediaProgress;
   const userMediaProgress = mediaProgress?.find(
     (prog) => prog.libraryItemId === item.id
   );
@@ -43,7 +42,7 @@ const BookCard = ({
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
 
   const handlePress = () => {
-    router.push(`/book/${item.id}?percent=${userProgressPercent}`);
+    router.push(`/book/${item.id}`);
   };
 
   useEffect(() => {

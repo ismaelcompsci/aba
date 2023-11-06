@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Dimensions, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -49,7 +49,7 @@ const PersonalizedPage = ({
   } = useQuery(
     ["personalized-library-view", currentLibraryId, user?.id, serverConfig?.id],
     {
-      queryFn: async (): Promise<PersonalizedView[]> => {
+      queryFn: async (): Promise<PersonalizedView[] | undefined> => {
         try {
           if (!serverConfig?.id) return [];
           const response = await axios.get(
@@ -62,7 +62,6 @@ const PersonalizedPage = ({
           if (axios.isAxiosError(error)) {
             console.log({ error, PEROSONALIZED: "ERROR" });
           }
-          throw new Error();
         }
       },
       staleTime: 1000 * 60 * 60,
