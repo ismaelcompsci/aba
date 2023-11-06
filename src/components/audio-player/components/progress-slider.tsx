@@ -110,7 +110,6 @@ export const ProgressSlider = ({
             step={1}
             onValueChange={(value) => {
               setIsSeeking(true);
-              console.log({ value });
               setSeek(value[0]);
             }}
             onSlideEnd={() => handleSliderEnd(seek)}

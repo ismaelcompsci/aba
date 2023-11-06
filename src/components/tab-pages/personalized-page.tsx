@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -41,7 +41,6 @@ const PersonalizedPage = ({
   const { width } = useWindowDimensions();
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
-
   const {
     data: personalizedLibrary,
     isLoading,
@@ -166,4 +165,4 @@ const PersonalizedPage = ({
   );
 };
 
-export default PersonalizedPage;
+export default memo(PersonalizedPage);

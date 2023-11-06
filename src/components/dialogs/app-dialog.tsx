@@ -1,4 +1,5 @@
 import { useWindowDimensions } from "react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, Dialog, XStack } from "tamagui";
@@ -9,7 +10,6 @@ import {
   userAtom,
 } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
-import { useQueryClient } from "@tanstack/react-query";
 
 type AppDialog = {
   open: boolean;

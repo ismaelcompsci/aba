@@ -1,10 +1,15 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
-import { SceneRendererProps, TabBar, TabView } from "react-native-tab-view";
+import {
+  NavigationState,
+  SceneRendererProps,
+  TabBar,
+  TabView,
+} from "react-native-tab-view";
 import { Backpack, Home, Library } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
-import { useTheme } from "tamagui";
+import { Text, useTheme, View } from "tamagui";
 
 import { FullScreen } from "../../components/center";
 import NoServer from "../../components/no-server";
@@ -87,6 +92,45 @@ const HomePage = () => {
     }
   };
 
+  const renderLazyPlaceHolder = (props: {
+    route: {
+      key: string;
+      title: string;
+    };
+  }) => {
+    return (
+      <View flex={1} jc="center" ai="center">
+        <Text>Loading {props.route.title}</Text>
+      </View>
+    );
+  };
+
+  const renderTabBar = (
+    props: SceneRendererProps & {
+      navigationState: NavigationState<{
+        key: string;
+        title: string;
+      }>;
+    }
+  ) => {
+    return (
+      <TabBar
+        style={{
+          backgroundColor: bg,
+        }}
+        indicatorStyle={{ backgroundColor: color }}
+        renderIcon={({ route, focused }) => {
+          const Icon = tabs[route.title as TabName];
+          return (
+            <Icon size={"$1"} opacity={!focused ? 0.5 : 1} color={iconColor} />
+          );
+        }}
+        labelStyle={{ color: color }}
+        {...props}
+      />
+    );
+  };
+
   return (
     <FullScreen>
       {!user ? (
@@ -97,28 +141,8 @@ const HomePage = () => {
             lazy
             navigationState={{ index, routes }}
             renderScene={renderScene}
-            renderTabBar={(props) => {
-              return (
-                <TabBar
-                  style={{
-                    backgroundColor: bg,
-                  }}
-                  indicatorStyle={{ backgroundColor: color }}
-                  renderIcon={({ route, focused }) => {
-                    const Icon = tabs[route.title as TabName];
-                    return (
-                      <Icon
-                        size={"$1"}
-                        opacity={!focused ? 0.5 : 1}
-                        color={iconColor}
-                      />
-                    );
-                  }}
-                  labelStyle={{ color: color }}
-                  {...props}
-                />
-              );
-            }}
+            renderTabBar={renderTabBar}
+            renderLazyPlaceholder={renderLazyPlaceHolder}
             onIndexChange={setIndex}
             initialLayout={{ width: layout.width, height: layout.height }}
           />

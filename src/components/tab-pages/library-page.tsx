@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
@@ -205,4 +205,4 @@ const LibraryPage = ({
   );
 };
 
-export default LibraryPage;
+export default memo(LibraryPage);

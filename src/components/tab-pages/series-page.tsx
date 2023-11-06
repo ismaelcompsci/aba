@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -140,4 +140,4 @@ const SeriesPage = ({
   );
 };
 
-export default SeriesPage;
+export default memo(SeriesPage);
