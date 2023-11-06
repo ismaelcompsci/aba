@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { GestureResponderEvent } from "react-native";
 import TrackPlayer, {
   Event,
   Track,
@@ -71,10 +70,7 @@ export const ProgressSlider = ({
     })();
   }, []);
 
-  const handleSliderEnd = async (
-    event: GestureResponderEvent,
-    value: number
-  ) => {
+  const handleSliderEnd = async (value: number) => {
     if (!audioTracks?.length) return;
 
     const trackIndex = Math.max(
@@ -87,7 +83,10 @@ export const ProgressSlider = ({
     );
 
     const initialPosition = value - audioTracks[trackIndex].startOffset;
-    await TrackPlayer.skip(trackIndex, initialPosition);
+
+    await TrackPlayer.pause();
+    await TrackPlayer.skip(trackIndex);
+    await TrackPlayer.seekTo(initialPosition);
     /**
      * stops the slider from bouncing
      */
@@ -108,12 +107,13 @@ export const ProgressSlider = ({
             min={0}
             value={[isSeeking ? seek : overallCurrentTime]}
             max={totalDuration ? Math.floor(totalDuration) : 100}
-            step={5}
+            step={1}
             onValueChange={(value) => {
               setIsSeeking(true);
+              console.log({ value });
               setSeek(value[0]);
             }}
-            onSlideEnd={handleSliderEnd}
+            onSlideEnd={() => handleSliderEnd(seek)}
           >
             <Slider.Track {...trackProps}>
               <Slider.TrackActive bg={color} />
