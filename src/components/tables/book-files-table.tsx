@@ -1,5 +1,5 @@
 import { memo, useState } from "react";
-import { Dimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { BookOpen, CheckCircle, ChevronDown } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -29,7 +29,8 @@ import PressBookFileMenu from "../menus/book-file-menu";
 
 const BookFilesTable = memo(
   ({ ebookFiles, itemId }: { ebookFiles: LibraryFile[]; itemId: string }) => {
-    const layout = Dimensions.get("window");
+    const { width } = useWindowDimensions();
+
     const queryClient = useQueryClient();
     const user = useAtomValue(userAtom);
     const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -108,7 +109,7 @@ const BookFilesTable = memo(
                   jc="center"
                   size="$4"
                   numberOfLines={2}
-                  maxWidth={layout.width / 2 + 40}
+                  maxWidth={width / 2 + 40}
                 >
                   {item.metadata.filename}
                   {getCheckMark(item)}
@@ -129,7 +130,7 @@ const BookFilesTable = memo(
                   <YStack
                     bg={"$background"}
                     h={"$9"}
-                    w={layout.width - 50}
+                    w={width - 50}
                     key={item.metadata.filename}
                     jc="center"
                     space="$1"
@@ -189,7 +190,7 @@ const BookFilesTable = memo(
         pt="$4"
         value={opened}
         onValueChange={setOpened}
-        maxWidth={layout.width}
+        maxWidth={width}
       >
         <Accordion.Item value="a1">
           <Accordion.Trigger
@@ -217,8 +218,8 @@ const BookFilesTable = memo(
               );
             }}
           </Accordion.Trigger>
-          <Accordion.Content padding={false} maxWidth={layout.width}>
-            <XStack maxWidth={layout.width}>
+          <Accordion.Content padding={false} maxWidth={width}>
+            <XStack maxWidth={width}>
               <DataTable
                 title="Files"
                 data={ebookFiles}

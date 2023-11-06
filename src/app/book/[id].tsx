@@ -1,5 +1,5 @@
 import React from "react";
-import { Animated, Dimensions } from "react-native";
+import { Animated, useWindowDimensions } from "react-native";
 import CircularProgress from "react-native-circular-progress-indicator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import TrackPlayer, {
@@ -54,8 +54,6 @@ import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode, getGradient } from "../../utils/utils";
 
-const layout = Dimensions.get("window");
-
 const DEFAULT_TRUNCATE = 5;
 
 const BookPage = () => {
@@ -65,6 +63,8 @@ const BookPage = () => {
     percent?: number;
   }>();
   const appScheme = useAtomValue(appThemeAtom);
+
+  const { width, height } = useWindowDimensions();
 
   const user = useAtomValue(userAtom);
   const library = useAtomValue(currentLibraryAtom);
@@ -109,9 +109,7 @@ const BookPage = () => {
 
   const renderParallaxHeader = () => {
     const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
-    const imageWidth = isCoverSquareAspectRatio
-      ? layout.width * 0.75
-      : undefined;
+    const imageWidth = isCoverSquareAspectRatio ? width * 0.75 : undefined;
 
     return (
       <FullScreen w="100%" h="100%">
@@ -153,9 +151,7 @@ const BookPage = () => {
               zIndex: 50,
               top: -10,
               bottom: 0,
-              left: isCoverSquareAspectRatio
-                ? layout.width / 2 - imageWidth! / 2
-                : 0,
+              left: isCoverSquareAspectRatio ? width / 2 - imageWidth! / 2 : 0,
               right: 0,
             }}
             source={{
@@ -387,11 +383,11 @@ const BookPage = () => {
             style={{
               position: "absolute",
               height: 100,
-              width: layout.width,
+              width: width,
               marginTop: -100,
             }}
           />
-          <View minHeight={layout.height - IHeight}>
+          <View minHeight={height - IHeight}>
             <View px={10} space="$1">
               <H3 numberOfLines={3} mt={-20}>
                 {bookItem.media.metadata.title}

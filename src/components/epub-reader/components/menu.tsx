@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dimensions, Platform } from "react-native";
+import { Platform, useWindowDimensions } from "react-native";
 import {
   ChevronLeft,
   ChevronsDownUp,
@@ -43,8 +43,6 @@ const FONT_STEP = 5;
 const GAPSTEP = 0.01;
 const LINESTEP = 0.1;
 
-const { height } = Dimensions.get("window");
-
 const Menu = ({
   children,
   hide,
@@ -54,6 +52,7 @@ const Menu = ({
   hide: boolean;
   title: string;
 }) => {
+  const { height } = useWindowDimensions();
   const { changeTheme } = useReader();
 
   const { top } = useHeaderHeight();

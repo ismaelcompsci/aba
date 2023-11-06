@@ -27,6 +27,7 @@ import {
   AudioPlayerInfo,
   SmallAudioPlayerWrapper,
 } from "./components/small-audio-player";
+import { Dimensions } from "react-native";
 
 const AudioPlayerContainer = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);

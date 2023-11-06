@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import FastImage from "react-native-fast-image";
 import { getColors } from "react-native-image-colors";
 import TrackPlayer from "react-native-track-player";
@@ -39,7 +39,7 @@ const BigAudioPlayer = ({
   const setShowPlayer = useSetAtom(showPlayerAtom);
 
   const [colors, setColors] = useState(initialState);
-  const { width } = Dimensions.get("window");
+  const { width } = useWindowDimensions();
 
   const { color, bgPress } = useIconTheme();
 
@@ -91,7 +91,7 @@ const BigAudioPlayer = ({
   return (
     <YStack
       bg={"$backgroundPress"}
-      width={"100%"}
+      width={width}
       height={"100%"}
       borderRadius={"$7"}
     >
@@ -139,7 +139,7 @@ const BigAudioPlayer = ({
             <H6>{audiobookInfo.author}</H6>
           </YStack>
           {/* PROGRESS */}
-          <YStack space={"$2"} pt={"$4"} width={"100%"} bg={"red"}>
+          <YStack space={"$2"} pt={"$4"} width={"100%"}>
             <ProgressSlider
               showThumb
               color={color}

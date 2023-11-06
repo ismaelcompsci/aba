@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
   Adapt,
@@ -30,7 +30,7 @@ export function ServerSelect({ ...props }: PopoverProps) {
   const [open, setOpen] = useState(false);
 
   const { iconColor } = useIconTheme();
-  const { width } = Dimensions.get("screen");
+  const { width } = useWindowDimensions();
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
 
   const onValueChange = async (value: string) => {
@@ -70,11 +70,11 @@ export function ServerSelect({ ...props }: PopoverProps) {
 
       <Adapt when={"xxs"} platform="touch">
         <Popover.Sheet modal dismissOnSnapToBottom>
-          <Popover.Sheet.Frame padding="$4">
+          <Popover.Sheet.Frame>
             <Adapt.Contents />
           </Popover.Sheet.Frame>
           <Popover.Sheet.Overlay
-            animation="lazy"
+            animation="100ms"
             enterStyle={{ opacity: 0 }}
             exitStyle={{ opacity: 0 }}
           />
@@ -113,8 +113,10 @@ export function ServerSelect({ ...props }: PopoverProps) {
             return (
               <ToggleGroup.Item value={lib?.name} key={lib?.id}>
                 <XStack
-                  maxWidth={width / 2 - 50}
-                  minWidth={150}
+                  $sm={{
+                    width: width * 0.35,
+                  }}
+                  $gtSm={{ width: width * 0.2 }}
                   alignItems="center"
                   justifyContent="space-between"
                 >

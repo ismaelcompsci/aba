@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { Dimensions } from "react-native";
+import { useCallback } from "react";
+import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -26,7 +26,8 @@ const SeriesPage = ({
 }: SeriesPageProps) => {
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
-  const screenWidth = Dimensions.get("window").width;
+  const { width: screenWidth } = useWindowDimensions();
+
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
 
   // todo

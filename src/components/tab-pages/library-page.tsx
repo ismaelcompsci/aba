@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Dimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -37,7 +37,7 @@ const LibraryPage = ({
   const queryClient = useQueryClient();
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
-  const screenWidth = Dimensions.get("window").width;
+  const { width: screenWidth } = useWindowDimensions();
 
   let numOfColumns;
   if (screenWidth <= 479) {

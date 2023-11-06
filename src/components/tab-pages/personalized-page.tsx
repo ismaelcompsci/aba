@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Dimensions } from "react-native";
+import { Dimensions, useWindowDimensions } from "react-native";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -38,7 +38,7 @@ const PersonalizedPage = ({
   user,
 }: PersonalizedPageProps) => {
   const changingLibrary = useAtomValue(changingLibraryAtom);
-  const { width } = Dimensions.get("window");
+  const { width } = useWindowDimensions();
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
@@ -66,7 +66,6 @@ const PersonalizedPage = ({
         }
       },
       staleTime: 1000 * 60 * 60,
-      refetchOnMount: true,
     }
   );
 
@@ -82,7 +81,6 @@ const PersonalizedPage = ({
       return data;
     },
     staleTime: 1000 * 60 * 60,
-    refetchOnMount: true,
   });
 
   const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
