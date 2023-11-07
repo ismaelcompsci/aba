@@ -59,7 +59,6 @@ const AudioPlayerContainer = () => {
         })
       );
       console.log(`[AUDIOPLAYER] TRACKS LENGTH ${tracks.length}`);
-      // setAudioTracks(tracks);
 
       const currentTrackIndex = Math.max(
         0,

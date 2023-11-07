@@ -77,7 +77,7 @@ export const ProgressSlider = ({
         )}
       </ProgressContainer>
       {showThumb ? (
-        <XStack ai={"center"} jc={"space-between"} pt={"$1.5"}>
+        <XStack ai={"center"} jc={"space-between"} pt={"$2.5"}>
           <Text fontSize={"$1"} color={"$gray10"}>
             {formatSeconds(isSeeking ? seek : overallCurrentTime)}
           </Text>

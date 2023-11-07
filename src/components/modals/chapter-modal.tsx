@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
+import TrackPlayer from "react-native-track-player";
 import { List, X } from "@tamagui/lucide-icons";
 import {
   Button,
@@ -11,6 +12,7 @@ import {
   XStack,
 } from "tamagui";
 
+import { AudioPlayerTrackExtra } from "../../types/types";
 import { formatSeconds } from "../../utils/utils";
 import { CirlceButton } from "../audio-player/components/circle-button";
 import { useTracks } from "../audio-player/hooks/use-tracks";
@@ -19,6 +21,10 @@ const ChaptersModal = () => {
   const [openSheet, setOpenSheet] = useState(false);
   const { width, height } = useWindowDimensions();
   const { audioTracks, currentTrack } = useTracks();
+
+  const handleChapterPress = (track: AudioPlayerTrackExtra) => {
+    TrackPlayer.skip(track.id);
+  };
 
   return (
     <Dialog
@@ -68,7 +74,15 @@ const ChaptersModal = () => {
           <Dialog.Title>Chapters</Dialog.Title>
           <ScrollView flex={1} showsVerticalScrollIndicator={false}>
             {audioTracks?.map((track, i) => (
-              <XStack key={track.id} height={"$4"} ai="center">
+              <XStack
+                key={track.id}
+                height={"$4"}
+                ai="center"
+                onPress={() => handleChapterPress(track)}
+                pressStyle={{
+                  bg: "$backgroundPress",
+                }}
+              >
                 {track.id === currentTrack?.id ? (
                   <Stack
                     h={"$2"}
