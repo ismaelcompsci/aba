@@ -1,15 +1,12 @@
+import { useState } from "react";
 import { useWindowDimensions } from "react-native";
-import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Button, Dialog, XStack } from "tamagui";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { Button, Dialog, Spinner, XStack } from "tamagui";
 
-import {
-  mediaProgressAtom,
-  setMediaProgressAtom,
-  userAtom,
-} from "../../state/app-state";
+import { userAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
+import { User } from "../../types/aba";
 
 type AppDialog = {
   open: boolean;
@@ -17,6 +14,7 @@ type AppDialog = {
   description?: string;
   action: string;
   progressId?: string;
+  itemId?: string;
 };
 
 export const appDialogAtom = atom<AppDialog>({
@@ -27,10 +25,9 @@ export const appDialogAtom = atom<AppDialog>({
 const AppDialog = () => {
   const [appDialog, setAppDialog] = useAtom(appDialogAtom);
   const serverConfig = useAtomValue(currentServerConfigAtom);
-  const user = useAtomValue(userAtom);
-  const [mediaProgress] = useAtom(mediaProgressAtom);
-  const setMediaProgress = useSetAtom(setMediaProgressAtom);
-  const queryClient = useQueryClient();
+  const [user, setUser] = useAtom(userAtom);
+
+  const [loading, setLoading] = useState(false);
 
   const { width } = useWindowDimensions();
 
@@ -41,15 +38,47 @@ const AppDialog = () => {
         await clearProgress();
         setAppDialog({ open: false, action: "close" });
         break;
+      case "mark_as_finshed":
+        await markAsFinshed();
+        setAppDialog({ open: false, action: "close" });
+        break;
       default:
         setAppDialog({ open: false, action: "close" });
         break;
     }
   };
+  const markAsFinshed = async () => {
+    try {
+      setLoading(true);
+      const markAsFinshed = true;
+      const data = {
+        isFinished: markAsFinshed,
+      };
+      const response = await axios.patch(
+        `${serverConfig.serverAddress}/api/me/progress/${appDialog.itemId}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+
+      if (response.data) {
+        const updatedUser = await getUpdatedUser();
+        if (updatedUser) setUser(updatedUser);
+      }
+    } catch (error) {
+      console.log("[APPDIALOG] mark as finshed error", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const clearProgress = async () => {
     try {
-      await axios.delete(
+      setLoading(true);
+      const response = await axios.delete(
         `${serverConfig.serverAddress}/api/me/progress/${appDialog.progressId}`,
         {
           headers: {
@@ -57,18 +86,30 @@ const AppDialog = () => {
           },
         }
       );
-      const newMedia = mediaProgress?.filter(
-        (value) => value.id !== appDialog.progressId
-      );
-      if (newMedia) {
-        setMediaProgress(newMedia);
-        queryClient.resetQueries([
-          "personalized-library-view",
-          "library-items",
-        ]);
+
+      if (response.data) {
+        const updatedUser = await getUpdatedUser();
+        if (updatedUser) setUser(updatedUser);
       }
     } catch (error) {
       console.log("[APPDIALOG] clear progress error", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getUpdatedUser = async () => {
+    try {
+      const response = await axios.get(`${serverConfig.serverAddress}/api/me`, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+
+      return response.data as User;
+    } catch (error) {
+      console.log("[APPDIALOG] getUpdatedUser error", error);
+      return;
     }
   };
 
@@ -89,11 +130,23 @@ const AppDialog = () => {
             <Button
               flex={1}
               onPress={() => setAppDialog({ open: false, action: "close" })}
+              disabled={loading}
+              opacity={loading ? 0.5 : 1}
             >
               Cancel
             </Button>
-            <Button flex={1} theme={"red_active"} onPress={handleActionPress}>
+            <Button
+              flex={1}
+              theme={"red_active"}
+              onPress={handleActionPress}
+              disabled={loading}
+              opacity={loading ? 0.5 : 1}
+              jc="center"
+              ai="center"
+              gap="$2"
+            >
               Okay
+              {loading ? <Spinner size="small" /> : null}
             </Button>
           </XStack>
           <Dialog.Close />

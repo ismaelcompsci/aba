@@ -12,7 +12,6 @@ import {
   BookOpen,
   BookX,
   ChevronLeft,
-  MoreHorizontal,
   Pause,
   Play,
 } from "@tamagui/lucide-icons";
@@ -34,13 +33,12 @@ import {
   YStack,
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
-import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { ActionButton } from "../../components/book-info";
 import { ClearIconButton } from "../../components/buttons/button";
 import { FullScreen, ScreenCenter } from "../../components/center";
 import { ParallaxScrollView } from "../../components/custom-components/parallax-scroll-view";
-import { appDialogAtom } from "../../components/dialogs/app-dialog";
+import BookMoreMenu from "../../components/menus/book-more-menu";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
@@ -64,7 +62,6 @@ const BookPage = () => {
   const { id } = useLocalSearchParams<{
     id: string;
   }>();
-  const setAppDialog = useSetAtom(appDialogAtom);
   const appScheme = useAtomValue(appThemeAtom);
   const mediaProgress = useAtomValue(mediaProgressAtom);
   const userMediaProgress = mediaProgress?.find(
@@ -450,34 +447,11 @@ const BookPage = () => {
                       inActiveStrokeOpacity={0.4}
                     />
                   ) : null}
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                      <Button>
-                        <MoreHorizontal />
-                      </Button>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content>
-                      <DropdownMenu.Item
-                        key="discard_progress"
-                        destructive
-                        onSelect={() =>
-                          setAppDialog({
-                            open: true,
-                            title: "Discard Progress",
-                            description:
-                              "Ary you sure you want to discard progress",
-                            action: "progress",
-                            progressId: userMediaProgress?.id,
-                          })
-                        }
-                      >
-                        <DropdownMenu.ItemTitle>
-                          Discard Progress
-                        </DropdownMenu.ItemTitle>
-                        <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
-                      </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
+                  <BookMoreMenu
+                    userMediaProgress={userMediaProgress}
+                    title={bookItem.media.metadata.title}
+                    itemId={bookItem.id}
+                  />
                 </XStack>
               </XStack>
               <ReadMore
