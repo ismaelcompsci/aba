@@ -25,7 +25,6 @@ import { useHeaderHeight } from "../hooks/use-header-height";
 import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
-import AppDialog from "../components/dialogs/app-dialog";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -91,7 +90,6 @@ export default function Layout() {
               animation: animation,
             }}
           />
-          <AppDialog key="modal-global" />
           <AudioPlayerContainer />
         </QueryClientProvider>
       </Theme>

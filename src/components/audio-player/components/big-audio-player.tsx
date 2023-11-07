@@ -115,7 +115,7 @@ const BigAudioPlayer = ({
             <CirlceButton onPress={() => setOpen(false)}>
               <ChevronDown />
             </CirlceButton>
-            <AudioPlayerMore />
+            <AudioPlayerMore setOpen={setOpen} />
           </XStack>
           {/* IMAGE */}
           <XStack width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
