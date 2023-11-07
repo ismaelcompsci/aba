@@ -5,7 +5,6 @@ import TrackPlayer, {
   Event,
   useTrackPlayerEvents,
 } from "react-native-track-player";
-import { ChevronDown } from "@tamagui/lucide-icons";
 import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
 import { Spinner } from "tamagui";
@@ -14,7 +13,7 @@ import useIconTheme from "../../hooks/use-icon-theme";
 import { showPlayerAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom, deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
-import { AudioPlayerTrack } from "../../types/types";
+import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
 import { ScreenCenter } from "../center";
@@ -27,7 +26,6 @@ import {
   AudioPlayerInfo,
   SmallAudioPlayerWrapper,
 } from "./components/small-audio-player";
-import { Dimensions } from "react-native";
 
 const AudioPlayerContainer = () => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -61,13 +59,15 @@ const AudioPlayerContainer = () => {
         })
       );
       console.log(`[AUDIOPLAYER] TRACKS LENGTH ${tracks.length}`);
+      // setAudioTracks(tracks);
 
       const currentTrackIndex = Math.max(
         0,
         tracks.findIndex(
           (t) =>
             Math.floor(t.startOffset) <= playbackSession.startTime &&
-            Math.floor(t.startOffset + t.duration) > playbackSession.startTime
+            Math.floor(t.startOffset + (t.duration || 0)) >
+              playbackSession.startTime
         )
       );
 
@@ -78,12 +78,11 @@ const AudioPlayerContainer = () => {
       await TrackPlayer.reset();
       await TrackPlayer.add(tracks);
 
-      const initialPosition =
-        playbackSession.currentTime - currentTrack.startOffset;
-
       if (playbackSession.currentTime && currentTrack) {
-        await TrackPlayer.skip(currentTrack.id);
-        await TrackPlayer.seekTo(initialPosition);
+        loadCurrentTrack({
+          startTime: playbackSession.startTime,
+          currentTrack,
+        });
       }
 
       TrackPlayer.updateNowPlayingMetadata({
@@ -111,17 +110,24 @@ const AudioPlayerContainer = () => {
           // elapsedTime: overallCurrentTime,
         });
       }
-
-      // if (
-      //   event.type === Event.PlaybackActiveTrackChanged &&
-      //   event.track != null &&
-      //   event.index != null
-      // ) {
-      //   const track = await TrackPlayer.getTrack(event.index);
-      //   setActiveTrack(track as AudioPlayerTrack);
-      // }
     }
   );
+
+  const loadCurrentTrack = async ({
+    startTime,
+    currentTrack,
+  }: {
+    startTime: number;
+    currentTrack: AudioPlayerTrackExtra;
+  }) => {
+    const trackIndex = currentTrack.id;
+    const trackPosition = Math.max(
+      0,
+      startTime - (currentTrack.startOffset || 0)
+    );
+    await TrackPlayer.skip(trackIndex);
+    await TrackPlayer.seekTo(trackPosition);
+  };
 
   const getDeviceId = () => {
     let id = deviceId;
@@ -214,8 +220,8 @@ const AudioPlayerContainer = () => {
         Capability.SkipToNext,
         Capability.SkipToPrevious,
         Capability.SeekTo,
-        Capability.JumpForward,
-        Capability.JumpBackward,
+        // Capability.JumpForward,
+        // Capability.JumpBackward,
       ],
       compactCapabilities: [Capability.Play, Capability.Pause],
       progressUpdateEventInterval: 1,

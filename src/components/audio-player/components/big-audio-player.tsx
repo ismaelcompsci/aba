@@ -3,25 +3,16 @@ import { useWindowDimensions } from "react-native";
 import FastImage from "react-native-fast-image";
 import { getColors } from "react-native-image-colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import TrackPlayer from "react-native-track-player";
 import { LinearGradient } from "@tamagui/linear-gradient";
-import {
-  Bookmark,
-  ChevronDown,
-  FastForward,
-  List,
-  Rewind,
-  SkipBack,
-  SkipForward,
-} from "@tamagui/lucide-icons";
+import { Bookmark, ChevronDown } from "@tamagui/lucide-icons";
 import { H3, H6, Stack, Text, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
 import AudioPlayerMore from "../../menus/audio-player-more";
+import ChaptersModal from "../../modals/chapter-modal";
 
-import { SEEK_INTERVAL } from "./audio-player-controls";
+import BigAudioPlayerControls from "./big-audio-player-controls";
 import { CirlceButton } from "./circle-button";
-import { PlayPauseControl } from "./play-pause-control";
 import { ProgressSlider } from "./progress-slider";
 import { AudiobookInfo } from "./small-audio-player";
 
@@ -150,42 +141,8 @@ const BigAudioPlayer = ({
             />
           </YStack>
           {/* CONTROLS */}
-          <XStack
-            ai={"center"}
-            width={"100%"}
-            pt={"$4"}
-            $gtSm={{ justifyContent: "center" }}
-          >
-            <CirlceButton onPress={() => TrackPlayer.skipToPrevious()}>
-              <SkipBack fill={color} />
-            </CirlceButton>
-            <XStack
-              ai={"center"}
-              justifyContent="center"
-              flex={1}
-              $gtSm={{ flex: 0 }}
-              gap={"$3"}
-            >
-              <CirlceButton
-                h={"$6"}
-                w={"$6"}
-                onPress={() => TrackPlayer.seekBy(-SEEK_INTERVAL)}
-              >
-                <Rewind size="$3" fill={color} />
-              </CirlceButton>
-              <PlayPauseControl small={false} color={color} />
-              <CirlceButton
-                h={"$6"}
-                w={"$6"}
-                onPress={() => TrackPlayer.seekBy(SEEK_INTERVAL)}
-              >
-                <FastForward size="$3" fill={color} />
-              </CirlceButton>
-            </XStack>
-            <CirlceButton onPress={() => TrackPlayer.skipToNext()}>
-              <SkipForward fill={color} />
-            </CirlceButton>
-          </XStack>
+          <BigAudioPlayerControls />
+          {/* ACTIONS */}
           <XStack ai="flex-end" flex={1}>
             <XStack
               p={"$4"}
@@ -199,15 +156,11 @@ const BigAudioPlayer = ({
               <CirlceButton bg={"$backgroundFocus"}>
                 <Text>1x</Text>
               </CirlceButton>
-              <CirlceButton bg={"$backgroundFocus"}>
-                <List />
-              </CirlceButton>
+              <ChaptersModal />
             </XStack>
           </XStack>
         </YStack>
       </LinearGradient>
-
-      {/* ACTIONS */}
     </YStack>
   );
 };

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Alert } from "react-native";
 import { MoreHorizontal } from "@tamagui/lucide-icons";
 import axios from "axios";

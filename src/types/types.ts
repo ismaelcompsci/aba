@@ -1,3 +1,5 @@
+import { Track } from "react-native-track-player";
+
 import {
   LibraryItem,
   LibraryItemExpanded,
@@ -92,10 +94,12 @@ export type SearchNarratorResult = { name: string; numBook: number };
 export type AudioPlayerTrack = {
   id: number;
   url: string;
-  duration: number;
-  title: string;
+  duration?: number;
+  title?: string;
   startOffset: number;
 };
+
+export interface AudioPlayerTrackExtra extends Track, AudioPlayerTrack {}
 
 export type PlayingState = {
   playing: boolean;

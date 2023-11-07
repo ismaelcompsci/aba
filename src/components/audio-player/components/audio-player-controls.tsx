@@ -9,21 +9,21 @@ export const SEEK_INTERVAL = 30;
 export const AudioPlayerControls = ({ color }: { color: string }) => {
   return (
     <AudioPlayerControlsContainer>
-      <View
+      {/* <View
         onPress={() => TrackPlayer.seekBy(-SEEK_INTERVAL)}
         onTouchEnd={(ev) => ev.stopPropagation()}
       >
         <Rewind size="$2" fill={color} />
-      </View>
+      </View> */}
 
       <PlayPauseControl color={color} small />
 
-      <View
+      {/* <View
         onPress={() => TrackPlayer.seekBy(SEEK_INTERVAL)}
         onTouchEnd={(ev) => ev.stopPropagation()}
       >
         <FastForward size="$2" fill={color} />
-      </View>
+      </View> */}
     </AudioPlayerControlsContainer>
   );
 };

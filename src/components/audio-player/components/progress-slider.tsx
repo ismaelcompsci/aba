@@ -1,24 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TrackPlayer, {
   Event,
-  Track,
-  useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import { Slider, SliderTrackProps, styled, Text, XStack } from "tamagui";
 
 import { formatSeconds } from "../../../utils/utils";
+import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
 import { AudiobookInfo } from "./small-audio-player";
-
-type TrackExtended = Track & {
-  url: string;
-};
 
 export const ProgressSlider = ({
   color,
   trackProps,
-  showThumb,
+  showThumb = false,
   audiobookInfo,
 }: {
   color: string;
@@ -28,73 +23,29 @@ export const ProgressSlider = ({
 }) => {
   const [seek, setSeek] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-  const [audioTracks, setAudioTracks] = useState<TrackExtended[] | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const { position } = useProgress();
 
-  const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;
-  const overallCurrentTime = currentTrackOffset + position;
+  const {
+    currentPosition: overallCurrentTime,
+    getTotalDuration,
+    seekTo,
+  } = useAudioPlayerProgress();
 
-  useTrackPlayerEvents(
-    [Event.PlaybackProgressUpdated, Event.PlaybackActiveTrackChanged],
-    async (event) => {
-      if (event.type === Event.PlaybackProgressUpdated) {
-        TrackPlayer.updateNowPlayingMetadata({
-          artwork: audiobookInfo.cover || "",
-          title: audiobookInfo.title,
-          artist: audiobookInfo.author,
-          duration: totalDuration,
-          elapsedTime: overallCurrentTime,
-        });
-      }
-      if (event.type === Event.PlaybackActiveTrackChanged) {
-        event.track && setCurrentTrack(event.track);
-      }
+  useTrackPlayerEvents([Event.PlaybackProgressUpdated], async (event) => {
+    if (event.type === Event.PlaybackProgressUpdated) {
+      TrackPlayer.updateNowPlayingMetadata({
+        artwork: audiobookInfo.cover || "",
+        title: audiobookInfo.title,
+        artist: audiobookInfo.author,
+        duration: totalDuration,
+        elapsedTime: overallCurrentTime,
+      });
     }
-  );
+  });
 
-  const getTotalDuration = () => {
-    let total = 0;
-    audioTracks?.forEach((t) => (total += t.duration || 0));
-    return total;
-  };
   const totalDuration = getTotalDuration();
 
-  useEffect(() => {
-    (async () => {
-      const track = await TrackPlayer.getActiveTrack();
-      const tracks = await TrackPlayer.getQueue();
-
-      setAudioTracks(tracks);
-      setCurrentTrack(track ? track : null);
-    })();
-  }, []);
-
   const handleSliderEnd = async (value: number) => {
-    if (!audioTracks?.length) return;
-
-    const trackIndex = Math.max(
-      0,
-      audioTracks.findIndex(
-        (t) =>
-          Math.floor(t.startOffset) <= value &&
-          Math.floor(t.startOffset + t.duration) > value
-      )
-    );
-
-    const initialPosition = value - audioTracks[trackIndex].startOffset;
-
-    await TrackPlayer.pause();
-    await TrackPlayer.skip(trackIndex);
-    await TrackPlayer.seekTo(initialPosition);
-    /**
-     * stops the slider from bouncing
-     */
-    TrackPlayer.play().then(() => {
-      setTimeout(() => {
-        setIsSeeking(false);
-      }, 1500);
-    });
+    seekTo(value, 1250, () => setIsSeeking(false));
   };
 
   return (
