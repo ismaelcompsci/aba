@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { MoreHorizontal } from "@tamagui/lucide-icons";
 import axios from "axios";
+import * as Burnt from "burnt";
 import { useAtom, useAtomValue } from "jotai";
 import { Button } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
@@ -23,11 +24,8 @@ function BookMoreMenu({
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const [user, setUser] = useAtom(userAtom);
 
-  const [loading, setLoading] = useState(false);
-
   const markAsFinshed = async () => {
     try {
-      setLoading(true);
       const markAsFinshed = true;
       const data = {
         isFinished: markAsFinshed,
@@ -49,13 +47,16 @@ function BookMoreMenu({
     } catch (error) {
       console.log("[APPDIALOG] mark as finshed error", error);
     } finally {
-      setLoading(false);
+      Burnt.toast({
+        title: "Success",
+        message: "marked book as finshed",
+        preset: "done",
+      });
     }
   };
 
   const clearProgress = async () => {
     try {
-      setLoading(true);
       const response = await axios.delete(
         `${serverConfig.serverAddress}/api/me/progress/${userMediaProgress?.id}`,
         {
@@ -72,7 +73,11 @@ function BookMoreMenu({
     } catch (error) {
       console.log("[APPDIALOG] clear progress error", error);
     } finally {
-      setLoading(false);
+      Burnt.toast({
+        title: "Success",
+        message: "reset progress for book",
+        preset: "done",
+      });
     }
   };
 
@@ -137,7 +142,7 @@ function BookMoreMenu({
             onSelect={() => {
               Alert.alert(
                 "Discard Progress",
-                `Are you sure you want to discard progress`,
+                `Are you sure you want to reset your progress`,
                 [
                   {
                     text: "Cancel",
