@@ -32,7 +32,7 @@ const BigAudioPlayer = ({
   setOpen: (open: boolean) => void;
 }) => {
   const [colors, setColors] = useState(initialState);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
   const { color, bgPress } = useIconTheme();
@@ -86,7 +86,7 @@ const BigAudioPlayer = ({
     <YStack
       bg={"$backgroundPress"}
       width={width}
-      height={"100%"}
+      height={height}
       borderRadius={"$7"}
     >
       <LinearGradient

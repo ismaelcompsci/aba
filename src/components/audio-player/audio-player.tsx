@@ -182,9 +182,13 @@ const AudioPlayerContainer = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stopPlayer = async () => {
-    showPlayer.playing && setShowPlayer({ playing: false });
-    await TrackPlayer.pause();
-    await TrackPlayer.reset();
+    try {
+      showPlayer.playing && setShowPlayer({ playing: false });
+      await TrackPlayer.pause();
+      await TrackPlayer.reset();
+    } catch (error) {
+      console.log("[AUDIOPLAYER] stopPlayer error ", error);
+    }
   };
 
   useEffect(() => {
@@ -210,24 +214,26 @@ const AudioPlayerContainer = () => {
   }, [showPlayer]);
 
   useEffect(() => {
-    TrackPlayer.setupPlayer();
+    (async () => {
+      await TrackPlayer.setupPlayer();
 
-    TrackPlayer.updateOptions({
-      capabilities: [
-        Capability.Play,
-        Capability.Pause,
-        Capability.SkipToNext,
-        Capability.SkipToPrevious,
-        Capability.SeekTo,
-        // Capability.JumpForward,
-        // Capability.JumpBackward,
-      ],
-      compactCapabilities: [Capability.Play, Capability.Pause],
-      progressUpdateEventInterval: 1,
-      backwardJumpInterval: 30,
-      forwardJumpInterval: 30,
-      notificationCapabilities: [Capability.Play, Capability.Pause],
-    });
+      await TrackPlayer.updateOptions({
+        capabilities: [
+          Capability.Play,
+          Capability.Pause,
+          Capability.SkipToNext,
+          Capability.SkipToPrevious,
+          Capability.SeekTo,
+          // Capability.JumpForward,
+          // Capability.JumpBackward,
+        ],
+        compactCapabilities: [Capability.Play, Capability.Pause],
+        progressUpdateEventInterval: 1,
+        backwardJumpInterval: 30,
+        forwardJumpInterval: 30,
+        notificationCapabilities: [Capability.Play, Capability.Pause],
+      });
+    })();
 
     return () => {
       console.log("[AUDIOPLAYER] UNMOUNTED");
