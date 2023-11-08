@@ -157,6 +157,9 @@ const EBookReader = ({
     );
   }, [height, width, bookPath, enableSwipe, initialLocation]);
 
+  // move downling book to page [id]
+  // only render webview once its done
+
   return (
     <Menu hide={hide} title={book.media.metadata.title || ""}>
       <FullScreen pos="absolute" t={0} b={0} r={0} l={0}>
