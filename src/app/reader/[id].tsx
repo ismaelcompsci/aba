@@ -4,14 +4,15 @@ import { useAtomValue } from "jotai";
 import { FullScreen } from "../../components/center";
 import EBookReader from "../../components/epub-reader/ebook-reader";
 import { ReaderProvider } from "../../components/epub-reader/rn-epub-reader";
-import { currentItemAtom, userAtom } from "../../state/app-state";
+import { useNewUser } from "../../hooks/use-new-user";
+import { currentItemAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 
 const ReaderPage = () => {
+  const serverConfig = useAtomValue(currentServerConfigAtom);
   const { id, ino } = useLocalSearchParams();
   const currentItem = useAtomValue(currentItemAtom);
-  const serverConfig = useAtomValue(currentServerConfigAtom);
-  const user = useAtomValue(userAtom);
+  const { user } = useNewUser();
 
   if (!currentItem || id !== currentItem?.id || !user) {
     return router.back();
@@ -31,12 +32,15 @@ const ReaderPage = () => {
   return (
     <FullScreen pos="relative">
       <ReaderProvider>
-        <EBookReader
-          url={url}
-          book={currentItem!}
-          user={user}
-          ino={ino as string}
-        />
+        {user ? (
+          <EBookReader
+            url={url}
+            book={currentItem!}
+            user={user}
+            ino={ino as string}
+            serverAddress={serverConfig.serverAddress}
+          />
+        ) : null}
       </ReaderProvider>
     </FullScreen>
   );

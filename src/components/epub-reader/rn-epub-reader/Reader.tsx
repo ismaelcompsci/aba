@@ -20,7 +20,6 @@ export function Reader({
   src,
   width,
   height,
-  initialLocations,
   initialLocation,
   renderLoadingFileComponent = (props) => (
     <LoadingFile {...props} width={width} height={height} />
@@ -158,13 +157,7 @@ export function Reader({
         }
       }
     })();
-  }, [
-    downloadFile,
-    initialLocations,
-    injectWebVieWVariables,
-    setIsLoading,
-    src,
-  ]);
+  }, [downloadFile, injectWebVieWVariables, setIsLoading, src]);
 
   useEffect(() => {
     const saveTemplateFileToDoc = async () => {

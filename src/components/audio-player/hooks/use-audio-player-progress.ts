@@ -79,7 +79,7 @@ export const useAudioPlayerProgress = () => {
     await TrackPlayer.skip(trackIndex);
     await TrackPlayer.seekTo(initialPosition);
     /**
-     * stops the slider from bouncing
+     * stops the slider from bouncing because it takes a second to update progress from TrackPlayer
      */
     if (timeToCall && cb) {
       TrackPlayer.play().then(() => {

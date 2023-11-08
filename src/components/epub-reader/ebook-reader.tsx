@@ -1,46 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
+import axios from "axios";
 import * as Burnt from "burnt";
-import { atom, useAtom, useAtomValue } from "jotai";
-import RNFetchBlob from "rn-fetch-blob";
+import { useAtomValue, useSetAtom } from "jotai";
 
-import { epubDir } from "../../constants/consts";
+import { epubReaderLoadingAtom } from "../../state/app-state";
 import { ebookSettignsAtom } from "../../state/local-state";
 import { LibraryItemExpanded, User } from "../../types/aba";
-import { EpubReaderLoading } from "../../types/types";
-import {
-  awaitTimeout,
-  ebookFormat,
-  getUserMediaProgress,
-} from "../../utils/utils";
+import { awaitTimeout, getUserMediaProgress } from "../../utils/utils";
 import { FullScreen } from "../center";
 import LoadingBook from "../loading-book";
 
 import Menu from "./components/menu";
 import ScrollLabels from "./components/scroll-labels";
-import { Reader, useReader } from "./rn-epub-reader";
+import { LocationChange, Reader, useReader } from "./rn-epub-reader";
 
 interface EBookReaderProps {
   book: LibraryItemExpanded;
   user: User;
   url: string;
   ino?: string;
+  serverAddress: string;
 }
 
-const epubReaderLoadingAtom = atom<EpubReaderLoading>({
-  loading: false,
-  part: "",
-  percent: undefined,
-});
-
-const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
+const EBookReader = ({
+  book,
+  url,
+  user,
+  ino,
+  serverAddress,
+}: EBookReaderProps) => {
   const { width, height } = useWindowDimensions();
   const { changeTheme } = useReader();
 
-  const [epubReaderLoading, setEpubReaderLoading] = useAtom(
-    epubReaderLoadingAtom
-  );
+  const setEpubReaderLoading = useSetAtom(epubReaderLoadingAtom);
   const ebookSettings = useAtomValue(ebookSettignsAtom);
   const [bookPath, setBookPath] = useState("");
   const [hide, setHide] = useState(false);
@@ -55,9 +49,10 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
         ? book.libraryFiles.find((lf) => lf.ino === ino)
         : book.media.ebookFile
       : null;
-  const enableSwipe = bookPath.endsWith(".pdf");
+  const isPdf = bookPath.endsWith(".pdf");
+  const enableSwipe = isPdf;
 
-  const initialLocation = () => {
+  const getInitialLocation = () => {
     if (!book || !book.id) return;
     const prog = getUserMediaProgress(user, book.id);
 
@@ -67,10 +62,10 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
   };
 
   const onReady = async () => {
-    setEpubReaderLoading({ loading: false, part: "Opening Book..." });
     changeTheme(ebookSettings);
     await awaitTimeout(100);
     setReady(true);
+    setEpubReaderLoading({ loading: false, part: "Opening Book..." });
   };
 
   const onShowPrevious = (show: boolean, label: string) => {
@@ -83,6 +78,10 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
     setShowingNext(show);
   };
 
+  const onPress = () => {
+    setHide((p) => !p);
+  };
+
   const onDisplayError = (reason: string) => {
     Burnt.toast({
       preset: "error",
@@ -90,67 +89,86 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
     });
     setEpubReaderLoading({ loading: false });
   };
+  // ** todo fix foliate not updating pdf progress onrelocate function
+
+  const onLocationChange = ({ cfi, fraction, section }: LocationChange) => {
+    let payload;
+    console.log(section);
+    if (!isPdf) {
+      payload = {
+        ebookLocation: cfi,
+        ebookProgress: fraction,
+      };
+    } else {
+      payload = {
+        ebookLocation: section?.current,
+        ebookProgress: fraction,
+      };
+    }
+    console.log("ON LOCATION CHANGE");
+    updateProgress(payload);
+  };
+
+  const updateProgress = async (payload: {
+    ebookLocation: string;
+    ebookProgress: number;
+  }) => {
+    try {
+      if (!payload.ebookLocation && !payload.ebookProgress) return;
+
+      axios.patch(`${serverAddress}/api/me/progress/${book.id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+    } catch (error) {
+      console.log("[EBOOKREADER] Update progress error", error);
+    }
+  };
 
   useEffect(() => {
     StatusBar.setHidden(!hide);
     return () => StatusBar.setHidden(false);
   }, [hide]);
 
-  useEffect(() => {
-    if (!ebookFile) return;
+  console.log("EBOOK RERENDER");
+  const initialLocation = getInitialLocation();
 
-    (async () => {
-      const bookDownloadName = `${book.media.libraryItemId}.${ebookFormat(
-        // @ts-ignore TODO
-        ebookFile
-      )}`;
-      const bookDownloadPath = `${epubDir}/${bookDownloadName}`;
-
-      setEpubReaderLoading({
-        loading: true,
-        part: "Downloading",
-        percent: 0,
-      });
-
-      RNFetchBlob.config({
-        path: bookDownloadPath,
-      })
-        .fetch("GET", url, {
-          Authorization: `Bearer ${user.token}`,
-        })
-        .progress((received, total) => {
-          const percent = received / total;
-          setEpubReaderLoading({
-            loading: true,
-            part: "Downloading",
-            percent: percent,
-          });
-        })
-        .then((res) => {
-          const status = res.info().status;
-          const path = res.path();
-
-          if (status === 200) setBookPath(path);
-        })
-        .catch((error) => {
-          console.log({ error });
-        })
-        .finally(() => {
-          setEpubReaderLoading({
-            loading: true,
-            part: "Downloading",
-            percent: 1,
-          });
-        });
-    })();
-  }, []);
+  const reader = useMemo(() => {
+    return (
+      <Reader
+        height={height}
+        width={width}
+        src={bookPath}
+        enableSwipe={enableSwipe}
+        defaultTheme={ebookSettings}
+        fileSystem={useFileSystem}
+        onPress={onPress}
+        initialLocation={initialLocation}
+        onShowNext={onShowNext}
+        onShowPrevious={onShowPrevious}
+        onLocationChange={onLocationChange}
+        onStarted={() =>
+          setEpubReaderLoading({ loading: true, part: "Opening Book..." })
+        }
+        onReady={onReady}
+        onDisplayError={onDisplayError}
+      />
+    );
+  }, [height, width, bookPath, enableSwipe, initialLocation]);
 
   return (
     <Menu hide={hide} title={book.media.metadata.title || ""}>
       <FullScreen pos="absolute" t={0} b={0} r={0} l={0}>
-        {epubReaderLoading.loading || !ready ? (
-          <LoadingBook info={epubReaderLoading} />
-        ) : null}
+        {/* {!ready && ( */}
+        <LoadingBook
+          url={url}
+          user={user}
+          ebookFile={ebookFile}
+          book={book}
+          setBookPath={(path) => setBookPath(path)}
+        />
+        {/* )} */}
         <ScrollLabels
           showingNext={showingNext}
           showingPrev={showingPrev}
@@ -158,23 +176,7 @@ const EBookReader = ({ book, url, user, ino }: EBookReaderProps) => {
           readerSettings={ebookSettings}
           menuHidden={hide}
         />
-        <Reader
-          height={height}
-          width={width}
-          src={bookPath}
-          enableSwipe={enableSwipe}
-          defaultTheme={ebookSettings}
-          fileSystem={useFileSystem}
-          onPress={() => setHide((p) => !p)}
-          initialLocation={initialLocation()}
-          onShowNext={onShowNext}
-          onShowPrevious={onShowPrevious}
-          onStarted={() =>
-            setEpubReaderLoading({ loading: true, part: "Opening Book..." })
-          }
-          onReady={onReady}
-          onDisplayError={onDisplayError}
-        />
+        {reader}
       </FullScreen>
     </Menu>
   );

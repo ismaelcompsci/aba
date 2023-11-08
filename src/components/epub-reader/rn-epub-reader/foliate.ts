@@ -9715,6 +9715,7 @@ class Reader {
   #tocMap;
   #currentTocPos;
   #isPdf;
+  #previousFraction;
   style = {
     lineHeight: 1.4,
     justify: true,
@@ -9786,9 +9787,9 @@ class Reader {
           count += 1;
         }
       });
-      if (!this.#isPdf) {
+      // if (!this.#isPdf) {
         this.initalLocation ? await this.view.goTo(this.initalLocation) : this.view.renderer.next();
-      } else this.view.renderer.next();
+      // } else this.view.renderer.next();
       toReactMessage({
         type: "onReady",
         book
@@ -9821,23 +9822,26 @@ class Reader {
     });
   };
   onRelocate = e => {
-    const {
-      fraction,
-      location,
-      tocItem,
-      pageItem
-    } = e.detail;
+    // const {
+    //   section,
+    //   fraction,
+    //   location,
+    //   tocItem,
+    //   pageItem,
+    //   cfi
+    // } = e.detail;
     this.#currentTocPos = {
       id: tocItem?.id,
       label: tocItem?.label
     };
-    toReactMessage({
-      type: "onLocationChange",
-      fraction,
-      location,
-      tocItem,
-      pageItem
-    });
+    // debug("[ONRELOCATE] " + \` \${JSON.stringify(e.detail)} \`);
+    if (this.#previousFraction !== fraction){
+      toReactMessage({
+        type: "onLocationChange",
+        ...e.detail,
+      });
+    }
+    this.#previousFraction = fraction
   };
   next = () => {
     this.view?.renderer?.next();

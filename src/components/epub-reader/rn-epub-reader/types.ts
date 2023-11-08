@@ -1,29 +1,26 @@
 export type Location = {
-  atStart?: boolean;
-  atEnd?: boolean;
-  end: {
-    cfi: ePubCfi;
-    displayed: {
-      page: number;
-      total: number;
-    };
-    href: string;
-    index: number;
-    location: number;
-    percentage: number;
-  };
-  start: {
-    cfi: ePubCfi;
-    displayed: {
-      page: number;
-      total: number;
-    };
-    href: string;
-    index: number;
-    location: number;
-    percentage: number;
-  };
+  current: number;
+  next: number;
+  total: number;
 };
+
+export type TocItem = {
+  href: string;
+  id: number;
+  label: string;
+  subitems: any[] | null;
+};
+
+export type LocationChange = {
+  cfi: string;
+  fraction: number;
+  location: Location;
+  tocItem: TocItem;
+  pageItem: any | null;
+  section: Section;
+};
+
+export type Section = { current: string; total: string };
 
 export type Theme = {
   lineHeight: number;
@@ -141,11 +138,12 @@ export interface ReaderProps {
    * @param {number} totalPages
    * @returns {void} void
    */
-  onLocationChange?: (
-    totalLocations: number,
-    currentLocation: Location,
-    progress: number
-  ) => void;
+  onLocationChange?: ({
+    cfi,
+    fraction,
+    location,
+    tocItem,
+  }: LocationChange) => void;
   /**
    * Called once when the book has been searched
    * @param {SearchResult[]} results

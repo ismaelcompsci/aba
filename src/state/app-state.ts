@@ -6,7 +6,7 @@ import {
   MediaProgress,
   User,
 } from "../types/aba";
-import { PlayingState } from "../types/types";
+import { EpubReaderLoading, PlayingState } from "../types/types";
 
 export const userAtom = atom<User | null>(null);
 export const attemptingConnectionAtom = atom<boolean>(true);
@@ -16,6 +16,11 @@ export const openModalAtom = atom(false);
 export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
+export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
+  loading: false,
+  part: "",
+  percent: undefined,
+});
 
 /**
  * Derived Atoms
@@ -35,13 +40,17 @@ export const mediaProgressAtom = atom((get: Getter) => {
   return userMediaProgress;
 });
 
-export const setMediaProgressAtom = atom(
-  null,
-  (get, set, update: MediaProgress[]) => {
-    const user = get(userAtom);
+export const setMediaProgressAtom = atom(null, (get, set, update) => {
+  const user = get(userAtom);
 
-    if (user) {
-      set(userAtom, { ...user, mediaProgress: update });
-    }
+  const nextValue =
+    typeof update === "function"
+      ? (update as (prev: MediaProgress[]) => MediaProgress[])(
+          get(mediaProgressAtom)
+        )
+      : update;
+
+  if (user) {
+    set(userAtom, { ...user, mediaProgress: nextValue });
   }
-);
+});

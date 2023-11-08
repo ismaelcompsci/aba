@@ -1,6 +1,4 @@
-import TrackPlayer from "react-native-track-player";
-import { FastForward, Rewind } from "@tamagui/lucide-icons";
-import { styled, View, XStack } from "tamagui";
+import { styled, XStack } from "tamagui";
 
 import { PlayPauseControl } from "./play-pause-control";
 

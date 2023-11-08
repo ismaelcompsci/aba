@@ -106,7 +106,6 @@ const BookPage = () => {
       return response.data as LibraryItemExpanded;
     },
     refetchOnMount: true,
-    staleTime: 0,
   });
 
   const cover = getItemCoverSrc(bookItem, config, user?.token);

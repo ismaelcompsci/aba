@@ -2,13 +2,13 @@ import { Alert } from "react-native";
 import { MoreHorizontal } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { Button } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
-import { userAtom } from "../../state/app-state";
+import { useNewUser } from "../../hooks/use-new-user";
 import { currentServerConfigAtom } from "../../state/local-state";
-import { MediaProgress, User } from "../../types/aba";
+import { MediaProgress } from "../../types/aba";
 import { cleanString } from "../../utils/utils";
 
 function BookMoreMenu({
@@ -21,7 +21,7 @@ function BookMoreMenu({
   itemId: string;
 }) {
   const serverConfig = useAtomValue(currentServerConfigAtom);
-  const [user, setUser] = useAtom(userAtom);
+  const { user, refreshUser } = useNewUser();
 
   const markAsFinshed = async () => {
     try {
@@ -40,8 +40,7 @@ function BookMoreMenu({
       );
 
       if (response.data) {
-        const updatedUser = await getUpdatedUser();
-        if (updatedUser) setUser(updatedUser);
+        await refreshUser();
       }
     } catch (error) {
       console.log("[APPDIALOG] mark as finshed error", error);
@@ -66,8 +65,7 @@ function BookMoreMenu({
       );
 
       if (response.data) {
-        const updatedUser = await getUpdatedUser();
-        if (updatedUser) setUser(updatedUser);
+        await refreshUser();
       }
     } catch (error) {
       console.log("[APPDIALOG] clear progress error", error);
@@ -77,21 +75,6 @@ function BookMoreMenu({
         message: "reset progress for book",
         preset: "done",
       });
-    }
-  };
-
-  const getUpdatedUser = async () => {
-    try {
-      const response = await axios.get(`${serverConfig.serverAddress}/api/me`, {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
-
-      return response.data as User;
-    } catch (error) {
-      console.log("[APPDIALOG] getUpdatedUser error", error);
-      return;
     }
   };
 

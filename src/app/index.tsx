@@ -32,8 +32,6 @@ export default function IndexPage() {
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
 
-  const queryClient = useQueryClient();
-
   const makeConnection = async ({
     user,
     userDefaultLibraryId,

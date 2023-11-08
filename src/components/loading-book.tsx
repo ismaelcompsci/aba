@@ -1,10 +1,88 @@
+import { useEffect } from "react";
+import { useAtom } from "jotai";
+import RNFetchBlob from "rn-fetch-blob";
 import { Progress, Text, XStack } from "tamagui";
 
-import { EpubReaderLoading } from "../types/types";
+import { epubDir } from "../constants/consts";
+import { epubReaderLoadingAtom } from "../state/app-state";
+import {
+  EbookFile,
+  LibraryFile,
+  LibraryItemExpanded,
+  User,
+} from "../types/aba";
+import { ebookFormat } from "../utils/utils";
 
 import { ScreenCenter } from "./center";
 
-const LoadingBook = ({ info }: { info: EpubReaderLoading }) => {
+const LoadingBook = ({
+  ebookFile,
+  user,
+  url,
+  book,
+  setBookPath,
+}: {
+  ebookFile: LibraryFile | EbookFile | null | undefined;
+  user: User;
+  url: string;
+  book: LibraryItemExpanded;
+  setBookPath: (path: string) => void;
+}) => {
+  const [epubReaderLoading, setEpubReaderLoading] = useAtom(
+    epubReaderLoadingAtom
+  );
+
+  useEffect(() => {
+    if (!ebookFile) return;
+
+    (async () => {
+      const bookDownloadName = `${book.media.libraryItemId}.${ebookFormat(
+        // @ts-ignore TODO
+        ebookFile
+      )}`;
+      const bookDownloadPath = `${epubDir}/${bookDownloadName}`;
+
+      setEpubReaderLoading({
+        loading: true,
+        part: "Downloading",
+        percent: 0,
+      });
+
+      RNFetchBlob.config({
+        path: bookDownloadPath,
+      })
+        .fetch("GET", url, {
+          Authorization: `Bearer ${user.token}`,
+        })
+        .progress((received, total) => {
+          const percent = received / total;
+          setEpubReaderLoading({
+            loading: true,
+            part: "Downloading",
+            percent: percent,
+          });
+        })
+        .then((res) => {
+          const status = res.info().status;
+          const path = res.path();
+
+          if (status === 200) setBookPath(path);
+        })
+        .catch((error) => {
+          console.log({ error });
+        })
+        .finally(() => {
+          setEpubReaderLoading({
+            loading: true,
+            part: "Downloading",
+            percent: 1,
+          });
+        });
+    })();
+  }, []);
+
+  if (epubReaderLoading.loading === false) return null;
+
   return (
     <ScreenCenter
       paddingBottom={0}
@@ -14,14 +92,25 @@ const LoadingBook = ({ info }: { info: EpubReaderLoading }) => {
       zIndex={88888}
     >
       <XStack gap="$4" ai="center">
-        {info.percent ? (
-          <Progress value={info.percent ? info.percent * 100 : 0}>
+        {epubReaderLoading.percent ? (
+          <Progress
+            value={
+              epubReaderLoading.percent ? epubReaderLoading.percent * 100 : 0
+            }
+          >
             <Progress.Indicator animation="bouncy" />
           </Progress>
         ) : null}
-        <Text>{info.percent ? Math.trunc(info.percent * 100) : 0}%</Text>
+        <Text>
+          {epubReaderLoading.percent
+            ? Math.trunc(epubReaderLoading.percent * 100)
+            : 0}
+          %
+        </Text>
       </XStack>
-      <Text>{info.part ? info.part : "Opening"}...</Text>
+      <Text>
+        {epubReaderLoading.part ? epubReaderLoading.part : "Opening"}...
+      </Text>
     </ScreenCenter>
   );
 };

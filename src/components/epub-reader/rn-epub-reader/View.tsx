@@ -12,7 +12,6 @@ import RNFetchBlob from "rn-fetch-blob";
 
 import { themes } from "../components/themes";
 
-import { OpeningBook } from "./utils/OpeningBook";
 import { ReaderContext } from "./context";
 import type { ReaderProps } from "./types";
 
@@ -30,13 +29,11 @@ export function View({
   onShowNext = () => {},
   onShowPrevious = () => {},
   onReady = () => {},
+  onLocationChange = () => {},
   enableSwipe = false,
   width,
   height,
   defaultTheme,
-  renderOpeningBookComponent = () => (
-    <OpeningBook width={width} height={height} />
-  ),
 }: ViewProps) {
   const {
     registerBook,
@@ -44,7 +41,6 @@ export function View({
     goNext,
     goPrevious,
     theme,
-    isRendering,
     changeTheme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
@@ -88,12 +84,16 @@ export function View({
       const { show, label } = parsedEvent;
       onShowNext(show, label);
     }
+
     if (type === "showPrevious") {
       const { show, label } = parsedEvent;
       onShowPrevious(show, label);
     }
 
-    return () => {};
+    if (type === "onLocationChange") {
+      const { cfi, fraction, location, tocItem, pageItem } = parsedEvent;
+      onLocationChange({ cfi, fraction, location, tocItem, pageItem });
+    }
   };
 
   useEffect(() => {
@@ -128,7 +128,7 @@ export function View({
     .direction(I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT)
     .onStart(() => {
       if (enableSwipe) {
-        goPrevious();
+        runOnJS(goPrevious)();
       }
     });
 
