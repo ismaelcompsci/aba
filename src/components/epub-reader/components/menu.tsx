@@ -43,6 +43,8 @@ const FONT_STEP = 5;
 const GAPSTEP = 0.01;
 const LINESTEP = 0.1;
 
+const SCROLL_ENABLED = false;
+
 const Menu = ({
   children,
   hide,
@@ -133,7 +135,17 @@ const Menu = ({
       justifyContent="center"
     >
       {hide && (
-        <Header key="header" bbw={0.25} bbc={color} zIndex={8888}>
+        <Header
+          key="header"
+          bbw={0.25}
+          bbc={color}
+          zIndex={8888}
+          animation="100ms"
+          enterStyle={{
+            opacity: 0.4,
+            y: -25,
+          }}
+        >
           <HeaderFrame pt={top}>
             <HeaderLeft ai="center">
               <LogoContainer>
@@ -197,7 +209,7 @@ const Menu = ({
               {/* Scroll & gap  */}
               <XStack justifyContent="space-between">
                 <XStack alignItems="center" space="$2">
-                  {Platform.OS === "ios" ? (
+                  {Platform.OS === "ios" && SCROLL_ENABLED ? (
                     <>
                       <Label
                         paddingRight="$0"
@@ -262,7 +274,18 @@ const Menu = ({
 
       {children}
 
-      {hide && <Footer key="footer" btw={0.25} btc={color}></Footer>}
+      {hide && (
+        <Footer
+          key="footer"
+          btw={0.25}
+          btc={color}
+          animation="100ms"
+          enterStyle={{
+            opacity: 0.4,
+            y: 25,
+          }}
+        ></Footer>
+      )}
     </YStack>
   );
 };

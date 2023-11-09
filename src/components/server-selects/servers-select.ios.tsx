@@ -90,7 +90,7 @@ export function ServerSelect({ ...props }: PopoverProps) {
         exitStyle={{ y: -10, opacity: 0 }}
         elevate
         animation={[
-          "quick",
+          "100ms",
           {
             opacity: {
               overshootClamping: true,
