@@ -91,8 +91,9 @@ export function View({
     }
 
     if (type === "onLocationChange") {
-      const { cfi, fraction, location, tocItem, pageItem } = parsedEvent;
-      onLocationChange({ cfi, fraction, location, tocItem, pageItem });
+      const { cfi, fraction, location, tocItem, pageItem, section } =
+        parsedEvent;
+      onLocationChange({ cfi, fraction, location, tocItem, pageItem, section });
     }
   };
 

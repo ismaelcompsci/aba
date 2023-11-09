@@ -472,10 +472,20 @@ class TOCProgress {
 }
 class SectionProgress {
   constructor(sections, sizePerLoc, sizePerTimeUnit) {
-    this.sizes = sections.map(s => s.linear === 'no' ? 0 : s.size);
+    this.sizes = sections.map(s => s.linear != 'no' && s.size > 0 ? s.size : 0);
     this.sizePerLoc = sizePerLoc;
     this.sizePerTimeUnit = sizePerTimeUnit;
     this.sizeTotal = this.sizes.reduce((a, b) => a + b, 0);
+    this.sectionFractions = this.#getSectionFractions();
+  }
+  #getSectionFractions() {
+    const {
+      sizeTotal
+    } = this;
+    const results = [0];
+    let sum = 0;
+    for (const size of this.sizes) results.push((sum += size) / sizeTotal);
+    return results;
   }
   // get progress given index of and fractions within a section
   getProgress(index, fractionInSection, pageFraction = 0) {
@@ -511,25 +521,16 @@ class SectionProgress {
   // the inverse of \`getProgress\`
   // get index of and fraction in section based on total fraction
   getSection(fraction) {
-    if (fraction === 0) return [0, 0];
-    if (fraction === 1) return [this.sizes.length - 1, 1];
+    if (fraction <= 0) return [0, 0];
+    if (fraction >= 1) return [this.sizes.length - 1, 1];
+    fraction = fraction + Number.EPSILON;
     const {
-      sizes,
       sizeTotal
     } = this;
-    const target = fraction * sizeTotal;
-    let index = -1;
-    let fractionInSection = 0;
-    let sum = 0;
-    for (const [i, size] of sizes.entries()) {
-      const newSum = sum + size;
-      if (newSum > target) {
-        index = i;
-        fractionInSection = (target - sum) / size;
-        break;
-      }
-      sum = newSum;
-    }
+    let index = this.sectionFractions.findIndex(x => x > fraction) - 1;
+    if (index < 0) return [0, 0];
+    while (!this.sizes[index]) index++;
+    const fractionInSection = (fraction - this.sectionFractions[index]) / (this.sizes[index] / sizeTotal);
     return [index, fractionInSection];
   }
 }
@@ -2968,7 +2969,6 @@ class view_View extends HTMLElement {
     this.isFixedLayout = this.book.rendition?.layout === 'pre-paginated';
     if (this.isFixedLayout) {
       this.renderer = document.createElement('foliate-fxl');
-      debug('[VIEW_OPEN] fixed layout element ' + this.renderer);
     } else {
       this.renderer = document.createElement('foliate-paginator');
     }
@@ -3003,7 +3003,6 @@ class view_View extends HTMLElement {
         lastActive?.deref()?.classList?.remove(activeClass);
       });
     }
-    debug('[VIEW_OPEN] DONE OPENING BOOK...');
   }
   close() {
     this.renderer?.destroy();
@@ -3267,6 +3266,9 @@ class view_View extends HTMLElement {
       doc
     } of this.renderer.getContents()) doc.defaultView.getSelection().removeAllRanges();
   }
+  getSectionFractions() {
+    return (this.#sectionProgress?.sectionFractions ?? []).map(x => x + Number.EPSILON);
+  }
   getProgressOf(index, range) {
     const tocItem = this.#tocProgress?.getProgress(index, range);
     const pageItem = this.#pageProgress?.getProgress(index, range);
@@ -3399,17 +3401,17 @@ customElements.define('foliate-view', view_View);
 ;// CONCATENATED MODULE: ./foliate-js/vendor/fflate.js
 var r = Uint8Array,
   e = Uint16Array,
-  n = Uint32Array,
-  a = new r([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0, 0]),
+  a = Uint32Array,
+  n = new r([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0, 0]),
   t = new r([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 0, 0]),
   i = new r([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]),
-  f = function (r, a) {
-    for (var t = new e(31), i = 0; i < 31; ++i) t[i] = a += 1 << r[i - 1];
-    var f = new n(t[30]);
+  f = function (r, n) {
+    for (var t = new e(31), i = 0; i < 31; ++i) t[i] = n += 1 << r[i - 1];
+    var f = new a(t[30]);
     for (i = 1; i < 30; ++i) for (var o = t[i]; o < t[i + 1]; ++o) f[o] = o - t[i] << 5 | i;
     return [t, f];
   },
-  o = f(a, 2),
+  o = f(n, 2),
   v = o[0],
   l = o[1];
 v[28] = 258, l[258] = 28;
@@ -3417,15 +3419,15 @@ for (var u = f(t, 0)[0], c = new e(32768), d = 0; d < 32768; ++d) {
   var s = (43690 & d) >>> 1 | (21845 & d) << 1;
   s = (61680 & (s = (52428 & s) >>> 2 | (13107 & s) << 2)) >>> 4 | (3855 & s) << 4, c[d] = ((65280 & s) >>> 8 | (255 & s) << 8) >>> 1;
 }
-var w = function (r, n, a) {
-    for (var t = r.length, i = 0, f = new e(n); i < t; ++i) r[i] && ++f[r[i] - 1];
+var w = function (r, a, n) {
+    for (var t = r.length, i = 0, f = new e(a); i < t; ++i) r[i] && ++f[r[i] - 1];
     var o,
-      v = new e(n);
-    for (i = 0; i < n; ++i) v[i] = v[i - 1] + f[i - 1] << 1;
-    if (a) {
-      o = new e(1 << n);
-      var l = 15 - n;
-      for (i = 0; i < t; ++i) if (r[i]) for (var u = i << 4 | r[i], d = n - r[i], s = v[r[i] - 1]++ << d, w = s | (1 << d) - 1; s <= w; ++s) o[c[s] >>> l] = u;
+      v = new e(a);
+    for (i = 0; i < a; ++i) v[i] = v[i - 1] + f[i - 1] << 1;
+    if (n) {
+      o = new e(1 << a);
+      var l = 15 - a;
+      for (i = 0; i < t; ++i) if (r[i]) for (var u = i << 4 | r[i], d = a - r[i], s = v[r[i] - 1]++ << d, w = s | (1 << d) - 1; s <= w; ++s) o[c[s] >>> l] = u;
     } else for (o = new e(t), i = 0; i < t; ++i) r[i] && (o[i] = c[v[r[i] - 1]++] >>> 15 - r[i]);
     return o;
   },
@@ -3439,22 +3441,22 @@ for (d = 0; d < 32; ++d) h[d] = 5;
 var E = w(b, 9, 1),
   p = w(h, 5, 1),
   g = function (r) {
-    for (var e = r[0], n = 1; n < r.length; ++n) r[n] > e && (e = r[n]);
+    for (var e = r[0], a = 1; a < r.length; ++a) r[a] > e && (e = r[a]);
     return e;
   },
-  y = function (r, e, n) {
-    var a = e / 8 | 0;
-    return (r[a] | r[a + 1] << 8) >> (7 & e) & n;
+  y = function (r, e, a) {
+    var n = e / 8 | 0;
+    return (r[n] | r[n + 1] << 8) >> (7 & e) & a;
   },
   k = function (r, e) {
-    var n = e / 8 | 0;
-    return (r[n] | r[n + 1] << 8 | r[n + 2] << 16) >> (7 & e);
+    var a = e / 8 | 0;
+    return (r[a] | r[a + 1] << 8 | r[a + 2] << 16) >> (7 & e);
   },
-  T = ['unexpected EOF', 'invalid block type', 'invalid length/literal', 'invalid distance', 'stream finished', 'no stream handler',, 'no callback', 'invalid UTF-8 data', 'extra field too long', 'date not in range 1980-2099', 'filename too long', 'stream finishing', 'invalid zip data'],
-  m = function (r, e, n) {
-    var a = new Error(e || T[r]);
-    if (a.code = r, Error.captureStackTrace && Error.captureStackTrace(a, m), !n) throw a;
-    return a;
+  T = ["unexpected EOF", "invalid block type", "invalid length/literal", "invalid distance", "stream finished", "no stream handler",, "no callback", "invalid UTF-8 data", "extra field too long", "date not in range 1980-2099", "filename too long", "stream finishing", "invalid zip data"],
+  m = function (r, e, a) {
+    var n = new Error(e || T[r]);
+    if (n.code = r, Error.captureStackTrace && Error.captureStackTrace(n, m), !a) throw n;
+    return n;
   },
   x = function (f, o, l) {
     var c = f.length;
@@ -3463,10 +3465,10 @@ var E = w(b, 9, 1),
       s = !l || l.i;
     l || (l = {}), o || (o = new r(3 * c));
     var b = function (e) {
-        var n = o.length;
-        if (e > n) {
-          var a = new r(Math.max(2 * n, e));
-          a.set(o), o = a;
+        var a = o.length;
+        if (e > a) {
+          var n = new r(Math.max(2 * a, e));
+          n.set(o), o = n;
         }
       },
       h = l.f || 0,
@@ -3533,7 +3535,7 @@ var E = w(b, 9, 1),
           }
           var Z = X - 254;
           if (X > 264) {
-            var \$ = a[Y = X - 257];
+            var \$ = n[Y = X - 257];
             Z = y(f, T, (1 << \$) - 1) + v[Y], T += \$;
           }
           var rr = U[k(f, T) & V],
@@ -3549,28 +3551,26 @@ var E = w(b, 9, 1),
             break;
           }
           d && b(x + 131072);
-          for (var nr = x + Z; x < nr; x += 4) o[x] = o[x - K], o[x + 1] = o[x + 1 - K], o[x + 2] = o[x + 2 - K], o[x + 3] = o[x + 3 - K];
-          x = nr;
+          for (var ar = x + Z; x < ar; x += 4) o[x] = o[x - K], o[x + 1] = o[x + 1 - K], o[x + 2] = o[x + 2 - K], o[x + 3] = o[x + 3 - K];
+          x = ar;
         }
       }
       l.l = S, l.p = W, l.b = x, l.f = h, S && (h = 1, l.m = _, l.d = U, l.n = z);
     } while (!h);
-    return x == o.length ? o : function (a, t, i) {
-      (null == t || t < 0) && (t = 0), (null == i || i > a.length) && (i = a.length);
-      var f = new (2 == a.BYTES_PER_ELEMENT ? e : 4 == a.BYTES_PER_ELEMENT ? n : r)(i - t);
-      return f.set(a.subarray(t, i)), f;
+    return x == o.length ? o : function (n, t, i) {
+      (null == t || t < 0) && (t = 0), (null == i || i > n.length) && (i = n.length);
+      var f = new (2 == n.BYTES_PER_ELEMENT ? e : 4 == n.BYTES_PER_ELEMENT ? a : r)(i - t);
+      return f.set(n.subarray(t, i)), f;
     }(o, 0, x);
   },
-  S = new r(0),
-  U = function (r) {
-    (8 != (15 & r[0]) || r[0] >>> 4 > 7 || (r[0] << 8 | r[1]) % 31) && m(6, 'invalid zlib data'), 32 & r[1] && m(6, 'invalid zlib data: preset dictionaries not supported');
-  };
-function _(r, e) {
-  return x((U(r), r.subarray(2, -4)), e);
+  S = new r(0);
+function U(r, e) {
+  return x(((8 != (15 & (a = r)[0]) || a[0] >>> 4 > 7 || (a[0] << 8 | a[1]) % 31) && m(6, "invalid zlib data"), 32 & a[1] && m(6, "invalid zlib data: preset dictionaries not supported"), r.subarray(2, -4)), e);
+  var a;
 }
-var z = 'undefined' != typeof TextDecoder && new TextDecoder();
+var _ = "undefined" != typeof TextDecoder && new TextDecoder();
 try {
-  z.decode(S, {
+  _.decode(S, {
     stream: !0
   }), 1;
 } catch (r) {}
@@ -5717,6 +5717,18 @@ class MOBI extends PDB {
 }
 const mbpPagebreakRegex = /<\\s*(?:mbp:)?pagebreak[^>]*>/gi;
 const fileposRegex = /<[^<>]+filepos=['"]{0,1}(\\d+)[^<>]*>/gi;
+const getIndent = el => {
+  let x = 0;
+  while (el) {
+    const parent = el.parentElement;
+    if (parent) {
+      const tag = parent.tagName.toLowerCase();
+      if (tag === 'p') x += 1.5;else if (tag === 'blockquote') x += 2;
+    }
+    el = parent;
+  }
+  return x;
+};
 class MOBI6 {
   parser = new DOMParser();
   serializer = new XMLSerializer();
@@ -5760,42 +5772,44 @@ class MOBI6 {
       createDocument: () => this.createDocument(section),
       size: section.end - section.start
     }));
-    const fileposInNCX = [];
     try {
-      const ncx = await this.mobi.getNCX();
-      const map = ({
-        label,
-        offset,
-        children
-      }) => {
-        const filepos = offset.toString().padStart(10, '0');
-        const href = \`filepos:\${filepos}\`;
-        fileposInNCX.push(filepos);
-        label = unescapeHTML(label);
-        return {
-          label,
-          href,
-          subitems: children?.map(map)
-        };
-      };
-      this.toc = ncx?.map(map);
       this.landmarks = await this.getGuide();
-
-      // try to build TOC if there's no NCX
-      if (!this.toc) {
-        const tocHref = this.landmarks.find(({
-          type
-        }) => type?.includes('toc'))?.href;
-        if (tocHref) {
-          const {
-            index
-          } = this.resolveHref(tocHref);
-          const doc = await this.sections[index].createDocument();
-          this.toc = Array.from(doc.querySelectorAll('a[filepos]'), a => ({
+      const tocHref = this.landmarks.find(({
+        type
+      }) => type?.includes('toc'))?.href;
+      if (tocHref) {
+        const {
+          index
+        } = this.resolveHref(tocHref);
+        const doc = await this.sections[index].createDocument();
+        let lastItem;
+        let lastLevel = 0;
+        let lastIndent = 0;
+        const lastLevelOfIndent = new Map();
+        const lastParentOfLevel = new Map();
+        this.toc = Array.from(doc.querySelectorAll('a[filepos]')).reduce((arr, a) => {
+          const indent = getIndent(a);
+          const item = {
             label: a.innerText?.trim(),
             href: \`filepos:\${a.getAttribute('filepos')}\`
-          }));
-        }
+          };
+          const level = indent > lastIndent ? lastLevel + 1 : indent === lastIndent ? lastLevel : lastLevelOfIndent.get(indent) ?? Math.max(0, lastLevel - 1);
+          if (level > lastLevel) {
+            if (lastItem) {
+              lastItem.subitems ??= [];
+              lastItem.subitems.push(item);
+              lastParentOfLevel.set(level, lastItem);
+            } else arr.push(item);
+          } else {
+            const parent = lastParentOfLevel.get(level);
+            if (parent) parent.subitems.push(item);else arr.push(item);
+          }
+          lastItem = item;
+          lastLevel = level;
+          lastIndent = indent;
+          lastLevelOfIndent.set(indent, level);
+          return arr;
+        }, []);
       }
     } catch (e) {
       console.warn(e);
@@ -5804,7 +5818,7 @@ class MOBI6 {
     // get list of all \`filepos\` references in the book,
     // which will be used to insert anchor elements
     // because only then can they be referenced in the DOM
-    this.#fileposList = [...new Set(fileposInNCX.concat(Array.from(str.matchAll(fileposRegex), m => m[1])))].map(filepos => ({
+    this.#fileposList = [...new Set(Array.from(str.matchAll(fileposRegex), m => m[1]))].map(filepos => ({
       filepos,
       number: Number(filepos)
     })).sort((a, b) => a.number - b.number);
@@ -7240,108 +7254,105 @@ const makePDF = async file => {
 ;// CONCATENATED MODULE: ./foliate-js/vendor/zip.js
 const zip_e = 0,
   zip_t = 1,
-  zip_n = 2,
-  zip_i = -2,
-  zip_r = -3,
-  zip_a = -4,
-  zip_s = -5,
-  zip_o = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535],
-  zip_l = 1440,
-  zip_c = 0,
-  zip_u = 4,
-  zip_d = [96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8, 48, 0, 9, 192, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 160, 0, 8, 0, 0, 8, 128, 0, 8, 64, 0, 9, 224, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 144, 83, 7, 59, 0, 8, 120, 0, 8, 56, 0, 9, 208, 81, 7, 17, 0, 8, 104, 0, 8, 40, 0, 9, 176, 0, 8, 8, 0, 8, 136, 0, 8, 72, 0, 9, 240, 80, 7, 4, 0, 8, 84, 0, 8, 20, 85, 8, 227, 83, 7, 43, 0, 8, 116, 0, 8, 52, 0, 9, 200, 81, 7, 13, 0, 8, 100, 0, 8, 36, 0, 9, 168, 0, 8, 4, 0, 8, 132, 0, 8, 68, 0, 9, 232, 80, 7, 8, 0, 8, 92, 0, 8, 28, 0, 9, 152, 84, 7, 83, 0, 8, 124, 0, 8, 60, 0, 9, 216, 82, 7, 23, 0, 8, 108, 0, 8, 44, 0, 9, 184, 0, 8, 12, 0, 8, 140, 0, 8, 76, 0, 9, 248, 80, 7, 3, 0, 8, 82, 0, 8, 18, 85, 8, 163, 83, 7, 35, 0, 8, 114, 0, 8, 50, 0, 9, 196, 81, 7, 11, 0, 8, 98, 0, 8, 34, 0, 9, 164, 0, 8, 2, 0, 8, 130, 0, 8, 66, 0, 9, 228, 80, 7, 7, 0, 8, 90, 0, 8, 26, 0, 9, 148, 84, 7, 67, 0, 8, 122, 0, 8, 58, 0, 9, 212, 82, 7, 19, 0, 8, 106, 0, 8, 42, 0, 9, 180, 0, 8, 10, 0, 8, 138, 0, 8, 74, 0, 9, 244, 80, 7, 5, 0, 8, 86, 0, 8, 22, 192, 8, 0, 83, 7, 51, 0, 8, 118, 0, 8, 54, 0, 9, 204, 81, 7, 15, 0, 8, 102, 0, 8, 38, 0, 9, 172, 0, 8, 6, 0, 8, 134, 0, 8, 70, 0, 9, 236, 80, 7, 9, 0, 8, 94, 0, 8, 30, 0, 9, 156, 84, 7, 99, 0, 8, 126, 0, 8, 62, 0, 9, 220, 82, 7, 27, 0, 8, 110, 0, 8, 46, 0, 9, 188, 0, 8, 14, 0, 8, 142, 0, 8, 78, 0, 9, 252, 96, 7, 256, 0, 8, 81, 0, 8, 17, 85, 8, 131, 82, 7, 31, 0, 8, 113, 0, 8, 49, 0, 9, 194, 80, 7, 10, 0, 8, 97, 0, 8, 33, 0, 9, 162, 0, 8, 1, 0, 8, 129, 0, 8, 65, 0, 9, 226, 80, 7, 6, 0, 8, 89, 0, 8, 25, 0, 9, 146, 83, 7, 59, 0, 8, 121, 0, 8, 57, 0, 9, 210, 81, 7, 17, 0, 8, 105, 0, 8, 41, 0, 9, 178, 0, 8, 9, 0, 8, 137, 0, 8, 73, 0, 9, 242, 80, 7, 4, 0, 8, 85, 0, 8, 21, 80, 8, 258, 83, 7, 43, 0, 8, 117, 0, 8, 53, 0, 9, 202, 81, 7, 13, 0, 8, 101, 0, 8, 37, 0, 9, 170, 0, 8, 5, 0, 8, 133, 0, 8, 69, 0, 9, 234, 80, 7, 8, 0, 8, 93, 0, 8, 29, 0, 9, 154, 84, 7, 83, 0, 8, 125, 0, 8, 61, 0, 9, 218, 82, 7, 23, 0, 8, 109, 0, 8, 45, 0, 9, 186, 0, 8, 13, 0, 8, 141, 0, 8, 77, 0, 9, 250, 80, 7, 3, 0, 8, 83, 0, 8, 19, 85, 8, 195, 83, 7, 35, 0, 8, 115, 0, 8, 51, 0, 9, 198, 81, 7, 11, 0, 8, 99, 0, 8, 35, 0, 9, 166, 0, 8, 3, 0, 8, 131, 0, 8, 67, 0, 9, 230, 80, 7, 7, 0, 8, 91, 0, 8, 27, 0, 9, 150, 84, 7, 67, 0, 8, 123, 0, 8, 59, 0, 9, 214, 82, 7, 19, 0, 8, 107, 0, 8, 43, 0, 9, 182, 0, 8, 11, 0, 8, 139, 0, 8, 75, 0, 9, 246, 80, 7, 5, 0, 8, 87, 0, 8, 23, 192, 8, 0, 83, 7, 51, 0, 8, 119, 0, 8, 55, 0, 9, 206, 81, 7, 15, 0, 8, 103, 0, 8, 39, 0, 9, 174, 0, 8, 7, 0, 8, 135, 0, 8, 71, 0, 9, 238, 80, 7, 9, 0, 8, 95, 0, 8, 31, 0, 9, 158, 84, 7, 99, 0, 8, 127, 0, 8, 63, 0, 9, 222, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 190, 0, 8, 15, 0, 8, 143, 0, 8, 79, 0, 9, 254, 96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8, 48, 0, 9, 193, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 161, 0, 8, 0, 0, 8, 128, 0, 8, 64, 0, 9, 225, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 145, 83, 7, 59, 0, 8, 120, 0, 8, 56, 0, 9, 209, 81, 7, 17, 0, 8, 104, 0, 8, 40, 0, 9, 177, 0, 8, 8, 0, 8, 136, 0, 8, 72, 0, 9, 241, 80, 7, 4, 0, 8, 84, 0, 8, 20, 85, 8, 227, 83, 7, 43, 0, 8, 116, 0, 8, 52, 0, 9, 201, 81, 7, 13, 0, 8, 100, 0, 8, 36, 0, 9, 169, 0, 8, 4, 0, 8, 132, 0, 8, 68, 0, 9, 233, 80, 7, 8, 0, 8, 92, 0, 8, 28, 0, 9, 153, 84, 7, 83, 0, 8, 124, 0, 8, 60, 0, 9, 217, 82, 7, 23, 0, 8, 108, 0, 8, 44, 0, 9, 185, 0, 8, 12, 0, 8, 140, 0, 8, 76, 0, 9, 249, 80, 7, 3, 0, 8, 82, 0, 8, 18, 85, 8, 163, 83, 7, 35, 0, 8, 114, 0, 8, 50, 0, 9, 197, 81, 7, 11, 0, 8, 98, 0, 8, 34, 0, 9, 165, 0, 8, 2, 0, 8, 130, 0, 8, 66, 0, 9, 229, 80, 7, 7, 0, 8, 90, 0, 8, 26, 0, 9, 149, 84, 7, 67, 0, 8, 122, 0, 8, 58, 0, 9, 213, 82, 7, 19, 0, 8, 106, 0, 8, 42, 0, 9, 181, 0, 8, 10, 0, 8, 138, 0, 8, 74, 0, 9, 245, 80, 7, 5, 0, 8, 86, 0, 8, 22, 192, 8, 0, 83, 7, 51, 0, 8, 118, 0, 8, 54, 0, 9, 205, 81, 7, 15, 0, 8, 102, 0, 8, 38, 0, 9, 173, 0, 8, 6, 0, 8, 134, 0, 8, 70, 0, 9, 237, 80, 7, 9, 0, 8, 94, 0, 8, 30, 0, 9, 157, 84, 7, 99, 0, 8, 126, 0, 8, 62, 0, 9, 221, 82, 7, 27, 0, 8, 110, 0, 8, 46, 0, 9, 189, 0, 8, 14, 0, 8, 142, 0, 8, 78, 0, 9, 253, 96, 7, 256, 0, 8, 81, 0, 8, 17, 85, 8, 131, 82, 7, 31, 0, 8, 113, 0, 8, 49, 0, 9, 195, 80, 7, 10, 0, 8, 97, 0, 8, 33, 0, 9, 163, 0, 8, 1, 0, 8, 129, 0, 8, 65, 0, 9, 227, 80, 7, 6, 0, 8, 89, 0, 8, 25, 0, 9, 147, 83, 7, 59, 0, 8, 121, 0, 8, 57, 0, 9, 211, 81, 7, 17, 0, 8, 105, 0, 8, 41, 0, 9, 179, 0, 8, 9, 0, 8, 137, 0, 8, 73, 0, 9, 243, 80, 7, 4, 0, 8, 85, 0, 8, 21, 80, 8, 258, 83, 7, 43, 0, 8, 117, 0, 8, 53, 0, 9, 203, 81, 7, 13, 0, 8, 101, 0, 8, 37, 0, 9, 171, 0, 8, 5, 0, 8, 133, 0, 8, 69, 0, 9, 235, 80, 7, 8, 0, 8, 93, 0, 8, 29, 0, 9, 155, 84, 7, 83, 0, 8, 125, 0, 8, 61, 0, 9, 219, 82, 7, 23, 0, 8, 109, 0, 8, 45, 0, 9, 187, 0, 8, 13, 0, 8, 141, 0, 8, 77, 0, 9, 251, 80, 7, 3, 0, 8, 83, 0, 8, 19, 85, 8, 195, 83, 7, 35, 0, 8, 115, 0, 8, 51, 0, 9, 199, 81, 7, 11, 0, 8, 99, 0, 8, 35, 0, 9, 167, 0, 8, 3, 0, 8, 131, 0, 8, 67, 0, 9, 231, 80, 7, 7, 0, 8, 91, 0, 8, 27, 0, 9, 151, 84, 7, 67, 0, 8, 123, 0, 8, 59, 0, 9, 215, 82, 7, 19, 0, 8, 107, 0, 8, 43, 0, 9, 183, 0, 8, 11, 0, 8, 139, 0, 8, 75, 0, 9, 247, 80, 7, 5, 0, 8, 87, 0, 8, 23, 192, 8, 0, 83, 7, 51, 0, 8, 119, 0, 8, 55, 0, 9, 207, 81, 7, 15, 0, 8, 103, 0, 8, 39, 0, 9, 175, 0, 8, 7, 0, 8, 135, 0, 8, 71, 0, 9, 239, 80, 7, 9, 0, 8, 95, 0, 8, 31, 0, 9, 159, 84, 7, 99, 0, 8, 127, 0, 8, 63, 0, 9, 223, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 191, 0, 8, 15, 0, 8, 143, 0, 8, 79, 0, 9, 255],
-  zip_f = [80, 5, 1, 87, 5, 257, 83, 5, 17, 91, 5, 4097, 81, 5, 5, 89, 5, 1025, 85, 5, 65, 93, 5, 16385, 80, 5, 3, 88, 5, 513, 84, 5, 33, 92, 5, 8193, 82, 5, 9, 90, 5, 2049, 86, 5, 129, 192, 5, 24577, 80, 5, 2, 87, 5, 385, 83, 5, 25, 91, 5, 6145, 81, 5, 7, 89, 5, 1537, 85, 5, 97, 93, 5, 24577, 80, 5, 4, 88, 5, 769, 84, 5, 49, 92, 5, 12289, 82, 5, 13, 90, 5, 3073, 86, 5, 193, 192, 5, 24577],
-  zip_ = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0],
-  zip_h = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 112, 112],
-  zip_w = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577],
-  zip_b = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
-  zip_p = 15;
-function zip_m() {
-  let t, n, i, o, c, u;
-  function d(t, n, a, d, f, _, h, w, b, m, g) {
-    let y, x, k, v, S, z, A, U, D, E, F, T, O, C, W;
-    E = 0, S = a;
+  zip_n = -2,
+  zip_i = -3,
+  zip_r = -4,
+  zip_a = -5,
+  zip_s = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535],
+  zip_o = 1440,
+  zip_l = [96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8, 48, 0, 9, 192, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 160, 0, 8, 0, 0, 8, 128, 0, 8, 64, 0, 9, 224, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 144, 83, 7, 59, 0, 8, 120, 0, 8, 56, 0, 9, 208, 81, 7, 17, 0, 8, 104, 0, 8, 40, 0, 9, 176, 0, 8, 8, 0, 8, 136, 0, 8, 72, 0, 9, 240, 80, 7, 4, 0, 8, 84, 0, 8, 20, 85, 8, 227, 83, 7, 43, 0, 8, 116, 0, 8, 52, 0, 9, 200, 81, 7, 13, 0, 8, 100, 0, 8, 36, 0, 9, 168, 0, 8, 4, 0, 8, 132, 0, 8, 68, 0, 9, 232, 80, 7, 8, 0, 8, 92, 0, 8, 28, 0, 9, 152, 84, 7, 83, 0, 8, 124, 0, 8, 60, 0, 9, 216, 82, 7, 23, 0, 8, 108, 0, 8, 44, 0, 9, 184, 0, 8, 12, 0, 8, 140, 0, 8, 76, 0, 9, 248, 80, 7, 3, 0, 8, 82, 0, 8, 18, 85, 8, 163, 83, 7, 35, 0, 8, 114, 0, 8, 50, 0, 9, 196, 81, 7, 11, 0, 8, 98, 0, 8, 34, 0, 9, 164, 0, 8, 2, 0, 8, 130, 0, 8, 66, 0, 9, 228, 80, 7, 7, 0, 8, 90, 0, 8, 26, 0, 9, 148, 84, 7, 67, 0, 8, 122, 0, 8, 58, 0, 9, 212, 82, 7, 19, 0, 8, 106, 0, 8, 42, 0, 9, 180, 0, 8, 10, 0, 8, 138, 0, 8, 74, 0, 9, 244, 80, 7, 5, 0, 8, 86, 0, 8, 22, 192, 8, 0, 83, 7, 51, 0, 8, 118, 0, 8, 54, 0, 9, 204, 81, 7, 15, 0, 8, 102, 0, 8, 38, 0, 9, 172, 0, 8, 6, 0, 8, 134, 0, 8, 70, 0, 9, 236, 80, 7, 9, 0, 8, 94, 0, 8, 30, 0, 9, 156, 84, 7, 99, 0, 8, 126, 0, 8, 62, 0, 9, 220, 82, 7, 27, 0, 8, 110, 0, 8, 46, 0, 9, 188, 0, 8, 14, 0, 8, 142, 0, 8, 78, 0, 9, 252, 96, 7, 256, 0, 8, 81, 0, 8, 17, 85, 8, 131, 82, 7, 31, 0, 8, 113, 0, 8, 49, 0, 9, 194, 80, 7, 10, 0, 8, 97, 0, 8, 33, 0, 9, 162, 0, 8, 1, 0, 8, 129, 0, 8, 65, 0, 9, 226, 80, 7, 6, 0, 8, 89, 0, 8, 25, 0, 9, 146, 83, 7, 59, 0, 8, 121, 0, 8, 57, 0, 9, 210, 81, 7, 17, 0, 8, 105, 0, 8, 41, 0, 9, 178, 0, 8, 9, 0, 8, 137, 0, 8, 73, 0, 9, 242, 80, 7, 4, 0, 8, 85, 0, 8, 21, 80, 8, 258, 83, 7, 43, 0, 8, 117, 0, 8, 53, 0, 9, 202, 81, 7, 13, 0, 8, 101, 0, 8, 37, 0, 9, 170, 0, 8, 5, 0, 8, 133, 0, 8, 69, 0, 9, 234, 80, 7, 8, 0, 8, 93, 0, 8, 29, 0, 9, 154, 84, 7, 83, 0, 8, 125, 0, 8, 61, 0, 9, 218, 82, 7, 23, 0, 8, 109, 0, 8, 45, 0, 9, 186, 0, 8, 13, 0, 8, 141, 0, 8, 77, 0, 9, 250, 80, 7, 3, 0, 8, 83, 0, 8, 19, 85, 8, 195, 83, 7, 35, 0, 8, 115, 0, 8, 51, 0, 9, 198, 81, 7, 11, 0, 8, 99, 0, 8, 35, 0, 9, 166, 0, 8, 3, 0, 8, 131, 0, 8, 67, 0, 9, 230, 80, 7, 7, 0, 8, 91, 0, 8, 27, 0, 9, 150, 84, 7, 67, 0, 8, 123, 0, 8, 59, 0, 9, 214, 82, 7, 19, 0, 8, 107, 0, 8, 43, 0, 9, 182, 0, 8, 11, 0, 8, 139, 0, 8, 75, 0, 9, 246, 80, 7, 5, 0, 8, 87, 0, 8, 23, 192, 8, 0, 83, 7, 51, 0, 8, 119, 0, 8, 55, 0, 9, 206, 81, 7, 15, 0, 8, 103, 0, 8, 39, 0, 9, 174, 0, 8, 7, 0, 8, 135, 0, 8, 71, 0, 9, 238, 80, 7, 9, 0, 8, 95, 0, 8, 31, 0, 9, 158, 84, 7, 99, 0, 8, 127, 0, 8, 63, 0, 9, 222, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 190, 0, 8, 15, 0, 8, 143, 0, 8, 79, 0, 9, 254, 96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8, 48, 0, 9, 193, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 161, 0, 8, 0, 0, 8, 128, 0, 8, 64, 0, 9, 225, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 145, 83, 7, 59, 0, 8, 120, 0, 8, 56, 0, 9, 209, 81, 7, 17, 0, 8, 104, 0, 8, 40, 0, 9, 177, 0, 8, 8, 0, 8, 136, 0, 8, 72, 0, 9, 241, 80, 7, 4, 0, 8, 84, 0, 8, 20, 85, 8, 227, 83, 7, 43, 0, 8, 116, 0, 8, 52, 0, 9, 201, 81, 7, 13, 0, 8, 100, 0, 8, 36, 0, 9, 169, 0, 8, 4, 0, 8, 132, 0, 8, 68, 0, 9, 233, 80, 7, 8, 0, 8, 92, 0, 8, 28, 0, 9, 153, 84, 7, 83, 0, 8, 124, 0, 8, 60, 0, 9, 217, 82, 7, 23, 0, 8, 108, 0, 8, 44, 0, 9, 185, 0, 8, 12, 0, 8, 140, 0, 8, 76, 0, 9, 249, 80, 7, 3, 0, 8, 82, 0, 8, 18, 85, 8, 163, 83, 7, 35, 0, 8, 114, 0, 8, 50, 0, 9, 197, 81, 7, 11, 0, 8, 98, 0, 8, 34, 0, 9, 165, 0, 8, 2, 0, 8, 130, 0, 8, 66, 0, 9, 229, 80, 7, 7, 0, 8, 90, 0, 8, 26, 0, 9, 149, 84, 7, 67, 0, 8, 122, 0, 8, 58, 0, 9, 213, 82, 7, 19, 0, 8, 106, 0, 8, 42, 0, 9, 181, 0, 8, 10, 0, 8, 138, 0, 8, 74, 0, 9, 245, 80, 7, 5, 0, 8, 86, 0, 8, 22, 192, 8, 0, 83, 7, 51, 0, 8, 118, 0, 8, 54, 0, 9, 205, 81, 7, 15, 0, 8, 102, 0, 8, 38, 0, 9, 173, 0, 8, 6, 0, 8, 134, 0, 8, 70, 0, 9, 237, 80, 7, 9, 0, 8, 94, 0, 8, 30, 0, 9, 157, 84, 7, 99, 0, 8, 126, 0, 8, 62, 0, 9, 221, 82, 7, 27, 0, 8, 110, 0, 8, 46, 0, 9, 189, 0, 8, 14, 0, 8, 142, 0, 8, 78, 0, 9, 253, 96, 7, 256, 0, 8, 81, 0, 8, 17, 85, 8, 131, 82, 7, 31, 0, 8, 113, 0, 8, 49, 0, 9, 195, 80, 7, 10, 0, 8, 97, 0, 8, 33, 0, 9, 163, 0, 8, 1, 0, 8, 129, 0, 8, 65, 0, 9, 227, 80, 7, 6, 0, 8, 89, 0, 8, 25, 0, 9, 147, 83, 7, 59, 0, 8, 121, 0, 8, 57, 0, 9, 211, 81, 7, 17, 0, 8, 105, 0, 8, 41, 0, 9, 179, 0, 8, 9, 0, 8, 137, 0, 8, 73, 0, 9, 243, 80, 7, 4, 0, 8, 85, 0, 8, 21, 80, 8, 258, 83, 7, 43, 0, 8, 117, 0, 8, 53, 0, 9, 203, 81, 7, 13, 0, 8, 101, 0, 8, 37, 0, 9, 171, 0, 8, 5, 0, 8, 133, 0, 8, 69, 0, 9, 235, 80, 7, 8, 0, 8, 93, 0, 8, 29, 0, 9, 155, 84, 7, 83, 0, 8, 125, 0, 8, 61, 0, 9, 219, 82, 7, 23, 0, 8, 109, 0, 8, 45, 0, 9, 187, 0, 8, 13, 0, 8, 141, 0, 8, 77, 0, 9, 251, 80, 7, 3, 0, 8, 83, 0, 8, 19, 85, 8, 195, 83, 7, 35, 0, 8, 115, 0, 8, 51, 0, 9, 199, 81, 7, 11, 0, 8, 99, 0, 8, 35, 0, 9, 167, 0, 8, 3, 0, 8, 131, 0, 8, 67, 0, 9, 231, 80, 7, 7, 0, 8, 91, 0, 8, 27, 0, 9, 151, 84, 7, 67, 0, 8, 123, 0, 8, 59, 0, 9, 215, 82, 7, 19, 0, 8, 107, 0, 8, 43, 0, 9, 183, 0, 8, 11, 0, 8, 139, 0, 8, 75, 0, 9, 247, 80, 7, 5, 0, 8, 87, 0, 8, 23, 192, 8, 0, 83, 7, 51, 0, 8, 119, 0, 8, 55, 0, 9, 207, 81, 7, 15, 0, 8, 103, 0, 8, 39, 0, 9, 175, 0, 8, 7, 0, 8, 135, 0, 8, 71, 0, 9, 239, 80, 7, 9, 0, 8, 95, 0, 8, 31, 0, 9, 159, 84, 7, 99, 0, 8, 127, 0, 8, 63, 0, 9, 223, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 191, 0, 8, 15, 0, 8, 143, 0, 8, 79, 0, 9, 255],
+  zip_c = [80, 5, 1, 87, 5, 257, 83, 5, 17, 91, 5, 4097, 81, 5, 5, 89, 5, 1025, 85, 5, 65, 93, 5, 16385, 80, 5, 3, 88, 5, 513, 84, 5, 33, 92, 5, 8193, 82, 5, 9, 90, 5, 2049, 86, 5, 129, 192, 5, 24577, 80, 5, 2, 87, 5, 385, 83, 5, 25, 91, 5, 6145, 81, 5, 7, 89, 5, 1537, 85, 5, 97, 93, 5, 24577, 80, 5, 4, 88, 5, 769, 84, 5, 49, 92, 5, 12289, 82, 5, 13, 90, 5, 3073, 86, 5, 193, 192, 5, 24577],
+  zip_u = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0],
+  zip_d = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 112, 112],
+  zip_f = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577],
+  zip_h = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
+  zip_ = 15;
+function zip_w() {
+  let t, n, s, l, c, w;
+  function b(t, n, r, u, d, f, h, b, p, m, g) {
+    let y, x, k, v, S, z, A, U, D, E, F, O, T, W, C;
+    E = 0, S = r;
     do {
-      i[t[n + E]]++, E++, S--;
+      s[t[n + E]]++, E++, S--;
     } while (0 !== S);
-    if (i[0] == a) return h[0] = -1, w[0] = 0, zip_e;
-    for (U = w[0], z = 1; z <= zip_p && 0 === i[z]; z++);
-    for (A = z, U < z && (U = z), S = zip_p; 0 !== S && 0 === i[S]; S--);
-    for (k = S, U > S && (U = S), w[0] = U, C = 1 << z; z < S; z++, C <<= 1) if ((C -= i[z]) < 0) return zip_r;
-    if ((C -= i[S]) < 0) return zip_r;
-    for (i[S] += C, u[1] = z = 0, E = 1, O = 2; 0 != --S;) u[O] = z += i[E], O++, E++;
+    if (s[0] == r) return h[0] = -1, b[0] = 0, zip_e;
+    for (U = b[0], z = 1; z <= zip_ && 0 === s[z]; z++);
+    for (A = z, U < z && (U = z), S = zip_; 0 !== S && 0 === s[S]; S--);
+    for (k = S, U > S && (U = S), b[0] = U, W = 1 << z; z < S; z++, W <<= 1) if ((W -= s[z]) < 0) return zip_i;
+    if ((W -= s[S]) < 0) return zip_i;
+    for (s[S] += W, w[1] = z = 0, E = 1, T = 2; 0 != --S;) w[T] = z += s[E], T++, E++;
     S = 0, E = 0;
     do {
-      0 !== (z = t[n + E]) && (g[u[z]++] = S), E++;
-    } while (++S < a);
-    for (a = u[k], u[0] = S = 0, E = 0, v = -1, T = -U, c[0] = 0, F = 0, W = 0; A <= k; A++) for (y = i[A]; 0 != y--;) {
-      for (; A > T + U;) {
-        if (v++, T += U, W = k - T, W = W > U ? U : W, (x = 1 << (z = A - T)) > y + 1 && (x -= y + 1, O = A, z < W)) for (; ++z < W && !((x <<= 1) <= i[++O]);) x -= i[O];
-        if (W = 1 << z, m[0] + W > zip_l) return zip_r;
-        c[v] = F = m[0], m[0] += W, 0 !== v ? (u[v] = S, o[0] = z, o[1] = U, z = S >>> T - U, o[2] = F - c[v - 1] - z, b.set(o, 3 * (c[v - 1] + z))) : h[0] = F;
+      0 !== (z = t[n + E]) && (g[w[z]++] = S), E++;
+    } while (++S < r);
+    for (r = w[k], w[0] = S = 0, E = 0, v = -1, O = -U, c[0] = 0, F = 0, C = 0; A <= k; A++) for (y = s[A]; 0 != y--;) {
+      for (; A > O + U;) {
+        if (v++, O += U, C = k - O, C = C > U ? U : C, (x = 1 << (z = A - O)) > y + 1 && (x -= y + 1, T = A, z < C)) for (; ++z < C && !((x <<= 1) <= s[++T]);) x -= s[T];
+        if (C = 1 << z, m[0] + C > zip_o) return zip_i;
+        c[v] = F = m[0], m[0] += C, 0 !== v ? (w[v] = S, l[0] = z, l[1] = U, z = S >>> O - U, l[2] = F - c[v - 1] - z, p.set(l, 3 * (c[v - 1] + z))) : h[0] = F;
       }
-      for (o[1] = A - T, E >= a ? o[0] = 192 : g[E] < d ? (o[0] = g[E] < 256 ? 0 : 96, o[2] = g[E++]) : (o[0] = _[g[E] - d] + 16 + 64, o[2] = f[g[E++] - d]), x = 1 << A - T, z = S >>> T; z < W; z += x) b.set(o, 3 * (F + z));
+      for (l[1] = A - O, E >= r ? l[0] = 192 : g[E] < u ? (l[0] = g[E] < 256 ? 0 : 96, l[2] = g[E++]) : (l[0] = f[g[E] - u] + 16 + 64, l[2] = d[g[E++] - u]), x = 1 << A - O, z = S >>> O; z < C; z += x) p.set(l, 3 * (F + z));
       for (z = 1 << A - 1; 0 != (S & z); z >>>= 1) S ^= z;
-      for (S ^= z, D = (1 << T) - 1; (S & D) != u[v];) v--, T -= U, D = (1 << T) - 1;
+      for (S ^= z, D = (1 << O) - 1; (S & D) != w[v];) v--, O -= U, D = (1 << O) - 1;
     }
-    return 0 !== C && 1 != k ? zip_s : zip_e;
+    return 0 !== W && 1 != k ? zip_a : zip_e;
   }
-  function f(e) {
-    let r;
-    for (t || (t = [], n = [], i = new Int32Array(zip_p + 1), o = [], c = new Int32Array(zip_p), u = new Int32Array(zip_p + 1)), n.length < e && (n = []), r = 0; r < e; r++) n[r] = 0;
-    for (r = 0; r < zip_p + 1; r++) i[r] = 0;
-    for (r = 0; r < 3; r++) o[r] = 0;
-    c.set(i.subarray(0, zip_p), 0), u.set(i.subarray(0, zip_p + 1), 0);
+  function p(e) {
+    let i;
+    for (t || (t = [], n = [], s = new Int32Array(zip_ + 1), l = [], c = new Int32Array(zip_), w = new Int32Array(zip_ + 1)), n.length < e && (n = []), i = 0; i < e; i++) n[i] = 0;
+    for (i = 0; i < zip_ + 1; i++) s[i] = 0;
+    for (i = 0; i < 3; i++) l[i] = 0;
+    c.set(s.subarray(0, zip_), 0), w.set(s.subarray(0, zip_ + 1), 0);
   }
-  this.inflate_trees_bits = function (e, i, a, o, l) {
+  this.inflate_trees_bits = function (e, r, s, o, l) {
     let c;
-    return f(19), t[0] = 0, c = d(e, 0, 19, 19, null, null, a, i, o, t, n), c == zip_r ? l.msg = "oversubscribed dynamic bit lengths tree" : c != zip_s && 0 !== i[0] || (l.msg = "incomplete dynamic bit lengths tree", c = zip_r), c;
-  }, this.inflate_trees_dynamic = function (i, o, l, c, u, p, m, g, y) {
+    return p(19), t[0] = 0, c = b(e, 0, 19, 19, null, null, s, r, o, t, n), c == zip_i ? l.msg = "oversubscribed dynamic bit lengths tree" : c != zip_a && 0 !== r[0] || (l.msg = "incomplete dynamic bit lengths tree", c = zip_i), c;
+  }, this.inflate_trees_dynamic = function (s, o, l, c, _, w, m, g, y) {
     let x;
-    return f(288), t[0] = 0, x = d(l, 0, i, 257, zip_, zip_h, p, c, g, t, n), x != zip_e || 0 === c[0] ? (x == zip_r ? y.msg = "oversubscribed literal/length tree" : x != zip_a && (y.msg = "incomplete literal/length tree", x = zip_r), x) : (f(288), x = d(l, i, o, 0, zip_w, zip_b, m, u, g, t, n), x != zip_e || 0 === u[0] && i > 257 ? (x == zip_r ? y.msg = "oversubscribed distance tree" : x == zip_s ? (y.msg = "incomplete distance tree", x = zip_r) : x != zip_a && (y.msg = "empty distance tree with lengths", x = zip_r), x) : zip_e);
+    return p(288), t[0] = 0, x = b(l, 0, s, 257, zip_u, zip_d, w, c, g, t, n), x != zip_e || 0 === c[0] ? (x == zip_i ? y.msg = "oversubscribed literal/length tree" : x != zip_r && (y.msg = "incomplete literal/length tree", x = zip_i), x) : (p(288), x = b(l, s, o, 0, zip_f, zip_h, m, _, g, t, n), x != zip_e || 0 === _[0] && s > 257 ? (x == zip_i ? y.msg = "oversubscribed distance tree" : x == zip_a ? (y.msg = "incomplete distance tree", x = zip_i) : x != zip_r && (y.msg = "empty distance tree with lengths", x = zip_i), x) : zip_e);
   };
 }
-zip_m.inflate_trees_fixed = function (t, n, i, r) {
-  return t[0] = 9, n[0] = 5, i[0] = zip_d, r[0] = zip_f, zip_e;
+zip_w.inflate_trees_fixed = function (t, n, i, r) {
+  return t[0] = 9, n[0] = 5, i[0] = zip_l, r[0] = zip_c, zip_e;
 };
-const zip_g = 0,
-  zip_y = 1,
-  zip_x = 2,
-  zip_k = 3,
-  zip_v = 4,
-  zip_S = 5,
-  zip_z = 6,
-  A = 7,
-  zip_U = 8,
-  D = 9;
-function zip_E() {
-  const n = this;
+const zip_b = 0,
+  zip_p = 1,
+  zip_m = 2,
+  zip_g = 3,
+  zip_y = 4,
+  zip_x = 5,
+  zip_k = 6,
+  zip_v = 7,
+  zip_S = 8,
+  z = 9;
+function A() {
+  const r = this;
   let a,
-    s,
+    o,
     l,
     c,
     u = 0,
     d = 0,
     f = 0,
-    _ = 0,
     h = 0,
+    _ = 0,
     w = 0,
-    b = 0,
-    p = 0,
-    m = 0,
+    A = 0,
+    U = 0,
+    D = 0,
     E = 0;
-  function F(n, i, a, s, l, c, u, d) {
-    let f, _, h, w, b, p, m, g, y, x, k, v, S, z, A, U;
-    m = d.next_in_index, g = d.avail_in, b = u.bitb, p = u.bitk, y = u.write, x = y < u.read ? u.read - y - 1 : u.end - y, k = zip_o[n], v = zip_o[i];
+  function F(n, r, a, o, l, c, u, d) {
+    let f, h, _, w, b, p, m, g, y, x, k, v, S, z, A, U;
+    m = d.next_in_index, g = d.avail_in, b = u.bitb, p = u.bitk, y = u.write, x = y < u.read ? u.read - y - 1 : u.end - y, k = zip_s[n], v = zip_s[r];
     do {
       for (; p < 20;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
-      if (f = b & k, _ = a, h = s, U = 3 * (h + f), 0 !== (w = _[U])) for (;;) {
-        if (b >>= _[U + 1], p -= _[U + 1], 0 != (16 & w)) {
-          for (w &= 15, S = _[U + 2] + (b & zip_o[w]), b >>= w, p -= w; p < 15;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
-          for (f = b & v, _ = l, h = c, U = 3 * (h + f), w = _[U];;) {
-            if (b >>= _[U + 1], p -= _[U + 1], 0 != (16 & w)) {
+      if (f = b & k, h = a, _ = o, U = 3 * (_ + f), 0 !== (w = h[U])) for (;;) {
+        if (b >>= h[U + 1], p -= h[U + 1], 0 != (16 & w)) {
+          for (w &= 15, S = h[U + 2] + (b & zip_s[w]), b >>= w, p -= w; p < 15;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
+          for (f = b & v, h = l, _ = c, U = 3 * (_ + f), w = h[U];;) {
+            if (b >>= h[U + 1], p -= h[U + 1], 0 != (16 & w)) {
               for (w &= 15; p < w;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
-              if (z = _[U + 2] + (b & zip_o[w]), b >>= w, p -= w, x -= S, y >= z) A = y - z, y - A > 0 && 2 > y - A ? (u.win[y++] = u.win[A++], u.win[y++] = u.win[A++], S -= 2) : (u.win.set(u.win.subarray(A, A + 2), y), y += 2, A += 2, S -= 2);else {
+              if (z = h[U + 2] + (b & zip_s[w]), b >>= w, p -= w, x -= S, y >= z) A = y - z, y - A > 0 && 2 > y - A ? (u.win[y++] = u.win[A++], u.win[y++] = u.win[A++], S -= 2) : (u.win.set(u.win.subarray(A, A + 2), y), y += 2, A += 2, S -= 2);else {
                 A = y - z;
                 do {
                   A += u.end;
@@ -7358,236 +7369,236 @@ function zip_E() {
               } while (0 != --S);else u.win.set(u.win.subarray(A, A + S), y), y += S, A += S, S = 0;
               break;
             }
-            if (0 != (64 & w)) return d.msg = "invalid distance code", S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_r;
-            f += _[U + 2], f += b & zip_o[w], U = 3 * (h + f), w = _[U];
+            if (0 != (64 & w)) return d.msg = "invalid distance code", S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_i;
+            f += h[U + 2], f += b & zip_s[w], U = 3 * (_ + f), w = h[U];
           }
           break;
         }
-        if (0 != (64 & w)) return 0 != (32 & w) ? (S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_t) : (d.msg = "invalid literal/length code", S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_r);
-        if (f += _[U + 2], f += b & zip_o[w], U = 3 * (h + f), 0 === (w = _[U])) {
-          b >>= _[U + 1], p -= _[U + 1], u.win[y++] = _[U + 2], x--;
+        if (0 != (64 & w)) return 0 != (32 & w) ? (S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_t) : (d.msg = "invalid literal/length code", S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_i);
+        if (f += h[U + 2], f += b & zip_s[w], U = 3 * (_ + f), 0 === (w = h[U])) {
+          b >>= h[U + 1], p -= h[U + 1], u.win[y++] = h[U + 2], x--;
           break;
         }
-      } else b >>= _[U + 1], p -= _[U + 1], u.win[y++] = _[U + 2], x--;
+      } else b >>= h[U + 1], p -= h[U + 1], u.win[y++] = h[U + 2], x--;
     } while (x >= 258 && g >= 10);
     return S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_e;
   }
-  n.init = function (e, t, n, i, r, o) {
-    a = zip_g, b = e, p = t, l = n, m = i, c = r, E = o, s = null;
-  }, n.proc = function (n, T, O) {
-    let C,
-      W,
+  r.init = function (e, t, n, i, r, s) {
+    a = zip_b, A = e, U = t, l = n, D = i, c = r, E = s, o = null;
+  }, r.proc = function (r, O, T) {
+    let W,
+      C,
       j,
       M,
       L,
+      P,
       R,
-      B,
+      B = 0,
       I = 0,
-      N = 0,
-      P = 0;
-    for (P = T.next_in_index, M = T.avail_in, I = n.bitb, N = n.bitk, L = n.write, R = L < n.read ? n.read - L - 1 : n.end - L;;) switch (a) {
-      case zip_g:
-        if (R >= 258 && M >= 10 && (n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, O = F(b, p, l, m, c, E, n, T), P = T.next_in_index, M = T.avail_in, I = n.bitb, N = n.bitk, L = n.write, R = L < n.read ? n.read - L - 1 : n.end - L, O != zip_e)) {
-          a = O == zip_t ? A : D;
+      N = 0;
+    for (N = O.next_in_index, M = O.avail_in, B = r.bitb, I = r.bitk, L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L;;) switch (a) {
+      case zip_b:
+        if (P >= 258 && M >= 10 && (r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, T = F(A, U, l, D, c, E, r, O), N = O.next_in_index, M = O.avail_in, B = r.bitb, I = r.bitk, L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, T != zip_e)) {
+          a = T == zip_t ? zip_v : z;
           break;
         }
-        f = b, s = l, d = m, a = zip_y;
-      case zip_y:
-        for (C = f; N < C;) {
-          if (0 === M) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-          O = zip_e, M--, I |= (255 & T.read_byte(P++)) << N, N += 8;
+        f = A, o = l, d = D, a = zip_p;
+      case zip_p:
+        for (W = f; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
         }
-        if (W = 3 * (d + (I & zip_o[C])), I >>>= s[W + 1], N -= s[W + 1], j = s[W], 0 === j) {
-          _ = s[W + 2], a = zip_z;
+        if (C = 3 * (d + (B & zip_s[W])), B >>>= o[C + 1], I -= o[C + 1], j = o[C], 0 === j) {
+          h = o[C + 2], a = zip_k;
           break;
         }
         if (0 != (16 & j)) {
-          h = 15 & j, u = s[W + 2], a = zip_x;
+          _ = 15 & j, u = o[C + 2], a = zip_m;
           break;
         }
         if (0 == (64 & j)) {
-          f = j, d = W / 3 + s[W + 2];
+          f = j, d = C / 3 + o[C + 2];
           break;
         }
         if (0 != (32 & j)) {
-          a = A;
+          a = zip_v;
           break;
         }
-        return a = D, T.msg = "invalid literal/length code", O = zip_r, n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-      case zip_x:
-        for (C = h; N < C;) {
-          if (0 === M) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-          O = zip_e, M--, I |= (255 & T.read_byte(P++)) << N, N += 8;
+        return a = z, O.msg = "invalid literal/length code", T = zip_i, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      case zip_m:
+        for (W = _; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
         }
-        u += I & zip_o[C], I >>= C, N -= C, f = p, s = c, d = E, a = zip_k;
-      case zip_k:
-        for (C = f; N < C;) {
-          if (0 === M) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-          O = zip_e, M--, I |= (255 & T.read_byte(P++)) << N, N += 8;
+        u += B & zip_s[W], B >>= W, I -= W, f = U, o = c, d = E, a = zip_g;
+      case zip_g:
+        for (W = f; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
         }
-        if (W = 3 * (d + (I & zip_o[C])), I >>= s[W + 1], N -= s[W + 1], j = s[W], 0 != (16 & j)) {
-          h = 15 & j, w = s[W + 2], a = zip_v;
+        if (C = 3 * (d + (B & zip_s[W])), B >>= o[C + 1], I -= o[C + 1], j = o[C], 0 != (16 & j)) {
+          _ = 15 & j, w = o[C + 2], a = zip_y;
           break;
         }
         if (0 == (64 & j)) {
-          f = j, d = W / 3 + s[W + 2];
+          f = j, d = C / 3 + o[C + 2];
           break;
         }
-        return a = D, T.msg = "invalid distance code", O = zip_r, n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-      case zip_v:
-        for (C = h; N < C;) {
-          if (0 === M) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-          O = zip_e, M--, I |= (255 & T.read_byte(P++)) << N, N += 8;
+        return a = z, O.msg = "invalid distance code", T = zip_i, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      case zip_y:
+        for (W = _; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
         }
-        w += I & zip_o[C], I >>= C, N -= C, a = zip_S;
-      case zip_S:
-        for (B = L - w; B < 0;) B += n.end;
+        w += B & zip_s[W], B >>= W, I -= W, a = zip_x;
+      case zip_x:
+        for (R = L - w; R < 0;) R += r.end;
         for (; 0 !== u;) {
-          if (0 === R && (L == n.end && 0 !== n.read && (L = 0, R = L < n.read ? n.read - L - 1 : n.end - L), 0 === R && (n.write = L, O = n.inflate_flush(T, O), L = n.write, R = L < n.read ? n.read - L - 1 : n.end - L, L == n.end && 0 !== n.read && (L = 0, R = L < n.read ? n.read - L - 1 : n.end - L), 0 === R))) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-          n.win[L++] = n.win[B++], R--, B == n.end && (B = 0), u--;
+          if (0 === P && (L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P && (r.write = L, T = r.inflate_flush(O, T), L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P))) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          r.win[L++] = r.win[R++], P--, R == r.end && (R = 0), u--;
         }
-        a = zip_g;
+        a = zip_b;
         break;
-      case zip_z:
-        if (0 === R && (L == n.end && 0 !== n.read && (L = 0, R = L < n.read ? n.read - L - 1 : n.end - L), 0 === R && (n.write = L, O = n.inflate_flush(T, O), L = n.write, R = L < n.read ? n.read - L - 1 : n.end - L, L == n.end && 0 !== n.read && (L = 0, R = L < n.read ? n.read - L - 1 : n.end - L), 0 === R))) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-        O = zip_e, n.win[L++] = _, R--, a = zip_g;
+      case zip_k:
+        if (0 === P && (L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P && (r.write = L, T = r.inflate_flush(O, T), L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P))) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+        T = zip_e, r.win[L++] = h, P--, a = zip_b;
         break;
-      case A:
-        if (N > 7 && (N -= 8, M++, P--), n.write = L, O = n.inflate_flush(T, O), L = n.write, R = L < n.read ? n.read - L - 1 : n.end - L, n.read != n.write) return n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-        a = zip_U;
-      case zip_U:
-        return O = zip_t, n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
-      case D:
-        return O = zip_r, n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
+      case zip_v:
+        if (I > 7 && (I -= 8, M++, N--), r.write = L, T = r.inflate_flush(O, T), L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, r.read != r.write) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+        a = zip_S;
+      case zip_S:
+        return T = zip_t, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      case z:
+        return T = zip_i, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
       default:
-        return O = zip_i, n.bitb = I, n.bitk = N, T.avail_in = M, T.total_in += P - T.next_in_index, T.next_in_index = P, n.write = L, n.inflate_flush(T, O);
+        return T = zip_n, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
     }
-  }, n.free = function () {};
+  }, r.free = function () {};
 }
-const F = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15],
-  zip_T = 0,
-  O = 1,
-  C = 2,
-  W = 3,
-  j = 4,
-  M = 5,
-  L = 6,
-  R = 7,
-  B = 8,
-  I = 9;
-function N(n, a) {
+const zip_U = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15],
+  D = 0,
+  zip_E = 1,
+  F = 2,
+  O = 3,
+  zip_T = 4,
+  W = 5,
+  C = 6,
+  j = 7,
+  M = 8,
+  L = 9;
+function P(r, l) {
   const c = this;
   let u,
-    d = zip_T,
+    d = D,
     f = 0,
-    _ = 0,
-    h = 0;
-  const w = [0],
-    b = [0],
-    p = new zip_E();
+    h = 0,
+    _ = 0;
+  const b = [0],
+    p = [0],
+    m = new A();
   let g = 0,
-    y = new Int32Array(3 * zip_l);
-  const x = new zip_m();
-  c.bitk = 0, c.bitb = 0, c.win = new Uint8Array(a), c.end = a, c.read = 0, c.write = 0, c.reset = function (e, t) {
-    t && (t[0] = 0), d == L && p.free(e), d = zip_T, c.bitk = 0, c.bitb = 0, c.read = c.write = 0;
-  }, c.reset(n, null), c.inflate_flush = function (t, n) {
-    let i, r, a;
-    return r = t.next_out_index, a = c.read, i = (a <= c.write ? c.write : c.end) - a, i > t.avail_out && (i = t.avail_out), 0 !== i && n == zip_s && (n = zip_e), t.avail_out -= i, t.total_out += i, t.next_out.set(c.win.subarray(a, a + i), r), r += i, a += i, a == c.end && (a = 0, c.write == c.end && (c.write = 0), i = c.write - a, i > t.avail_out && (i = t.avail_out), 0 !== i && n == zip_s && (n = zip_e), t.avail_out -= i, t.total_out += i, t.next_out.set(c.win.subarray(a, a + i), r), r += i, a += i), t.next_out_index = r, c.read = a, n;
-  }, c.proc = function (n, a) {
-    let s, l, k, v, S, z, A, U;
-    for (v = n.next_in_index, S = n.avail_in, l = c.bitb, k = c.bitk, z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z;;) {
-      let D, E, N, P, V, q, H, K;
+    y = new Int32Array(3 * zip_o);
+  const x = new zip_w();
+  c.bitk = 0, c.bitb = 0, c.win = new Uint8Array(l), c.end = l, c.read = 0, c.write = 0, c.reset = function (e, t) {
+    t && (t[0] = 0), d == C && m.free(e), d = D, c.bitk = 0, c.bitb = 0, c.read = c.write = 0;
+  }, c.reset(r, null), c.inflate_flush = function (t, n) {
+    let i, r, s;
+    return r = t.next_out_index, s = c.read, i = (s <= c.write ? c.write : c.end) - s, i > t.avail_out && (i = t.avail_out), 0 !== i && n == zip_a && (n = zip_e), t.avail_out -= i, t.total_out += i, t.next_out.set(c.win.subarray(s, s + i), r), r += i, s += i, s == c.end && (s = 0, c.write == c.end && (c.write = 0), i = c.write - s, i > t.avail_out && (i = t.avail_out), 0 !== i && n == zip_a && (n = zip_e), t.avail_out -= i, t.total_out += i, t.next_out.set(c.win.subarray(s, s + i), r), r += i, s += i), t.next_out_index = r, c.read = s, n;
+  }, c.proc = function (r, a) {
+    let o, l, k, v, S, z, A, P;
+    for (v = r.next_in_index, S = r.avail_in, l = c.bitb, k = c.bitk, z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z;;) {
+      let R, B, I, N, V, q, H, K;
       switch (d) {
-        case zip_T:
+        case D:
           for (; k < 3;) {
-            if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-            a = zip_e, S--, l |= (255 & n.read_byte(v++)) << k, k += 8;
+            if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+            a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
           }
-          switch (s = 7 & l, g = 1 & s, s >>> 1) {
+          switch (o = 7 & l, g = 1 & o, o >>> 1) {
             case 0:
-              l >>>= 3, k -= 3, s = 7 & k, l >>>= s, k -= s, d = O;
+              l >>>= 3, k -= 3, o = 7 & k, l >>>= o, k -= o, d = zip_E;
               break;
             case 1:
-              D = [], E = [], N = [[]], P = [[]], zip_m.inflate_trees_fixed(D, E, N, P), p.init(D[0], E[0], N[0], 0, P[0], 0), l >>>= 3, k -= 3, d = L;
+              R = [], B = [], I = [[]], N = [[]], zip_w.inflate_trees_fixed(R, B, I, N), m.init(R[0], B[0], I[0], 0, N[0], 0), l >>>= 3, k -= 3, d = C;
               break;
             case 2:
-              l >>>= 3, k -= 3, d = W;
+              l >>>= 3, k -= 3, d = O;
               break;
             case 3:
-              return l >>>= 3, k -= 3, d = I, n.msg = "invalid block type", a = zip_r, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
+              return l >>>= 3, k -= 3, d = L, r.msg = "invalid block type", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
           }
+          break;
+        case zip_E:
+          for (; k < 32;) {
+            if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+            a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+          }
+          if ((~l >>> 16 & 65535) != (65535 & l)) return d = L, r.msg = "invalid stored block lengths", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          f = 65535 & l, l = k = 0, d = 0 !== f ? F : 0 !== g ? j : D;
+          break;
+        case F:
+          if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          if (0 === A && (z == c.end && 0 !== c.read && (z = 0, A = z < c.read ? c.read - z - 1 : c.end - z), 0 === A && (c.write = z, a = c.inflate_flush(r, a), z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, z == c.end && 0 !== c.read && (z = 0, A = z < c.read ? c.read - z - 1 : c.end - z), 0 === A))) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          if (a = zip_e, o = f, o > S && (o = S), o > A && (o = A), c.win.set(r.read_buf(v, o), z), v += o, S -= o, z += o, A -= o, 0 != (f -= o)) break;
+          d = 0 !== g ? j : D;
           break;
         case O:
-          for (; k < 32;) {
-            if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-            a = zip_e, S--, l |= (255 & n.read_byte(v++)) << k, k += 8;
-          }
-          if ((~l >>> 16 & 65535) != (65535 & l)) return d = I, n.msg = "invalid stored block lengths", a = zip_r, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          f = 65535 & l, l = k = 0, d = 0 !== f ? C : 0 !== g ? R : zip_T;
-          break;
-        case C:
-          if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          if (0 === A && (z == c.end && 0 !== c.read && (z = 0, A = z < c.read ? c.read - z - 1 : c.end - z), 0 === A && (c.write = z, a = c.inflate_flush(n, a), z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, z == c.end && 0 !== c.read && (z = 0, A = z < c.read ? c.read - z - 1 : c.end - z), 0 === A))) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          if (a = zip_e, s = f, s > S && (s = S), s > A && (s = A), c.win.set(n.read_buf(v, s), z), v += s, S -= s, z += s, A -= s, 0 != (f -= s)) break;
-          d = 0 !== g ? R : zip_T;
-          break;
-        case W:
           for (; k < 14;) {
-            if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-            a = zip_e, S--, l |= (255 & n.read_byte(v++)) << k, k += 8;
+            if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+            a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
           }
-          if (_ = s = 16383 & l, (31 & s) > 29 || (s >> 5 & 31) > 29) return d = I, n.msg = "too many length or distance symbols", a = zip_r, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          if (s = 258 + (31 & s) + (s >> 5 & 31), !u || u.length < s) u = [];else for (U = 0; U < s; U++) u[U] = 0;
-          l >>>= 14, k -= 14, h = 0, d = j;
-        case j:
-          for (; h < 4 + (_ >>> 10);) {
+          if (h = o = 16383 & l, (31 & o) > 29 || (o >> 5 & 31) > 29) return d = L, r.msg = "too many length or distance symbols", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          if (o = 258 + (31 & o) + (o >> 5 & 31), !u || u.length < o) u = [];else for (P = 0; P < o; P++) u[P] = 0;
+          l >>>= 14, k -= 14, _ = 0, d = zip_T;
+        case zip_T:
+          for (; _ < 4 + (h >>> 10);) {
             for (; k < 3;) {
-              if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-              a = zip_e, S--, l |= (255 & n.read_byte(v++)) << k, k += 8;
+              if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+              a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
             }
-            u[F[h++]] = 7 & l, l >>>= 3, k -= 3;
+            u[zip_U[_++]] = 7 & l, l >>>= 3, k -= 3;
           }
-          for (; h < 19;) u[F[h++]] = 0;
-          if (w[0] = 7, s = x.inflate_trees_bits(u, w, b, y, n), s != zip_e) return (a = s) == zip_r && (u = null, d = I), c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          h = 0, d = M;
-        case M:
-          for (; s = _, !(h >= 258 + (31 & s) + (s >> 5 & 31));) {
-            let t, i;
-            for (s = w[0]; k < s;) {
-              if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-              a = zip_e, S--, l |= (255 & n.read_byte(v++)) << k, k += 8;
+          for (; _ < 19;) u[zip_U[_++]] = 0;
+          if (b[0] = 7, o = x.inflate_trees_bits(u, b, p, y, r), o != zip_e) return (a = o) == zip_i && (u = null, d = L), c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          _ = 0, d = W;
+        case W:
+          for (; o = h, !(_ >= 258 + (31 & o) + (o >> 5 & 31));) {
+            let t, n;
+            for (o = b[0]; k < o;) {
+              if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+              a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
             }
-            if (s = y[3 * (b[0] + (l & zip_o[s])) + 1], i = y[3 * (b[0] + (l & zip_o[s])) + 2], i < 16) l >>>= s, k -= s, u[h++] = i;else {
-              for (U = 18 == i ? 7 : i - 14, t = 18 == i ? 11 : 3; k < s + U;) {
-                if (0 === S) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-                a = zip_e, S--, l |= (255 & n.read_byte(v++)) << k, k += 8;
+            if (o = y[3 * (p[0] + (l & zip_s[o])) + 1], n = y[3 * (p[0] + (l & zip_s[o])) + 2], n < 16) l >>>= o, k -= o, u[_++] = n;else {
+              for (P = 18 == n ? 7 : n - 14, t = 18 == n ? 11 : 3; k < o + P;) {
+                if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+                a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
               }
-              if (l >>>= s, k -= s, t += l & zip_o[U], l >>>= U, k -= U, U = h, s = _, U + t > 258 + (31 & s) + (s >> 5 & 31) || 16 == i && U < 1) return u = null, d = I, n.msg = "invalid bit length repeat", a = zip_r, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-              i = 16 == i ? u[U - 1] : 0;
+              if (l >>>= o, k -= o, t += l & zip_s[P], l >>>= P, k -= P, P = _, o = h, P + t > 258 + (31 & o) + (o >> 5 & 31) || 16 == n && P < 1) return u = null, d = L, r.msg = "invalid bit length repeat", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+              n = 16 == n ? u[P - 1] : 0;
               do {
-                u[U++] = i;
+                u[P++] = n;
               } while (0 != --t);
-              h = U;
+              _ = P;
             }
           }
-          if (b[0] = -1, V = [], q = [], H = [], K = [], V[0] = 9, q[0] = 6, s = _, s = x.inflate_trees_dynamic(257 + (31 & s), 1 + (s >> 5 & 31), u, V, q, H, K, y, n), s != zip_e) return s == zip_r && (u = null, d = I), a = s, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          p.init(V[0], q[0], y, H[0], y, K[0]), d = L;
-        case L:
-          if (c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, (a = p.proc(c, n, a)) != zip_t) return c.inflate_flush(n, a);
-          if (a = zip_e, p.free(n), v = n.next_in_index, S = n.avail_in, l = c.bitb, k = c.bitk, z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, 0 === g) {
-            d = zip_T;
+          if (p[0] = -1, V = [], q = [], H = [], K = [], V[0] = 9, q[0] = 6, o = h, o = x.inflate_trees_dynamic(257 + (31 & o), 1 + (o >> 5 & 31), u, V, q, H, K, y, r), o != zip_e) return o == zip_i && (u = null, d = L), a = o, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          m.init(V[0], q[0], y, H[0], y, K[0]), d = C;
+        case C:
+          if (c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, (a = m.proc(c, r, a)) != zip_t) return c.inflate_flush(r, a);
+          if (a = zip_e, m.free(r), v = r.next_in_index, S = r.avail_in, l = c.bitb, k = c.bitk, z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, 0 === g) {
+            d = D;
             break;
           }
-          d = R;
-        case R:
-          if (c.write = z, a = c.inflate_flush(n, a), z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, c.read != c.write) return c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-          d = B;
-        case B:
-          return a = zip_t, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
-        case I:
-          return a = zip_r, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
+          d = j;
+        case j:
+          if (c.write = z, a = c.inflate_flush(r, a), z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, c.read != c.write) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          d = M;
+        case M:
+          return a = zip_t, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+        case L:
+          return a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
         default:
-          return a = zip_i, c.bitb = l, c.bitk = k, n.avail_in = S, n.total_in += v - n.next_in_index, n.next_in_index = v, c.write = z, c.inflate_flush(n, a);
+          return a = zip_n, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
       }
     }
   }, c.free = function (e) {
@@ -7595,125 +7606,114 @@ function N(n, a) {
   }, c.set_dictionary = function (e, t, n) {
     c.win.set(e.subarray(t, t + n), 0), c.read = c.write = n;
   }, c.sync_point = function () {
-    return d == O ? 1 : 0;
+    return d == zip_E ? 1 : 0;
   };
 }
-const P = 32,
-  V = 8,
-  q = 0,
-  H = 1,
-  K = 2,
-  Z = 3,
-  G = 4,
-  J = 5,
-  Q = 6,
-  X = 7,
-  Y = 12,
-  \$ = 13,
-  ee = [0, 0, 255, 255];
-function te() {
-  const a = this;
-  function o(t) {
-    return t && t.istate ? (t.total_in = t.total_out = 0, t.msg = null, t.istate.mode = X, t.istate.blocks.reset(t, null), zip_e) : zip_i;
+const R = 13,
+  B = [0, 0, 255, 255];
+function I() {
+  const r = this;
+  function s(t) {
+    return t && t.istate ? (t.total_in = t.total_out = 0, t.msg = null, t.istate.mode = 7, t.istate.blocks.reset(t, null), zip_e) : zip_n;
   }
-  a.mode = 0, a.method = 0, a.was = [0], a.need = 0, a.marker = 0, a.wbits = 0, a.inflateEnd = function (t) {
-    return a.blocks && a.blocks.free(t), a.blocks = null, zip_e;
-  }, a.inflateInit = function (t, n) {
-    return t.msg = null, a.blocks = null, n < 8 || n > 15 ? (a.inflateEnd(t), zip_i) : (a.wbits = n, t.istate.blocks = new N(t, 1 << n), o(t), zip_e);
-  }, a.inflate = function (a, o) {
-    let l, c;
-    if (!a || !a.istate || !a.next_in) return zip_i;
-    const d = a.istate;
-    for (o = o == zip_u ? zip_s : zip_e, l = zip_s;;) switch (d.mode) {
-      case q:
-        if (0 === a.avail_in) return l;
-        if (l = o, a.avail_in--, a.total_in++, (15 & (d.method = a.read_byte(a.next_in_index++))) != V) {
-          d.mode = \$, a.msg = "unknown compression method", d.marker = 5;
+  r.mode = 0, r.method = 0, r.was = [0], r.need = 0, r.marker = 0, r.wbits = 0, r.inflateEnd = function (t) {
+    return r.blocks && r.blocks.free(t), r.blocks = null, zip_e;
+  }, r.inflateInit = function (t, i) {
+    return t.msg = null, r.blocks = null, i < 8 || i > 15 ? (r.inflateEnd(t), zip_n) : (r.wbits = i, t.istate.blocks = new P(t, 1 << i), s(t), zip_e);
+  }, r.inflate = function (r, s) {
+    let o, l;
+    if (!r || !r.istate || !r.next_in) return zip_n;
+    const c = r.istate;
+    for (s = 4 == s ? zip_a : zip_e, o = zip_a;;) switch (c.mode) {
+      case 0:
+        if (0 === r.avail_in) return o;
+        if (o = s, r.avail_in--, r.total_in++, 8 != (15 & (c.method = r.read_byte(r.next_in_index++)))) {
+          c.mode = R, r.msg = "unknown compression method", c.marker = 5;
           break;
         }
-        if (8 + (d.method >> 4) > d.wbits) {
-          d.mode = \$, a.msg = "invalid win size", d.marker = 5;
+        if (8 + (c.method >> 4) > c.wbits) {
+          c.mode = R, r.msg = "invalid win size", c.marker = 5;
           break;
         }
-        d.mode = H;
-      case H:
-        if (0 === a.avail_in) return l;
-        if (l = o, a.avail_in--, a.total_in++, c = 255 & a.read_byte(a.next_in_index++), ((d.method << 8) + c) % 31 != 0) {
-          d.mode = \$, a.msg = "incorrect header check", d.marker = 5;
+        c.mode = 1;
+      case 1:
+        if (0 === r.avail_in) return o;
+        if (o = s, r.avail_in--, r.total_in++, l = 255 & r.read_byte(r.next_in_index++), ((c.method << 8) + l) % 31 != 0) {
+          c.mode = R, r.msg = "incorrect header check", c.marker = 5;
           break;
         }
-        if (0 == (c & P)) {
-          d.mode = X;
+        if (0 == (32 & l)) {
+          c.mode = 7;
           break;
         }
-        d.mode = K;
-      case K:
-        if (0 === a.avail_in) return l;
-        l = o, a.avail_in--, a.total_in++, d.need = (255 & a.read_byte(a.next_in_index++)) << 24 & 4278190080, d.mode = Z;
-      case Z:
-        if (0 === a.avail_in) return l;
-        l = o, a.avail_in--, a.total_in++, d.need += (255 & a.read_byte(a.next_in_index++)) << 16 & 16711680, d.mode = G;
-      case G:
-        if (0 === a.avail_in) return l;
-        l = o, a.avail_in--, a.total_in++, d.need += (255 & a.read_byte(a.next_in_index++)) << 8 & 65280, d.mode = J;
-      case J:
-        return 0 === a.avail_in ? l : (l = o, a.avail_in--, a.total_in++, d.need += 255 & a.read_byte(a.next_in_index++), d.mode = Q, zip_n);
-      case Q:
-        return d.mode = \$, a.msg = "need dictionary", d.marker = 0, zip_i;
-      case X:
-        if (l = d.blocks.proc(a, l), l == zip_r) {
-          d.mode = \$, d.marker = 0;
+        c.mode = 2;
+      case 2:
+        if (0 === r.avail_in) return o;
+        o = s, r.avail_in--, r.total_in++, c.need = (255 & r.read_byte(r.next_in_index++)) << 24 & 4278190080, c.mode = 3;
+      case 3:
+        if (0 === r.avail_in) return o;
+        o = s, r.avail_in--, r.total_in++, c.need += (255 & r.read_byte(r.next_in_index++)) << 16 & 16711680, c.mode = 4;
+      case 4:
+        if (0 === r.avail_in) return o;
+        o = s, r.avail_in--, r.total_in++, c.need += (255 & r.read_byte(r.next_in_index++)) << 8 & 65280, c.mode = 5;
+      case 5:
+        return 0 === r.avail_in ? o : (o = s, r.avail_in--, r.total_in++, c.need += 255 & r.read_byte(r.next_in_index++), c.mode = 6, 2);
+      case 6:
+        return c.mode = R, r.msg = "need dictionary", c.marker = 0, zip_n;
+      case 7:
+        if (o = c.blocks.proc(r, o), o == zip_i) {
+          c.mode = R, c.marker = 0;
           break;
         }
-        if (l == zip_e && (l = o), l != zip_t) return l;
-        l = o, d.blocks.reset(a, d.was), d.mode = Y;
-      case Y:
-        return a.avail_in = 0, zip_t;
-      case \$:
-        return zip_r;
-      default:
+        if (o == zip_e && (o = s), o != zip_t) return o;
+        o = s, c.blocks.reset(r, c.was), c.mode = 12;
+      case 12:
+        return r.avail_in = 0, zip_t;
+      case R:
         return zip_i;
+      default:
+        return zip_n;
     }
-  }, a.inflateSetDictionary = function (t, n, r) {
+  }, r.inflateSetDictionary = function (t, i, r) {
     let a = 0,
       s = r;
-    if (!t || !t.istate || t.istate.mode != Q) return zip_i;
+    if (!t || !t.istate || 6 != t.istate.mode) return zip_n;
     const o = t.istate;
-    return s >= 1 << o.wbits && (s = (1 << o.wbits) - 1, a = r - s), o.blocks.set_dictionary(n, a, s), o.mode = X, zip_e;
-  }, a.inflateSync = function (t) {
-    let n, a, l, c, u;
-    if (!t || !t.istate) return zip_i;
+    return s >= 1 << o.wbits && (s = (1 << o.wbits) - 1, a = r - s), o.blocks.set_dictionary(i, a, s), o.mode = 7, zip_e;
+  }, r.inflateSync = function (t) {
+    let r, o, l, c, u;
+    if (!t || !t.istate) return zip_n;
     const d = t.istate;
-    if (d.mode != \$ && (d.mode = \$, d.marker = 0), 0 === (n = t.avail_in)) return zip_s;
-    for (a = t.next_in_index, l = d.marker; 0 !== n && l < 4;) t.read_byte(a) == ee[l] ? l++ : l = 0 !== t.read_byte(a) ? 0 : 4 - l, a++, n--;
-    return t.total_in += a - t.next_in_index, t.next_in_index = a, t.avail_in = n, d.marker = l, 4 != l ? zip_r : (c = t.total_in, u = t.total_out, o(t), t.total_in = c, t.total_out = u, d.mode = X, zip_e);
-  }, a.inflateSyncPoint = function (e) {
-    return e && e.istate && e.istate.blocks ? e.istate.blocks.sync_point() : zip_i;
+    if (d.mode != R && (d.mode = R, d.marker = 0), 0 === (r = t.avail_in)) return zip_a;
+    for (o = t.next_in_index, l = d.marker; 0 !== r && l < 4;) t.read_byte(o) == B[l] ? l++ : l = 0 !== t.read_byte(o) ? 0 : 4 - l, o++, r--;
+    return t.total_in += o - t.next_in_index, t.next_in_index = o, t.avail_in = r, d.marker = l, 4 != l ? zip_i : (c = t.total_in, u = t.total_out, s(t), t.total_in = c, t.total_out = u, d.mode = 7, zip_e);
+  }, r.inflateSyncPoint = function (e) {
+    return e && e.istate && e.istate.blocks ? e.istate.blocks.sync_point() : zip_n;
   };
 }
-function ne() {}
-ne.prototype = {
+function N() {}
+N.prototype = {
   inflateInit(e) {
     const t = this;
-    return t.istate = new te(), e || (e = 15), t.istate.inflateInit(t, e);
+    return t.istate = new I(), e || (e = 15), t.istate.inflateInit(t, e);
   },
   inflate(e) {
     const t = this;
-    return t.istate ? t.istate.inflate(t, e) : zip_i;
+    return t.istate ? t.istate.inflate(t, e) : zip_n;
   },
   inflateEnd() {
     const e = this;
-    if (!e.istate) return zip_i;
+    if (!e.istate) return zip_n;
     const t = e.istate.inflateEnd(e);
     return e.istate = null, t;
   },
   inflateSync() {
     const e = this;
-    return e.istate ? e.istate.inflateSync(e) : zip_i;
+    return e.istate ? e.istate.inflateSync(e) : zip_n;
   },
   inflateSetDictionary(e, t) {
-    const n = this;
-    return n.istate ? n.istate.inflateSetDictionary(n, e, t) : zip_i;
+    const i = this;
+    return i.istate ? i.istate.inflateSetDictionary(i, e, t) : zip_n;
   },
   read_byte(e) {
     return this.next_in[e];
@@ -7722,25 +7722,15 @@ ne.prototype = {
     return this.next_in.subarray(e, e + t);
   }
 };
-const ie = 4294967295,
-  re = 65535,
-  ae = 33639248,
-  se = 101075792,
-  oe = 1,
-  le = 39169,
-  ce = 10,
-  ue = 1,
-  de = 21589,
-  fe = 28789,
-  _e = 25461,
-  he = 1,
-  we = 6,
-  be = 8,
-  pe = 2048,
-  me = void 0,
-  ge = "undefined",
-  ye = "function";
-class xe {
+const V = 4294967295,
+  q = 65535,
+  H = 33639248,
+  K = 101075792,
+  Z = 1,
+  G = void 0,
+  J = "undefined",
+  Q = "function";
+class X {
   constructor(e) {
     return class extends TransformStream {
       constructor(t, n) {
@@ -7758,23 +7748,22 @@ class xe {
     };
   }
 }
-const ke = 64;
-let ve = 2;
+let Y = 2;
 try {
-  typeof navigator != ge && navigator.hardwareConcurrency && (ve = navigator.hardwareConcurrency);
+  typeof navigator != J && navigator.hardwareConcurrency && (Y = navigator.hardwareConcurrency);
 } catch (e) {}
-const Se = {
+const \$ = {
     chunkSize: 524288,
-    maxWorkers: ve,
+    maxWorkers: Y,
     terminateWorkerTimeout: 5e3,
     useWebWorkers: !0,
     useCompressionStream: !0,
-    workerScripts: me,
-    CompressionStreamNative: typeof CompressionStream != ge && CompressionStream,
-    DecompressionStreamNative: typeof DecompressionStream != ge && DecompressionStream
+    workerScripts: G,
+    CompressionStreamNative: typeof CompressionStream != J && CompressionStream,
+    DecompressionStreamNative: typeof DecompressionStream != J && DecompressionStream
   },
-  ze = Object.assign({}, Se);
-function Ae(e) {
+  ee = Object.assign({}, \$);
+function te(e) {
   const {
     baseURL: t,
     chunkSize: n,
@@ -7788,74 +7777,75 @@ function Ae(e) {
     DecompressionStream: u,
     workerScripts: d
   } = e;
-  if (Ue("baseURL", t), Ue("chunkSize", n), Ue("maxWorkers", i), Ue("terminateWorkerTimeout", r), Ue("useCompressionStream", a), Ue("useWebWorkers", s), o && (ze.CompressionStream = new xe(o)), l && (ze.DecompressionStream = new xe(l)), Ue("CompressionStream", c), Ue("DecompressionStream", u), d !== me) {
+  if (ne("baseURL", t), ne("chunkSize", n), ne("maxWorkers", i), ne("terminateWorkerTimeout", r), ne("useCompressionStream", a), ne("useWebWorkers", s), o && (ee.CompressionStream = new X(o)), l && (ee.DecompressionStream = new X(l)), ne("CompressionStream", c), ne("DecompressionStream", u), d !== G) {
     const {
       deflate: e,
       inflate: t
     } = d;
-    if ((e || t) && (ze.workerScripts || (ze.workerScripts = {})), e) {
+    if ((e || t) && (ee.workerScripts || (ee.workerScripts = {})), e) {
       if (!Array.isArray(e)) throw new Error("workerScripts.deflate must be an array");
-      ze.workerScripts.deflate = e;
+      ee.workerScripts.deflate = e;
     }
     if (t) {
       if (!Array.isArray(t)) throw new Error("workerScripts.inflate must be an array");
-      ze.workerScripts.inflate = t;
+      ee.workerScripts.inflate = t;
     }
   }
 }
-function Ue(e, t) {
-  t !== me && (ze[e] = t);
+function ne(e, t) {
+  t !== G && (ee[e] = t);
 }
-const De = [];
+const ie = [];
 for (let e = 0; e < 256; e++) {
   let t = e;
   for (let e = 0; e < 8; e++) 1 & t ? t = t >>> 1 ^ 3988292384 : t >>>= 1;
-  De[e] = t;
+  ie[e] = t;
 }
-class Ee {
+class re {
   constructor(e) {
     this.crc = e || -1;
   }
   append(e) {
     let t = 0 | this.crc;
-    for (let n = 0, i = 0 | e.length; n < i; n++) t = t >>> 8 ^ De[255 & (t ^ e[n])];
+    for (let n = 0, i = 0 | e.length; n < i; n++) t = t >>> 8 ^ ie[255 & (t ^ e[n])];
     this.crc = t;
   }
   get() {
     return ~this.crc;
   }
 }
-class Fe extends TransformStream {
+class ae extends TransformStream {
   constructor() {
-    const e = new Ee();
+    let e;
+    const t = new re();
     super({
-      transform(t) {
-        e.append(t);
+      transform(e, n) {
+        t.append(e), n.enqueue(e);
       },
-      flush(t) {
+      flush() {
         const n = new Uint8Array(4);
-        new DataView(n.buffer).setUint32(0, e.get()), t.enqueue(n);
+        new DataView(n.buffer).setUint32(0, t.get()), e.value = n;
       }
-    });
+    }), e = this;
   }
 }
-const Te = {
+const se = {
     concat(e, t) {
       if (0 === e.length || 0 === t.length) return e.concat(t);
       const n = e[e.length - 1],
-        i = Te.getPartial(n);
-      return 32 === i ? e.concat(t) : Te._shiftRight(t, i, 0 | n, e.slice(0, e.length - 1));
+        i = se.getPartial(n);
+      return 32 === i ? e.concat(t) : se._shiftRight(t, i, 0 | n, e.slice(0, e.length - 1));
     },
     bitLength(e) {
       const t = e.length;
       if (0 === t) return 0;
       const n = e[t - 1];
-      return 32 * (t - 1) + Te.getPartial(n);
+      return 32 * (t - 1) + se.getPartial(n);
     },
     clamp(e, t) {
       if (32 * e.length < t) return e;
       const n = (e = e.slice(0, Math.ceil(t / 32))).length;
-      return t &= 31, n > 0 && t && (e[n - 1] = Te.partial(t, e[n - 1] & 2147483648 >> t - 1, 1)), e;
+      return t &= 31, n > 0 && t && (e[n - 1] = se.partial(t, e[n - 1] & 2147483648 >> t - 1, 1)), e;
     },
     partial: (e, t, n) => 32 === e ? t : (n ? 0 | t : t << 32 - e) + 1099511627776 * e,
     getPartial: e => Math.round(e / 1099511627776) || 32,
@@ -7864,14 +7854,14 @@ const Te = {
       if (0 === t) return i.concat(e);
       for (let r = 0; r < e.length; r++) i.push(n | e[r] >>> t), n = e[r] << 32 - t;
       const r = e.length ? e[e.length - 1] : 0,
-        a = Te.getPartial(r);
-      return i.push(Te.partial(t + a & 31, t + a > 32 ? n : i.pop(), 1)), i;
+        a = se.getPartial(r);
+      return i.push(se.partial(t + a & 31, t + a > 32 ? n : i.pop(), 1)), i;
     }
   },
-  Oe = {
+  oe = {
     bytes: {
       fromBits(e) {
-        const t = Te.bitLength(e) / 8,
+        const t = se.bitLength(e) / 8,
           n = new Uint8Array(t);
         let i;
         for (let r = 0; r < t; r++) 0 == (3 & r) && (i = e[r / 4]), n[r] = i >>> 24, i <<= 8;
@@ -7882,11 +7872,11 @@ const Te = {
         let n,
           i = 0;
         for (n = 0; n < e.length; n++) i = i << 8 | e[n], 3 == (3 & n) && (t.push(i), i = 0);
-        return 3 & n && t.push(Te.partial(8 * (3 & n), i)), t;
+        return 3 & n && t.push(se.partial(8 * (3 & n), i)), t;
       }
     }
   },
-  Ce = {
+  le = {
     sha1: class {
       constructor(e) {
         const t = this;
@@ -7898,10 +7888,10 @@ const Te = {
       }
       update(e) {
         const t = this;
-        "string" == typeof e && (e = Oe.utf8String.toBits(e));
-        const n = t._buffer = Te.concat(t._buffer, e),
+        "string" == typeof e && (e = oe.utf8String.toBits(e));
+        const n = t._buffer = se.concat(t._buffer, e),
           i = t._length,
-          r = t._length = i + Te.bitLength(e);
+          r = t._length = i + se.bitLength(e);
         if (r > 9007199254740991) throw new Error("Cannot hash more than 2^53 - 1 bits");
         const a = new Uint32Array(n);
         let s = 0;
@@ -7912,7 +7902,7 @@ const Te = {
         const e = this;
         let t = e._buffer;
         const n = e._h;
-        t = Te.concat(t, [Te.partial(1, 1)]);
+        t = se.concat(t, [se.partial(1, 1)]);
         for (let e = t.length + 2; 15 & e; e++) t.push(0);
         for (t.push(Math.floor(e._length / 4294967296)), t.push(0 | e._length); t.length;) e._block(t.splice(0, 16));
         return e.reset(), n;
@@ -7942,7 +7932,7 @@ const Te = {
       }
     }
   },
-  We = {
+  ce = {
     aes: class {
       constructor(e) {
         const t = this;
@@ -8001,19 +7991,19 @@ const Te = {
           u = a[4];
         let d,
           f,
-          _,
-          h = e[0] ^ n[0],
+          h,
+          _ = e[0] ^ n[0],
           w = e[t ? 3 : 1] ^ n[1],
           b = e[2] ^ n[2],
           p = e[t ? 1 : 3] ^ n[3],
           m = 4;
-        for (let e = 0; e < i; e++) d = s[h >>> 24] ^ o[w >> 16 & 255] ^ l[b >> 8 & 255] ^ c[255 & p] ^ n[m], f = s[w >>> 24] ^ o[b >> 16 & 255] ^ l[p >> 8 & 255] ^ c[255 & h] ^ n[m + 1], _ = s[b >>> 24] ^ o[p >> 16 & 255] ^ l[h >> 8 & 255] ^ c[255 & w] ^ n[m + 2], p = s[p >>> 24] ^ o[h >> 16 & 255] ^ l[w >> 8 & 255] ^ c[255 & b] ^ n[m + 3], m += 4, h = d, w = f, b = _;
-        for (let e = 0; e < 4; e++) r[t ? 3 & -e : e] = u[h >>> 24] << 24 ^ u[w >> 16 & 255] << 16 ^ u[b >> 8 & 255] << 8 ^ u[255 & p] ^ n[m++], d = h, h = w, w = b, b = p, p = d;
+        for (let e = 0; e < i; e++) d = s[_ >>> 24] ^ o[w >> 16 & 255] ^ l[b >> 8 & 255] ^ c[255 & p] ^ n[m], f = s[w >>> 24] ^ o[b >> 16 & 255] ^ l[p >> 8 & 255] ^ c[255 & _] ^ n[m + 1], h = s[b >>> 24] ^ o[p >> 16 & 255] ^ l[_ >> 8 & 255] ^ c[255 & w] ^ n[m + 2], p = s[p >>> 24] ^ o[_ >> 16 & 255] ^ l[w >> 8 & 255] ^ c[255 & b] ^ n[m + 3], m += 4, _ = d, w = f, b = h;
+        for (let e = 0; e < 4; e++) r[t ? 3 & -e : e] = u[_ >>> 24] << 24 ^ u[w >> 16 & 255] << 16 ^ u[b >> 8 & 255] << 8 ^ u[255 & p] ^ n[m++], d = _, _ = w, w = b, b = p, p = d;
         return r;
       }
     }
   },
-  je = {
+  ue = {
     getRandomValues(e) {
       const t = new Uint32Array(e.buffer),
         n = e => {
@@ -8031,7 +8021,7 @@ const Te = {
       return e;
     }
   },
-  Me = {
+  de = {
     ctrGladman: class {
       constructor(e, t) {
         this._prf = e, this._initIv = t, this._iv = t;
@@ -8057,18 +8047,18 @@ const Te = {
       calculate(e, t, n) {
         let i;
         if (!(i = t.length)) return [];
-        const r = Te.bitLength(t);
+        const r = se.bitLength(t);
         for (let r = 0; r < i; r += 4) {
           this.incCounter(n);
           const i = e.encrypt(n);
           t[r] ^= i[0], t[r + 1] ^= i[1], t[r + 2] ^= i[2], t[r + 3] ^= i[3];
         }
-        return Te.clamp(t, r);
+        return se.clamp(t, r);
       }
     }
   },
-  Le = {
-    importKey: e => new Le.hmacSha1(Oe.bytes.toBits(e)),
+  fe = {
+    importKey: e => new fe.hmacSha1(oe.bytes.toBits(e)),
     pbkdf2(e, t, n, i) {
       if (n = n || 1e4, i < 0 || n < 0) throw new Error("invalid params to pbkdf2");
       const r = 1 + (i >> 5) << 2;
@@ -8076,9 +8066,9 @@ const Te = {
       const u = new ArrayBuffer(r),
         d = new DataView(u);
       let f = 0;
-      const _ = Te;
-      for (t = Oe.bytes.toBits(t), c = 1; f < (r || 1); c++) {
-        for (a = s = e.encrypt(_.concat(t, [c])), o = 1; o < n; o++) for (s = e.encrypt(s), l = 0; l < s.length; l++) a[l] ^= s[l];
+      const h = se;
+      for (t = oe.bytes.toBits(t), c = 1; f < (r || 1); c++) {
+        for (a = s = e.encrypt(h.concat(t, [c])), o = 1; o < n; o++) for (s = e.encrypt(s), l = 0; l < s.length; l++) a[l] ^= s[l];
         for (o = 0; f < (r || 1) && o < a.length; o++) d.setInt32(f, a[o]), f += 4;
       }
       return u.slice(0, i / 8);
@@ -8086,7 +8076,7 @@ const Te = {
     hmacSha1: class {
       constructor(e) {
         const t = this,
-          n = t._hash = Ce.sha1,
+          n = t._hash = le.sha1,
           i = [[], []];
         t._baseHash = [new n(), new n()];
         const r = t._baseHash[0].blockSize / 32;
@@ -8113,49 +8103,51 @@ const Te = {
       }
     }
   },
-  Re = "undefined" != typeof crypto && "function" == typeof crypto.getRandomValues,
-  Be = "Invalid password",
-  Ie = "Invalid signature";
-function Ne(e) {
-  return Re ? crypto.getRandomValues(e) : je.getRandomValues(e);
+  he = "undefined" != typeof crypto && "function" == typeof crypto.getRandomValues,
+  _e = "Invalid password",
+  we = "Invalid signature",
+  be = "zipjs-abort-check-password";
+function pe(e) {
+  return he ? crypto.getRandomValues(e) : ue.getRandomValues(e);
 }
-const Pe = 16,
-  Ve = "raw",
-  qe = {
+const me = 16,
+  ge = "raw",
+  ye = {
     name: "PBKDF2"
   },
-  He = Object.assign({
+  xe = Object.assign({
     hash: {
       name: "HMAC"
     }
-  }, qe),
-  Ke = Object.assign({
+  }, ye),
+  ke = Object.assign({
     iterations: 1e3,
     hash: {
       name: "SHA-1"
     }
-  }, qe),
-  Ze = ["deriveBits"],
-  Ge = [8, 12, 16],
-  Je = [16, 24, 32],
-  Qe = 10,
-  Xe = [0, 0, 0, 0],
-  Ye = "undefined",
-  \$e = "function",
-  et = typeof crypto != Ye,
-  tt = et && crypto.subtle,
-  nt = et && typeof tt != Ye,
-  it = Oe.bytes,
-  rt = We.aes,
-  at = Me.ctrGladman,
-  st = Le.hmacSha1;
-let ot = et && nt && typeof tt.importKey == \$e,
-  lt = et && nt && typeof tt.deriveBits == \$e;
-class ct extends TransformStream {
+  }, ye),
+  ve = ["deriveBits"],
+  Se = [8, 12, 16],
+  ze = [16, 24, 32],
+  Ae = 10,
+  Ue = [0, 0, 0, 0],
+  De = "undefined",
+  Ee = "function",
+  Fe = typeof crypto != De,
+  Oe = Fe && crypto.subtle,
+  Te = Fe && typeof Oe != De,
+  We = oe.bytes,
+  Ce = ce.aes,
+  je = de.ctrGladman,
+  Me = fe.hmacSha1;
+let Le = Fe && Te && typeof Oe.importKey == Ee,
+  Pe = Fe && Te && typeof Oe.deriveBits == Ee;
+class Re extends TransformStream {
   constructor({
     password: e,
     signed: t,
-    encryptionStrength: n
+    encryptionStrength: n,
+    checkPasswordOnly: i
   }) {
     super({
       start() {
@@ -8170,18 +8162,18 @@ class ct extends TransformStream {
       async transform(e, t) {
         const n = this,
           {
-            password: i,
-            strength: r,
-            resolveReady: a,
-            ready: s
+            password: r,
+            strength: a,
+            resolveReady: s,
+            ready: o
           } = n;
-        i ? (await async function (e, t, n, i) {
-          const r = await ft(e, t, n, ht(i, 0, Ge[t])),
-            a = ht(i, Ge[t]);
-          if (r[0] != a[0] || r[1] != a[1]) throw new Error(Be);
-        }(n, r, i, ht(e, 0, Ge[r] + 2)), e = ht(e, Ge[r] + 2), a()) : await s;
-        const o = new Uint8Array(e.length - Qe - (e.length - Qe) % Pe);
-        t.enqueue(dt(n, e, o, 0, Qe, !0));
+        r ? (await async function (e, t, n, i) {
+          const r = await Ne(e, t, n, qe(i, 0, Se[t])),
+            a = qe(i, Se[t]);
+          if (r[0] != a[0] || r[1] != a[1]) throw new Error(_e);
+        }(n, a, r, qe(e, 0, Se[a] + 2)), e = qe(e, Se[a] + 2), i ? t.error(new Error(be)) : s()) : await o;
+        const l = new Uint8Array(e.length - Ae - (e.length - Ae) % me);
+        t.enqueue(Ie(n, e, l, 0, Ae, !0));
       },
       async flush(e) {
         const {
@@ -8191,26 +8183,28 @@ class ct extends TransformStream {
           pending: r,
           ready: a
         } = this;
-        await a;
-        const s = ht(r, 0, r.length - Qe),
-          o = ht(r, r.length - Qe);
-        let l = new Uint8Array();
-        if (s.length) {
-          const e = bt(it, s);
-          i.update(e);
-          const t = n.update(e);
-          l = wt(it, t);
+        if (i && n) {
+          await a;
+          const s = qe(r, 0, r.length - Ae),
+            o = qe(r, r.length - Ae);
+          let l = new Uint8Array();
+          if (s.length) {
+            const e = Ke(We, s);
+            i.update(e);
+            const t = n.update(e);
+            l = He(We, t);
+          }
+          if (t) {
+            const e = qe(He(We, i.digest()), 0, Ae);
+            for (let t = 0; t < Ae; t++) if (e[t] != o[t]) throw new Error(we);
+          }
+          e.enqueue(l);
         }
-        if (t) {
-          const e = ht(wt(it, i.digest()), 0, Qe);
-          for (let t = 0; t < Qe; t++) if (e[t] != o[t]) throw new Error(Ie);
-        }
-        e.enqueue(l);
       }
     });
   }
 }
-class ut extends TransformStream {
+class Be extends TransformStream {
   constructor({
     password: e,
     encryptionStrength: t
@@ -8235,12 +8229,12 @@ class ut extends TransformStream {
           } = n;
         let o = new Uint8Array();
         i ? (o = await async function (e, t, n) {
-          const i = Ne(new Uint8Array(Ge[t])),
-            r = await ft(e, t, n, i);
-          return _t(i, r);
+          const i = pe(new Uint8Array(Se[t])),
+            r = await Ne(e, t, n, i);
+          return Ve(i, r);
         }(n, r, i), a()) : await s;
-        const l = new Uint8Array(o.length + e.length - e.length % Pe);
-        l.set(o, 0), t.enqueue(dt(n, e, l, o.length, 0));
+        const l = new Uint8Array(o.length + e.length - e.length % me);
+        l.set(o, 0), t.enqueue(Ie(n, e, l, o.length, 0));
       },
       async flush(e) {
         const {
@@ -8249,18 +8243,20 @@ class ut extends TransformStream {
           pending: r,
           ready: a
         } = this;
-        await a;
-        let s = new Uint8Array();
-        if (r.length) {
-          const e = t.update(bt(it, r));
-          i.update(e), s = wt(it, e);
+        if (i && t) {
+          await a;
+          let s = new Uint8Array();
+          if (r.length) {
+            const e = t.update(Ke(We, r));
+            i.update(e), s = He(We, e);
+          }
+          n.signature = He(We, i.digest()).slice(0, Ae), e.enqueue(Ve(s, n.signature));
         }
-        n.signature = wt(it, i.digest()).slice(0, Qe), e.enqueue(_t(s, n.signature));
       }
     }), n = this;
   }
 }
-function dt(e, t, n, i, r, a) {
+function Ie(e, t, n, i, r, a) {
   const {
       ctr: s,
       hmac: o,
@@ -8268,21 +8264,21 @@ function dt(e, t, n, i, r, a) {
     } = e,
     c = t.length - r;
   let u;
-  for (l.length && (t = _t(l, t), n = function (e, t) {
+  for (l.length && (t = Ve(l, t), n = function (e, t) {
     if (t && t > e.length) {
       const n = e;
       (e = new Uint8Array(t)).set(n, 0);
     }
     return e;
-  }(n, c - c % Pe)), u = 0; u <= c - Pe; u += Pe) {
-    const e = bt(it, ht(t, u, u + Pe));
+  }(n, c - c % me)), u = 0; u <= c - me; u += me) {
+    const e = Ke(We, qe(t, u, u + me));
     a && o.update(e);
     const r = s.update(e);
-    a || o.update(r), n.set(wt(it, r), u + i);
+    a || o.update(r), n.set(He(We, r), u + i);
   }
-  return e.pending = ht(t, u), n;
+  return e.pending = qe(t, u), n;
 }
-async function ft(e, t, n, i) {
+async function Ne(e, t, n, i) {
   e.password = null;
   const r = function (e) {
       if ("undefined" == typeof TextEncoder) {
@@ -8294,76 +8290,77 @@ async function ft(e, t, n, i) {
       return new TextEncoder().encode(e);
     }(n),
     a = await async function (e, t, n, i, r) {
-      if (!ot) return Le.importKey(t);
+      if (!Le) return fe.importKey(t);
       try {
-        return await tt.importKey(e, t, n, i, r);
+        return await Oe.importKey(e, t, n, i, r);
       } catch (e) {
-        return ot = !1, Le.importKey(t);
+        return Le = !1, fe.importKey(t);
       }
-    }(Ve, r, He, !1, Ze),
+    }(ge, r, xe, !1, ve),
     s = await async function (e, t, n) {
-      if (!lt) return Le.pbkdf2(t, e.salt, Ke.iterations, n);
+      if (!Pe) return fe.pbkdf2(t, e.salt, ke.iterations, n);
       try {
-        return await tt.deriveBits(e, t, n);
+        return await Oe.deriveBits(e, t, n);
       } catch (i) {
-        return lt = !1, Le.pbkdf2(t, e.salt, Ke.iterations, n);
+        return Pe = !1, fe.pbkdf2(t, e.salt, ke.iterations, n);
       }
     }(Object.assign({
       salt: i
-    }, Ke), a, 8 * (2 * Je[t] + 2)),
+    }, ke), a, 8 * (2 * ze[t] + 2)),
     o = new Uint8Array(s),
-    l = bt(it, ht(o, 0, Je[t])),
-    c = bt(it, ht(o, Je[t], 2 * Je[t])),
-    u = ht(o, 2 * Je[t]);
+    l = Ke(We, qe(o, 0, ze[t])),
+    c = Ke(We, qe(o, ze[t], 2 * ze[t])),
+    u = qe(o, 2 * ze[t]);
   return Object.assign(e, {
     keys: {
       key: l,
       authentication: c,
       passwordVerification: u
     },
-    ctr: new at(new rt(l), Array.from(Xe)),
-    hmac: new st(c)
+    ctr: new je(new Ce(l), Array.from(Ue)),
+    hmac: new Me(c)
   }), u;
 }
-function _t(e, t) {
+function Ve(e, t) {
   let n = e;
   return e.length + t.length && (n = new Uint8Array(e.length + t.length), n.set(e, 0), n.set(t, e.length)), n;
 }
-function ht(e, t, n) {
+function qe(e, t, n) {
   return e.subarray(t, n);
 }
-function wt(e, t) {
+function He(e, t) {
   return e.fromBits(t);
 }
-function bt(e, t) {
+function Ke(e, t) {
   return e.toBits(t);
 }
-const pt = 12;
-class mt extends TransformStream {
+const Ze = 12;
+class Ge extends TransformStream {
   constructor({
     password: e,
-    passwordVerification: t
+    passwordVerification: t,
+    checkPasswordOnly: n
   }) {
     super({
       start() {
         Object.assign(this, {
           password: e,
           passwordVerification: t
-        }), kt(this, e);
+        }), Ye(this, e);
       },
       transform(e, t) {
-        const n = this;
-        if (n.password) {
-          const t = yt(n, e.subarray(0, pt));
-          if (n.password = null, t[11] != n.passwordVerification) throw new Error(Be);
-          e = e.subarray(pt);
+        const i = this;
+        if (i.password) {
+          const t = Qe(i, e.subarray(0, Ze));
+          if (i.password = null, t[11] != i.passwordVerification) throw new Error(_e);
+          e = e.subarray(Ze);
         }
-        t.enqueue(yt(n, e));
+        n ? t.error(new Error(be)) : t.enqueue(Qe(i, e));
       }
     });
   }
 }
-class gt extends TransformStream {
+class Je extends TransformStream {
   constructor({
     password: e,
     passwordVerification: t
@@ -8373,56 +8370,56 @@ class gt extends TransformStream {
         Object.assign(this, {
           password: e,
           passwordVerification: t
-        }), kt(this, e);
+        }), Ye(this, e);
       },
       transform(e, t) {
         const n = this;
         let i, r;
         if (n.password) {
           n.password = null;
-          const t = Ne(new Uint8Array(pt));
-          t[11] = n.passwordVerification, i = new Uint8Array(e.length + t.length), i.set(xt(n, t), 0), r = pt;
+          const t = pe(new Uint8Array(Ze));
+          t[11] = n.passwordVerification, i = new Uint8Array(e.length + t.length), i.set(Xe(n, t), 0), r = Ze;
         } else i = new Uint8Array(e.length), r = 0;
-        i.set(xt(n, e), r), t.enqueue(i);
+        i.set(Xe(n, e), r), t.enqueue(i);
       }
     });
   }
 }
-function yt(e, t) {
+function Qe(e, t) {
   const n = new Uint8Array(t.length);
-  for (let i = 0; i < t.length; i++) n[i] = St(e) ^ t[i], vt(e, n[i]);
+  for (let i = 0; i < t.length; i++) n[i] = et(e) ^ t[i], \$e(e, n[i]);
   return n;
 }
-function xt(e, t) {
+function Xe(e, t) {
   const n = new Uint8Array(t.length);
-  for (let i = 0; i < t.length; i++) n[i] = St(e) ^ t[i], vt(e, t[i]);
+  for (let i = 0; i < t.length; i++) n[i] = et(e) ^ t[i], \$e(e, t[i]);
   return n;
 }
-function kt(e, t) {
+function Ye(e, t) {
   const n = [305419896, 591751049, 878082192];
   Object.assign(e, {
     keys: n,
-    crcKey0: new Ee(n[0]),
-    crcKey2: new Ee(n[2])
+    crcKey0: new re(n[0]),
+    crcKey2: new re(n[2])
   });
-  for (let n = 0; n < t.length; n++) vt(e, t.charCodeAt(n));
+  for (let n = 0; n < t.length; n++) \$e(e, t.charCodeAt(n));
 }
-function vt(e, t) {
+function \$e(e, t) {
   let [n, i, r] = e.keys;
-  e.crcKey0.append([t]), n = ~e.crcKey0.get(), i = At(Math.imul(At(i + zt(n)), 134775813) + 1), e.crcKey2.append([i >>> 24]), r = ~e.crcKey2.get(), e.keys = [n, i, r];
+  e.crcKey0.append([t]), n = ~e.crcKey0.get(), i = nt(Math.imul(nt(i + tt(n)), 134775813) + 1), e.crcKey2.append([i >>> 24]), r = ~e.crcKey2.get(), e.keys = [n, i, r];
 }
-function St(e) {
+function et(e) {
   const t = 2 | e.keys[2];
-  return zt(Math.imul(t, 1 ^ t) >>> 8);
+  return tt(Math.imul(t, 1 ^ t) >>> 8);
 }
-function zt(e) {
+function tt(e) {
   return 255 & e;
 }
-function At(e) {
+function nt(e) {
   return 4294967295 & e;
 }
-const Ut = "deflate-raw";
-class Dt extends TransformStream {
+const it = "deflate-raw";
+class rt extends TransformStream {
   constructor(e, {
     chunkSize: t,
     CompressionStream: n,
@@ -8440,17 +8437,17 @@ class Dt extends TransformStream {
       u = this;
     let d,
       f,
-      _ = Ft(super.readable);
-    a && !o || !l || ([_, d] = _.tee(), d = Ct(d, new Fe())), r && (_ = Ot(_, s, {
+      h = st(super.readable);
+    a && !o || !l || (d = new ae(), h = ct(h, d)), r && (h = lt(h, s, {
       level: c,
       chunkSize: t
-    }, i, n)), a && (o ? _ = Ct(_, new gt(e)) : (f = new ut(e), _ = Ct(_, f))), Tt(u, _, async () => {
+    }, i, n)), a && (o ? h = ct(h, new Je(e)) : (f = new Be(e), h = ct(h, f))), ot(u, h, () => {
       let e;
-      a && !o && (e = f.signature), a && !o || !l || (e = await d.getReader().read(), e = new DataView(e.value.buffer).getUint32(0)), u.signature = e;
+      a && !o && (e = f.signature), a && !o || !l || (e = new DataView(d.value.buffer).getUint32(0)), u.signature = e;
     });
   }
 }
-class Et extends TransformStream {
+class at extends TransformStream {
   constructor(e, {
     chunkSize: t,
     DecompressionStream: n,
@@ -8467,52 +8464,51 @@ class Et extends TransformStream {
     } = e;
     let u,
       d,
-      f = Ft(super.readable);
-    a && (r ? f = Ct(f, new mt(e)) : (d = new ct(e), f = Ct(f, d))), l && (f = Ot(f, c, {
+      f = st(super.readable);
+    a && (r ? f = ct(f, new Ge(e)) : (d = new Re(e), f = ct(f, d))), l && (f = lt(f, c, {
       chunkSize: t
-    }, i, n)), a && !r || !s || ([f, u] = f.tee(), u = Ct(u, new Fe())), Tt(this, f, async () => {
+    }, i, n)), a && !r || !s || (u = new ae(), f = ct(f, u)), ot(this, f, () => {
       if ((!a || r) && s) {
-        const e = await u.getReader().read(),
-          t = new DataView(e.value.buffer);
-        if (o != t.getUint32(0, !1)) throw new Error(Ie);
+        const e = new DataView(u.value.buffer);
+        if (o != e.getUint32(0, !1)) throw new Error(we);
       }
     });
   }
 }
-function Ft(e) {
-  return Ct(e, new TransformStream({
+function st(e) {
+  return ct(e, new TransformStream({
     transform(e, t) {
       e && e.length && t.enqueue(e);
     }
   }));
 }
-function Tt(e, t, n) {
-  t = Ct(t, new TransformStream({
+function ot(e, t, n) {
+  t = ct(t, new TransformStream({
     flush: n
   })), Object.defineProperty(e, "readable", {
     get: () => t
   });
 }
-function Ot(e, t, n, i, r) {
+function lt(e, t, n, i, r) {
   try {
-    e = Ct(e, new (t && i ? i : r)(Ut, n));
+    e = ct(e, new (t && i ? i : r)(it, n));
   } catch (i) {
     if (!t) throw i;
-    e = Ct(e, new r(Ut, n));
+    e = ct(e, new r(it, n));
   }
   return e;
 }
-function Ct(e, t) {
+function ct(e, t) {
   return e.pipeThrough(t);
 }
-const Wt = "message",
-  jt = "start",
-  Mt = "pull",
-  Lt = "data",
-  Rt = "ack",
-  Bt = "close",
-  It = "inflate";
-class Nt extends TransformStream {
+const ut = "message",
+  dt = "start",
+  ft = "pull",
+  ht = "data",
+  _t = "ack",
+  wt = "close",
+  bt = "inflate";
+class pt extends TransformStream {
   constructor(e, t) {
     super({});
     const n = this,
@@ -8520,7 +8516,7 @@ class Nt extends TransformStream {
         codecType: i
       } = e;
     let r;
-    i.startsWith("deflate") ? r = Dt : i.startsWith(It) && (r = Et);
+    i.startsWith("deflate") ? r = rt : i.startsWith(bt) && (r = at);
     let a = 0;
     const s = new r(e, t),
       o = super.readable,
@@ -8543,8 +8539,8 @@ class Nt extends TransformStream {
     });
   }
 }
-const Pt = typeof Worker != ge;
-class Vt {
+const mt = typeof Worker != J;
+class gt {
   constructor(e, {
     readable: t,
     writable: n
@@ -8561,7 +8557,7 @@ class Vt {
     } = a;
     return Object.assign(e, {
       busy: !0,
-      readable: t.pipeThrough(new qt(t, a, r), {
+      readable: t.pipeThrough(new yt(t, a, r), {
         signal: u
       }),
       writable: n,
@@ -8578,10 +8574,10 @@ class Vt {
       onTaskFinished() {
         e.busy = !1, c(e);
       }
-    }), (s && Pt ? Zt : Kt)(e, r);
+    }), (s && mt ? vt : kt)(e, r);
   }
 }
-class qt extends TransformStream {
+class yt extends TransformStream {
   constructor(e, {
     onstart: t,
     onprogress: n,
@@ -8593,13 +8589,13 @@ class qt extends TransformStream {
     let s = 0;
     super({
       start() {
-        t && Ht(t, i);
+        t && xt(t, i);
       },
       async transform(e, t) {
-        s += e.length, n && (await Ht(n, s, i)), t.enqueue(e);
+        s += e.length, n && (await xt(n, s, i)), t.enqueue(e);
       },
       flush() {
-        e.size = s, r && Ht(r, s);
+        e.size = s, r && xt(r, s);
       }
     }, {
       highWaterMark: 1,
@@ -8607,12 +8603,12 @@ class qt extends TransformStream {
     });
   }
 }
-async function Ht(e, ...t) {
+async function xt(e, ...t) {
   try {
     await e(...t);
   } catch (e) {}
 }
-function Kt(e, t) {
+function kt(e, t) {
   return {
     run: () => async function ({
       options: e,
@@ -8620,7 +8616,7 @@ function Kt(e, t) {
       writable: n,
       onTaskFinished: i
     }, r) {
-      const a = new Nt(e, r);
+      const a = new pt(e, r);
       try {
         await t.pipeThrough(a).pipeTo(n, {
           preventClose: !0,
@@ -8640,12 +8636,12 @@ function Kt(e, t) {
     }(e, t)
   };
 }
-function Zt(e, {
+function vt(e, {
   baseURL: t,
   chunkSize: n
 }) {
   return e.interface || Object.assign(e, {
-    worker: Qt(e.scripts[0], t, e),
+    worker: At(e.scripts[0], t, e),
     interface: {
       run: () => async function (e, t) {
         let n, i;
@@ -8685,8 +8681,8 @@ function Zt(e, {
               closed: i
             };
           }(e.writable),
-          u = Xt({
-            type: jt,
+          u = Ut({
+            type: dt,
             scripts: o.slice(1),
             options: s,
             config: t,
@@ -8699,7 +8695,7 @@ function Zt(e, {
         });
         const d = await r;
         try {
-          await l.close();
+          await l.getWriter().close();
         } catch (e) {}
         return await c, d;
       }(e, {
@@ -8708,25 +8704,25 @@ function Zt(e, {
     }
   }), e.interface;
 }
-let Gt = !0,
-  Jt = !0;
-function Qt(e, t, n) {
+let St = !0,
+  zt = !0;
+function At(e, t, n) {
   const i = {
     type: "module"
   };
   let r, a;
-  typeof e == ye && (e = e());
+  typeof e == Q && (e = e());
   try {
     r = new URL(e, t);
   } catch (t) {
     r = e;
   }
-  if (Gt) try {
+  if (St) try {
     a = new Worker(r);
   } catch (e) {
-    Gt = !1, a = new Worker(r, i);
+    St = !1, a = new Worker(r, i);
   } else a = new Worker(r, i);
-  return a.addEventListener(Wt, e => async function ({
+  return a.addEventListener(ut, e => async function ({
     data: e
   }, t) {
     const {
@@ -8758,22 +8754,22 @@ function Qt(e, t, n) {
           name: i
         }), f(r);
       } else {
-        if (n == Mt) {
+        if (n == ft) {
           const {
             value: e,
             done: n
           } = await o.read();
-          Xt({
-            type: Lt,
+          Ut({
+            type: ht,
             value: e,
             done: n,
             messageId: r
           }, t);
         }
-        n == Lt && (await l.ready, await l.write(new Uint8Array(i)), Xt({
-          type: Rt,
+        n == ht && (await l.ready, await l.write(new Uint8Array(i)), Ut({
+          type: _t,
           messageId: r
-        }, t)), n == Bt && f(null, a);
+        }, t)), n == wt && f(null, a);
       }
     } catch (s) {
       f(s);
@@ -8783,7 +8779,7 @@ function Qt(e, t, n) {
     }
   }(e, n)), a;
 }
-function Xt(e, {
+function Ut(e, {
   worker: t,
   writer: n,
   onTaskFinished: i,
@@ -8796,34 +8792,27 @@ function Xt(e, {
       writable: a
     } = e;
     const s = [];
-    if (n) {
-      const {
-        buffer: t,
-        length: i
-      } = n;
-      i != t.byteLength && (n = new Uint8Array(n)), e.value = n.buffer, s.push(e.value);
-    }
-    if (r && Jt ? (i && s.push(i), a && s.push(a)) : e.readable = e.writable = null, s.length) try {
+    if (n && (e.value = n.buffer, s.push(e.value)), r && zt ? (i && s.push(i), a && s.push(a)) : e.readable = e.writable = null, s.length) try {
       return t.postMessage(e, s), !0;
     } catch (n) {
-      Jt = !1, e.readable = e.writable = null, t.postMessage(e);
+      zt = !1, e.readable = e.writable = null, t.postMessage(e);
     } else t.postMessage(e);
   } catch (e) {
     throw n && n.releaseLock(), i(), e;
   }
 }
-let Yt = [];
-const \$t = [];
-let en = 0;
-function tn(e) {
+let Dt = [];
+const Et = [];
+let Ft = 0;
+function Ot(e) {
   const {
     terminateTimeout: t
   } = e;
   t && (clearTimeout(t), e.terminateTimeout = null);
 }
-const nn = 65536,
-  rn = "writable";
-class an {
+const Tt = 65536,
+  Wt = "writable";
+class Ct {
   constructor() {
     this.size = 0;
   }
@@ -8831,11 +8820,11 @@ class an {
     this.initialized = !0;
   }
 }
-class sn extends an {
+class jt extends Ct {
   get readable() {
     const e = this,
       {
-        chunkSize: t = nn
+        chunkSize: t = Tt
       } = e,
       n = new ReadableStream({
         start() {
@@ -8850,13 +8839,13 @@ class sn extends an {
             {
               chunkOffset: o
             } = this;
-          i.enqueue(await hn(e, r + o, Math.min(t, a - o), s)), o + t > a ? i.close() : this.chunkOffset += t;
+          i.enqueue(await Vt(e, r + o, Math.min(t, a - o), s)), o + t > a ? i.close() : this.chunkOffset += t;
         }
       });
     return n;
   }
 }
-class on extends sn {
+class Mt extends jt {
   constructor(e) {
     super(), Object.assign(this, {
       blob: e,
@@ -8867,15 +8856,16 @@ class on extends sn {
     const n = this,
       i = e + t,
       r = e || i < n.size ? n.blob.slice(e, i) : n.blob;
-    return new Uint8Array(await r.arrayBuffer());
+    let a = await r.arrayBuffer();
+    return a.byteLength > t && (a = a.slice(e, i)), new Uint8Array(a);
   }
 }
-class ln extends an {
+class Lt extends Ct {
   constructor(e) {
     super();
     const t = new TransformStream(),
       n = [];
-    e && n.push(["Content-Type", e]), Object.defineProperty(this, rn, {
+    e && n.push(["Content-Type", e]), Object.defineProperty(this, Wt, {
       get: () => t.writable
     }), this.blob = new Response(t.readable, {
       headers: n
@@ -8885,7 +8875,7 @@ class ln extends an {
     return this.blob;
   }
 }
-class cn extends ln {
+class Pt extends Lt {
   constructor(e) {
     super(e), Object.assign(this, {
       encoding: e,
@@ -8912,7 +8902,7 @@ class cn extends ln {
     }
   }
 }
-class un extends sn {
+class Rt extends jt {
   constructor(e) {
     super(), this.readers = e;
   }
@@ -8921,8 +8911,8 @@ class un extends sn {
       {
         readers: t
       } = e;
-    e.lastDiskNumber = 0, await Promise.all(t.map(async t => {
-      await t.init(), e.size += t.size;
+    e.lastDiskNumber = 0, e.lastDiskOffset = 0, await Promise.all(t.map(async (n, i) => {
+      await n.init(), i != t.length - 1 && (e.lastDiskOffset += n.size), e.size += n.size;
     })), super.init();
   }
   async readUint8Array(e, t, n = 0) {
@@ -8937,14 +8927,14 @@ class un extends sn {
     for (; o >= r[s].size;) o -= r[s].size, s++;
     const l = r[s],
       c = l.size;
-    if (o + t <= c) a = await hn(l, o, t);else {
+    if (o + t <= c) a = await Vt(l, o, t);else {
       const r = c - o;
-      a = new Uint8Array(t), a.set(await hn(l, o, r)), a.set(await i.readUint8Array(e + r, t - r, n), r);
+      a = new Uint8Array(t), a.set(await Vt(l, o, r)), a.set(await i.readUint8Array(e + r, t - r, n), r);
     }
     return i.lastDiskNumber = Math.max(s, i.lastDiskNumber), a;
   }
 }
-class dn extends an {
+class Bt extends Ct {
   constructor(e, t = 4294967295) {
     super();
     const n = this;
@@ -8967,7 +8957,7 @@ class dn extends an {
             done: o
           } = await e.next();
           if (o && !s) throw new Error("Writer iterator completed too soon");
-          i = s, i.size = 0, i.maxSize && (n.maxSize = i.maxSize), n.availableSize = n.maxSize, await fn(i), r = s.writable, a = r.getWriter(), await this.write(t);
+          i = s, i.size = 0, i.maxSize && (n.maxSize = i.maxSize), n.availableSize = n.maxSize, await It(i), r = s.writable, a = r.getWriter(), await this.write(t);
         }
       },
       async close() {
@@ -8981,77 +8971,77 @@ class dn extends an {
     async function l() {
       r.size = i.size, await a.close();
     }
-    Object.defineProperty(n, rn, {
+    Object.defineProperty(n, Wt, {
       get: () => s
     });
   }
 }
-async function fn(e, t) {
+async function It(e, t) {
   e.init && !e.initialized && (await e.init(t));
 }
-function _n(e) {
-  return Array.isArray(e) && (e = new un(e)), e instanceof ReadableStream && (e = {
+function Nt(e) {
+  return Array.isArray(e) && (e = new Rt(e)), e instanceof ReadableStream && (e = {
     readable: e
   }), e;
 }
-function hn(e, t, n, i) {
+function Vt(e, t, n, i) {
   return e.readUint8Array(t, n, i);
 }
-const wn = "\\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\\"#\$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ".split(""),
-  bn = 256 == wn.length;
-function pn(e, t) {
+const qt = "\\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\\"#\$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ".split(""),
+  Ht = 256 == qt.length;
+function Kt(e, t) {
   return t && "cp437" == t.trim().toLowerCase() ? function (e) {
-    if (bn) {
+    if (Ht) {
       let t = "";
-      for (let n = 0; n < e.length; n++) t += wn[e[n]];
+      for (let n = 0; n < e.length; n++) t += qt[e[n]];
       return t;
     }
     return new TextDecoder().decode(e);
   }(e) : new TextDecoder(t).decode(e);
 }
-const mn = "filename",
-  gn = "rawFilename",
-  yn = "comment",
-  xn = "rawComment",
-  kn = "uncompressedSize",
-  vn = "compressedSize",
-  Sn = "offset",
-  zn = "diskNumberStart",
-  An = "lastModDate",
-  Un = "rawLastModDate",
-  Dn = "lastAccessDate",
-  En = "rawLastAccessDate",
-  Fn = "creationDate",
-  Tn = "rawCreationDate",
-  On = [mn, gn, vn, kn, An, Un, yn, xn, Dn, Fn, Sn, zn, zn, "internalFileAttribute", "externalFileAttribute", "msDosCompatible", "zip64", "directory", "bitFlag", "encrypted", "signature", "filenameUTF8", "commentUTF8", "compressionMethod", "version", "versionMadeBy", "extraField", "rawExtraField", "extraFieldZip64", "extraFieldUnicodePath", "extraFieldUnicodeComment", "extraFieldAES", "extraFieldNTFS", "extraFieldExtendedTimestamp"];
-class Cn {
+const Zt = "filename",
+  Gt = "rawFilename",
+  Jt = "comment",
+  Qt = "rawComment",
+  Xt = "uncompressedSize",
+  Yt = "compressedSize",
+  \$t = "offset",
+  en = "diskNumberStart",
+  tn = "lastModDate",
+  nn = "rawLastModDate",
+  rn = "lastAccessDate",
+  an = "rawLastAccessDate",
+  sn = "creationDate",
+  on = "rawCreationDate",
+  ln = [Zt, Gt, Yt, Xt, tn, nn, Jt, Qt, rn, sn, \$t, en, en, "internalFileAttribute", "externalFileAttribute", "msDosCompatible", "zip64", "directory", "bitFlag", "encrypted", "signature", "filenameUTF8", "commentUTF8", "compressionMethod", "version", "versionMadeBy", "extraField", "rawExtraField", "extraFieldZip64", "extraFieldUnicodePath", "extraFieldUnicodeComment", "extraFieldAES", "extraFieldNTFS", "extraFieldExtendedTimestamp"];
+class cn {
   constructor(e) {
-    On.forEach(t => this[t] = e[t]);
+    ln.forEach(t => this[t] = e[t]);
   }
 }
-const Wn = "File format is not recognized",
-  jn = "Zip64 extra field not found",
-  Mn = "Compression method not supported",
-  Ln = "Split zip file",
-  Rn = "utf-8",
-  Bn = "cp437",
-  In = [[kn, ie], [vn, ie], [Sn, ie], [zn, re]],
-  Nn = {
-    [re]: {
-      getValue: Yn,
+const un = "File format is not recognized",
+  dn = "Zip64 extra field not found",
+  fn = "Compression method not supported",
+  hn = "Split zip file",
+  _n = "utf-8",
+  wn = "cp437",
+  bn = [[Xt, V], [Yt, V], [\$t, V], [en, q]],
+  pn = {
+    [q]: {
+      getValue: Dn,
       bytes: 4
     },
-    [ie]: {
-      getValue: \$n,
+    [V]: {
+      getValue: En,
       bytes: 8
     }
   };
-class Pn {
+class mn {
   constructor(e, t = {}) {
     Object.assign(this, {
-      reader: _n(e),
+      reader: Nt(e),
       options: t,
-      config: ze
+      config: ee
     });
   }
   async *getEntriesGenerator(e = {}) {
@@ -9062,20 +9052,20 @@ class Pn {
     const {
       config: i
     } = t;
-    if (await fn(n), n.size !== me && n.readUint8Array || (n = new on(await new Response(n.readable).blob()), await fn(n)), n.size < 22) throw new Error(Wn);
+    if (await It(n), n.size !== G && n.readUint8Array || (n = new Mt(await new Response(n.readable).blob()), await It(n)), n.size < 22) throw new Error(un);
     n.chunkSize = function (e) {
-      return Math.max(e.chunkSize, ke);
+      return Math.max(e.chunkSize, 64);
     }(i);
     const r = await async function (e, t, n, i, r) {
       const a = new Uint8Array(4);
       !function (e, t, n) {
         e.setUint32(t, n, !0);
-      }(ei(a), 0, t);
+      }(Fn(a), 0, t);
       const s = i + r;
       return (await o(i)) || (await o(Math.min(s, n)));
       async function o(t) {
         const r = n - t,
-          s = await hn(e, r, t);
+          s = await Vt(e, r, t);
         for (let e = s.length - i; e >= 0; e--) if (s[e] == a[0] && s[e + 1] == a[1] && s[e + 2] == a[2] && s[e + 3] == a[3]) return {
           offset: r + e,
           buffer: s.slice(e, e + i).buffer
@@ -9083,103 +9073,104 @@ class Pn {
       }
     }(n, 101010256, n.size, 22, 1048560);
     if (!r) {
-      throw 134695760 == Yn(ei(await hn(n, 0, 4))) ? new Error(Ln) : new Error("End of central directory not found");
+      throw 134695760 == Dn(Fn(await Vt(n, 0, 4))) ? new Error(hn) : new Error("End of central directory not found");
     }
-    const a = ei(r);
-    let s = Yn(a, 12),
-      o = Yn(a, 16);
+    const a = Fn(r);
+    let s = Dn(a, 12),
+      o = Dn(a, 16);
     const l = r.offset,
-      c = Xn(a, 20),
+      c = Un(a, 20),
       u = l + 22 + c;
-    let d = Xn(a, 4);
+    let d = Un(a, 4);
     const f = n.lastDiskNumber || 0;
-    let _ = Xn(a, 6),
-      h = Xn(a, 8),
+    let h = Un(a, 6),
+      _ = Un(a, 8),
       w = 0,
       b = 0;
-    if (o == ie || s == ie || h == re || _ == re) {
-      const e = ei(await hn(n, r.offset - 20, 20));
-      if (117853008 != Yn(e, 0)) throw new Error("End of Zip64 central directory not found");
-      o = \$n(e, 8);
-      let t = await hn(n, o, 56, -1),
-        i = ei(t);
+    if (o == V || s == V || _ == q || h == q) {
+      const e = Fn(await Vt(n, r.offset - 20, 20));
+      if (117853008 != Dn(e, 0)) throw new Error("End of Zip64 central directory not found");
+      o = En(e, 8);
+      let t = await Vt(n, o, 56, -1),
+        i = Fn(t);
       const a = r.offset - 20 - 56;
-      if (Yn(i, 0) != se && o != a) {
+      if (Dn(i, 0) != K && o != a) {
         const e = o;
-        o = a, w = o - e, t = await hn(n, o, 56, -1), i = ei(t);
+        o = a, w = o - e, t = await Vt(n, o, 56, -1), i = Fn(t);
       }
-      if (Yn(i, 0) != se) throw new Error("End of Zip64 central directory locator not found");
-      d == re && (d = Yn(i, 16)), _ == re && (_ = Yn(i, 20)), h == re && (h = \$n(i, 32)), s == ie && (s = \$n(i, 40)), o -= s;
+      if (Dn(i, 0) != K) throw new Error("End of Zip64 central directory locator not found");
+      d == q && (d = Dn(i, 16)), h == q && (h = Dn(i, 20)), _ == q && (_ = En(i, 32)), s == V && (s = En(i, 40)), o -= s;
     }
-    if (f != d) throw new Error(Ln);
-    if (o < 0 || o >= n.size) throw new Error(Wn);
+    if (f != d) throw new Error(hn);
+    if (o < 0 || o >= n.size) throw new Error(un);
     let p = 0,
-      m = await hn(n, o, s, _),
-      g = ei(m);
+      m = await Vt(n, o, s, h),
+      g = Fn(m);
     if (s) {
       const e = r.offset - s;
-      if (Yn(g, p) != ae && o != e) {
+      if (Dn(g, p) != H && o != e) {
         const t = o;
-        o = e, w = o - t, m = await hn(n, o, s, _), g = ei(m);
+        o = e, w = o - t, m = await Vt(n, o, s, h), g = Fn(m);
       }
     }
-    if (o < 0 || o >= n.size) throw new Error(Wn);
-    const y = Zn(t, e, "filenameEncoding"),
-      x = Zn(t, e, "commentEncoding");
-    for (let r = 0; r < h; r++) {
-      const a = new Vn(n, i, t.options);
-      if (Yn(g, p) != ae) throw new Error("Central directory header not found");
-      qn(a, g, p + 6);
+    const y = r.offset - o - (n.lastDiskOffset || 0);
+    if (s != y && y >= 0 && (s = y, m = await Vt(n, o, s, h), g = Fn(m)), o < 0 || o >= n.size) throw new Error(un);
+    const x = vn(t, e, "filenameEncoding"),
+      k = vn(t, e, "commentEncoding");
+    for (let r = 0; r < _; r++) {
+      const a = new gn(n, i, t.options);
+      if (Dn(g, p) != H) throw new Error("Central directory header not found");
+      yn(a, g, p + 6);
       const s = Boolean(a.bitFlag.languageEncodingFlag),
         o = p + 46,
         l = o + a.filenameLength,
         c = l + a.extraFieldLength,
-        u = Xn(g, p + 4),
+        u = Un(g, p + 4),
         d = 0 == (0 & u),
         f = m.subarray(o, l),
-        _ = Xn(g, p + 32),
-        k = c + _,
-        v = m.subarray(c, k),
+        h = Un(g, p + 32),
+        y = c + h,
+        v = m.subarray(c, y),
         S = s,
         z = s,
-        A = d && 16 == (16 & Qn(g, p + 38)),
-        U = Yn(g, p + 42) + w;
+        A = d && 16 == (16 & An(g, p + 38)),
+        U = Dn(g, p + 42) + w;
       Object.assign(a, {
         versionMadeBy: u,
         msDosCompatible: d,
         compressedSize: 0,
         uncompressedSize: 0,
-        commentLength: _,
+        commentLength: h,
         directory: A,
         offset: U,
-        diskNumberStart: Xn(g, p + 34),
-        internalFileAttribute: Xn(g, p + 36),
-        externalFileAttribute: Yn(g, p + 38),
+        diskNumberStart: Un(g, p + 34),
+        internalFileAttribute: Un(g, p + 36),
+        externalFileAttribute: Dn(g, p + 38),
         rawFilename: f,
         filenameUTF8: S,
         commentUTF8: z,
         rawExtraField: m.subarray(l, c)
       });
-      const [D, E] = await Promise.all([pn(f, S ? Rn : y || Bn), pn(v, z ? Rn : x || Bn)]);
+      const [D, E] = await Promise.all([Kt(f, S ? _n : x || wn), Kt(v, z ? _n : k || wn)]);
       Object.assign(a, {
         rawComment: v,
         filename: D,
         comment: E,
         directory: A || D.endsWith("/")
-      }), b = Math.max(U, b), await Hn(a, a, g, p + 6);
-      const F = new Cn(a);
-      F.getData = (e, t) => a.getData(e, F, t), p = k;
+      }), b = Math.max(U, b), await xn(a, a, g, p + 6);
+      const F = new cn(a);
+      F.getData = (e, t) => a.getData(e, F, t), p = y;
       const {
-        onprogress: T
+        onprogress: O
       } = e;
-      if (T) try {
-        await T(r + 1, h, new Cn(a));
+      if (O) try {
+        await O(r + 1, _, new cn(a));
       } catch (e) {}
       yield F;
     }
-    const k = Zn(t, e, "extractPrependedData"),
-      v = Zn(t, e, "extractAppendedData");
-    return k && (t.prependedData = b > 0 ? await hn(n, 0, b) : new Uint8Array()), t.comment = c ? await hn(n, l + 22, c) : new Uint8Array(), v && (t.appendedData = u < n.size ? await hn(n, u, n.size - u) : new Uint8Array()), !0;
+    const v = vn(t, e, "extractPrependedData"),
+      S = vn(t, e, "extractAppendedData");
+    return v && (t.prependedData = b > 0 ? await Vt(n, 0, b) : new Uint8Array()), t.comment = c ? await Vt(n, l + 22, c) : new Uint8Array(), S && (t.appendedData = u < n.size ? await Vt(n, u, n.size - u) : new Uint8Array()), !0;
   }
   async getEntries(e = {}) {
     const t = [];
@@ -9188,7 +9179,7 @@ class Pn {
   }
   async close() {}
 }
-class Vn {
+class gn {
   constructor(e, t, n) {
     Object.assign(this, {
       reader: e,
@@ -9208,215 +9199,231 @@ class Vn {
         bitFlag: u,
         signature: d,
         rawLastModDate: f,
-        uncompressedSize: _,
-        compressedSize: h
+        uncompressedSize: h,
+        compressedSize: _
       } = i,
-      w = i.localDirectory = {},
-      b = ei(await hn(r, a, 30, s));
-    let p = Zn(i, n, "password");
-    if (p = p && p.length && p, o && 99 != o.originalCompressionMethod) throw new Error(Mn);
-    if (0 != l && 8 != l) throw new Error(Mn);
-    if (67324752 != Yn(b, 0)) throw new Error("Local file header not found");
-    qn(w, b, 4), w.rawExtraField = w.extraFieldLength ? await hn(r, a + 30 + w.filenameLength, w.extraFieldLength, s) : new Uint8Array(), await Hn(i, w, b, 4), Object.assign(t, {
+      w = t.localDirectory = {},
+      b = Fn(await Vt(r, a, 30, s));
+    let p = vn(i, n, "password");
+    if (p = p && p.length && p, o && 99 != o.originalCompressionMethod) throw new Error(fn);
+    if (0 != l && 8 != l) throw new Error(fn);
+    if (67324752 != Dn(b, 0)) throw new Error("Local file header not found");
+    yn(w, b, 4), w.rawExtraField = w.extraFieldLength ? await Vt(r, a + 30 + w.filenameLength, w.extraFieldLength, s) : new Uint8Array(), await xn(i, w, b, 4, !0), Object.assign(t, {
       lastAccessDate: w.lastAccessDate,
       creationDate: w.creationDate
     });
     const m = i.encrypted && w.encrypted,
       g = m && !o;
     if (m) {
-      if (!g && o.strength === me) throw new Error("Encryption method not supported");
+      if (!g && o.strength === G) throw new Error("Encryption method not supported");
       if (!p) throw new Error("File contains encrypted entry");
     }
     const y = a + 30 + w.filenameLength + w.extraFieldLength,
-      x = r.readable;
-    x.diskNumberStart = s, x.offset = y;
-    const k = x.size = h,
-      v = Zn(i, n, "signal");
-    e = function (e) {
-      e.writable === me && typeof e.next == ye && (e = new dn(e)), e instanceof WritableStream && (e = {
+      x = _,
+      k = r.readable;
+    Object.assign(k, {
+      diskNumberStart: s,
+      offset: y,
+      size: x
+    });
+    const v = vn(i, n, "signal"),
+      S = vn(i, n, "checkPasswordOnly");
+    S && (e = new WritableStream()), e = function (e) {
+      e.writable === G && typeof e.next == Q && (e = new Bt(e)), e instanceof WritableStream && (e = {
         writable: e
       });
       const {
         writable: t
       } = e;
-      return t.size === me && (t.size = 0), e instanceof dn || Object.assign(e, {
+      return t.size === G && (t.size = 0), e instanceof Bt || Object.assign(e, {
         diskNumber: 0,
         diskOffset: 0,
         availableSize: 1 / 0,
         maxSize: 1 / 0
       }), e;
-    }(e), await fn(e, _);
+    }(e), await It(e, h);
     const {
-        writable: S
+        writable: z
       } = e,
       {
-        onstart: z,
-        onprogress: A,
-        onend: U
+        onstart: A,
+        onprogress: U,
+        onend: D
       } = n,
-      D = {
+      E = {
         options: {
-          codecType: It,
+          codecType: bt,
           password: p,
           zipCrypto: g,
           encryptionStrength: o && o.strength,
-          signed: Zn(i, n, "checkSignature"),
+          signed: vn(i, n, "checkSignature"),
           passwordVerification: g && (u.dataDescriptor ? f >>> 8 & 255 : d >>> 24 & 255),
           signature: d,
           compressed: 0 != l,
           encrypted: m,
-          useWebWorkers: Zn(i, n, "useWebWorkers"),
-          useCompressionStream: Zn(i, n, "useCompressionStream"),
-          transferStreams: Zn(i, n, "transferStreams")
+          useWebWorkers: vn(i, n, "useWebWorkers"),
+          useCompressionStream: vn(i, n, "useCompressionStream"),
+          transferStreams: vn(i, n, "transferStreams"),
+          checkPasswordOnly: S
         },
         config: c,
         streamOptions: {
           signal: v,
-          size: k,
-          onstart: z,
-          onprogress: A,
-          onend: U
+          size: x,
+          onstart: A,
+          onprogress: U,
+          onend: D
         }
       };
-    S.size += (await async function (e, t) {
-      const {
-          options: n,
-          config: i
-        } = t,
-        {
-          transferStreams: r,
-          useWebWorkers: a,
-          useCompressionStream: s,
-          codecType: o,
-          compressed: l,
-          signed: c,
-          encrypted: u
-        } = n,
-        {
-          workerScripts: d,
-          maxWorkers: f,
-          terminateWorkerTimeout: _
-        } = i;
-      t.transferStreams = r || r === me;
-      const h = !(l || c || u || t.transferStreams);
-      let w;
-      t.useWebWorkers = !h && (a || a === me && i.useWebWorkers), t.scripts = t.useWebWorkers && d ? d[o] : [], n.useCompressionStream = s || s === me && i.useCompressionStream;
-      const b = Yt.find(e => !e.busy);
-      if (b) tn(b), w = new Vt(b, e, t, p);else if (Yt.length < f) {
-        const n = {
-          indexWorker: en
-        };
-        en++, Yt.push(n), w = new Vt(n, e, t, p);
-      } else w = await new Promise(n => \$t.push({
-        resolve: n,
-        stream: e,
-        workerOptions: t
-      }));
-      return w.run();
-      function p(e) {
-        if (\$t.length) {
-          const [{
-            resolve: t,
-            stream: n,
-            workerOptions: i
-          }] = \$t.splice(0, 1);
-          t(new Vt(e, n, i, p));
-        } else e.worker ? (tn(e), Number.isFinite(_) && _ >= 0 && (e.terminateTimeout = setTimeout(() => {
-          Yt = Yt.filter(t => t != e), e.terminate();
-        }, _))) : Yt = Yt.filter(t => t != e);
-      }
-    }({
-      readable: x,
-      writable: S
-    }, D)).size;
-    return Zn(i, n, "preventClose") || (await S.close()), e.getData ? e.getData() : S;
+    let F = 0;
+    try {
+      ({
+        outputSize: F
+      } = await async function (e, t) {
+        const {
+            options: n,
+            config: i
+          } = t,
+          {
+            transferStreams: r,
+            useWebWorkers: a,
+            useCompressionStream: s,
+            codecType: o,
+            compressed: l,
+            signed: c,
+            encrypted: u
+          } = n,
+          {
+            workerScripts: d,
+            maxWorkers: f,
+            terminateWorkerTimeout: h
+          } = i;
+        t.transferStreams = r || r === G;
+        const _ = !(l || c || u || t.transferStreams);
+        let w;
+        t.useWebWorkers = !_ && (a || a === G && i.useWebWorkers), t.scripts = t.useWebWorkers && d ? d[o] : [], n.useCompressionStream = s || s === G && i.useCompressionStream;
+        const b = Dt.find(e => !e.busy);
+        if (b) Ot(b), w = new gt(b, e, t, p);else if (Dt.length < f) {
+          const n = {
+            indexWorker: Ft
+          };
+          Ft++, Dt.push(n), w = new gt(n, e, t, p);
+        } else w = await new Promise(n => Et.push({
+          resolve: n,
+          stream: e,
+          workerOptions: t
+        }));
+        return w.run();
+        function p(e) {
+          if (Et.length) {
+            const [{
+              resolve: t,
+              stream: n,
+              workerOptions: i
+            }] = Et.splice(0, 1);
+            t(new gt(e, n, i, p));
+          } else e.worker ? (Ot(e), Number.isFinite(h) && h >= 0 && (e.terminateTimeout = setTimeout(() => {
+            Dt = Dt.filter(t => t != e), e.terminate();
+          }, h))) : Dt = Dt.filter(t => t != e);
+        }
+      }({
+        readable: k,
+        writable: z
+      }, E));
+    } catch (e) {
+      if (!S || e.message != be) throw e;
+    } finally {
+      const e = vn(i, n, "preventClose");
+      z.size += F, e || z.locked || (await z.getWriter().close());
+    }
+    return S ? void 0 : e.getData ? e.getData() : z;
   }
 }
-function qn(e, t, n) {
-  const i = e.rawBitFlag = Xn(t, n + 2),
-    r = (i & he) == he,
-    a = Yn(t, n + 6);
+function yn(e, t, n) {
+  const i = e.rawBitFlag = Un(t, n + 2),
+    r = 1 == (1 & i),
+    a = Dn(t, n + 6);
   Object.assign(e, {
     encrypted: r,
-    version: Xn(t, n),
+    version: Un(t, n),
     bitFlag: {
-      level: (i & we) >> 1,
-      dataDescriptor: (i & be) == be,
-      languageEncodingFlag: (i & pe) == pe
+      level: (6 & i) >> 1,
+      dataDescriptor: 8 == (8 & i),
+      languageEncodingFlag: 2048 == (2048 & i)
     },
     rawLastModDate: a,
-    lastModDate: Gn(a),
-    filenameLength: Xn(t, n + 22),
-    extraFieldLength: Xn(t, n + 24)
+    lastModDate: Sn(a),
+    filenameLength: Un(t, n + 22),
+    extraFieldLength: Un(t, n + 24)
   });
 }
-async function Hn(e, t, n, i) {
+async function xn(e, t, n, i, r) {
   const {
-      rawExtraField: r
+      rawExtraField: a
     } = t,
-    a = t.extraField = new Map(),
-    s = ei(new Uint8Array(r));
-  let o = 0;
+    s = t.extraField = new Map(),
+    o = Fn(new Uint8Array(a));
+  let l = 0;
   try {
-    for (; o < r.length;) {
-      const e = Xn(s, o),
-        t = Xn(s, o + 2);
-      a.set(e, {
+    for (; l < a.length;) {
+      const e = Un(o, l),
+        t = Un(o, l + 2);
+      s.set(e, {
         type: e,
-        data: r.slice(o + 4, o + 4 + t)
-      }), o += 4 + t;
+        data: a.slice(l + 4, l + 4 + t)
+      }), l += 4 + t;
     }
   } catch (e) {}
-  const l = Xn(n, i + 4);
+  const c = Un(n, i + 4);
   Object.assign(t, {
-    signature: Yn(n, i + 10),
-    uncompressedSize: Yn(n, i + 18),
-    compressedSize: Yn(n, i + 14)
+    signature: Dn(n, i + 10),
+    uncompressedSize: Dn(n, i + 18),
+    compressedSize: Dn(n, i + 14)
   });
-  const c = a.get(oe);
-  c && (!function (e, t) {
+  const u = s.get(1);
+  u && (!function (e, t) {
     t.zip64 = !0;
-    const n = ei(e.data),
-      i = In.filter(([e, n]) => t[e] == n);
+    const n = Fn(e.data),
+      i = bn.filter(([e, n]) => t[e] == n);
     for (let r = 0, a = 0; r < i.length; r++) {
       const [s, o] = i[r];
       if (t[s] == o) {
-        const i = Nn[o];
+        const i = pn[o];
         t[s] = e[s] = i.getValue(n, a), a += i.bytes;
-      } else if (e[s]) throw new Error(jn);
+      } else if (e[s]) throw new Error(dn);
     }
-  }(c, t), t.extraFieldZip64 = c);
-  const u = a.get(fe);
-  u && (await Kn(u, mn, gn, t, e), t.extraFieldUnicodePath = u);
-  const d = a.get(_e);
-  d && (await Kn(d, yn, xn, t, e), t.extraFieldUnicodeComment = d);
-  const f = a.get(le);
-  f ? (!function (e, t, n) {
-    const i = ei(e.data),
-      r = Qn(i, 4);
+  }(u, t), t.extraFieldZip64 = u);
+  const d = s.get(28789);
+  d && (await kn(d, Zt, Gt, t, e), t.extraFieldUnicodePath = d);
+  const f = s.get(25461);
+  f && (await kn(f, Jt, Qt, t, e), t.extraFieldUnicodeComment = f);
+  const h = s.get(39169);
+  h ? (!function (e, t, n) {
+    const i = Fn(e.data),
+      r = An(i, 4);
     Object.assign(e, {
-      vendorVersion: Qn(i, 0),
-      vendorId: Qn(i, 2),
+      vendorVersion: An(i, 0),
+      vendorId: An(i, 2),
       strength: r,
       originalCompressionMethod: n,
-      compressionMethod: Xn(i, 5)
+      compressionMethod: Un(i, 5)
     }), t.compressionMethod = e.compressionMethod;
-  }(f, t, l), t.extraFieldAES = f) : t.compressionMethod = l;
-  const _ = a.get(ce);
+  }(h, t, c), t.extraFieldAES = h) : t.compressionMethod = c;
+  const _ = s.get(10);
   _ && (!function (e, t) {
-    const n = ei(e.data);
+    const n = Fn(e.data);
     let i,
       r = 4;
     try {
       for (; r < e.data.length && !i;) {
-        const t = Xn(n, r),
-          a = Xn(n, r + 2);
-        t == ue && (i = e.data.slice(r + 4, r + 4 + a)), r += 4 + a;
+        const t = Un(n, r),
+          a = Un(n, r + 2);
+        t == Z && (i = e.data.slice(r + 4, r + 4 + a)), r += 4 + a;
       }
     } catch (e) {}
     try {
       if (i && 24 == i.length) {
-        const n = ei(i),
+        const n = Fn(i),
           r = n.getBigUint64(0, !0),
           a = n.getBigUint64(8, !0),
           s = n.getBigUint64(16, !0);
@@ -9425,104 +9432,104 @@ async function Hn(e, t, n, i) {
           rawLastAccessDate: a,
           rawCreationDate: s
         });
-        const o = Jn(r),
-          l = Jn(a),
+        const o = zn(r),
+          l = zn(a),
           c = {
             lastModDate: o,
             lastAccessDate: l,
-            creationDate: Jn(s)
+            creationDate: zn(s)
           };
         Object.assign(e, c), Object.assign(t, c);
       }
     } catch (e) {}
   }(_, t), t.extraFieldNTFS = _);
-  const h = a.get(de);
-  h && (!function (e, t) {
-    const n = ei(e.data),
-      i = Qn(n, 0),
-      r = [],
-      a = [];
-    1 == (1 & i) && (r.push(An), a.push(Un));
-    2 == (2 & i) && (r.push(Dn), a.push(En));
-    4 == (4 & i) && (r.push(Fn), a.push(Tn));
-    let s = 1;
-    r.forEach((i, r) => {
-      if (e.data.length >= s + 4) {
-        const o = Yn(n, s);
-        t[i] = e[i] = new Date(1e3 * o);
-        const l = a[r];
-        e[l] = o;
+  const w = s.get(21589);
+  w && (!function (e, t, n) {
+    const i = Fn(e.data),
+      r = An(i, 0),
+      a = [],
+      s = [];
+    n ? (1 == (1 & r) && (a.push(tn), s.push(nn)), 2 == (2 & r) && (a.push(rn), s.push(an)), 4 == (4 & r) && (a.push(sn), s.push(on))) : e.data.length >= 5 && (a.push(tn), s.push(nn));
+    let o = 1;
+    a.forEach((n, r) => {
+      if (e.data.length >= o + 4) {
+        const a = Dn(i, o);
+        t[n] = e[n] = new Date(1e3 * a);
+        const l = s[r];
+        e[l] = a;
       }
-      s += 4;
+      o += 4;
     });
-  }(h, t), t.extraFieldExtendedTimestamp = h);
+  }(w, t, r), t.extraFieldExtendedTimestamp = w);
+  const b = s.get(6534);
+  b && (t.extraFieldUSDZ = b);
 }
-async function Kn(e, t, n, i, r) {
-  const a = ei(e.data),
-    s = new Ee();
+async function kn(e, t, n, i, r) {
+  const a = Fn(e.data),
+    s = new re();
   s.append(r[n]);
-  const o = ei(new Uint8Array(4));
-  o.setUint32(0, s.get(), !0), Object.assign(e, {
-    version: Qn(a, 0),
-    signature: Yn(a, 1),
-    [t]: await pn(e.data.subarray(5)),
-    valid: !r.bitFlag.languageEncodingFlag && e.signature == Yn(o, 0)
+  const o = Fn(new Uint8Array(4));
+  o.setUint32(0, s.get(), !0);
+  const l = Dn(a, 1);
+  Object.assign(e, {
+    version: An(a, 0),
+    [t]: Kt(e.data.subarray(5)),
+    valid: !r.bitFlag.languageEncodingFlag && l == Dn(o, 0)
   }), e.valid && (i[t] = e[t], i[t + "UTF8"] = !0);
 }
-function Zn(e, t, n) {
-  return t[n] === me ? e.options[n] : t[n];
+function vn(e, t, n) {
+  return t[n] === G ? e.options[n] : t[n];
 }
-function Gn(e) {
+function Sn(e) {
   const t = (4294901760 & e) >> 16,
     n = 65535 & e;
   try {
     return new Date(1980 + ((65024 & t) >> 9), ((480 & t) >> 5) - 1, 31 & t, (63488 & n) >> 11, (2016 & n) >> 5, 2 * (31 & n), 0);
   } catch (e) {}
 }
-function Jn(e) {
+function zn(e) {
   return new Date(Number(e / BigInt(1e4) - BigInt(116444736e5)));
 }
-function Qn(e, t) {
+function An(e, t) {
   return e.getUint8(t);
 }
-function Xn(e, t) {
+function Un(e, t) {
   return e.getUint16(t, !0);
 }
-function Yn(e, t) {
+function Dn(e, t) {
   return e.getUint32(t, !0);
 }
-function \$n(e, t) {
+function En(e, t) {
   return Number(e.getBigUint64(t, !0));
 }
-function ei(e) {
+function Fn(e) {
   return new DataView(e.buffer);
 }
-Ae({
+te({
   Inflate: function (n) {
-    const i = new ne(),
+    const i = new N(),
       r = n && n.chunkSize ? Math.floor(2 * n.chunkSize) : 131072,
-      a = zip_c,
-      o = new Uint8Array(r);
-    let l = !1;
-    i.inflateInit(), i.next_out = o, this.append = function (n, c) {
-      const u = [];
-      let d,
-        f,
-        _ = 0,
+      s = new Uint8Array(r);
+    let o = !1;
+    i.inflateInit(), i.next_out = s, this.append = function (n, l) {
+      const c = [];
+      let u,
+        d,
+        f = 0,
         h = 0,
-        w = 0;
+        _ = 0;
       if (0 !== n.length) {
         i.next_in_index = 0, i.next_in = n, i.avail_in = n.length;
         do {
-          if (i.next_out_index = 0, i.avail_out = r, 0 !== i.avail_in || l || (i.next_in_index = 0, l = !0), d = i.inflate(a), l && d === zip_s) {
+          if (i.next_out_index = 0, i.avail_out = r, 0 !== i.avail_in || o || (i.next_in_index = 0, o = !0), u = i.inflate(0), o && u === zip_a) {
             if (0 !== i.avail_in) throw new Error("inflating: bad input");
-          } else if (d !== zip_e && d !== zip_t) throw new Error("inflating: " + i.msg);
-          if ((l || d === zip_t) && i.avail_in === n.length) throw new Error("inflating: bad input");
-          i.next_out_index && (i.next_out_index === r ? u.push(new Uint8Array(o)) : u.push(o.slice(0, i.next_out_index))), w += i.next_out_index, c && i.next_in_index > 0 && i.next_in_index != _ && (c(i.next_in_index), _ = i.next_in_index);
+          } else if (u !== zip_e && u !== zip_t) throw new Error("inflating: " + i.msg);
+          if ((o || u === zip_t) && i.avail_in === n.length) throw new Error("inflating: bad input");
+          i.next_out_index && (i.next_out_index === r ? c.push(new Uint8Array(s)) : c.push(s.subarray(0, i.next_out_index))), _ += i.next_out_index, l && i.next_in_index > 0 && i.next_in_index != f && (l(i.next_in_index), f = i.next_in_index);
         } while (i.avail_in > 0 || 0 === i.avail_out);
-        return u.length > 1 ? (f = new Uint8Array(w), u.forEach(function (e) {
-          f.set(e, h), h += e.length;
-        })) : f = u[0] || new Uint8Array(), f;
+        return c.length > 1 ? (d = new Uint8Array(_), c.forEach(function (e) {
+          d.set(e, h), h += e.length;
+        })) : d = c[0] ? new Uint8Array(c[0]) : new Uint8Array(), d;
       }
     }, this.flush = function () {
       i.inflateEnd();
@@ -9556,15 +9563,15 @@ toReactMessage({
 });
 const makeZipLoader = async file => {
   try {
-    Ae({
+    te({
       useWebWorkers: false
     });
-    const reader = new Pn(new on(file));
+    const reader = new mn(new Mt(file));
     const entries = await reader.getEntries();
     const map = new Map(entries.map(entry => [entry.filename, entry]));
     const load = f => (name, ...args) => map.has(name) ? f(map.get(name), ...args) : null;
-    const loadText = load(entry => entry.getData(new cn()));
-    const loadBlob = load((entry, type) => entry.getData(new ln(type)));
+    const loadText = load(entry => entry.getData(new Pt()));
+    const loadBlob = load((entry, type) => entry.getData(new Lt(type)));
     const getSize = name => map.get(name)?.uncompressedSize ?? 0;
     return {
       entries,
@@ -9690,7 +9697,7 @@ const getView = async file => {
     if (await isMOBI(file)) {
       debug("[GETVIEW] Making mobi");
       book = await new MOBI({
-        unzlib: _
+        unzlib: U
       }).open(file);
       debug("[GETVIEW] DONE MAKING MOBI");
     } else if (isFB2(file)) {
@@ -9713,8 +9720,8 @@ const getView = async file => {
 };
 class Reader {
   #tocMap;
-  #currentTocPos;
   #isPdf;
+  #currentTocPos;
   #previousFraction;
   style = {
     lineHeight: 1.4,
@@ -9787,9 +9794,12 @@ class Reader {
           count += 1;
         }
       });
-      // if (!this.#isPdf) {
+      if (!this.#isPdf) {
         this.initalLocation ? await this.view.goTo(this.initalLocation) : this.view.renderer.next();
-      // } else this.view.renderer.next();
+      } else {
+        await this.view.goTo(Number(this.initalLocation));
+        this.view.renderer.next();
+      }
       toReactMessage({
         type: "onReady",
         book
@@ -9822,26 +9832,26 @@ class Reader {
     });
   };
   onRelocate = e => {
-    // const {
-    //   section,
-    //   fraction,
-    //   location,
-    //   tocItem,
-    //   pageItem,
-    //   cfi
-    // } = e.detail;
-    this.#currentTocPos = {
-      id: tocItem?.id,
-      label: tocItem?.label
-    };
-    // debug("[ONRELOCATE] " + \` \${JSON.stringify(e.detail)} \`);
-    if (this.#previousFraction !== fraction){
+    const {
+      section,
+      fraction,
+      location,
+      tocItem,
+      pageItem,
+      cfi
+    } = e.detail;
+    if (this.#previousFraction !== fraction) {
       toReactMessage({
         type: "onLocationChange",
-        ...e.detail,
+        section,
+        fraction,
+        location,
+        tocItem,
+        pageItem,
+        cfi
       });
     }
-    this.#previousFraction = fraction
+    this.#previousFraction = fraction;
   };
   next = () => {
     this.view?.renderer?.next();
@@ -9887,5 +9897,4 @@ __webpack_exports__ = __webpack_exports__["default"];
 /******/ })()
 ;
 });
-//# sourceMappingURL=foliate.js.map
-`;
+//# sourceMappingURL=foliate.js.map`;

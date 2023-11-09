@@ -7,21 +7,23 @@ import { Button } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { useNewUser } from "../../hooks/use-new-user";
+import { mediaProgressAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
-import { MediaProgress } from "../../types/aba";
 import { cleanString } from "../../utils/utils";
 
 function BookMoreMenu({
-  userMediaProgress,
   title,
   itemId,
 }: {
-  userMediaProgress: MediaProgress | undefined;
   title: string | null;
   itemId: string;
 }) {
+  const mediaProgress = useAtomValue(mediaProgressAtom);
+  const userMediaProgress = mediaProgress?.find(
+    (prog) => prog.libraryItemId === itemId
+  );
   const serverConfig = useAtomValue(currentServerConfigAtom);
-  const { user, refreshUser } = useNewUser();
+  const { user, refreshUser } = useNewUser(true);
 
   const markAsFinshed = async () => {
     try {
@@ -59,7 +61,7 @@ function BookMoreMenu({
         `${serverConfig.serverAddress}/api/me/progress/${userMediaProgress?.id}`,
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${serverConfig?.token}`,
           },
         }
       );

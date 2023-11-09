@@ -41,7 +41,7 @@ const SeriesPage = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["library-series", `${library?.id}`, user?.id, serverConfig?.id],
+    queryKey: ["library-series", library?.id, user?.id, serverConfig?.id],
     queryFn: async ({ pageParam = 0 }) => {
       try {
         if (!serverConfig?.id)

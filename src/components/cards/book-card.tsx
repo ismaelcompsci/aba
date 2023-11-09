@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
-import CircularProgress from "react-native-circular-progress-indicator";
 import FastImage from "react-native-fast-image";
 import { BookX } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { useAtomValue } from "jotai";
 import { Card, Text, XStack, YStack, YStackProps } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
-import { mediaProgressAtom } from "../../state/app-state";
 import { LibraryItemMinified } from "../../types/aba";
 import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { cleanString } from "../../utils/utils";
 import { AuthorText } from "../author-text";
+import ItemProgress from "../item-progress";
 
 interface BookCardProps {
   item: LibraryItemMinified;
@@ -28,15 +26,10 @@ const BookCard = ({
   isCoverSquareAspectRatio,
   ...rest
 }: BookCardProps & YStackProps) => {
-  const mediaProgress = useAtomValue(mediaProgressAtom);
   const [error, setError] = useState(false);
   const coverUrl = getItemCoverSrc(item, serverConfig, token);
 
   const { color, bgPress } = useIconTheme();
-
-  const userMediaProgress = mediaProgress?.find(
-    (prog) => prog.libraryItemId === item.id
-  );
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
@@ -48,22 +41,6 @@ const BookCard = ({
   useEffect(() => {
     setError(false);
   }, [isCoverSquareAspectRatio]);
-
-  let useEBookProgress;
-  if (!userMediaProgress || userMediaProgress.progress)
-    useEBookProgress = false;
-  else if (userMediaProgress.ebookProgress)
-    useEBookProgress = userMediaProgress.ebookProgress > 0;
-
-  let userProgressPercent: number;
-  if (useEBookProgress && userMediaProgress?.ebookProgress) {
-    userProgressPercent = Math.max(
-      Math.min(1, userMediaProgress.ebookProgress),
-      0
-    );
-  } else
-    userProgressPercent =
-      Math.max(Math.min(1, userMediaProgress?.progress || 0), 0) || 0;
 
   return (
     <YStack alignItems="center" bg="$background" {...rest} pt="$2">
@@ -79,19 +56,17 @@ const BookCard = ({
         justifyContent="center"
         alignItems="center"
       >
-        {userProgressPercent ? (
-          <XStack pos={"absolute"} zIndex={"$5"} t={-8} r={-6}>
-            <CircularProgress
-              value={userProgressPercent * 100}
-              radius={12}
-              activeStrokeWidth={2}
-              inActiveStrokeWidth={3}
-              progressValueFontSize={8}
-              circleBackgroundColor={bgPress}
-              activeStrokeColor={color}
-            />
-          </XStack>
-        ) : null}
+        <XStack pos={"absolute"} zIndex={"$5"} t={-8} r={-6}>
+          <ItemProgress
+            id={item.id}
+            radius={12}
+            activeStrokeWidth={2}
+            inActiveStrokeWidth={3}
+            progressValueFontSize={8}
+            circleBackgroundColor={bgPress}
+            activeStrokeColor={color}
+          />
+        </XStack>
         {!coverUrl || error ? (
           <BookX size="$10" />
         ) : (

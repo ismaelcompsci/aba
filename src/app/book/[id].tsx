@@ -1,30 +1,18 @@
 import React from "react";
 import { Animated, useWindowDimensions } from "react-native";
-import CircularProgress from "react-native-circular-progress-indicator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import TrackPlayer, {
-  State,
-  usePlaybackState,
-} from "react-native-track-player";
 import ReadMore from "@fawazahmed/react-native-read-more";
 import { BlurView } from "@react-native-community/blur";
-import {
-  BookOpen,
-  BookX,
-  ChevronLeft,
-  Pause,
-  Play,
-} from "@tamagui/lucide-icons";
+import { BookX, ChevronLeft } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   Button,
   H3,
   H6,
   Image,
-  ScrollView,
   Spinner,
   Text,
   useTheme,
@@ -34,20 +22,21 @@ import {
 } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
-import { ActionButton } from "../../components/book-info";
 import { ClearIconButton } from "../../components/buttons/button";
+import OpenItemActionButton from "../../components/buttons/open-item-action-button";
 import { FullScreen, ScreenCenter } from "../../components/center";
 import { ParallaxScrollView } from "../../components/custom-components/parallax-scroll-view";
+import GenresLabelScroll from "../../components/genres-label-scroll";
+import ItemProgress from "../../components/item-progress";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
 import { HEADER_HEIGHT } from "../../hooks/use-header-height";
+import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentItemAtom,
   currentLibraryAtom,
-  mediaProgressAtom,
-  showPlayerAtom,
   userAtom,
 } from "../../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../../state/local-state";
@@ -63,10 +52,6 @@ const BookPage = () => {
     id: string;
   }>();
   const appScheme = useAtomValue(appThemeAtom);
-  const mediaProgress = useAtomValue(mediaProgressAtom);
-  const userMediaProgress = mediaProgress?.find(
-    (prog) => prog.libraryItemId === id
-  );
 
   const { width, height } = useWindowDimensions();
 
@@ -74,15 +59,10 @@ const BookPage = () => {
   const library = useAtomValue(currentLibraryAtom);
   const config = useAtomValue(currentServerConfigAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
-  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
-
-  const playerState = usePlaybackState();
-  const isPlaying = playerState.state === State.Playing;
 
   const insets = useSafeAreaInsets();
+  const { bg: backgroundColor, color, bgPress } = useIconTheme();
   const theme = useTheme();
-  const backgroundColor = theme.background.get();
-  const color = theme.color.get();
   const seeTextColor = theme.blue10.get();
   const IHeight = 400;
 
@@ -105,8 +85,24 @@ const BookPage = () => {
       setCurrentItem(response.data);
       return response.data as LibraryItemExpanded;
     },
-    refetchOnMount: true,
   });
+
+  if (isLoading) {
+    return (
+      <ScreenCenter paddingBottom={0}>
+        <Spinner />
+      </ScreenCenter>
+    );
+  } else if (!bookItem) {
+    return (
+      <ScreenCenter space="$3">
+        <BookX size="$10" />
+        <H3 color="$red10">No item found</H3>
+
+        <Button onPress={() => router.back()}>Go back</Button>
+      </ScreenCenter>
+    );
+  }
 
   const cover = getItemCoverSrc(bookItem, config, user?.token);
 
@@ -202,100 +198,6 @@ const BookPage = () => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <ScreenCenter>
-        <Spinner />
-      </ScreenCenter>
-    );
-  } else if (!bookItem) {
-    return (
-      <ScreenCenter space="$3">
-        <BookX size="$10" />
-        <H3 color="$red10">No item found</H3>
-
-        <Button onPress={() => router.back()}>Go back</Button>
-      </ScreenCenter>
-    );
-  }
-
-  const canShowPlay = () => {
-    if (!bookItem || isMissing || isInvalid) return false;
-    if ("tracks" in bookItem.media && bookItem.media.tracks) {
-      return !!bookItem.media.tracks.length;
-    }
-    if ("episodes" in bookItem.media && bookItem.media.episodes) {
-      return !!bookItem.media.episodes.length;
-    }
-    return false;
-  };
-
-  const canShowRead = () => {
-    if (!bookItem || isMissing || isInvalid) return false;
-
-    if ("ebookFile" in bookItem.media && bookItem.media.ebookFile) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const showPlay = canShowPlay();
-  const showRead = canShowRead();
-
-  const getActionButton = () => {
-    if (showPlay) {
-      return (
-        <ActionButton
-          onPress={() => {
-            isPlaying
-              ? showPlayer.libraryItemId === id
-                ? TrackPlayer.pause()
-                : setShowPlayer({ playing: true, libraryItemId: bookItem.id })
-              : showPlayer.playing && showPlayer.libraryItemId === id
-              ? TrackPlayer.play()
-              : setShowPlayer({ playing: true, libraryItemId: bookItem.id });
-          }}
-          bg={"$green10"}
-        >
-          {isPlaying && showPlayer.libraryItemId === id ? (
-            <>
-              <Pause />
-              <Text>Pause</Text>
-            </>
-          ) : (
-            <>
-              <Play size="$1" />
-              <Text>Play</Text>
-            </>
-          )}
-        </ActionButton>
-      );
-    } else if (showRead) {
-      return (
-        <ActionButton
-          bg={"$blue10"}
-          onPress={() => router.push(`/reader/${bookItem.id}`)}
-        >
-          <BookOpen size="$1" />
-          <Text>Read {ebookFormat?.toUpperCase()}</Text>
-        </ActionButton>
-      );
-    } else {
-      return (
-        <Button
-          chromeless
-          onPress={() => console.log("ITEM IS MISSING")}
-          bg={"$red10Dark"}
-          theme={"blue"}
-          flex={1}
-        >
-          <Text>Missing</Text>
-        </Button>
-      );
-    }
-  };
-
   const getSeries = () => {
     if ("series" in bookItem.media.metadata) {
       return bookItem.media.metadata.seriesName;
@@ -335,9 +237,6 @@ const BookPage = () => {
 
     if (authorId) router.push(`/library/authors/${encode(authorId)}`);
   };
-  const handleGenrePress = (genre: string) => {
-    router.push(`/library/genres/${encode(genre)}`);
-  };
 
   const handleSeriesPress = () => {
     return null;
@@ -354,32 +253,9 @@ const BookPage = () => {
     // if (seriesId) router.push(`/library/series/${id}`);
   };
 
-  let useEBookProgress;
-  if (!userMediaProgress || userMediaProgress.progress)
-    useEBookProgress = false;
-  else if (userMediaProgress.ebookProgress)
-    useEBookProgress = userMediaProgress.ebookProgress > 0;
-
-  let userProgressPercent: number;
-  if (useEBookProgress && userMediaProgress?.ebookProgress) {
-    userProgressPercent = Math.max(
-      Math.min(1, userMediaProgress.ebookProgress),
-      0
-    );
-  } else
-    userProgressPercent =
-      Math.max(Math.min(1, userMediaProgress?.progress || 0), 0) || 0;
-
-  const libraryFiles = bookItem.libraryFiles || [];
   const numberChapters = numChapters();
-  const ebookFiles = libraryFiles.filter((lf) => lf.fileType === "ebook");
-  const ebookFile =
-    "ebookFile" in bookItem.media ? bookItem.media.ebookFile : null;
-  const ebookFormat = ebookFile?.ebookFormat;
   const tracks = "tracks" in bookItem.media ? bookItem.media.tracks : null;
   const numTracks = tracks?.length;
-  const isMissing = bookItem?.isMissing;
-  const isInvalid = bookItem?.isInvalid;
 
   const genres = getGenres();
   const author = getAuthor();
@@ -429,25 +305,24 @@ const BookPage = () => {
                 gap="$1"
                 justifyContent="space-between"
               >
-                {getActionButton()}
+                <OpenItemActionButton bookItem={bookItem} id={id} />
                 <XStack
                   flex={1}
                   justifyContent="flex-end"
                   gap="$4"
                   alignItems="center"
                 >
-                  {userProgressPercent && userProgressPercent > 0 ? (
-                    <CircularProgress
-                      value={userProgressPercent * 100}
-                      radius={22}
-                      activeStrokeWidth={5}
-                      inActiveStrokeWidth={6}
-                      progressValueFontSize={14}
-                      inActiveStrokeOpacity={0.4}
-                    />
-                  ) : null}
+                  <ItemProgress
+                    id={id}
+                    radius={22}
+                    activeStrokeWidth={5}
+                    inActiveStrokeWidth={6}
+                    progressValueFontSize={14}
+                    inActiveStrokeOpacity={0.4}
+                    circleBackgroundColor={bgPress}
+                    activeStrokeColor={color}
+                  />
                   <BookMoreMenu
-                    userMediaProgress={userMediaProgress}
                     title={bookItem.media.metadata.title}
                     itemId={bookItem.id}
                   />
@@ -467,33 +342,16 @@ const BookPage = () => {
               >
                 {bookItem.media.metadata.description}
               </ReadMore>
-              {genres ? (
-                <ScrollView
+              {genres?.length ? (
+                <GenresLabelScroll
+                  genres={genres}
                   horizontal
                   space="$2"
                   pt="$2"
                   showsHorizontalScrollIndicator={false}
-                >
-                  {genres.map((gen) => (
-                    <Button
-                      h="$2"
-                      br="$10"
-                      noTextWrap
-                      key={gen}
-                      bordered
-                      transparent
-                      onPress={() => handleGenrePress(gen)}
-                    >
-                      <Text numberOfLines={1} maxWidth={200}>
-                        {gen}
-                      </Text>
-                    </Button>
-                  ))}
-                </ScrollView>
+                />
               ) : null}
-              {ebookFiles.length ? (
-                <BookFilesTable ebookFiles={ebookFiles} itemId={bookItem.id} />
-              ) : null}
+              <BookFilesTable />
               {numberChapters ? (
                 <ChapterFilesTable libraryItem={bookItem} />
               ) : null}
