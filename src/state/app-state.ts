@@ -4,6 +4,7 @@ import {
   Library,
   LibraryItemExpanded,
   MediaProgress,
+  PlaybackSessionExpanded,
   User,
 } from "../types/aba";
 import { EpubReaderLoading, PlayingState } from "../types/types";
@@ -16,6 +17,7 @@ export const openModalAtom = atom(false);
 export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
+export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,
   part: "",

@@ -94,6 +94,8 @@ const BookFilesTable = () => {
     router.push(`/reader/${itemId}?ino=${item.ino}`);
   };
 
+  if (!ebookFiles.length) return null;
+
   const renderItem = ({ item }: { item: LibraryFile }) => {
     return (
       <ListItem p={0}>

@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { getColors } from "react-native-image-colors";
-import TrackPlayer, {
-  Capability,
-  Event,
-  useTrackPlayerEvents,
-} from "react-native-track-player";
+import TrackPlayer, { Capability } from "react-native-track-player";
 import axios from "axios";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Spinner } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
-import { showPlayerAtom, userAtom } from "../../state/app-state";
+import {
+  playbackSessionAtom,
+  showPlayerAtom,
+  userAtom,
+} from "../../state/app-state";
 import { currentServerConfigAtom, deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
@@ -35,13 +35,14 @@ const AudioPlayerContainer = () => {
   const [ready, setReady] = useState(false);
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
+  const setPlaybackSession = useSetAtom(playbackSessionAtom);
 
   const [open, setOpen] = useState(true);
 
   const { color, bgPress } = useIconTheme();
 
   const setupPlayer = async (
-    playbackSession: PlaybackSessionExpanded,
+    session: PlaybackSessionExpanded,
     metadata: { cover: string; title: string; author: string }
   ) => {
     try {
@@ -49,7 +50,7 @@ const AudioPlayerContainer = () => {
 
       const tracks: AudioPlayerTrack[] = [];
       let trackIndex = 0;
-      playbackSession.audioTracks.forEach((track) =>
+      session.audioTracks.forEach((track) =>
         tracks.push({
           id: trackIndex++,
           url: `${serverConfig.serverAddress}${track.contentUrl}?token=${user?.token}`,
@@ -64,9 +65,8 @@ const AudioPlayerContainer = () => {
         0,
         tracks.findIndex(
           (t) =>
-            Math.floor(t.startOffset) <= playbackSession.startTime &&
-            Math.floor(t.startOffset + (t.duration || 0)) >
-              playbackSession.startTime
+            Math.floor(t.startOffset) <= session.startTime &&
+            Math.floor(t.startOffset + (t.duration || 0)) > session.startTime
         )
       );
 
@@ -77,9 +77,9 @@ const AudioPlayerContainer = () => {
       await TrackPlayer.reset();
       await TrackPlayer.add(tracks);
 
-      if (playbackSession.currentTime && currentTrack) {
+      if (session.currentTime && currentTrack) {
         loadCurrentTrack({
-          startTime: playbackSession.startTime,
+          startTime: session.startTime,
           currentTrack,
         });
       }
@@ -88,6 +88,7 @@ const AudioPlayerContainer = () => {
         artwork: metadata.cover,
         title: metadata.title,
         artist: metadata.author,
+        duration: session.duration,
       });
 
       setReady(true);
@@ -96,21 +97,6 @@ const AudioPlayerContainer = () => {
       console.log("[AUDIOPLAYER] ", error);
     }
   };
-
-  useTrackPlayerEvents(
-    [Event.PlaybackActiveTrackChanged, Event.PlaybackProgressUpdated],
-    async (event) => {
-      if (event.type === Event.PlaybackProgressUpdated) {
-        TrackPlayer.updateNowPlayingMetadata({
-          artwork: audiobookInfo.cover || "",
-          title: audiobookInfo.title,
-          artist: audiobookInfo.author,
-          // duration: totalDuration,
-          // elapsedTime: overallCurrentTime,
-        });
-      }
-    }
-  );
 
   const loadCurrentTrack = async ({
     startTime,
@@ -172,8 +158,8 @@ const AudioPlayerContainer = () => {
         cover: cover || "",
       };
 
+      setPlaybackSession(data);
       setAudiobookInfo(metadata);
-
       await setupPlayer(data, metadata);
     } catch (error) {
       console.log("[AUDIOPLAYER] ERROR ", error);

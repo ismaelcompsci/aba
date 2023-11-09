@@ -3,12 +3,18 @@ import TrackPlayer, {
   Event,
   useTrackPlayerEvents,
 } from "react-native-track-player";
+import axios from "axios";
+import { useAtom, useAtomValue } from "jotai";
 import { Slider, SliderTrackProps, styled, Text, XStack } from "tamagui";
 
+import { playbackSessionAtom, userAtom } from "../../../state/app-state";
+import { currentServerConfigAtom } from "../../../state/local-state";
 import { formatSeconds } from "../../../utils/utils";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
 import { AudiobookInfo } from "./small-audio-player";
+
+const TIME_BETWEEN_SESSION_UPDATES = 15;
 
 export const ProgressSlider = ({
   color,
@@ -21,8 +27,12 @@ export const ProgressSlider = ({
   showThumb: boolean;
   audiobookInfo: AudiobookInfo;
 }) => {
+  const serverConfig = useAtomValue(currentServerConfigAtom);
+  const user = useAtomValue(userAtom);
   const [seek, setSeek] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
+
+  const [playbackSession, setPlaybackSession] = useAtom(playbackSessionAtom);
 
   const {
     currentPosition: overallCurrentTime,
@@ -39,6 +49,7 @@ export const ProgressSlider = ({
         duration: totalDuration,
         elapsedTime: overallCurrentTime,
       });
+      updateSession();
     }
   });
 
@@ -46,6 +57,61 @@ export const ProgressSlider = ({
 
   const handleSliderEnd = async (value: number) => {
     seekTo(value, 1250, () => setIsSeeking(false));
+  };
+
+  const updateSession = async () => {
+    if (showThumb) return;
+    // udpate only every 15 seconds
+    const nowInMilliseconds = Date.now();
+    const nowInSeconds = nowInMilliseconds / 1000;
+    const lastUpdateInMilliseconds =
+      playbackSession?.updatedAt || nowInMilliseconds;
+    const lastUpdateInSeconds = lastUpdateInMilliseconds / 1000;
+    const secondsSinceLastUpdate = nowInSeconds - lastUpdateInSeconds;
+
+    let sync = false;
+    // @ts-ignore
+    setPlaybackSession((prev) => {
+      let timeListening = prev?.timeListening || 0;
+      const newTimeListening = (timeListening += secondsSinceLastUpdate);
+      if (newTimeListening >= TIME_BETWEEN_SESSION_UPDATES) sync = true;
+      return {
+        ...prev,
+        currentTime: overallCurrentTime,
+        updatedAt: nowInMilliseconds,
+        timeListening: newTimeListening,
+      };
+    });
+
+    if (sync) {
+      console.log("SYNCING SESSION");
+      const updatePayload = {
+        currentTime: overallCurrentTime,
+        timeListened: TIME_BETWEEN_SESSION_UPDATES,
+        duration: totalDuration,
+      };
+
+      try {
+        const response = await axios.post(
+          `${serverConfig.serverAddress}/api/session/${playbackSession?.id}/sync`,
+          updatePayload,
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          }
+        );
+
+        if (response.data) {
+          // @ts-ignore
+          setPlaybackSession((prev) => {
+            return { ...prev, timeListening: 0 };
+          });
+        }
+      } catch (error) {
+        console.log("[PROGRESS_SLIDER] updateProgress error", error);
+      }
+    }
   };
 
   return (
