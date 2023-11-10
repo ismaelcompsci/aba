@@ -42,42 +42,48 @@ const LoadingBook = ({
       )}`;
       const bookDownloadPath = `${epubDir}/${bookDownloadName}`;
 
-      setEpubReaderLoading({
-        loading: true,
-        part: "Downloading",
-        percent: 0,
-      });
+      const isDownloaded = await RNFetchBlob.fs.exists(bookDownloadPath);
 
-      RNFetchBlob.config({
-        path: bookDownloadPath,
-      })
-        .fetch("GET", url, {
-          Authorization: `Bearer ${user.token}`,
-        })
-        .progress((received, total) => {
-          const percent = received / total;
-          setEpubReaderLoading({
-            loading: true,
-            part: "Downloading",
-            percent: percent,
-          });
-        })
-        .then((res) => {
-          const status = res.info().status;
-          const path = res.path();
-
-          if (status === 200) setBookPath(path);
-        })
-        .catch((error) => {
-          console.log({ error });
-        })
-        .finally(() => {
-          setEpubReaderLoading({
-            loading: true,
-            part: "Downloading",
-            percent: 1,
-          });
+      if (isDownloaded) {
+        setBookPath(bookDownloadPath);
+      } else {
+        setEpubReaderLoading({
+          loading: true,
+          part: "Downloading",
+          percent: 0,
         });
+
+        RNFetchBlob.config({
+          path: bookDownloadPath,
+        })
+          .fetch("GET", url, {
+            Authorization: `Bearer ${user.token}`,
+          })
+          .progress((received, total) => {
+            const percent = received / total;
+            setEpubReaderLoading({
+              loading: true,
+              part: "Downloading",
+              percent: percent,
+            });
+          })
+          .then((res) => {
+            const status = res.info().status;
+            const path = res.path();
+
+            if (status === 200) setBookPath(path);
+          })
+          .catch((error) => {
+            console.log({ error });
+          })
+          .finally(() => {
+            setEpubReaderLoading({
+              loading: true,
+              part: "Downloading",
+              percent: 1,
+            });
+          });
+      }
     })();
   }, []);
 
