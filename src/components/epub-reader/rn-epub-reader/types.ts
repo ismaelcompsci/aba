@@ -21,7 +21,8 @@ type Contributor =
         [key: string]: string;
       };
     }
-  | { name: string; sortAs: string; identifier: string };
+  | { name: string; sortAs: string; identifier?: string }
+  | { name: string; sortAs: string; identifier?: string }[];
 
 export type ReaderBookMetadata = {
   title:

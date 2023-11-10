@@ -45,14 +45,13 @@ const LoadingBook = ({
       const isDownloaded = await RNFetchBlob.fs.exists(bookDownloadPath);
 
       if (isDownloaded) {
-        setBookPath(bookDownloadPath);
-      } else {
         setEpubReaderLoading({
           loading: true,
           part: "Downloading",
-          percent: 0,
+          percent: 1,
         });
-
+        setBookPath(bookDownloadPath);
+      } else {
         RNFetchBlob.config({
           path: bookDownloadPath,
         })
@@ -96,8 +95,9 @@ const LoadingBook = ({
       space="$4"
       pos="absolute"
       zIndex={88888}
+      bg={"$background"}
     >
-      <XStack gap="$4" ai="center">
+      <XStack gap="$4" ai="center" bg={"$background"}>
         {epubReaderLoading.percent ? (
           <Progress
             value={

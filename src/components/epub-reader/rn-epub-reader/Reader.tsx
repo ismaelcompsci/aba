@@ -15,7 +15,6 @@ import pdfWorker from "./pdfWorker";
 import type { ReaderProps } from "./types";
 import { View } from "./View";
 
-// ...
 export function Reader({
   src,
   width,

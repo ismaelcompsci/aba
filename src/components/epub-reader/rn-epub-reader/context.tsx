@@ -10,7 +10,13 @@ import type WebView from "react-native-webview";
 
 import { themes } from "../components/themes";
 
-import type { ePubCfi, LocationChange, SearchResult, Theme } from "./types";
+import type {
+  ePubCfi,
+  LocationChange,
+  ReaderBookMetadata,
+  SearchResult,
+  Theme,
+} from "./types";
 
 type ActionMap<M extends { [index: string]: unknown }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -52,15 +58,7 @@ type BookPayload = {
   [Types.SET_KEY]: string;
   [Types.SET_TOTAL_LOCATIONS]: number;
   [Types.SET_CURRENT_LOCATION]: LocationChange;
-  [Types.SET_META]: {
-    cover: string | ArrayBuffer | null | undefined;
-    author: string;
-    title: string;
-    description: string;
-    language: string;
-    publisher: string;
-    rights: string;
-  };
+  [Types.SET_META]: ReaderBookMetadata;
   [Types.SET_PROGRESS]: number;
   [Types.SET_LOCATIONS]: ePubCfi[];
   [Types.SET_IS_LOADING]: boolean;
@@ -81,15 +79,7 @@ type InitialState = {
   key: string;
   totalLocations: number;
   currentLocation: LocationChange | null;
-  meta: {
-    cover: string | ArrayBuffer | null | undefined;
-    author: string;
-    title: string;
-    description: string;
-    language: string;
-    publisher: string;
-    rights: string;
-  };
+  meta: ReaderBookMetadata;
   progress: number;
   locations: ePubCfi[];
   isLoading: boolean;
@@ -124,13 +114,11 @@ const initialState: InitialState = {
   totalLocations: 0,
   currentLocation: null,
   meta: {
-    cover: "",
     author: "",
     title: "",
     description: "",
     language: "",
     publisher: "",
-    rights: "",
   },
   progress: 0,
   locations: [],
@@ -234,15 +222,7 @@ export interface ReaderContextProps {
   // setAtEnd: (atEnd: boolean) => void;
   // setTotalLocations: (totalLocations: number) => void;
   setCurrentLocation: (location: LocationChange) => void;
-  // setMeta: (meta: {
-  //   cover: string | ArrayBuffer | null | undefined;
-  //   author: string;
-  //   title: string;
-  //   description: string;
-  //   language: string;
-  //   publisher: string;
-  //   rights: string;
-  // }) => void;
+  setMeta: (meta: ReaderBookMetadata) => void;
   // setProgress: (progress: number) => void;
   // setLocations: (locations: ePubCfi[]) => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -277,19 +257,11 @@ export interface ReaderContextProps {
    */
   getCurrentLocation: () => LocationChange | null;
 
-  // /**
-  //  * Returns an object containing the book's metadata
-  //  * @returns { cover: string | ArrayBuffer | null | undefined, author: string, title: string, description: string, language: string, publisher: string, rights: string, }
-  //  */
-  // getMeta: () => {
-  //   cover: string | ArrayBuffer | null | undefined;
-  //   author: string;
-  //   title: string;
-  //   description: string;
-  //   language: string;
-  //   publisher: string;
-  //   rights: string;
-  // };
+  /**
+   * Returns an object containing the book's metadata
+   * @returns {ReaderBookMetadata}
+   */
+  getMeta: () => ReaderBookMetadata;
 
   // /**
   //  * Search for a specific text in the book
@@ -371,19 +343,10 @@ export interface ReaderContextProps {
    */
   currentLocation: LocationChange | null;
 
-  // /**
-  //  * An object containing the book's metadata
-  //  * { cover: string | ArrayBuffer | null | undefined, author: string, title: string, description: string, language: string, publisher: string, rights: string, }
-  //  */
-  // meta: {
-  //   cover: string | ArrayBuffer | null | undefined;
-  //   author: string;
-  //   title: string;
-  //   description: string;
-  //   language: string;
-  //   publisher: string;
-  //   rights: string;
-  // };
+  /**
+   * An object containing the book's metadata
+   */
+  meta: ReaderBookMetadata;
 
   // /**
   //  * The progress of the book
@@ -426,7 +389,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   // setAtEnd: () => {},
   // setTotalLocations: () => {},
   setCurrentLocation: () => {},
-  // setMeta: () => {},
+  setMeta: () => {},
   // setProgress: () => {},
   // setLocations: () => {},
   setIsLoading: () => {},
@@ -437,15 +400,13 @@ const ReaderContext = createContext<ReaderContextProps>({
   goNext: () => {},
   // getLocations: () => [],
   getCurrentLocation: () => null,
-  // getMeta: () => ({
-  //   cover: "",
-  //   author: "",
-  //   title: "",
-  //   description: "",
-  //   language: "",
-  //   publisher: "",
-  //   rights: "",
-  // }),
+  getMeta: () => ({
+    author: "",
+    title: "",
+    description: "",
+    language: "",
+    publisher: "",
+  }),
   // search: () => {},
   setCover: () => {},
 
@@ -464,15 +425,13 @@ const ReaderContext = createContext<ReaderContextProps>({
   // atEnd: false,
   // totalLocations: 0,
   currentLocation: null,
-  // meta: {
-  //   cover: "",
-  //   author: "",
-  //   title: "",
-  //   description: "",
-  //   language: "",
-  //   publisher: "",
-  //   rights: "",
-  // },
+  meta: {
+    author: "",
+    title: "",
+    description: "",
+    language: "",
+    publisher: "",
+  },
   // progress: 0,
   // locations: [],
   isLoading: true,
@@ -542,20 +501,9 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_CURRENT_LOCATION, payload: location });
   }, []);
 
-  // const setMeta = useCallback(
-  //   (meta: {
-  //     cover: string | ArrayBuffer | null | undefined;
-  //     author: string;
-  //     title: string;
-  //     description: string;
-  //     language: string;
-  //     publisher: string;
-  //     rights: string;
-  //   }) => {
-  //     dispatch({ type: Types.SET_META, payload: meta });
-  //   },
-  //   []
-  // );
+  const setMeta = useCallback((meta: ReaderBookMetadata) => {
+    dispatch({ type: Types.SET_META, payload: meta });
+  }, []);
 
   // const setProgress = useCallback((progress: number) => {
   //   dispatch({ type: Types.SET_PROGRESS, payload: progress });
@@ -605,7 +553,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_COVER, payload: cover });
   }, []);
 
-  // const getMeta = useCallback(() => state.meta, [state.meta]);
+  const getMeta = useCallback(() => state.meta, [state.meta]);
 
   // const search = useCallback((query: string) => {
   //   book.current?.injectJavaScript(`
@@ -672,7 +620,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setAtEnd,
       // setTotalLocations,
       setCurrentLocation,
-      // setMeta,
+      setMeta,
       // setProgress,
       // setLocations,
       setIsLoading,
@@ -685,7 +633,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       goNext,
       // getLocations,
       getCurrentLocation,
-      // getMeta,
+      getMeta,
       // search,
 
       // addMark,
@@ -718,7 +666,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // changeFontSize,
       changeTheme,
       getCurrentLocation,
-      // getMeta,
+      getMeta,
       // getLocations,
       goNext,
       goPrevious,
@@ -729,7 +677,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setAtEnd,
       // setAtStart,
       setCurrentLocation,
-      // setMeta,
+      setMeta,
       setIsLoading,
       setIsRendering,
       setIsPdf,

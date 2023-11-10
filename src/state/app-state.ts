@@ -21,6 +21,7 @@ export const showPlayerAtom = atom<PlayingState>({ playing: false });
 export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
 
 /* epub reader atoms */
+export const epubReaderOverviewModalAtom = atom(false);
 export const epubReaderTocAtom = atom<TocItem[] | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,

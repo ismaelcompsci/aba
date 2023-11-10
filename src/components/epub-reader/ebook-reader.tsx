@@ -1,16 +1,14 @@
 import { memo, useEffect, useState } from "react";
-import { FlatList, Modal, StatusBar, useWindowDimensions } from "react-native";
-import { SceneMap, TabBar, TabView } from "react-native-tab-view";
+import { StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
-import { X } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Image, Separator, Text, View, XStack, YStack } from "tamagui";
+import { router } from "expo-router";
+import { useAtomValue, useSetAtom } from "jotai";
 
-import useIconTheme from "../../hooks/use-icon-theme";
 import {
   epubReaderLoadingAtom,
+  epubReaderOverviewModalAtom,
   epubReaderTocAtom,
 } from "../../state/app-state";
 import { ebookSettignsAtom } from "../../state/local-state";
@@ -18,13 +16,13 @@ import { LibraryItemExpanded, User } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
 import { FullScreen } from "../center";
 
+import { BookChapterModal } from "./components/book-modal";
 import Menu from "./components/menu";
 import ScrollLabels from "./components/scroll-labels";
 import {
   LocationChange,
   Reader,
   ReaderBook,
-  TocItem,
   useReader,
 } from "./rn-epub-reader";
 
@@ -61,6 +59,11 @@ const EBookReader = ({
 
   const onReady = async (book: ReaderBook) => {
     setEpubReaderToc(book.toc);
+    setEpubReaderLoading({
+      loading: true,
+      part: "Opening Book...",
+      percent: 1,
+    });
     await awaitTimeout(100);
     setReady(true);
     setEpubReaderLoading({ loading: false, part: "Opening Book..." });
@@ -86,6 +89,7 @@ const EBookReader = ({
       title: reason,
     });
     setEpubReaderLoading({ loading: false });
+    router.back();
   };
 
   const onLocationChange = ({ cfi, fraction, section }: LocationChange) => {
@@ -170,144 +174,5 @@ const EBookReader = ({
     </>
   );
 };
-
-const epubReaderOverviewModalAtom = atom(false);
-const BookChapterModal = () => {
-  const { height, width } = useWindowDimensions();
-  const [epubReaderOverviewModal, setEpubReaderOverviewModal] = useAtom(
-    epubReaderOverviewModalAtom
-  );
-
-  const { bg, color } = useIconTheme();
-
-  const [index, setIndex] = useState(1);
-  const [routes] = useState([
-    { key: "overview", title: "overview" },
-    { key: "content", title: "Content" },
-  ]);
-
-  return (
-    <Modal
-      presentationStyle="pageSheet"
-      animationType="slide"
-      visible={epubReaderOverviewModal}
-      onRequestClose={() => setEpubReaderOverviewModal(false)}
-      statusBarTranslucent
-    >
-      <View
-        pos={"absolute"}
-        right={-100}
-        top={-30}
-        height={70}
-        width={200}
-        transform={"rotate(45deg)"}
-        backgroundColor={"$backgroundPress"}
-        zi={99999}
-      >
-        <View
-          left={85}
-          pos={"absolute"}
-          transform={"rotate(45deg)"}
-          bottom={0}
-          zIndex={99999}
-          onPress={() => setEpubReaderOverviewModal(false)}
-        >
-          <X />
-        </View>
-      </View>
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{ width, height }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            style={{
-              backgroundColor: bg,
-            }}
-            indicatorStyle={{ backgroundColor: color }}
-          />
-        )}
-      />
-    </Modal>
-  );
-};
-
-const Overview = () => {
-  const { cover } = useReader();
-  return (
-    <YStack flex={1} bg="$background">
-      {cover ? (
-        <Image
-          resizeMode="contain"
-          source={{
-            uri: `data:image/png;base64,${cover}`,
-            width: 200,
-            height: 200,
-          }}
-        />
-      ) : null}
-    </YStack>
-  );
-};
-
-const Content = () => {
-  const { currentLocation, goToLocation } = useReader();
-  const epubReaderToc = useAtomValue(epubReaderTocAtom);
-
-  const handleTocItemPress = (item: TocItem) => {
-    goToLocation(item.href);
-  };
-
-  const TocItemView = ({ item }: { item: TocItem }) => {
-    return (
-      <YStack>
-        <XStack
-          h="$3"
-          ai="center"
-          pressStyle={{
-            bg: "$backgroundPress",
-          }}
-          paddingHorizontal={"$2"}
-          onPress={() => handleTocItemPress(item)}
-          bg={
-            currentLocation?.tocItem?.id === item.id
-              ? "$backgroundPress"
-              : "$background"
-          }
-        >
-          <Text>{item.label}</Text>
-        </XStack>
-        <Separator borderRadius={"$4"} />
-
-        {item.subitems && item.subitems.length > 0 ? (
-          <YStack pl={"$4"}>
-            {item.subitems.map((subitem: TocItem) => (
-              <TocItemView key={subitem.id} item={subitem} />
-            ))}
-          </YStack>
-        ) : null}
-      </YStack>
-    );
-  };
-
-  return (
-    <YStack flex={1} bg="$background" padding={"$4"}>
-      <FlatList
-        data={epubReaderToc}
-        keyExtractor={(item, i) => `${item.id || 0}-${i}`}
-        ItemSeparatorComponent={() => <Separator borderRadius={"$4"} />}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => <TocItemView item={item} />}
-      />
-    </YStack>
-  );
-};
-
-const renderScene = SceneMap({
-  overview: Overview,
-  content: Content,
-});
 
 export default memo(EBookReader);

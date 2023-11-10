@@ -43,6 +43,7 @@ export function View({
     changeTheme,
     setCover,
     setCurrentLocation,
+    setMeta,
     theme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
@@ -77,7 +78,7 @@ export function View({
       if (defaultTheme) {
         changeTheme(defaultTheme);
       }
-
+      setMeta(book.metadata);
       setIsRendering(false);
       onReady(book);
     }
@@ -125,16 +126,16 @@ export function View({
     if (book.current) registerBook(book.current);
   }, [registerBook]);
 
-  const centerOfScreenVertical = (e: GestureTouchEvent) => {
-    const third = SCREEN_HEIGHT / 3;
-    const start = third;
-    const end = third + third;
+  // const centerOfScreenVertical = (e: GestureTouchEvent) => {
+  //   const third = SCREEN_HEIGHT / 3;
+  //   const start = third;
+  //   const end = third + third;
 
-    const touch = e.allTouches[0];
-    const touchY = touch.absoluteY;
+  //   const touch = e.allTouches[0];
+  //   const touchY = touch.absoluteY;
 
-    return touchY > start && touchY < end;
-  };
+  //   return touchY > start && touchY < end;
+  // };
 
   const centerOfScreenHorizontal = (e: GestureTouchEvent) => {
     const third = SCREEN_WIDTH / 3;
