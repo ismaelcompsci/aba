@@ -40,8 +40,10 @@ export function View({
     setIsRendering,
     goNext,
     goPrevious,
-    theme,
     changeTheme,
+    setCover,
+    setCurrentLocation,
+    theme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
   const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
@@ -90,10 +92,32 @@ export function View({
       onShowPrevious(show, label);
     }
 
+    if (type === "cover") {
+      const { cover } = parsedEvent;
+      setCover(cover);
+    }
+
     if (type === "onLocationChange") {
-      const { cfi, fraction, location, tocItem, pageItem, section } =
+      const { cfi, fraction, location, tocItem, pageItem, section, time } =
         parsedEvent;
-      onLocationChange({ cfi, fraction, location, tocItem, pageItem, section });
+      setCurrentLocation({
+        cfi,
+        fraction,
+        location,
+        tocItem,
+        pageItem,
+        section,
+        time,
+      });
+      onLocationChange({
+        cfi,
+        fraction,
+        location,
+        tocItem,
+        pageItem,
+        section,
+        time,
+      });
     }
   };
 

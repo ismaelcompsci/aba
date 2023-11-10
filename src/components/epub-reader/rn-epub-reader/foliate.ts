@@ -9775,6 +9775,7 @@ class Reader {
       const {
         book
       } = this.view;
+      this.book = book;
       const toc = book.toc;
       let count = 0;
       toc?.flatMap((item, i) => {
@@ -9797,13 +9798,15 @@ class Reader {
       if (!this.#isPdf) {
         this.initalLocation ? await this.view.goTo(this.initalLocation) : this.view.renderer.next();
       } else {
-        await this.view.goTo(Number(this.initalLocation));
-        this.view.renderer.next();
-      }
-      toReactMessage({
-        type: "onReady",
-        book
-      });
+       this.initalLocation
+          ? await this.view.goTo(Number(this.initalLocation))
+          : this.view.renderer.next();
+        }
+        toReactMessage({
+          type: "onReady",
+          book
+        });
+      await this.getCover();
     } catch (err) {
       debug("[READER_OPEN_ERROR] " + err);
       toReactMessage({
@@ -9838,8 +9841,12 @@ class Reader {
       location,
       tocItem,
       pageItem,
-      cfi
+      cfi,
+      time,
     } = e.detail;
+      // debug(\`[READER_OPEN_ERROR] \${JSON.stringify(e.detail)}\`);
+
+
     if (this.#previousFraction !== fraction) {
       toReactMessage({
         type: "onLocationChange",
@@ -9848,7 +9855,8 @@ class Reader {
         location,
         tocItem,
         pageItem,
-        cfi
+        cfi,
+        time,
       });
     }
     this.#previousFraction = fraction;
@@ -9883,7 +9891,11 @@ class Reader {
   async getCover() {
     try {
       const blob = await this.book.getCover?.();
-      return blob ? blobToBase64(blob) : null;
+      const base64Image =  blob ? await blobToBase64(blob) : null;
+      toReactMessage({
+        type: "cover",
+        cover: base64Image
+      });
     } catch (e) {
       console.warn(e);
       console.warn("Failed to load cover");

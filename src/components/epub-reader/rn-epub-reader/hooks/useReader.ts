@@ -6,7 +6,7 @@ export function useReader() {
   const {
     // changeFontFamily,
     changeTheme,
-    // goToLocation,
+    goToLocation,
     // goPrevious,
     // goNext,
     // getLocations,
@@ -19,11 +19,14 @@ export function useReader() {
     // atStart,
     // atEnd,
     // totalLocations,
-    // currentLocation,
+    currentLocation,
     // progress,
     // locations,
     isLoading,
     isRendering,
+    setIsPdf,
+    isPdf,
+    cover,
     // key,
     // searchResults,
   } = useContext(ReaderContext);
@@ -31,7 +34,7 @@ export function useReader() {
   return {
     // changeFontFamily,
     changeTheme,
-    // goToLocation,
+    goToLocation,
     // goPrevious,
     // goNext,
     // getLocations,
@@ -44,18 +47,21 @@ export function useReader() {
     // atStart,
     // atEnd,
     // totalLocations,
-    // currentLocation,
+    currentLocation,
     // progress,
     // locations,
     isRendering,
     isLoading,
+    isPdf,
+    cover,
     // key,
     // searchResults,
+    setIsPdf,
   } as Pick<
     ReaderContextProps,
     // | "changeFontFamily"
     | "changeTheme"
-    // | "goToLocation"
+    | "goToLocation"
     // | "goPrevious"
     // | "goNext"
     // | "getLocations"
@@ -68,12 +74,15 @@ export function useReader() {
     // | "atStart"
     // | "atEnd"
     // | "totalLocations"
-    // | "currentLocation"
+    | "currentLocation"
     // | "progress"
     // | "locations"
     | "isLoading"
     | "isRendering"
     // | "key"
     // | "searchResults"
+    | "setIsPdf"
+    | "isPdf"
+    | "cover"
   >;
 }

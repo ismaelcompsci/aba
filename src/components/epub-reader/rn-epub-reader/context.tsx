@@ -10,7 +10,7 @@ import type WebView from "react-native-webview";
 
 import { themes } from "../components/themes";
 
-import type { ePubCfi, Location, SearchResult, Theme } from "./types";
+import type { ePubCfi, LocationChange, SearchResult, Theme } from "./types";
 
 type ActionMap<M extends { [index: string]: unknown }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -39,6 +39,8 @@ enum Types {
   SET_IS_LOADING = "SET_IS_LOADING",
   SET_IS_RENDERING = "SET_IS_RENDERING",
   SET_SEARCH_RESULTS = "SET_SEARCH_RESULTS",
+  SET_IS_PDF = "SET_IS_PDF",
+  SET_COVER = "SET_COVER",
 }
 
 type BookPayload = {
@@ -49,7 +51,7 @@ type BookPayload = {
   [Types.SET_AT_END]: boolean;
   [Types.SET_KEY]: string;
   [Types.SET_TOTAL_LOCATIONS]: number;
-  [Types.SET_CURRENT_LOCATION]: Location;
+  [Types.SET_CURRENT_LOCATION]: LocationChange;
   [Types.SET_META]: {
     cover: string | ArrayBuffer | null | undefined;
     author: string;
@@ -64,6 +66,8 @@ type BookPayload = {
   [Types.SET_IS_LOADING]: boolean;
   [Types.SET_IS_RENDERING]: boolean;
   [Types.SET_SEARCH_RESULTS]: SearchResult[];
+  [Types.SET_IS_PDF]: boolean;
+  [Types.SET_COVER]: string;
 };
 
 type BookActions = ActionMap<BookPayload>[keyof ActionMap<BookPayload>];
@@ -76,7 +80,7 @@ type InitialState = {
   atEnd: boolean;
   key: string;
   totalLocations: number;
-  currentLocation: Location | null;
+  currentLocation: LocationChange | null;
   meta: {
     cover: string | ArrayBuffer | null | undefined;
     author: string;
@@ -91,6 +95,8 @@ type InitialState = {
   isLoading: boolean;
   isRendering: boolean;
   searchResults: SearchResult[];
+  isPdf: boolean;
+  cover: string;
 };
 
 const w = Dimensions.get("window").width;
@@ -131,6 +137,8 @@ const initialState: InitialState = {
   isLoading: true,
   isRendering: true,
   searchResults: [],
+  isPdf: false,
+  cover: "",
 };
 
 function bookReducer(state: InitialState, action: BookActions): InitialState {
@@ -205,6 +213,16 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
         ...state,
         searchResults: action.payload,
       };
+    case Types.SET_IS_PDF:
+      return {
+        ...state,
+        isPdf: action.payload,
+      };
+    case Types.SET_COVER:
+      return {
+        ...state,
+        cover: action.payload,
+      };
     default:
       return state;
   }
@@ -215,7 +233,7 @@ export interface ReaderContextProps {
   // setAtStart: (atStart: boolean) => void;
   // setAtEnd: (atEnd: boolean) => void;
   // setTotalLocations: (totalLocations: number) => void;
-  // setCurrentLocation: (location: Location) => void;
+  setCurrentLocation: (location: LocationChange) => void;
   // setMeta: (meta: {
   //   cover: string | ArrayBuffer | null | undefined;
   //   author: string;
@@ -229,12 +247,14 @@ export interface ReaderContextProps {
   // setLocations: (locations: ePubCfi[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsRendering: (isRendering: boolean) => void;
+  setIsPdf: (isPdf: boolean) => void;
+  setCover: (cover: string) => void;
 
-  // /**
-  //  * Go to specific location in the book
-  //  * @param {ePubCfi} target {@link ePubCfi}
-  //  */
-  // goToLocation: (cfi: ePubCfi) => void;
+  /**
+   * Go to specific location in the book
+   * @param {ePubCfi} target {@link ePubCfi}
+   */
+  goToLocation: (cfi: ePubCfi) => void;
 
   // /**
   //  * Go to previous page in the book
@@ -251,11 +271,11 @@ export interface ReaderContextProps {
   //  */
   // getLocations: () => ePubCfi[];
 
-  // /**
-  //  * Returns the current location of the book
-  //  * @returns {Location} {@link Location}
-  //  */
-  // getCurrentLocation: () => Location | null;
+  /**
+   * Returns the current location of the book
+   * @returns {LocationChange} {@link LocationChange}
+   */
+  getCurrentLocation: () => LocationChange | null;
 
   // /**
   //  * Returns an object containing the book's metadata
@@ -346,10 +366,10 @@ export interface ReaderContextProps {
   //  */
   // totalLocations: number;
 
-  // /**
-  //  * The current location of the book
-  //  */
-  // currentLocation: Location | null;
+  /**
+   * The current location of the book
+   */
+  currentLocation: LocationChange | null;
 
   // /**
   //  * An object containing the book's metadata
@@ -385,6 +405,7 @@ export interface ReaderContextProps {
   //  */
   isRendering: boolean;
 
+  isPdf: boolean;
   // /**
   //  * Search results
   //  * @returns {SearchResult[]} {@link SearchResult[]}
@@ -393,6 +414,10 @@ export interface ReaderContextProps {
 
   // setSearchResults: (results: SearchResult[]) => void;
   // changePageFlow: (pageFlow: "paginated" | "scrolled") => void;
+  /**
+   * book cover in base64
+   */
+  cover: string;
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
@@ -400,18 +425,18 @@ const ReaderContext = createContext<ReaderContextProps>({
   // setAtStart: () => {},
   // setAtEnd: () => {},
   // setTotalLocations: () => {},
-  // setCurrentLocation: () => {},
+  setCurrentLocation: () => {},
   // setMeta: () => {},
   // setProgress: () => {},
   // setLocations: () => {},
   setIsLoading: () => {},
   setIsRendering: () => {},
-
-  // goToLocation: () => {},
+  setIsPdf: () => {},
+  goToLocation: () => {},
   goPrevious: () => {},
   goNext: () => {},
   // getLocations: () => [],
-  // getCurrentLocation: () => null,
+  getCurrentLocation: () => null,
   // getMeta: () => ({
   //   cover: "",
   //   author: "",
@@ -422,6 +447,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   //   rights: "",
   // }),
   // search: () => {},
+  setCover: () => {},
 
   changeTheme: () => {},
   // changeFontFamily: () => {},
@@ -437,7 +463,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   // atStart: false,
   // atEnd: false,
   // totalLocations: 0,
-  // currentLocation: null,
+  currentLocation: null,
   // meta: {
   //   cover: "",
   //   author: "",
@@ -451,6 +477,8 @@ const ReaderContext = createContext<ReaderContextProps>({
   // locations: [],
   isLoading: true,
   isRendering: true,
+  isPdf: false,
+  cover: "",
 
   // searchResults: [],
   // setSearchResults: () => {},
@@ -510,9 +538,9 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   //   dispatch({ type: Types.SET_TOTAL_LOCATIONS, payload: totalLocations });
   // }, []);
 
-  // const setCurrentLocation = useCallback((location: Location) => {
-  //   dispatch({ type: Types.SET_CURRENT_LOCATION, payload: location });
-  // }, []);
+  const setCurrentLocation = useCallback((location: LocationChange) => {
+    dispatch({ type: Types.SET_CURRENT_LOCATION, payload: location });
+  }, []);
 
   // const setMeta = useCallback(
   //   (meta: {
@@ -545,9 +573,18 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_IS_RENDERING, payload: isRendering });
   }, []);
 
-  // const goToLocation = useCallback((targetCfi: ePubCfi) => {
-  //   book.current?.injectJavaScript(`rendition.display('${targetCfi}'); true`);
-  // }, []);
+  const goToLocation = useCallback((target: string) => {
+    if (state.isPdf) {
+      return;
+      const newLocation = JSON.parse(target);
+      console.log({ newLocation, currentLocation: state.currentLocation });
+      book.current?.injectJavaScript(
+        `reader.view.goTo(Number(${Math.max(0, newLocation[0].num - 4)})); true`
+      );
+    } else {
+      book.current?.injectJavaScript(`reader.view.goTo("${target}"); true`);
+    }
+  }, []);
 
   const goPrevious = useCallback(() => {
     book.current?.injectJavaScript(`reader.prev(); true`);
@@ -559,10 +596,14 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   // const getLocations = useCallback(() => state.locations, [state.locations]);
 
-  // const getCurrentLocation = useCallback(
-  //   () => state.currentLocation,
-  //   [state.currentLocation]
-  // );
+  const getCurrentLocation = useCallback(
+    () => state.currentLocation,
+    [state.currentLocation]
+  );
+
+  const setCover = useCallback((cover: string) => {
+    dispatch({ type: Types.SET_COVER, payload: cover });
+  }, []);
 
   // const getMeta = useCallback(() => state.meta, [state.meta]);
 
@@ -616,6 +657,10 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   //   `);
   // }, []);
 
+  const setIsPdf = useCallback((isPdf: boolean) => {
+    dispatch({ type: Types.SET_IS_PDF, payload: isPdf });
+  }, []);
+
   const setKey = useCallback((key: string) => {
     dispatch({ type: Types.SET_KEY, payload: key });
   }, []);
@@ -626,18 +671,20 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setAtStart,
       // setAtEnd,
       // setTotalLocations,
-      // setCurrentLocation,
+      setCurrentLocation,
       // setMeta,
       // setProgress,
       // setLocations,
       setIsLoading,
       setIsRendering,
+      setIsPdf,
+      setCover,
 
-      // goToLocation,
+      goToLocation,
       goPrevious,
       goNext,
       // getLocations,
-      // getCurrentLocation,
+      getCurrentLocation,
       // getMeta,
       // search,
 
@@ -660,8 +707,9 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       locations: state.locations,
       isLoading: state.isLoading,
       isRendering: state.isRendering,
-
       searchResults: state.searchResults,
+      isPdf: state.isPdf,
+      cover: state.cover,
       // setSearchResults,
     }),
     [
@@ -669,22 +717,24 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // changeFontFamily,
       // changeFontSize,
       changeTheme,
-      // getCurrentLocation,
+      getCurrentLocation,
       // getMeta,
       // getLocations,
       goNext,
       goPrevious,
-      // goToLocation,
+      goToLocation,
       registerBook,
       // removeMark,
       // search,
       // setAtEnd,
       // setAtStart,
-      // setCurrentLocation,
+      setCurrentLocation,
       // setMeta,
       setIsLoading,
       setIsRendering,
+      setIsPdf,
       setKey,
+      setCover,
       // setLocations,
       // setProgress,
       // setSearchResults,
@@ -701,6 +751,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       state.searchResults,
       state.theme,
       state.totalLocations,
+      state.isPdf,
+      state.cover,
     ]
   );
   return (

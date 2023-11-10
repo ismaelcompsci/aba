@@ -1,5 +1,6 @@
 import { atom, Getter } from "jotai";
 
+import { TocItem } from "../components/epub-reader/rn-epub-reader";
 import {
   Library,
   LibraryItemExpanded,
@@ -18,6 +19,9 @@ export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
 export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
+
+/* epub reader atoms */
+export const epubReaderTocAtom = atom<TocItem[] | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,
   part: "",
@@ -48,9 +52,9 @@ export const setMediaProgressAtom = atom(null, (get, set, update) => {
   const nextValue =
     typeof update === "function"
       ? (update as (prev: MediaProgress[]) => MediaProgress[])(
-          get(mediaProgressAtom)
+          get(mediaProgressAtom) || []
         )
-      : update;
+      : (update as MediaProgress[]);
 
   if (user) {
     set(userAtom, { ...user, mediaProgress: nextValue });

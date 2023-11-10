@@ -1,3 +1,5 @@
+import { string } from "zod";
+
 export type Location = {
   current: number;
   next: number;
@@ -8,7 +10,56 @@ export type TocItem = {
   href: string;
   id: number;
   label: string;
-  subitems: any[] | null;
+  subitems?: any[] | null;
+};
+
+type Contributor =
+  | string
+  | string[]
+  | {
+      name: {
+        [key: string]: string;
+      };
+    }
+  | { name: string; sortAs: string; identifier: string };
+
+export type ReaderBookMetadata = {
+  title:
+    | string
+    | {
+        [key: string]: string;
+      };
+  subtitle?:
+    | string
+    | {
+        [key: string]: string;
+      };
+  identifier?: string;
+  author?: Contributor;
+  translator?: Contributor;
+  editor?: Contributor;
+  artist?: Contributor;
+  illustrator?: Contributor;
+  letterer?: Contributor;
+  penciler?: Contributor;
+  colorist?: Contributor;
+  inker?: Contributor;
+  narrator?: Contributor;
+  language?: string | string[];
+  description?: string;
+  publisher?: string | { name: string; sortAs: string; identifier: string };
+  published?: string;
+  modified?: string;
+  subject?:
+    | string
+    | string[]
+    | { name: string; sortAs: string; code: string; scheme: string };
+  summary?: string;
+};
+
+export type ReaderBook = {
+  metadata: ReaderBookMetadata;
+  toc: TocItem[];
 };
 
 export type LocationChange = {
@@ -18,6 +69,7 @@ export type LocationChange = {
   tocItem: TocItem;
   pageItem: any | null;
   section: Section;
+  time?: { section: number; total: number };
 };
 
 export type Section = { current: string; total: string };
@@ -113,12 +165,9 @@ export interface ReaderProps {
   onStarted?: () => void;
   /**
    * Called once book has been displayed
-   * @params {number} totalLocations {@link number}
-   * @params {currentLocation} currentLocation {@link CurrentLocation}
-   * @params {number} progress {@link number}
    * @returns {void} void
    */
-  onReady?: (book: any) => void;
+  onReady?: (book: ReaderBook) => void;
   /**
    * Called once book has not been displayed
    * @param {string} reason
