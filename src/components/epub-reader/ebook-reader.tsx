@@ -236,8 +236,6 @@ const BookChapterModal = () => {
 
 const Overview = () => {
   const { cover } = useReader();
-  console.log(cover);
-
   return (
     <YStack flex={1} bg="$background">
       {cover ? (
