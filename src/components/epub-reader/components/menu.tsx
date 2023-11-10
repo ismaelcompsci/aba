@@ -49,10 +49,12 @@ const Menu = ({
   children,
   hide,
   title,
+  setEpubReaderOverviewModal,
 }: {
   children: React.ReactNode;
   hide: boolean;
   title: string;
+  setEpubReaderOverviewModal: (open: boolean) => void;
 }) => {
   const { height } = useWindowDimensions();
   const { changeTheme } = useReader();
@@ -162,7 +164,7 @@ const Menu = ({
               </H6>
             </HeaderLeft>
             <HeaderRight>
-              <ClearIconButton>
+              <ClearIconButton onPress={() => setEpubReaderOverviewModal(true)}>
                 <List />
               </ClearIconButton>
               <ClearIconButton onPress={() => setOpenSettings((p) => !p)}>
