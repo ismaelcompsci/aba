@@ -48,7 +48,6 @@ const EBookReader = ({
   const setEpubReaderToc = useSetAtom(epubReaderTocAtom);
   const ebookSettings = useAtomValue(ebookSettignsAtom);
   const [hide, setHide] = useState(false);
-  const [_, setReady] = useState(false);
   const [showingNext, setShowingNext] = useState(false);
   const [showingPrev, setShowingPrev] = useState(false);
   const [currentLabel, setCurrentLabel] = useState("");
@@ -65,7 +64,6 @@ const EBookReader = ({
       percent: 1,
     });
     await awaitTimeout(100);
-    setReady(true);
     setEpubReaderLoading({ loading: false, part: "Opening Book..." });
   };
 
