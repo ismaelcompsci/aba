@@ -103,7 +103,13 @@ const Sheet = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onActive: (ev, ctx: any) => {
       const height = ctx.offsetY + ev.translationY;
-      sheetHeight.value = height;
+
+      const sheetHeightValue =
+        -height >= dimensions.window.height
+          ? -dimensions.window.height
+          : height;
+
+      sheetHeight.value = sheetHeightValue;
 
       if (
         -sheetHeight.value > _minHeight + DRAG_BUFFER &&
