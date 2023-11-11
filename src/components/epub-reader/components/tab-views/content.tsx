@@ -1,10 +1,10 @@
-import { memo, useMemo } from "react";
+import { useMemo } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useAtomValue } from "jotai";
 import { Separator, Text, XStack, YStack } from "tamagui";
 
 import { epubReaderTocAtom } from "../../../../state/app-state";
-import { LocationChange, TocItem, useReader } from "../../rn-epub-reader";
+import { TocItem, useReader } from "../../rn-epub-reader";
 
 type NewTocItem = {
   href: string;
@@ -14,44 +14,41 @@ type NewTocItem = {
   depth: number;
 };
 
-const TocItemView = memo(
-  ({
-    item,
-    currentLocation,
-    handleTocItemPress,
-  }: {
-    item: NewTocItem;
-    currentLocation: LocationChange | null;
-    handleTocItemPress: (item: NewTocItem) => void;
-  }) => {
-    return (
-      <YStack>
-        <XStack
-          h="$3"
-          ai="center"
-          pressStyle={{
-            bg: "$backgroundPress",
-          }}
-          paddingHorizontal={"$2"}
-          onPress={() => handleTocItemPress(item)}
-          bg={
-            currentLocation?.tocItem?.id === item.id
-              ? "$backgroundPress"
-              : "$background"
-          }
-          paddingLeft={item.depth * 10}
-        >
-          <Text>{item.label}</Text>
-        </XStack>
-        <Separator borderRadius={"$4"} />
-      </YStack>
-    );
-  }
-);
-TocItemView.displayName = "TocItemView";
+const TocItemView = ({
+  item,
+  handleTocItemPress,
+}: {
+  item: NewTocItem;
+  handleTocItemPress: (item: NewTocItem) => void;
+}) => {
+  const { currentLocation } = useReader();
+
+  return (
+    <YStack>
+      <XStack
+        h="$3"
+        ai="center"
+        pressStyle={{
+          bg: "$backgroundPress",
+        }}
+        paddingHorizontal={"$2"}
+        onPress={() => handleTocItemPress(item)}
+        bg={
+          currentLocation?.tocItem?.id === item.id
+            ? "$backgroundPress"
+            : "$background"
+        }
+        paddingLeft={item.depth * 10}
+      >
+        <Text>{item.label}</Text>
+      </XStack>
+      <Separator borderRadius={"$4"} />
+    </YStack>
+  );
+};
 
 export const Content = () => {
-  const { currentLocation, goToLocation } = useReader();
+  const { goToLocation, currentLocation } = useReader();
   const epubReaderToc = useAtomValue(epubReaderTocAtom);
   const newToc = useMemo(() => flattenTocItems(epubReaderToc || []), []);
 
@@ -84,18 +81,11 @@ export const Content = () => {
   }
 
   const renderItem = ({ item }: { item: NewTocItem }) => {
-    const _item = item;
-    return (
-      <TocItemView
-        currentLocation={currentLocation}
-        handleTocItemPress={handleTocItemPress}
-        item={_item}
-      />
-    );
+    return <TocItemView handleTocItemPress={handleTocItemPress} item={item} />;
   };
 
-  const keyExtractor = (item: NewTocItem) => {
-    return `${item.id}-${item.label}`;
+  const keyExtractor = (item: NewTocItem, index: number) => {
+    return `${index}-${item.id}-${item.label}`;
   };
 
   return (
@@ -106,6 +96,8 @@ export const Content = () => {
           renderItem={renderItem}
           estimatedItemSize={37}
           keyExtractor={keyExtractor}
+          showsVerticalScrollIndicator={false}
+          initialScrollIndex={currentLocation?.tocItem.id}
         />
       ) : null}
     </YStack>

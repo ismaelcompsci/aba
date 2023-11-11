@@ -201,24 +201,26 @@ const AudioPlayerContainer = () => {
 
   useEffect(() => {
     (async () => {
-      await TrackPlayer.setupPlayer();
+      try {
+        await TrackPlayer.setupPlayer();
 
-      await TrackPlayer.updateOptions({
-        capabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.SeekTo,
-          // Capability.JumpForward,
-          // Capability.JumpBackward,
-        ],
-        compactCapabilities: [Capability.Play, Capability.Pause],
-        progressUpdateEventInterval: 1,
-        backwardJumpInterval: 30,
-        forwardJumpInterval: 30,
-        notificationCapabilities: [Capability.Play, Capability.Pause],
-      });
+        await TrackPlayer.updateOptions({
+          capabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.SkipToNext,
+            Capability.SkipToPrevious,
+            Capability.SeekTo,
+          ],
+          compactCapabilities: [Capability.Play, Capability.Pause],
+          progressUpdateEventInterval: 1,
+          backwardJumpInterval: 30,
+          forwardJumpInterval: 30,
+          notificationCapabilities: [Capability.Play, Capability.Pause],
+        });
+      } catch (error) {
+        console.log("[AUIDOPLAYER] TrackPlayer setup error", error);
+      }
     })();
 
     return () => {

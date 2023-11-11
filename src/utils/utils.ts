@@ -86,7 +86,7 @@ const isHex = (color: string) => {
   return color.startsWith("#");
 };
 
-const getColorType = (color: string): "hsl" | "hex" | "unknown" => {
+export const getColorType = (color: string): "hsl" | "hex" | "unknown" => {
   if (isHsl(color)) return "hsl";
   if (isHex(color)) return "hex";
 

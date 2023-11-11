@@ -3,13 +3,13 @@ import { Modal, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { X } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
-import { View } from "tamagui";
+import { View, XStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
 import { epubReaderOverviewModalAtom } from "../../../state/app-state";
 
-import { Content } from "./more/content";
-import { Overview } from "./more/overview";
+import { Content } from "./tab-views/content";
+import { Overview } from "./tab-views/overview";
 
 const renderScene = SceneMap({
   overview: Overview,
@@ -22,7 +22,7 @@ export const BookChapterModal = () => {
     epubReaderOverviewModalAtom
   );
 
-  const { color, bgPress } = useIconTheme();
+  const { color, bgStrong } = useIconTheme();
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -38,7 +38,7 @@ export const BookChapterModal = () => {
       onRequestClose={() => setEpubReaderOverviewModal(false)}
       statusBarTranslucent
     >
-      <View
+      <XStack
         pos={"absolute"}
         right={-100}
         top={-30}
@@ -47,6 +47,16 @@ export const BookChapterModal = () => {
         transform={"rotate(45deg)"}
         backgroundColor={"$backgroundPress"}
         zi={99999}
+        style={{
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: 1,
+          },
+          shadowOpacity: 0.23,
+          shadowRadius: 2.62,
+          elevation: 4,
+        }}
       >
         <View
           left={85}
@@ -55,10 +65,11 @@ export const BookChapterModal = () => {
           bottom={0}
           zIndex={99999}
           onPress={() => setEpubReaderOverviewModal(false)}
+          pressStyle={{ opacity: 0.5 }}
         >
           <X />
         </View>
-      </View>
+      </XStack>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
@@ -68,9 +79,12 @@ export const BookChapterModal = () => {
           <TabBar
             {...props}
             style={{
-              backgroundColor: bgPress,
+              backgroundColor: bgStrong,
             }}
             indicatorStyle={{ backgroundColor: color }}
+            labelStyle={{
+              color: color,
+            }}
           />
         )}
       />

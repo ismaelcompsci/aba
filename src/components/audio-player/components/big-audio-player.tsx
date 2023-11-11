@@ -5,7 +5,7 @@ import { getColors } from "react-native-image-colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "@tamagui/linear-gradient";
 import { Bookmark, ChevronDown } from "@tamagui/lucide-icons";
-import { H3, H6, Stack, Text, XStack, YStack } from "tamagui";
+import { H3, H6, Stack, XStack, YStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
 import AudioPlayerMore from "../../menus/audio-player-more";
@@ -13,6 +13,7 @@ import ChaptersModal from "../../modals/chapter-modal";
 
 import BigAudioPlayerControls from "./big-audio-player-controls";
 import { CirlceButton } from "./circle-button";
+import PlaybackSpeedControls from "./playback-speed-controls";
 import { ProgressSlider } from "./progress-slider";
 import { AudiobookInfo } from "./small-audio-player";
 
@@ -153,9 +154,8 @@ const BigAudioPlayer = ({
               <CirlceButton bg={"$backgroundFocus"}>
                 <Bookmark />
               </CirlceButton>
-              <CirlceButton bg={"$backgroundFocus"}>
-                <Text>1x</Text>
-              </CirlceButton>
+
+              <PlaybackSpeedControls />
               <ChaptersModal />
             </XStack>
           </XStack>

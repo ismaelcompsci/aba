@@ -9,13 +9,15 @@ const useIconTheme = () => {
   const bg = theme.background.get();
   const color = theme.color.get();
   const bgPress = theme.backgroundPress.get();
+  const bgHover = theme.backgroundPress.get();
+  const bgStrong = theme.backgroundStrong.get();
   const iconColor =
     // @ts-ignore
     apptheme.color !== "no color" ? theme[apptheme.color + "10"] : color;
 
   const themeColor = iconColor;
 
-  return { iconColor, bg, color, themeColor, bgPress };
+  return { iconColor, bg, color, themeColor, bgPress, bgHover, bgStrong };
 };
 
 export default useIconTheme;
