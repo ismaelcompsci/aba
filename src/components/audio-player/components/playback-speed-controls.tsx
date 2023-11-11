@@ -25,7 +25,7 @@ const PlaybackSpeedControls = () => {
           key="0.75x"
           textValue="0.75x"
           value={on === "0.75x"}
-          onValueChange={(next, previous) => {
+          onValueChange={(next) => {
             if (next === "on") {
               setOn("0.75x");
             }
@@ -36,7 +36,7 @@ const PlaybackSpeedControls = () => {
         <DropdownMenu.CheckboxItem
           key="1x"
           value={on === "1x"}
-          onValueChange={(next, previous) => {
+          onValueChange={(next) => {
             if (next === "on") {
               setOn("1x");
             }
@@ -48,7 +48,7 @@ const PlaybackSpeedControls = () => {
         <DropdownMenu.CheckboxItem
           key="1.25x"
           value={on === "1.25x"}
-          onValueChange={(next, previous) => {
+          onValueChange={(next) => {
             if (next === "on") {
               setOn("1.25x");
             }
@@ -60,7 +60,7 @@ const PlaybackSpeedControls = () => {
         <DropdownMenu.CheckboxItem
           key="1.50x"
           value={on === "1.50x"}
-          onValueChange={(next, previous) => {
+          onValueChange={(next) => {
             if (next === "on") {
               setOn("1.50x");
             }
@@ -72,7 +72,7 @@ const PlaybackSpeedControls = () => {
         <DropdownMenu.CheckboxItem
           key="1.75x"
           value={on === "1.75x"}
-          onValueChange={(next, previous) => {
+          onValueChange={(next) => {
             if (next === "on") {
               setOn("1.75x");
             }
@@ -84,7 +84,7 @@ const PlaybackSpeedControls = () => {
         <DropdownMenu.CheckboxItem
           key="2x"
           value={on === "2x"}
-          onValueChange={(next, previous) => {
+          onValueChange={(next) => {
             if (next === "on") {
               setOn("2x");
             }

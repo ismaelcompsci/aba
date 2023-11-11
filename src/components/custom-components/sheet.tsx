@@ -116,9 +116,7 @@ const Sheet = ({
         headerOpacity.value !== 0
       ) {
         headerOpacity.value = withSpring(0);
-      }
-
-      if (
+      } else if (
         -sheetHeight.value < _minHeight + DRAG_BUFFER &&
         headerOpacity.value !== 1
       ) {
