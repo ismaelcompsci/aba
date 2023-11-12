@@ -1,26 +1,26 @@
 import FastImage from "react-native-fast-image";
 import { router } from "expo-router";
-import { Text, XStack, YStack } from "tamagui";
+import { Text, YStack } from "tamagui";
 
 import { LibraryItemExpanded } from "../../types/aba";
-import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { cleanString } from "../../utils/utils";
 import { AuthorText } from "../author-text";
+
 import { SearchCard } from "./search-card";
 
 const ItemSearchCard = ({
   item,
-  serverConfig,
+  serverAddress,
   token,
   isCoverSquareAspectRatio,
 }: {
   item: LibraryItemExpanded;
-  serverConfig: ServerConfig;
+  serverAddress: string;
   token?: string;
   isCoverSquareAspectRatio: boolean;
 }) => {
-  const src = getItemCoverSrc(item, serverConfig, token);
+  const src = getItemCoverSrc(item, null, token, serverAddress);
 
   const bookWidth = isCoverSquareAspectRatio ? 50 * 1.2 : 50;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;

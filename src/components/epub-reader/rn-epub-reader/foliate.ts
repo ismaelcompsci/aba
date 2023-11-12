@@ -1612,6 +1612,7 @@ class Paginator extends HTMLElement {
   #canGoToPrevSection = false;
   #goingNext = false;
   #goingPrev = false;
+  pause = false;
   constructor() {
     super();
     this.#root.innerHTML = \`<style>
@@ -1942,6 +1943,7 @@ class Paginator extends HTMLElement {
     };
   }
   #onTouchMove(e) {
+    if (this.pause) return;
     const state = this.#touchState;
     if (state.pinched) return;
     state.pinched = globalThis.visualViewport.scale > 1;
@@ -9549,18 +9551,25 @@ te({
 
 
 
-/**
- * PDF
- * - fixed-layout.js
- * Paginator
- */
-
 const toReactMessage = e => {
   window.ReactNativeWebView.postMessage(JSON.stringify(e));
 };
 toReactMessage({
   type: "onStarted"
 });
+const main_debounce = (f, wait, immediate) => {
+  let timeout;
+  return (...args) => {
+    const later = () => {
+      timeout = null;
+      if (!immediate) f(...args);
+    };
+    const callNow = immediate && !timeout;
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) f(...args);
+  };
+};
 const makeZipLoader = async file => {
   try {
     te({
@@ -9713,10 +9722,74 @@ const getView = async file => {
     debug("GETVIEW ERROR");
     return;
   }
-  const view = document.createElement("foliate-view");
-  await view.open(book);
-  document.body.append(view);
-  return view;
+  return book;
+};
+const getSelectionRange = doc => {
+  const sel = doc.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (range.collapsed) return;
+  return range;
+};
+const frameRect = (frame, rect, sx = 1, sy = 1) => {
+  const left = sx * rect.left + frame.left;
+  const right = sx * rect.right + frame.left;
+  const top = sy * rect.top + frame.top;
+  const bottom = sy * rect.bottom + frame.top;
+  return {
+    left,
+    right,
+    top,
+    bottom
+  };
+};
+const pointIsInView = ({
+  x,
+  y
+}) => x > 0 && y > 0 && x < window.innerWidth && y < window.innerHeight;
+const getPosition = target => {
+  // TODO: vertical text
+  const frameElement = (target.getRootNode?.() ?? target?.endContainer?.getRootNode?.())?.defaultView?.frameElement;
+  const transform = frameElement ? getComputedStyle(frameElement).transform : "";
+  const match = transform.match(/matrix\\((.+)\\)/);
+  const [sx,,, sy] = match?.[1]?.split(/\\s*,\\s*/)?.map(x => parseFloat(x)) ?? [];
+  const frame = frameElement?.getBoundingClientRect() ?? {
+    top: 0,
+    left: 0
+  };
+  const rects = Array.from(target.getClientRects());
+  const first = frameRect(frame, rects[0], sx, sy);
+  const last = frameRect(frame, rects.at(-1), sx, sy);
+  const start = {
+    point: {
+      x: (first.left + first.right) / 2,
+      y: first.top
+    },
+    dir: "up"
+  };
+  const end = {
+    point: {
+      x: (last.left + last.right) / 2,
+      y: last.bottom
+    },
+    dir: "down"
+  };
+  const startInView = pointIsInView(start.point);
+  const endInView = pointIsInView(end.point);
+  if (!startInView && !endInView) return {
+    point: {
+      x: 0,
+      y: 0
+    }
+  };
+  if (!startInView) return end;
+  if (!endInView) return start;
+  return start.point.y > window.innerHeight - end.point.y ? start : end;
+};
+const main_getLang = el => {
+  const lang = el.lang || el?.getAttributeNS?.("http://www.w3.org/XML/1998/namespace", "lang");
+  if (lang) return lang;
+  if (el.parentElement) return main_getLang(el.parentElement);
 };
 class Reader {
   #tocMap;
@@ -9762,8 +9835,39 @@ class Reader {
   open = async file => {
     try {
       this.#isPdf = await isPDF(file);
-      this.view = await getView(file);
+      this.book = await getView(file);
+      this.view = document.createElement("foliate-view");
       this.view.addEventListener("relocate", this.onRelocate);
+      this.view.addEventListener("create-overlay", e => debug(\`CREATE OVERLAY\${JSON.stringify({
+        type: "create-overlay",
+        ...e.detail
+      })}\`));
+      this.view.addEventListener("show-annotation", e => {
+        const {
+          value,
+          index,
+          range
+        } = e.detail;
+        debug(\`SHOW ANNOTATION \${index}\`);
+      });
+      this.view.addEventListener("draw-annotation", e => {
+        debug("DRAW ANNOTATTION");
+        const {
+          draw,
+          annotation,
+          doc,
+          range
+        } = e.detail;
+        const {
+          color
+        } = annotation;
+        draw(Overlayer.underline, {
+          color
+        });
+      });
+      this.view.addEventListener("load", e => this.#onLoad(e));
+      await this.view.open(this.book);
+      document.body.append(this.view);
       if (!this.#isPdf) {
         this.view.renderer.addEventListener("next", this.showNext, {
           passive: false
@@ -9775,8 +9879,8 @@ class Reader {
       const {
         book
       } = this.view;
-      this.book = book;
       const toc = book.toc;
+      this.book = book;
       let count = 0;
       toc?.flatMap((item, i) => {
         if (item.subitems?.length > 0) {
@@ -9798,15 +9902,17 @@ class Reader {
       if (!this.#isPdf) {
         this.initalLocation ? await this.view.goTo(this.initalLocation) : this.view.renderer.next();
       } else {
-       this.initalLocation
-          ? await this.view.goTo(Number(this.initalLocation))
-          : this.view.renderer.next();
-        }
-        toReactMessage({
-          type: "onReady",
-          book
-        });
+        this.initalLocation ? await this.view.goTo(Number(this.initalLocation)) : this.view.renderer.next();
+      }
+      const onReadyPayload = {
+        metadata: book.metadata,
+        toc: book.toc
+      };
       await this.getCover();
+      toReactMessage({
+        type: "onReady",
+        book: onReadyPayload
+      });
     } catch (err) {
       debug("[READER_OPEN_ERROR] " + err);
       toReactMessage({
@@ -9814,6 +9920,38 @@ class Reader {
         reason: "book-error-failed-to-open"
       });
     }
+  };
+  #onLoad = ev => {
+    debug("ON LOAD");
+
+    /**
+     * @type {Document}
+     */
+    const doc = ev.detail.doc;
+    const index = ev.detail.index;
+    let annotation = null;
+    doc.addEventListener("selectionchange", main_debounce(() => {
+      this.view.renderer.pause = true;
+      const range = getSelectionRange(doc);
+      if (!range) return;
+      const pos = getPosition(range);
+      const value = this.view.getCFI(index, range);
+      const lang = main_getLang(range.commonAncestorContainer);
+      annotation = {
+        index,
+        range,
+        lang,
+        value,
+        pos
+      };
+    }), 500);
+    doc.addEventListener("touchend", () => {
+      this.view.renderer.pause = false;
+      this.view.addAnnotation({
+        value: annotation?.value,
+        color: "yellow"
+      }, false);
+    });
   };
   showNext = ev => {
     /**
@@ -9842,11 +9980,8 @@ class Reader {
       tocItem,
       pageItem,
       cfi,
-      time,
+      time
     } = e.detail;
-      // debug(\`[READER_OPEN_ERROR] \${JSON.stringify(e.detail)}\`);
-
-
     if (this.#previousFraction !== fraction) {
       toReactMessage({
         type: "onLocationChange",
@@ -9856,7 +9991,7 @@ class Reader {
         tocItem,
         pageItem,
         cfi,
-        time,
+        time
       });
     }
     this.#previousFraction = fraction;
@@ -9891,7 +10026,7 @@ class Reader {
   async getCover() {
     try {
       const blob = await this.book.getCover?.();
-      const base64Image =  blob ? await blobToBase64(blob) : null;
+      const base64Image = blob ? await blobToBase64(blob) : null;
       toReactMessage({
         type: "cover",
         cover: base64Image
@@ -9909,4 +10044,5 @@ __webpack_exports__ = __webpack_exports__["default"];
 /******/ })()
 ;
 });
-//# sourceMappingURL=foliate.js.map`;
+//# sourceMappingURL=foliate.js.map
+`;

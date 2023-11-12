@@ -4,9 +4,9 @@ import { useAtomValue } from "jotai";
 import { FullScreen } from "../../../components/center";
 import LibraryPage from "../../../components/tab-pages/library-page";
 import {
-  currentLibraryAtom,
   currentLibraryIdAtom,
-  userAtom,
+  isCoverSquareAspectRatioAtom,
+  userTokenAtom,
 } from "../../../state/app-state";
 import { currentServerConfigAtom } from "../../../state/local-state";
 
@@ -15,17 +15,22 @@ const FilterPage = () => {
 
   const currentLibraryId = useAtomValue(currentLibraryIdAtom);
   const serverConfig = useAtomValue(currentServerConfigAtom);
-  const library = useAtomValue(currentLibraryAtom);
-  const user = useAtomValue(userAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+
+  if (!userToken) {
+    // TODO BETTER ERROR
+    return null;
+  }
 
   return (
     <FullScreen>
       <LibraryPage
         currentLibraryId={currentLibraryId}
         serverConfig={serverConfig}
-        library={library}
-        user={user}
         filter={`${filter}.${id}`}
+        isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+        userToken={userToken}
       />
     </FullScreen>
   );

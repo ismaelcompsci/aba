@@ -36,10 +36,11 @@ import { HEADER_HEIGHT } from "../../hooks/use-header-height";
 import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentItemAtom,
-  currentLibraryAtom,
-  userAtom,
+  isCoverSquareAspectRatioAtom,
+  serverAddressAtom,
+  userTokenAtom,
 } from "../../state/app-state";
-import { appThemeAtom, currentServerConfigAtom } from "../../state/local-state";
+import { appThemeAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode, getGradient } from "../../utils/utils";
@@ -52,12 +53,11 @@ const BookPage = () => {
     id: string;
   }>();
   const appScheme = useAtomValue(appThemeAtom);
-
   const { width, height } = useWindowDimensions();
 
-  const user = useAtomValue(userAtom);
-  const library = useAtomValue(currentLibraryAtom);
-  const config = useAtomValue(currentServerConfigAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
 
   const insets = useSafeAreaInsets();
@@ -69,45 +69,22 @@ const BookPage = () => {
   const { data: bookItem, isLoading } = useQuery({
     queryKey: ["bookItem", `${Array.isArray(id) ? id[0] : id}`],
     queryFn: async () => {
-      const response = await axios.get(
-        `${config.serverAddress}/api/items/${id}`,
-        {
-          params: {
-            expanded: 1,
-            include: "rssfeed",
-          },
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${serverAddress}/api/items/${id}`, {
+        params: {
+          expanded: 1,
+        },
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      });
 
       setCurrentItem(response.data);
       return response.data as LibraryItemExpanded;
     },
   });
 
-  if (isLoading) {
-    return (
-      <ScreenCenter paddingBottom={0}>
-        <Spinner />
-      </ScreenCenter>
-    );
-  } else if (!bookItem) {
-    return (
-      <ScreenCenter space="$3">
-        <BookX size="$10" />
-        <H3 color="$red10">No item found</H3>
-
-        <Button onPress={() => router.back()}>Go back</Button>
-      </ScreenCenter>
-    );
-  }
-
-  const cover = getItemCoverSrc(bookItem, config, user?.token);
-
+  const cover = getItemCoverSrc(bookItem, null, userToken, serverAddress);
   const renderParallaxHeader = () => {
-    const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
     const imageWidth = isCoverSquareAspectRatio ? width * 0.75 : undefined;
 
     return (
@@ -199,7 +176,7 @@ const BookPage = () => {
   };
 
   const getSeries = () => {
-    if ("series" in bookItem.media.metadata) {
+    if (bookItem && "series" in bookItem.media.metadata) {
       return bookItem.media.metadata.seriesName;
     }
 
@@ -207,14 +184,15 @@ const BookPage = () => {
   };
 
   const getAuthor = () => {
-    if ("author" in bookItem.media.metadata)
+    if (bookItem && "author" in bookItem.media.metadata)
       return bookItem?.media.metadata.author;
 
+    // @ts-ignore
     return bookItem?.media.metadata.authorName;
   };
 
   const getGenres = () => {
-    if ("genres" in bookItem.media.metadata) {
+    if (bookItem && "genres" in bookItem.media.metadata) {
       return bookItem.media.metadata.genres;
     }
 
@@ -222,6 +200,8 @@ const BookPage = () => {
   };
 
   const numChapters = () => {
+    if (!bookItem) return 0;
+
     if ("chapters" in bookItem.media) {
       if (!bookItem.media.chapters) return 0;
       return bookItem.media.chapters.length || 0;
@@ -231,7 +211,7 @@ const BookPage = () => {
 
   const handleAuthorPress = () => {
     const authorId =
-      "authors" in bookItem.media.metadata
+      bookItem && "authors" in bookItem.media.metadata
         ? bookItem.media.metadata.authors[0].id
         : null;
 
@@ -240,21 +220,11 @@ const BookPage = () => {
 
   const handleSeriesPress = () => {
     return null;
-    /**
-     * TODO
-     * not working
-     */
-    // const seriesId =
-    //   "ebookFile" in bookItem.media && "series" in bookItem.media.metadata
-    //     ? bookItem.media.metadata.series[0].id
-    //     : null;
-
-    // console.log({ series: bookItem.media.metadata.series });
-    // if (seriesId) router.push(`/library/series/${id}`);
   };
 
   const numberChapters = numChapters();
-  const tracks = "tracks" in bookItem.media ? bookItem.media.tracks : null;
+  const tracks =
+    bookItem && "tracks" in bookItem.media ? bookItem?.media.tracks : null;
   const numTracks = tracks?.length;
 
   const genres = getGenres();
@@ -263,103 +233,119 @@ const BookPage = () => {
 
   return (
     <FullScreen>
-      <ParallaxScrollView
-        style={{ flex: 1 }}
-        parallaxHeaderHeight={IHeight}
-        parallaxHeader={renderParallaxHeader}
-        fixedHeader={renderFixedHeader}
-        showsVerticalScrollIndicator={false}
-      >
-        <FullScreen paddingBottom={insets.bottom}>
-          <LinearGradient
-            colors={getGradient(backgroundColor)}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 0, y: 0 }}
-            style={{
-              position: "absolute",
-              height: 100,
-              width: width,
-              marginTop: -100,
-            }}
-          />
-          <View minHeight={height - IHeight}>
-            <View px={10} space="$1">
-              <H3 numberOfLines={3} mt={-20}>
-                {bookItem.media.metadata.title}
-              </H3>
-              {series ? <H6 onPress={handleSeriesPress}>{series}</H6> : null}
-              {author ? (
-                <Text
-                  numberOfLines={2}
-                  bg="$background"
-                  color="$gray10"
-                  textDecorationLine="underline"
-                  onPress={handleAuthorPress}
-                >
-                  {author}
-                </Text>
-              ) : null}
-              <XStack
-                bg="$background"
-                py="$2"
-                gap="$1"
-                justifyContent="space-between"
-              >
-                <OpenItemActionButton bookItem={bookItem} id={id} />
+      {isLoading ? (
+        <ScreenCenter paddingBottom={0}>
+          <Spinner />
+        </ScreenCenter>
+      ) : null}
+      {!bookItem ? (
+        <ScreenCenter space="$3">
+          <BookX size="$10" />
+          <H3 color="$red10">No item found</H3>
+
+          <Button onPress={() => router.back()}>Go back</Button>
+        </ScreenCenter>
+      ) : null}
+
+      {!isLoading && bookItem ? (
+        <ParallaxScrollView
+          style={{ flex: 1 }}
+          parallaxHeaderHeight={IHeight}
+          parallaxHeader={renderParallaxHeader}
+          fixedHeader={renderFixedHeader}
+          showsVerticalScrollIndicator={false}
+        >
+          <FullScreen paddingBottom={insets.bottom}>
+            <LinearGradient
+              colors={getGradient(backgroundColor)}
+              start={{ x: 0, y: 1 }}
+              end={{ x: 0, y: 0 }}
+              style={{
+                position: "absolute",
+                height: 100,
+                width: width,
+                marginTop: -100,
+              }}
+            />
+            <View minHeight={height - IHeight}>
+              <View px={10} space="$1">
+                <H3 numberOfLines={3} mt={-20}>
+                  {bookItem.media.metadata.title}
+                </H3>
+                {series ? <H6 onPress={handleSeriesPress}>{series}</H6> : null}
+                {author ? (
+                  <Text
+                    numberOfLines={2}
+                    bg="$background"
+                    color="$gray10"
+                    textDecorationLine="underline"
+                    onPress={handleAuthorPress}
+                  >
+                    {author}
+                  </Text>
+                ) : null}
                 <XStack
-                  flex={1}
-                  justifyContent="flex-end"
-                  gap="$4"
-                  alignItems="center"
+                  bg="$background"
+                  py="$2"
+                  gap="$1"
+                  justifyContent="space-between"
                 >
-                  <ItemProgress
-                    id={id}
-                    radius={22}
-                    activeStrokeWidth={5}
-                    inActiveStrokeWidth={6}
-                    progressValueFontSize={14}
-                    inActiveStrokeOpacity={0.4}
-                    circleBackgroundColor={bgPress}
-                    activeStrokeColor={color}
-                  />
-                  <BookMoreMenu
-                    title={bookItem.media.metadata.title}
-                    itemId={bookItem.id}
-                  />
+                  <OpenItemActionButton bookItem={bookItem} id={id} />
+                  <XStack
+                    flex={1}
+                    justifyContent="flex-end"
+                    gap="$4"
+                    alignItems="center"
+                  >
+                    <ItemProgress
+                      id={id}
+                      radius={22}
+                      activeStrokeWidth={5}
+                      inActiveStrokeWidth={6}
+                      progressValueFontSize={14}
+                      inActiveStrokeOpacity={0.4}
+                      circleBackgroundColor={bgPress}
+                      activeStrokeColor={color}
+                    />
+                    <BookMoreMenu
+                      title={bookItem.media.metadata.title}
+                      itemId={bookItem.id}
+                    />
+                  </XStack>
                 </XStack>
-              </XStack>
-              <ReadMore
-                numberOfLines={DEFAULT_TRUNCATE}
-                seeMoreText="More"
-                seeLessText="Less"
-                seeLessStyle={{ color: seeTextColor }}
-                seeMoreStyle={{ color: seeTextColor }}
-                style={{
-                  color,
-                  alignSelf: "flex-start",
-                  textAlign: "justify",
-                }}
-              >
-                {bookItem.media.metadata.description}
-              </ReadMore>
-              {genres?.length ? (
-                <GenresLabelScroll
-                  genres={genres}
-                  horizontal
-                  space="$2"
-                  pt="$2"
-                  showsHorizontalScrollIndicator={false}
-                />
-              ) : null}
-              <BookFilesTable />
-              {numberChapters ? (
-                <ChapterFilesTable libraryItem={bookItem} />
-              ) : null}
-              {numTracks ? <TrackFilesTable tracks={tracks} /> : null}
+                <ReadMore
+                  numberOfLines={DEFAULT_TRUNCATE}
+                  seeMoreText="More"
+                  seeLessText="Less"
+                  seeLessStyle={{ color: seeTextColor }}
+                  seeMoreStyle={{ color: seeTextColor }}
+                  style={{
+                    color,
+                    alignSelf: "flex-start",
+                    textAlign: "justify",
+                  }}
+                >
+                  {bookItem.media.metadata.description}
+                </ReadMore>
+                {genres?.length ? (
+                  <GenresLabelScroll
+                    genres={genres}
+                    horizontal
+                    space="$2"
+                    pt="$2"
+                    showsHorizontalScrollIndicator={false}
+                  />
+                ) : null}
+                <BookFilesTable />
+                {numberChapters ? (
+                  <ChapterFilesTable libraryItem={bookItem} />
+                ) : null}
+                {numTracks ? <TrackFilesTable tracks={tracks} /> : null}
+              </View>
             </View>
-          </View>
-        </FullScreen>
-      </ParallaxScrollView>
+          </FullScreen>
+        </ParallaxScrollView>
+      ) : null}
     </FullScreen>
   );
 };

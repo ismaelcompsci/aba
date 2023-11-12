@@ -9,7 +9,7 @@ import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
 import { changingLibraryAtom } from "../../state/app-state";
 import { descOrderAtom, sortAtom } from "../../state/local-state";
-import { Library, LibraryItemMinified, User } from "../../types/aba";
+import { LibraryItemMinified } from "../../types/aba";
 import { LibraryItems, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
 import { FullScreen, ScreenCenterWithTabBar } from "../center";
@@ -18,24 +18,23 @@ import { SortSelect } from "../sort-popover";
 interface LibraryPageProps {
   currentLibraryId?: string | null;
   serverConfig: ServerConfig | null;
-  library: Library | null;
-  user: User | null;
   filter?: string;
+  userToken: string;
+  isCoverSquareAspectRatio: boolean;
 }
 
 const LibraryPage = ({
-  library,
-  user,
   serverConfig,
   currentLibraryId,
   filter,
+  userToken,
+  isCoverSquareAspectRatio,
 }: LibraryPageProps) => {
   const sort = useAtomValue(sortAtom);
   const descOrder = useAtomValue(descOrderAtom);
   const [changingLibrary] = useAtom(changingLibraryAtom);
 
   const queryClient = useQueryClient();
-  const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
   const { width: screenWidth } = useWindowDimensions();
 
@@ -64,11 +63,10 @@ const LibraryPage = ({
   } = useInfiniteQuery({
     queryKey: [
       "library-items",
-      library?.id,
+      currentLibraryId,
       sort,
       `${descOrder}`,
       filter ? filter : null,
-      user?.id,
       serverConfig?.id,
     ],
     queryFn: async ({ pageParam = 0 }) => {
@@ -78,7 +76,7 @@ const LibraryPage = ({
 
         const d = descOrder ? 1 : 0;
         const { data }: { data: LibraryItems } = await axios.get(
-          `${serverConfig?.serverAddress}/api/libraries/${library?.id}/items`,
+          `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/items`,
           {
             params: {
               limit: LIBRARY_INFINITE_LIMIT,
@@ -90,7 +88,7 @@ const LibraryPage = ({
               filter: filter,
             },
             headers: {
-              Authorization: `Bearer ${user?.token}`,
+              Authorization: `Bearer ${userToken}`,
             },
           }
         );
@@ -138,7 +136,7 @@ const LibraryPage = ({
         <BookCard
           serverConfig={serverConfig}
           isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-          token={user?.token}
+          token={userToken}
           item={item}
           w="100%"
         />
@@ -148,7 +146,7 @@ const LibraryPage = ({
 
   useEffect(() => {
     resetQuery();
-  }, [library, currentLibraryId, descOrder]);
+  }, [currentLibraryId, descOrder]);
 
   const resetQuery = () => {
     flattenData = [];

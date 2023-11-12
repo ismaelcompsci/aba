@@ -33,7 +33,16 @@ const ItemProgress = ({
 
   if (userProgressPercent <= 0 || !userProgressPercent) return null;
 
-  return <CircularProgress {...rest} value={userProgressPercent * 100} />;
+  return (
+    <CircularProgress
+      {...rest}
+      value={userProgressPercent * 100}
+      strokeColorConfig={[
+        { color: rest.activeStrokeColor || "#2ecc71", value: 0 },
+        { color: "#2ecc71", value: 100 },
+      ]}
+    />
+  );
 };
 
 export default ItemProgress;

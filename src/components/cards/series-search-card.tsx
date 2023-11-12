@@ -4,22 +4,21 @@ import { router } from "expo-router";
 import { Image, Text, YStack, ZStack } from "tamagui";
 
 import { LibraryItem, Series } from "../../types/aba";
-import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
+import { encode } from "../../utils/utils";
 
 import { SearchCard } from "./search-card";
-import { encode } from "../../utils/utils";
 
 const SeriesSearchCard = ({
   series,
   books,
-  serverConfig,
+  serverAddress,
   token,
   isCoverSquareAspectRatio,
 }: {
   series: Series;
   books: LibraryItem[];
-  serverConfig: ServerConfig;
+  serverAddress: string;
   token?: string;
   isCoverSquareAspectRatio: boolean;
 }) => {
@@ -28,7 +27,7 @@ const SeriesSearchCard = ({
 
   const totalBooks = books.length;
 
-  const bgImg = getItemCoverSrc(books[0], serverConfig, serverConfig?.token);
+  const bgImg = getItemCoverSrc(books[0], null, token, serverAddress);
 
   const handlePress = () => {
     router.push(`/library/series/${encode(series.id)}`);
@@ -67,7 +66,7 @@ const SeriesSearchCard = ({
       {/* book images */}
       <ZStack height={seriesCardHeight} width={seriesCardWidth}>
         {books.map((book, i) => {
-          const src = getItemCoverSrc(book, serverConfig, token);
+          const src = getItemCoverSrc(book, null, token, serverAddress);
 
           let coverWidth = seriesCardWidth;
           let widthPer = seriesCardWidth;

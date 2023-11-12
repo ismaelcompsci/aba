@@ -10,7 +10,13 @@ const InputWithIcon = ({
       <Stack pos="absolute" zi="$1" pl={"$2"}>
         <Icon size={"$1"} />
       </Stack>
-      <Input paddingLeft={28} placeholder="search" flex={1} {...rest} />
+      <Input
+        paddingLeft={28}
+        placeholder="search"
+        flex={1}
+        {...rest}
+        clearButtonMode="always"
+      />
     </XStack>
   );
 };

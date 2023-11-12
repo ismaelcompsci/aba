@@ -7,12 +7,11 @@ import EBookReader from "../../components/epub-reader/ebook-reader";
 import { ReaderProvider } from "../../components/epub-reader/rn-epub-reader";
 import LoadingBook from "../../components/loading-book";
 import { useNewUser } from "../../hooks/use-new-user";
-import { currentItemAtom } from "../../state/app-state";
-import { currentServerConfigAtom } from "../../state/local-state";
+import { currentItemAtom, serverAddressAtom } from "../../state/app-state";
 import { getUserMediaProgress } from "../../utils/utils";
 
 const ReaderPage = () => {
-  const serverConfig = useAtomValue(currentServerConfigAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
   const { id, ino } = useLocalSearchParams();
   const currentItem = useAtomValue(currentItemAtom);
   const { user, refreshUser } = useNewUser(true);
@@ -31,11 +30,9 @@ const ReaderPage = () => {
 
   const ebookUrl = () => {
     if (ino) {
-      return `${serverConfig.serverAddress}/api/items/${
-        currentItem!.id
-      }/ebook/${ino}`;
+      return `${serverAddress}/api/items/${currentItem!.id}/ebook/${ino}`;
     }
-    return `${serverConfig.serverAddress}/api/items/${currentItem!.id}/ebook`;
+    return `${serverAddress}/api/items/${currentItem!.id}/ebook`;
   };
 
   const getInitialLocation = () => {
@@ -72,7 +69,7 @@ const ReaderPage = () => {
             book={currentItem!}
             user={user}
             bookPath={bookPath}
-            serverAddress={serverConfig.serverAddress}
+            serverAddress={serverAddress}
             initialLocation={initialLocation}
           />
         ) : null}

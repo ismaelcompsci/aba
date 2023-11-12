@@ -17,7 +17,7 @@ import {
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
-import { Library, LibraryFilterData, User } from "../../types/aba";
+import { LibraryFilterData } from "../../types/aba";
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
@@ -25,35 +25,39 @@ import GenreCard from "../cards/genre-card";
 import { FullScreen, ScreenCenterWithTabBar } from "../center";
 
 interface PersonalizedPageProps {
-  library: Library | null;
   currentLibraryId: string | null;
-  user: User | null;
   serverConfig: ServerConfig | null;
+  userToken: string;
+  isCoverSquareAspectRatio: boolean;
 }
 
 const PersonalizedPage = ({
-  library,
   currentLibraryId,
   serverConfig,
-  user,
+  userToken,
+  isCoverSquareAspectRatio,
 }: PersonalizedPageProps) => {
   const changingLibrary = useAtomValue(changingLibraryAtom);
   const { width } = useWindowDimensions();
 
-  const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
   const {
     data: personalizedLibrary,
     isLoading,
     isInitialLoading,
   } = useQuery(
-    ["personalized-library-view", currentLibraryId, user?.id, serverConfig?.id],
+    [
+      "personalized-library-view",
+      currentLibraryId,
+      userToken,
+      serverConfig?.id,
+    ],
     {
       queryFn: async (): Promise<PersonalizedView[] | undefined> => {
         try {
           if (!serverConfig?.id) return [];
           const response = await axios.get(
             `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
-            { headers: { Authorization: `Bearer ${user?.token}` } }
+            { headers: { Authorization: `Bearer ${userToken}` } }
           );
 
           return response.data;
@@ -68,12 +72,12 @@ const PersonalizedPage = ({
   );
 
   const { data: filterData } = useQuery({
-    queryKey: ["filter-data", currentLibraryId, user?.id, serverConfig?.id],
+    queryKey: ["filter-data", currentLibraryId, userToken, serverConfig?.id],
     queryFn: async () => {
       if (!serverConfig?.id) return null;
       const { data }: { data: LibraryFilterData } = await axios.get(
         `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/filterdata`,
-        { headers: { Authorization: `Bearer ${user?.token}` } }
+        { headers: { Authorization: `Bearer ${userToken}` } }
       );
 
       return data;
@@ -155,7 +159,7 @@ const PersonalizedPage = ({
               key={library.id}
               shelf={library}
               serverConfig={serverConfig}
-              token={user?.token}
+              token={userToken}
             />
           ))}
           <Separator w={0} h={20} />

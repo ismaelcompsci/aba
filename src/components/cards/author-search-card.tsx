@@ -5,18 +5,17 @@ import { router } from "expo-router";
 import { Stack, Text } from "tamagui";
 
 import { AuthorExpanded } from "../../types/aba";
-import { ServerConfig } from "../../types/types";
 import { encode } from "../../utils/utils";
 
 import { SearchCard } from "./search-card";
 
 const AuthorSearchCard = ({
   author,
-  serverConfig,
   token,
+  serverAddress,
 }: {
   author: AuthorExpanded;
-  serverConfig: ServerConfig;
+  serverAddress: string;
   token?: string;
 }) => {
   /**
@@ -25,7 +24,7 @@ const AuthorSearchCard = ({
    * http://192.168.1.158:54932/api/authors/535ebe53-5ec5-4a3f-8d31-d8c388ef0934/image?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJyb290IiwidXNlcm5hbWUiOiJvd25lcl9pc21hZWwiLCJpYXQiOjE2NzA4MTU4MDB9.dNy1XejXAjvk_sKw2Zm-V_wM5LKQ5BgecTIk1Nt2rYs&ts=1683288160590
    */
   const [error, setError] = useState(true);
-  const authorImg = `${serverConfig.serverAddress}/api/authors/${author.id}/image?token=${token}`;
+  const authorImg = `${serverAddress}/api/authors/${author.id}/image?token=${token}`;
 
   const imageWidth = 60;
   const imageHeight = 80;

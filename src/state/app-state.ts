@@ -1,4 +1,5 @@
 import { atom, Getter } from "jotai";
+import { selectAtom } from "jotai/utils";
 
 import { TocItem } from "../components/epub-reader/rn-epub-reader";
 import {
@@ -9,6 +10,8 @@ import {
   User,
 } from "../types/aba";
 import { EpubReaderLoading, PlayingState } from "../types/types";
+
+import { currentServerConfigAtom } from "./local-state";
 
 export const userAtom = atom<User | null>(null);
 export const attemptingConnectionAtom = atom<boolean>(true);
@@ -32,13 +35,25 @@ export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
 /**
  * Derived Atoms
  */
+
 export const currentLibraryAtom = atom<Library | null>((get) => {
   const libId = get(currentLibraryIdAtom);
   const libs = get(librariesAtom);
   if (!libs) return null;
 
-  return libs?.find((lib) => lib.id === libId) || null;
+  return libs?.find((lib) => lib.id === libId) ?? null;
 });
+
+export const isCoverSquareAspectRatioAtom = selectAtom(
+  currentLibraryAtom,
+  (library) => library?.settings.coverAspectRatio === 1
+);
+
+export const userTokenAtom = selectAtom(userAtom, (user) => user?.token);
+export const serverAddressAtom = selectAtom(
+  currentServerConfigAtom,
+  (server) => server.serverAddress
+);
 
 export const mediaProgressAtom = atom((get: Getter) => {
   const user = get(userAtom);

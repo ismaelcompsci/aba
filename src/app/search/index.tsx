@@ -24,9 +24,9 @@ import useDebounce from "../../hooks/use-debounce";
 import {
   currentLibraryAtom,
   currentLibraryIdAtom,
-  userAtom,
+  serverAddressAtom,
+  userTokenAtom,
 } from "../../state/app-state";
-import { currentServerConfigAtom } from "../../state/local-state";
 import { AuthorExpanded } from "../../types/aba";
 import {
   SearchNarratorResult,
@@ -35,10 +35,10 @@ import {
 } from "../../types/types";
 
 const SearchPage = () => {
-  const serverConfig = useAtomValue(currentServerConfigAtom);
-  const user = useAtomValue(userAtom);
   const libId = useAtomValue(currentLibraryIdAtom);
   const library = useAtomValue(currentLibraryAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
 
   const [bookResults, setBookResults] = useState<SearchResult[]>([]);
   const [podcastResults, setPodcastResults] = useState<SearchResult[]>([]);
@@ -68,6 +68,7 @@ const SearchPage = () => {
         // This is the key part. We use the debounced search input in the
         // query key so that the query is debounced.
         searchInput: debouncedSearchInput,
+        libId,
       },
     ],
     queryFn: async () => {
@@ -77,14 +78,14 @@ const SearchPage = () => {
       }
 
       const { data } = await axios.get(
-        `${serverConfig.serverAddress}/api/libraries/${libId}/search`,
+        `${serverAddress}/api/libraries/${libId}/search`,
         {
           params: {
             q: debouncedSearchInput,
             limit: 5,
           },
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         }
       );
@@ -138,8 +139,8 @@ const SearchPage = () => {
                 <ItemSearchCard
                   key={libraryItem.id}
                   item={libraryItem}
-                  serverConfig={serverConfig}
-                  token={user?.token}
+                  serverAddress={serverAddress}
+                  token={userToken}
                   isCoverSquareAspectRatio={isCoverSquareAspectRatio}
                 />
               );
@@ -155,8 +156,8 @@ const SearchPage = () => {
                   key={series.id}
                   series={series}
                   books={books}
-                  serverConfig={serverConfig}
-                  token={user?.token}
+                  serverAddress={serverAddress}
+                  token={userToken}
                   isCoverSquareAspectRatio={isCoverSquareAspectRatio}
                 />
               );
@@ -179,8 +180,8 @@ const SearchPage = () => {
                 <AuthorSearchCard
                   key={i}
                   author={author}
-                  serverConfig={serverConfig}
-                  token={user?.token}
+                  serverAddress={serverAddress}
+                  token={userToken}
                 />
               );
             })}

@@ -9,6 +9,7 @@ export default `
     <script id="pdf"></script>
 
     <style type="text/css">
+
       html {
         height: 100%;
         width: 100%;
@@ -16,7 +17,6 @@ export default `
         overflow: hidden !important;
         justify-content: center;
         align-items: center;
-
       }
       body {
         margin: 0 auto;
@@ -25,7 +25,6 @@ export default `
         font-family: system-ui, sans-serif;
         background: var(--bg);
         color: var(--fg);
-        overscroll-behavior: contain;
       }
     </style>
   </head>

@@ -72,16 +72,17 @@ export const getItemCoverSrc = (
     | undefined
     | null,
   config: ServerConfig | null,
-  token?: string
+  token?: string,
+  address?: string
 ) => {
-  if (!libraryItem || !token || !config) return;
+  if (!libraryItem || !token) return;
 
   const media = libraryItem.media;
   if (!media || !media.coverPath) return null;
 
   const url = new URL(
     `/api/items/${libraryItem.id}/cover`,
-    config.serverAddress
+    config?.serverAddress ?? address
   );
 
   return `${url}?token=${token}`;

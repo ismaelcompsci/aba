@@ -6,26 +6,24 @@ import axios from "axios";
 import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
 
 import { SERIES_INFINITE_LIMIT } from "../../constants/consts";
-import { Library, SeriesBooksMinified, User } from "../../types/aba";
+import { SeriesBooksMinified } from "../../types/aba";
 import { LibrarySeries, ServerConfig } from "../../types/types";
 import SeriesCard from "../cards/series-card";
 import { FullScreen, ScreenCenterWithTabBar } from "../center";
 
 interface SeriesPageProps {
-  library: Library | null;
   currentLibraryId: string | null;
-  user: User | null;
   serverConfig: ServerConfig | null;
+  userToken: string;
+  isCoverSquareAspectRatio: boolean;
 }
 
 const SeriesPage = ({
-  library,
   currentLibraryId,
-  user,
   serverConfig,
+  userToken,
+  isCoverSquareAspectRatio,
 }: SeriesPageProps) => {
-  const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
-
   const { width: screenWidth } = useWindowDimensions();
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
@@ -41,13 +39,13 @@ const SeriesPage = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["library-series", library?.id, user?.id, serverConfig?.id],
+    queryKey: ["library-series", currentLibraryId, userToken, serverConfig?.id],
     queryFn: async ({ pageParam = 0 }) => {
       try {
         if (!serverConfig?.id)
           return { data: { results: [], page: 0, total: 0 } };
         const { data }: { data: LibrarySeries } = await axios.get(
-          `${serverConfig?.serverAddress}/api/libraries/${library?.id}/series`,
+          `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/series`,
           {
             params: {
               limit: SERIES_INFINITE_LIMIT,
@@ -56,7 +54,7 @@ const SeriesPage = ({
               include: "rssfeed,numEpisodesIncomplete",
             },
             headers: {
-              Authorization: `Bearer ${user?.token}`,
+              Authorization: `Bearer ${userToken}`,
             },
           }
         );

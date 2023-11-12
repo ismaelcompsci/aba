@@ -8,7 +8,8 @@ import {
   TabView,
 } from "react-native-tab-view";
 import { Backpack, Home, Library } from "@tamagui/lucide-icons";
-import { useAtom } from "jotai";
+import { router } from "expo-router";
+import { useAtom, useAtomValue } from "jotai";
 import { Text, useTheme, View } from "tamagui";
 
 import { FullScreen } from "../../components/center";
@@ -18,9 +19,10 @@ import PersonalizedPage from "../../components/tab-pages/personalized-page";
 import SeriesPage from "../../components/tab-pages/series-page";
 import useIconTheme from "../../hooks/use-icon-theme";
 import {
-  currentLibraryAtom,
   currentLibraryIdAtom,
+  isCoverSquareAspectRatioAtom,
   userAtom,
+  userTokenAtom,
 } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { TabName, Tabs } from "../../types/types";
@@ -35,7 +37,8 @@ const HomePage = () => {
   const [user] = useAtom(userAtom);
   const [currentLibraryId] = useAtom(currentLibraryIdAtom);
   const [serverConfig] = useAtom(currentServerConfigAtom);
-  const [library] = useAtom(currentLibraryAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
@@ -51,6 +54,10 @@ const HomePage = () => {
   const bg = theme.background.get();
   const color = theme.color.get();
 
+  if (!userToken) {
+    return router.push("/server-connect/");
+  }
+
   const renderScene = ({
     route,
   }: SceneRendererProps & {
@@ -65,8 +72,8 @@ const HomePage = () => {
           <PersonalizedPage
             currentLibraryId={currentLibraryId}
             serverConfig={serverConfig}
-            library={library}
-            user={user}
+            userToken={userToken}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
         );
       case "_libraryPage":
@@ -74,8 +81,8 @@ const HomePage = () => {
           <LibraryPage
             currentLibraryId={currentLibraryId}
             serverConfig={serverConfig}
-            library={library}
-            user={user}
+            userToken={userToken}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
         );
       case "_seriesPage":
@@ -83,8 +90,8 @@ const HomePage = () => {
           <SeriesPage
             currentLibraryId={currentLibraryId}
             serverConfig={serverConfig}
-            library={library}
-            user={user}
+            userToken={userToken}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
         );
       default:
