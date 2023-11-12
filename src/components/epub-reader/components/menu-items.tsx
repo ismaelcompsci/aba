@@ -1,8 +1,7 @@
-import { Button, styled, YStack } from "tamagui";
+import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
+import { Button, styled } from "tamagui";
 
-import { HEADER_HEIGHT } from "../../../hooks/use-header-height";
-
-export const MenuContainer = styled(YStack, {
+export const MenuContainer = styled(Animated.View, {
   zIndex: 9999,
   h: 300,
   w: "100%",
@@ -11,14 +10,8 @@ export const MenuContainer = styled(YStack, {
   bg: "$background",
   pos: "absolute",
   space: "$2",
-  animation: "100ms",
-  enterStyle: {
-    opacity: 0,
-  },
-  exitStyle: {
-    opacity: 0,
-    y: -300 + -HEADER_HEIGHT,
-  },
+  entering: FadeInUp,
+  exiting: FadeOutUp,
 });
 
 export const ThemeButton = styled(Button, {

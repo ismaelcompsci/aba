@@ -4,7 +4,6 @@ import {
   Directions,
   Gesture,
   GestureDetector,
-  GestureTouchEvent,
 } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
@@ -47,7 +46,7 @@ export function View({
     theme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
-  const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = useWindowDimensions();
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
 
   const onMessage = (event: WebViewMessageEvent) => {
     const parsedEvent = JSON.parse(event.nativeEvent.data);
@@ -126,30 +125,6 @@ export function View({
     if (book.current) registerBook(book.current);
   }, [registerBook]);
 
-  // const centerOfScreenVertical = (e: GestureTouchEvent) => {
-  //   const third = SCREEN_HEIGHT / 3;
-  //   const start = third;
-  //   const end = third + third;
-
-  //   const touch = e.allTouches[0];
-  //   const touchY = touch.absoluteY;
-
-  //   return touchY > start && touchY < end;
-  // };
-
-  const centerOfScreenHorizontal = (e: GestureTouchEvent) => {
-    const third = SCREEN_WIDTH / 3;
-    const start = third;
-    const end = third + third;
-
-    const touch = e.allTouches[0];
-    const touchX = touch.absoluteX;
-
-    if (touchX > start && touchX < end) {
-      onPress();
-    }
-  };
-
   const leftFlingGesture = Gesture.Fling()
     .direction(I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT)
     .onStart(() => {
@@ -167,16 +142,28 @@ export function View({
     });
 
   const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
-    runOnJS(centerOfScreenHorizontal)(_event);
+    const touch = _event.allTouches[0].absoluteX;
+    const third = Math.floor(SCREEN_WIDTH / 3);
+    if (enableSwipe) {
+      if (touch < third) {
+        console.log("go left");
+        runOnJS(goPrevious)();
+      } else if (touch > third && touch < third + third) {
+        console.log("open menu");
+        runOnJS(onPress)();
+      } else {
+        console.log("go right");
+        runOnJS(goNext)();
+      }
+    } else {
+      if (touch > third && touch < third + third) {
+        runOnJS(onPress)();
+      }
+    }
   });
 
   const t = themes.find((th) => th.name === theme.theme);
 
-  /**
-   * TODO figure out the white flash
-   * and stop it from happenings
-   * only send onReady when book is rendered in html
-   */
   return (
     <GestureDetector
       gesture={Gesture.Race(tapGesture, rightFlingGesture, leftFlingGesture)}
@@ -209,6 +196,14 @@ export function View({
           automaticallyAdjustContentInsets={false}
           allowsLinkPreview={false}
           startInLoadingState={true}
+          menuItems={[
+            { label: "Copy", key: "copy" },
+            { label: "Highlight", key: "highlight" },
+          ]}
+          onCustomMenuSelection={(webViewEvent) => {
+            const { label, key, selectedText } = webViewEvent.nativeEvent;
+            console.log("Custom Menu Item Clicked: ", key);
+          }}
           style={{
             width,
             overflow: "hidden",

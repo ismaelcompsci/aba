@@ -1,8 +1,14 @@
-import { styled, XStack } from "tamagui";
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  FadeOutDown,
+  FadeOutUp,
+} from "react-native-reanimated";
+import { styled } from "tamagui";
 
 import { HEADER_HEIGHT } from "../../../hooks/use-header-height";
 
-export const Header = styled(XStack, {
+export const Header = styled(Animated.View, {
   h: HEADER_HEIGHT,
   bg: "$background",
   pos: "absolute",
@@ -10,9 +16,11 @@ export const Header = styled(XStack, {
   left: 0,
   right: 0,
   zIndex: "$4",
+  entering: FadeInUp,
+  exiting: FadeOutUp,
 });
 
-export const Footer = styled(XStack, {
+export const Footer = styled(Animated.View, {
   h: HEADER_HEIGHT,
   bg: "$background",
   pos: "absolute",
@@ -20,4 +28,6 @@ export const Footer = styled(XStack, {
   left: 0,
   right: 0,
   zIndex: "$4",
+  entering: FadeInDown,
+  exiting: FadeOutDown,
 });

@@ -28,7 +28,6 @@ import {
   HEADER_HEIGHT,
   useHeaderHeight,
 } from "../../../hooks/use-header-height";
-import useIconTheme from "../../../hooks/use-icon-theme";
 import { ebookSettignsAtom } from "../../../state/local-state";
 import { ClearIconButton } from "../../buttons/button";
 import { HeaderFrame, HeaderLeft, HeaderRight } from "../../header/header";
@@ -57,10 +56,9 @@ const Menu = ({
   setEpubReaderOverviewModal: (open: boolean) => void;
 }) => {
   const { height } = useWindowDimensions();
-  const { changeTheme } = useReader();
+  const { changeTheme, isPdf } = useReader();
 
   const { top } = useHeaderHeight();
-  const { color } = useIconTheme();
 
   const [openSettings, setOpenSettings] = useState(false);
   const [readerSettings, setReaderSettigns] = useAtom(ebookSettignsAtom);
@@ -137,17 +135,7 @@ const Menu = ({
       justifyContent="center"
     >
       {hide && (
-        <Header
-          key="header"
-          bbw={0.25}
-          bbc={color}
-          zIndex={8888}
-          animation="100ms"
-          enterStyle={{
-            opacity: 0.4,
-            y: -25,
-          }}
-        >
+        <Header>
           <HeaderFrame pt={top}>
             <HeaderLeft ai="center">
               <LogoContainer>
@@ -193,20 +181,22 @@ const Menu = ({
                     </ThemeButton>
                   ))}
                 </XStack>
-                <XGroup>
-                  <XGroupButton
-                    onPress={() => onFontSizeChange(-FONT_STEP)}
-                    fontSize={"$1"}
-                  >
-                    A
-                  </XGroupButton>
-                  <XGroupButton
-                    onPress={() => onFontSizeChange(FONT_STEP)}
-                    fontSize={"$7"}
-                  >
-                    A
-                  </XGroupButton>
-                </XGroup>
+                {!isPdf ? (
+                  <XGroup>
+                    <XGroupButton
+                      onPress={() => onFontSizeChange(-FONT_STEP)}
+                      fontSize={"$1"}
+                    >
+                      A
+                    </XGroupButton>
+                    <XGroupButton
+                      onPress={() => onFontSizeChange(FONT_STEP)}
+                      fontSize={"$7"}
+                    >
+                      A
+                    </XGroupButton>
+                  </XGroup>
+                ) : null}
               </XStack>
               {/* Scroll & gap  */}
               <XStack justifyContent="space-between">
@@ -231,43 +221,48 @@ const Menu = ({
                     </>
                   ) : null}
                 </XStack>
-                <XGroup>
-                  <XGroupButton
-                    onPress={() => onGapChange(GAPSTEP)}
-                    icon={ChevronsRightLeft}
-                    px={16.5}
-                  />
-                  <XGroupButton
-                    onPress={() => onGapChange(-GAPSTEP)}
-                    icon={ChevronsLeftRight}
-                    px={16.5}
-                  />
-                </XGroup>
+                {!isPdf ? (
+                  <XGroup>
+                    <XGroupButton
+                      onPress={() => onGapChange(GAPSTEP)}
+                      icon={ChevronsRightLeft}
+                      px={16.5}
+                    />
+                    <XGroupButton
+                      onPress={() => onGapChange(-GAPSTEP)}
+                      icon={ChevronsLeftRight}
+                      px={16.5}
+                    />
+                  </XGroup>
+                ) : null}
               </XStack>
               {/* line space */}
-              <XStack justifyContent="space-between">
-                <XStack ai="center" space="$4">
-                  <Text>AudioPlayer mode</Text>
-                  <Button
-                    onPress={onBlockSizeChange}
-                    borderColor={audioplayerMode ? "$blue10" : undefined}
-                  >
-                    <Fullscreen />
-                  </Button>
+              {!isPdf ? (
+                <XStack justifyContent="space-between">
+                  <XStack ai="center" space="$4">
+                    <Text>AudioPlayer mode</Text>
+                    <Button
+                      onPress={onBlockSizeChange}
+                      borderColor={audioplayerMode ? "$blue10" : undefined}
+                    >
+                      <Fullscreen />
+                    </Button>
+                  </XStack>
+                  <XGroup>
+                    <XGroupButton
+                      onPress={() => onLineSpaceChange(-LINESTEP)}
+                      icon={ChevronsDownUp}
+                      px={16.5}
+                    />
+                    <XGroupButton
+                      onPress={() => onLineSpaceChange(LINESTEP)}
+                      icon={ChevronsUpDown}
+                      px={16.5}
+                    />
+                  </XGroup>
                 </XStack>
-                <XGroup>
-                  <XGroupButton
-                    onPress={() => onLineSpaceChange(-LINESTEP)}
-                    icon={ChevronsDownUp}
-                    px={16.5}
-                  />
-                  <XGroupButton
-                    onPress={() => onLineSpaceChange(LINESTEP)}
-                    icon={ChevronsUpDown}
-                    px={16.5}
-                  />
-                </XGroup>
-              </XStack>
+              ) : null}
+
               <XStack></XStack>
             </MenuContainer>
           ) : null}
@@ -276,18 +271,7 @@ const Menu = ({
 
       {children}
 
-      {hide && (
-        <Footer
-          key="footer"
-          btw={0.25}
-          btc={color}
-          animation="100ms"
-          enterStyle={{
-            opacity: 0.4,
-            y: 25,
-          }}
-        ></Footer>
-      )}
+      {hide && <Footer></Footer>}
     </YStack>
   );
 };
