@@ -3,8 +3,9 @@ import { StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import axios from "axios";
 import * as Burnt from "burnt";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { Button, Group, Popover, Text } from "tamagui";
 
 import {
   epubReaderLoadingAtom,
@@ -29,6 +30,7 @@ import {
   MenuSelectionEvent,
   Reader,
   ReaderBook,
+  ShowAnnotation,
   useReader,
 } from "./rn-epub-reader";
 
@@ -47,7 +49,6 @@ const EBookReader = ({
   bookPath,
   initialLocation,
 }: EBookReaderProps) => {
-  const { id } = useLocalSearchParams();
   const { width, height } = useWindowDimensions();
 
   const [bookAnnotations, setBookAnnotations] = useAtom(bookAnnotationsAtom);
@@ -59,6 +60,14 @@ const EBookReader = ({
   const [showingNext, setShowingNext] = useState(false);
   const [showingPrev, setShowingPrev] = useState(false);
   const [currentLabel, setCurrentLabel] = useState("");
+  const [annotaionOpen, setAnnotaionOpen] = useState({
+    open: false,
+    x: 0,
+    y: 0,
+    dir: "",
+    index: -1,
+    value: "",
+  });
   const { setIsPdf, useMenuAction, setAnnotations } = useReader();
 
   const isPdf = bookPath.endsWith(".pdf");
@@ -161,6 +170,30 @@ const EBookReader = ({
     });
   };
 
+  const onAnnotationClick = ({ index, pos, value }: ShowAnnotation) => {
+    setAnnotaionOpen({
+      open: true,
+      x: pos.point.x,
+      y: pos.point.y,
+      dir: pos.dir,
+      value,
+      index,
+    });
+  };
+
+  const annotationAction = (action: string) => {
+    if (action === "delete") {
+      const filteredAnnotations = bookAnnotations[book.id].filter(
+        (an) => an.value !== annotaionOpen.value
+      );
+      setBookAnnotations((prev: BookAnnotations) => {
+        const newAnnotaions = { ...prev };
+        newAnnotaions[book.id] = filteredAnnotations;
+        return newAnnotaions;
+      });
+    }
+  };
+
   const updateProgress = async (payload: {
     ebookLocation: string;
     ebookProgress: number;
@@ -220,6 +253,7 @@ const EBookReader = ({
             onReady={onReady}
             onDisplayError={onDisplayError}
             onNewAnnotation={onNewAnnotation}
+            onAnnotationClick={onAnnotationClick}
             menuItems={[
               { label: "Copy", key: "copy" },
               { label: "Highlight", key: "highlight" },
@@ -229,6 +263,65 @@ const EBookReader = ({
             ]}
             onCustomMenuSelection={onCustomMenuSelection}
           />
+          <Popover
+            open={annotaionOpen.open}
+            stayInFrame
+            strategy="absolute"
+            placement="bottom"
+            onOpenChange={(open) =>
+              setAnnotaionOpen({
+                open,
+                x: 0,
+                y: 0,
+                dir: "",
+                index: -1,
+                value: "",
+              })
+            }
+          >
+            <Popover.Content
+              position="absolute"
+              y={
+                annotaionOpen.dir === "up"
+                  ? annotaionOpen.y + 25
+                  : annotaionOpen.y
+              }
+              x={60}
+              p={0}
+              bg={"transparent"}
+            >
+              <Popover.Arrow />
+              <Popover.Close />
+              <Popover.ScrollView horizontal>
+                <Group
+                  orientation="horizontal"
+                  onLayout={(event) => {
+                    const groupWidth = event.nativeEvent.layout.width;
+                    setAnnotaionOpen((prev) => ({
+                      ...prev,
+                      x: width / 2 - groupWidth / 2,
+                    }));
+                  }}
+                >
+                  <Group.Item>
+                    <Button onPress={() => annotationAction("delete")}>
+                      <Text>Delete</Text>
+                    </Button>
+                  </Group.Item>
+                  <Group.Item>
+                    <Button onPress={() => annotationAction("underline")}>
+                      <Text>Underline</Text>
+                    </Button>
+                  </Group.Item>
+                  <Group.Item>
+                    <Button onPress={() => annotationAction("strikethrough")}>
+                      <Text>Strikethrough</Text>
+                    </Button>
+                  </Group.Item>
+                </Group>
+              </Popover.ScrollView>
+            </Popover.Content>
+          </Popover>
         </FullScreen>
       </Menu>
       <BookChapterModal />

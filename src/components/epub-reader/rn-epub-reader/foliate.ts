@@ -9855,7 +9855,13 @@ class Reader {
           range
         } = e.detail;
         const pos = getPosition(range);
-        debug(\`SHOW ANNOTATION \${index} \${value}\`);
+        toReactMessage({
+          type: "annotationClick",
+          index,
+          range,
+          value,
+          pos
+        });
       });
       this.view.addEventListener("draw-annotation", e => {
         const {
@@ -10007,9 +10013,8 @@ class Reader {
       if (annotations) annotations.push(this.currentAnnotation);else this.annotations.set(this.currentAnnotation.index, [this.currentAnnotation]);
       toReactMessage({
         type: "newAnnotation",
-        annotation: this.currentAnnotation,
+        annotation: this.currentAnnotation
       });
-
       this.currentAnnotation = null;
     }
   };

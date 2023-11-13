@@ -4,6 +4,12 @@ export type BookAnnotations = {
   [key: string]: Annotation[];
 };
 
+export type ShowAnnotation = {
+  index: number;
+  pos: { dir: string; point: { x: number; y: number } };
+  value: string;
+};
+
 export type MenuActions =
   | { action: "copy"; color?: string }
   | { action: "highlight"; color: string }
@@ -352,4 +358,5 @@ export interface ReaderProps {
   menuItems?: WebViewCustomMenuItems[] | undefined;
   onCustomMenuSelection?: ((event: MenuSelectionEvent) => void) | undefined;
   onNewAnnotation?: (annotation: Annotation) => void;
+  onAnnotationClick?: ({ index, pos, value }: ShowAnnotation) => void;
 }

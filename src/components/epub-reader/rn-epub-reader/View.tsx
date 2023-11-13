@@ -37,6 +37,7 @@ export function View({
   menuItems,
   onCustomMenuSelection = () => {},
   onNewAnnotation = () => {},
+  onAnnotationClick = () => {},
 }: ViewProps) {
   const {
     registerBook,
@@ -132,6 +133,12 @@ export function View({
     if (type === "newAnnotation") {
       const { annotation } = parsedEvent;
       onNewAnnotation(annotation);
+    }
+
+    if (type === "annotationClick") {
+      const { index, range, value, pos } = parsedEvent;
+      console.log(parsedEvent);
+      onAnnotationClick({ index, value, pos });
     }
   };
 

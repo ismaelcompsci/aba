@@ -588,6 +588,9 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     `);
   }, []);
 
+  // TODO
+  const deleteAnnotation = useCallback(() => {}, []);
+
   // const search = useCallback((query: string) => {
   //   book.current?.injectJavaScript(`
   //     Promise.all(
