@@ -1,4 +1,33 @@
-import { string } from "zod";
+import { WebViewCustomMenuItems } from "react-native-webview/lib/WebViewTypes";
+
+export type BookAnnotations = {
+  [key: string]: Annotation[];
+};
+
+export type MenuActions =
+  | { action: "copy"; color?: string }
+  | { action: "highlight"; color: string }
+  | { action: "underline"; color: string }
+  | { action: "strikethrough"; color: string }
+  | { action: "squiggly"; color: string };
+
+export type MenuSelectionEvent = {
+  nativeEvent: {
+    label: string;
+    key: string;
+    selectedText: string;
+  };
+};
+
+export type Annotation = {
+  index: number;
+  value: string;
+  color: string;
+  text: string;
+  note?: string;
+  created: string;
+  modified: string;
+};
 
 export type Location = {
   current: number;
@@ -320,4 +349,7 @@ export interface ReaderProps {
   defaultTheme?: Theme;
 
   fileSystem(): FileSystem;
+  menuItems?: WebViewCustomMenuItems[] | undefined;
+  onCustomMenuSelection?: ((event: MenuSelectionEvent) => void) | undefined;
+  onNewAnnotation?: (annotation: Annotation) => void;
 }

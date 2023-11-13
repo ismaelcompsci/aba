@@ -1,3 +1,4 @@
+import { BookAnnotations } from "../components/epub-reader/rn-epub-reader";
 import { GeneralSetting } from "../constants/storage-keys";
 import { atomWithLocalStorage } from "../hooks/atom-hooks/atom-with-local-storage";
 import { ServerSettings } from "../types/aba";
@@ -40,4 +41,9 @@ export const ebookSettignsAtom = atomWithLocalStorage(
 export const deviceIdAtom = atomWithLocalStorage<string | null>(
   GeneralSetting.DeviceId,
   null
+);
+
+export const bookAnnotationsAtom = atomWithLocalStorage<BookAnnotations>(
+  GeneralSetting.BookAnnotations,
+  {}
 );

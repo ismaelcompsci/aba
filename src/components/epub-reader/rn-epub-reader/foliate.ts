@@ -9796,6 +9796,9 @@ class Reader {
   #isPdf;
   #currentTocPos;
   #previousFraction;
+  currentAnnotation = null;
+  annotations = new Map();
+  annotationsByValue = new Map();
   style = {
     lineHeight: 1.4,
     justify: true,
@@ -9838,20 +9841,23 @@ class Reader {
       this.book = await getView(file);
       this.view = document.createElement("foliate-view");
       this.view.addEventListener("relocate", this.onRelocate);
-      this.view.addEventListener("create-overlay", e => debug(\`CREATE OVERLAY\${JSON.stringify({
-        type: "create-overlay",
-        ...e.detail
-      })}\`));
+      this.view.addEventListener("create-overlay", e => {
+        const {
+          index
+        } = e.detail;
+        const list = this.annotations.get(index);
+        if (list) for (const annotation of list) this.view.addAnnotation(annotation);
+      });
       this.view.addEventListener("show-annotation", e => {
         const {
           value,
           index,
           range
         } = e.detail;
-        debug(\`SHOW ANNOTATION \${index}\`);
+        const pos = getPosition(range);
+        debug(\`SHOW ANNOTATION \${index} \${value}\`);
       });
       this.view.addEventListener("draw-annotation", e => {
-        debug("DRAW ANNOTATTION");
         const {
           draw,
           annotation,
@@ -9861,9 +9867,28 @@ class Reader {
         const {
           color
         } = annotation;
-        draw(Overlayer.underline, {
-          color
-        });
+        if (["underline", "squiggly", "strikethrough"].includes(color)) {
+          const {
+            defaultView
+          } = doc;
+          const node = range.startContainer;
+          const el = node.nodeType === 1 ? node : node.parentElement;
+          const {
+            writingMode
+          } = defaultView.getComputedStyle(el);
+          draw(Overlayer[color], {
+            writingMode,
+            color: this.highlight_color ? this.highlight_color : "yellow"
+          });
+        } else {
+          this.highlight_color = color;
+          draw(Overlayer.highlight, {
+            color
+          });
+        }
+      });
+      this.view.addEventListener("external-link", e => {
+        e.preventDefault();
       });
       this.view.addEventListener("load", e => this.#onLoad(e));
       await this.view.open(this.book);
@@ -9947,11 +9972,46 @@ class Reader {
     }), 500);
     doc.addEventListener("touchend", () => {
       this.view.renderer.pause = false;
-      this.view.addAnnotation({
-        value: annotation?.value,
-        color: "yellow"
-      }, false);
+      if (annotation) {
+        this.currentAnnotation = annotation;
+      }
     });
+  };
+  setAnnotations = annotations => {
+    annotations.forEach(ann => {
+      this.view.addAnnotation(ann);
+      const list = this.annotations.get(ann.index);
+      if (list) list.push(ann);else this.annotations.set(ann.index, [ann]);
+    });
+  };
+  copy = () => {
+    const text = this.currentAnnotation.range.toString();
+    if (text) toReactMessage({
+      type: "menuAction",
+      value: text
+    });else toReactMessage({
+      type: "menuAction",
+      error: "copy-error"
+    });
+  };
+  highlight = color => {
+    if (this.currentAnnotation) {
+      this.view.addAnnotation({
+        value: this.currentAnnotation.value,
+        color: color
+      }, false);
+      this.currentAnnotation.color = color;
+      this.currentAnnotation.created = new Date().toISOString();
+      this.currentAnnotation.text = this.currentAnnotation.range.toString();
+      const annotations = this.annotations.get(this.currentAnnotation.index);
+      if (annotations) annotations.push(this.currentAnnotation);else this.annotations.set(this.currentAnnotation.index, [this.currentAnnotation]);
+      toReactMessage({
+        type: "newAnnotation",
+        annotation: this.currentAnnotation,
+      });
+
+      this.currentAnnotation = null;
+    }
   };
   showNext = ev => {
     /**

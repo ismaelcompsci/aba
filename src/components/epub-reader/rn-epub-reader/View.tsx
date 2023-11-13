@@ -7,6 +7,7 @@ import {
 } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
+import Clipboard from "@react-native-clipboard/clipboard";
 import RNFetchBlob from "rn-fetch-blob";
 
 import { themes } from "../components/themes";
@@ -33,6 +34,9 @@ export function View({
   width,
   height,
   defaultTheme,
+  menuItems,
+  onCustomMenuSelection = () => {},
+  onNewAnnotation = () => {},
 }: ViewProps) {
   const {
     registerBook,
@@ -119,6 +123,16 @@ export function View({
         time,
       });
     }
+
+    if (type === "menuAction") {
+      const { value } = parsedEvent;
+      value && Clipboard.setString(value);
+    }
+
+    if (type === "newAnnotation") {
+      const { annotation } = parsedEvent;
+      onNewAnnotation(annotation);
+    }
   };
 
   useEffect(() => {
@@ -196,14 +210,8 @@ export function View({
           automaticallyAdjustContentInsets={false}
           allowsLinkPreview={false}
           startInLoadingState={true}
-          menuItems={[
-            { label: "Copy", key: "copy" },
-            { label: "Highlight", key: "highlight" },
-          ]}
-          onCustomMenuSelection={(webViewEvent) => {
-            const { label, key, selectedText } = webViewEvent.nativeEvent;
-            console.log("Custom Menu Item Clicked: ", key);
-          }}
+          menuItems={menuItems}
+          onCustomMenuSelection={onCustomMenuSelection}
           style={{
             width,
             overflow: "hidden",

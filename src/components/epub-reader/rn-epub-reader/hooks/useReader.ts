@@ -4,6 +4,8 @@ import { ReaderContext, ReaderContextProps } from "../context";
 
 export function useReader() {
   const {
+    setAnnotations,
+    useMenuAction,
     // changeFontFamily,
     changeTheme,
     goToLocation,
@@ -32,6 +34,8 @@ export function useReader() {
   } = useContext(ReaderContext);
 
   return {
+    setAnnotations,
+    useMenuAction,
     // changeFontFamily,
     changeTheme,
     goToLocation,
@@ -84,5 +88,7 @@ export function useReader() {
     | "setIsPdf"
     | "isPdf"
     | "cover"
+    | "useMenuAction"
+    | "setAnnotations"
   >;
 }

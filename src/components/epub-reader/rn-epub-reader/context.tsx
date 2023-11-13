@@ -11,8 +11,10 @@ import type WebView from "react-native-webview";
 import { themes } from "../components/themes";
 
 import type {
+  Annotation,
   ePubCfi,
   LocationChange,
+  MenuActions,
   ReaderBookMetadata,
   SearchResult,
   Theme,
@@ -217,6 +219,8 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
 }
 
 export interface ReaderContextProps {
+  setAnnotations: (annotations: Annotation[]) => void;
+  useMenuAction: (action: MenuActions) => void;
   registerBook: (bookRef: WebView) => void;
   // setAtStart: (atStart: boolean) => void;
   // setAtEnd: (atEnd: boolean) => void;
@@ -384,6 +388,8 @@ export interface ReaderContextProps {
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
+  setAnnotations: () => {},
+  useMenuAction: () => {},
   registerBook: () => {},
   // setAtStart: () => {},
   // setAtEnd: () => {},
@@ -527,7 +533,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       const newLocation = JSON.parse(target);
       console.log({ newLocation, currentLocation: state.currentLocation });
       book.current?.injectJavaScript(
-        `reader.view.goTo(Number(${Math.max(0, newLocation[0].num - 4)})); true`
+        `reader.view.goTo(Number(${Math.max(0, newLocation[0].num)})); true`
       );
     } else {
       book.current?.injectJavaScript(`reader.view.goTo("${target}"); true`);
@@ -554,6 +560,33 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const getMeta = useCallback(() => state.meta, [state.meta]);
+
+  const useMenuAction = useCallback(({ action, color }: MenuActions) => {
+    switch (action) {
+      case "copy":
+        book.current?.injectJavaScript(`
+          reader.copy(); true;
+        `);
+        break;
+      case "strikethrough":
+      case "squiggly":
+      case "underline":
+      case "highlight":
+        if (color)
+          book.current?.injectJavaScript(`
+           reader.highlight('${color}'); true
+          `);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  const setAnnotations = useCallback((annotations: Annotation[]) => {
+    book.current?.injectJavaScript(`
+         reader.setAnnotations(${JSON.stringify(annotations)}); true
+    `);
+  }, []);
 
   // const search = useCallback((query: string) => {
   //   book.current?.injectJavaScript(`
@@ -615,6 +648,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const contextValue = useMemo(
     () => ({
+      setAnnotations,
+      useMenuAction,
       registerBook,
       // setAtStart,
       // setAtEnd,
@@ -661,6 +696,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setSearchResults,
     }),
     [
+      useMenuAction,
+      setAnnotations,
       // addMark,
       // changeFontFamily,
       // changeFontSize,
