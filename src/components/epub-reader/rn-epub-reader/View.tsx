@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useCallback, useContext, useEffect, useRef } from "react";
 import { I18nManager, useWindowDimensions, View as RNView } from "react-native";
 import {
   Directions,
@@ -137,7 +137,6 @@ export function View({
 
     if (type === "annotationClick") {
       const { index, range, value, pos } = parsedEvent;
-      console.log(parsedEvent);
       onAnnotationClick({ index, value, pos });
     }
   };
@@ -162,28 +161,35 @@ export function View({
       }
     });
 
+  const testPress = () => {
+    setTimeout(() => {
+      onPress();
+    }, 100);
+  };
+
   const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
     const touch = _event.allTouches[0].absoluteX;
     const third = Math.floor(SCREEN_WIDTH / 3);
     if (enableSwipe) {
       if (touch < third) {
-        console.log("go left");
         runOnJS(goPrevious)();
       } else if (touch > third && touch < third + third) {
-        console.log("open menu");
         runOnJS(onPress)();
       } else {
-        console.log("go right");
         runOnJS(goNext)();
       }
     } else {
       if (touch > third && touch < third + third) {
-        runOnJS(onPress)();
+        runOnJS(testPress)();
       }
     }
   });
 
-  const t = themes.find((th) => th.name === theme.theme);
+  const _theme = useCallback(
+    () => themes.find((th) => th.name === theme.theme),
+    []
+  );
+  const t = _theme();
 
   return (
     <GestureDetector
@@ -205,7 +211,7 @@ export function View({
           webviewDebuggingEnabled={true}
           javaScriptEnabled={true}
           originWhitelist={["*"]}
-          scrollEnabled={true}
+          scrollEnabled={false}
           mixedContentMode="compatibility"
           onMessage={onMessage}
           allowingReadAccessToURL={`${allowedUris},${RNFetchBlob.fs.dirs.DocumentDir}`}

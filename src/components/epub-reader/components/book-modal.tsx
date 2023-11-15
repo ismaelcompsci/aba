@@ -22,7 +22,7 @@ const Annotations = () => {
   return (
     <FullScreen padding={"$4"}>
       {annotations?.length ? (
-        <ScrollView space height={"100%"} bg="red">
+        <ScrollView space height={"100%"} showsVerticalScrollIndicator={false}>
           {annotations?.map((ann) => {
             const date = new Date(ann.created);
             return (

@@ -9962,9 +9962,9 @@ class Reader {
     const index = ev.detail.index;
     let annotation = null;
     doc.addEventListener("selectionchange", main_debounce(() => {
-      this.view.renderer.pause = true;
       const range = getSelectionRange(doc);
       if (!range) return;
+      this.view.renderer.pause = true;
       const pos = getPosition(range);
       const value = this.view.getCFI(index, range);
       const lang = main_getLang(range.commonAncestorContainer);

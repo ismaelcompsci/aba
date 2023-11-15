@@ -1,7 +1,8 @@
 import { useMemo } from "react";
+import Animated, { StretchInY, StretchOutY } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
 import { useAtomValue } from "jotai";
-import { Separator, Text, XStack, YStack } from "tamagui";
+import { Separator, styled, Text, XStack, YStack } from "tamagui";
 
 import { epubReaderTocAtom } from "../../../../state/app-state";
 import { TocItem, useReader } from "../../rn-epub-reader";
@@ -13,6 +14,11 @@ type NewTocItem = {
   data: NewTocItem[];
   depth: number;
 };
+
+const Bar = styled(Animated.View, {
+  entering: StretchInY,
+  exiting: StretchOutY,
+});
 
 const TocItemView = ({
   item,
@@ -31,16 +37,30 @@ const TocItemView = ({
         pressStyle={{
           bg: "$backgroundPress",
         }}
-        paddingHorizontal={"$2"}
         onPress={() => handleTocItemPress(item)}
         bg={
           currentLocation?.tocItem?.id === item.id
             ? "$backgroundPress"
             : "$background"
         }
+        borderRadius={"$4"}
         paddingLeft={item.depth * 10}
       >
-        <Text>{item.label}</Text>
+        {currentLocation?.tocItem?.id === item.id ? (
+          <Bar
+            bg={"$blue10"}
+            br={"$8"}
+            t={0}
+            l={0}
+            b={0}
+            r={0}
+            w={"$0.5"}
+            pos={"absolute"}
+          />
+        ) : null}
+        <XStack paddingHorizontal={"$2"}>
+          <Text>{item.label}</Text>
+        </XStack>
       </XStack>
       <Separator borderRadius={"$4"} />
     </YStack>
