@@ -1,0 +1,231 @@
+diff --git a/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebView.java b/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebView.java
+index 4676779..db8cee8 100644
+--- a/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebView.java
++++ b/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebView.java
+@@ -154,6 +154,59 @@ public class RNCWebView extends WebView implements LifecycleEventListener {
+       this.menuCustomItems = menuCustomItems;
+     }
+     
++    public void openMenu(int x, int y) {
++        startActionMode(new ActionMode.Callback2() {
++            @Override
++            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
++              for (int i = 0; i < menuCustomItems.size(); i++) {
++                menu.add(Menu.NONE, i, i, (menuCustomItems.get(i)).get("label"));
++              }
++              return true;
++            }
++
++            @Override
++            public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
++              return false;
++            }
++
++            @Override
++            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
++              WritableMap wMap = Arguments.createMap();
++              RNCWebView.this.evaluateJavascript(
++                "(function(){return {selection: window.getSelection().toString()} })()",
++                new ValueCallback<String>() {
++                  @Override
++                  public void onReceiveValue(String selectionJson) {
++                    Map<String, String> menuItemMap = menuCustomItems.get(item.getItemId());
++                    wMap.putString("label", menuItemMap.get("label"));
++                    wMap.putString("key", menuItemMap.get("key"));
++                    String selectionText = "";
++                    try {
++                      selectionText = new JSONObject(selectionJson).getString("selection");
++                    } catch (JSONException ignored) {}
++                    wMap.putString("selectedText", selectionText);
++                    dispatchEvent(RNCWebView.this, new TopCustomMenuSelectionEvent(RNCWebViewWrapper.getReactTagFromWebView(RNCWebView.this), wMap));
++                    mode.finish();
++                  }
++                }
++              );
++              return true;
++            }
++
++            @Override
++            public void onDestroyActionMode(ActionMode mode) {
++              mode = null;
++            }
++
++            @Override
++            public void onGetContentRect (ActionMode mode,
++                    View view,
++                    Rect outRect){
++                outRect.set(x, y, view.getWidth(), view.getHeight());
++              }
++          }, ActionMode.TYPE_FLOATING);
++    }
++
+     @Override
+     public ActionMode startActionMode(ActionMode.Callback callback, int type) {
+       if(menuCustomItems == null ){
+diff --git a/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt b/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt
+index bf3debd..4299d4b 100644
+--- a/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt
++++ b/node_modules/react-native-webview/android/src/main/java/com/reactnativecommunity/webview/RNCWebViewManagerImpl.kt
+@@ -278,6 +278,7 @@ class RNCWebViewManagerImpl {
+     val COMMAND_INJECT_JAVASCRIPT = 6
+     val COMMAND_LOAD_URL = 7
+     val COMMAND_FOCUS = 8
++    val COMMAND_OPEN_MENU = 9
+ 
+     // android commands
+     val COMMAND_CLEAR_FORM_DATA = 1000
+@@ -297,6 +298,7 @@ class RNCWebViewManagerImpl {
+         .put("clearFormData", COMMAND_CLEAR_FORM_DATA)
+         .put("clearCache", COMMAND_CLEAR_CACHE)
+         .put("clearHistory", COMMAND_CLEAR_HISTORY)
++        .put("openMenu", COMMAND_OPEN_MENU)
+         .build()
+     }
+ 
+@@ -306,6 +308,11 @@ class RNCWebViewManagerImpl {
+         "goForward" -> webView.goForward()
+         "reload" -> webView.reload()
+         "stopLoading" -> webView.stopLoading()
++        "openMenu" -> {
++            val x = args.getMap(0).getInt("x")
++            val y = args.getMap(0).getInt("y")
++            webView.openMenu(x, y)
++        }
+         "postMessage" -> try {
+           val eventInitDict = JSONObject()
+           eventInitDict.put("data", args.getString(0))
+diff --git a/node_modules/react-native-webview/android/src/newarch/com/reactnativecommunity/webview/RNCWebViewManager.java b/node_modules/react-native-webview/android/src/newarch/com/reactnativecommunity/webview/RNCWebViewManager.java
+index 94b52d9..3587523 100644
+--- a/node_modules/react-native-webview/android/src/newarch/com/reactnativecommunity/webview/RNCWebViewManager.java
++++ b/node_modules/react-native-webview/android/src/newarch/com/reactnativecommunity/webview/RNCWebViewManager.java
+@@ -433,6 +433,11 @@ public class RNCWebViewManager extends SimpleViewManager<RNCWebView>
+       view.requestFocus();
+   }
+ 
++  @Override
++  public void openMenu(RNCWebViewWrapper view, int x, int y) {
++    view.getWebView().openMenu(x, y)
++  }
++
+   @Override
+   public void postMessage(RNCWebView view, String data) {
+       try {
+diff --git a/node_modules/react-native-webview/apple/RNCWebViewImpl.h b/node_modules/react-native-webview/apple/RNCWebViewImpl.h
+index 7a4350b..b427148 100644
+--- a/node_modules/react-native-webview/apple/RNCWebViewImpl.h
++++ b/node_modules/react-native-webview/apple/RNCWebViewImpl.h
+@@ -129,6 +129,7 @@ shouldStartLoadForRequest:(NSMutableDictionary<NSString *, id> *)request
+ + (void)setCustomCertificatesForHost:(nullable NSDictionary *)certificates;
+ - (void)postMessage:(NSString *_Nullable)message;
+ - (void)injectJavaScript:(NSString *_Nullable)script;
++- (void)openMenu:(NSDictionary *)point;
+ - (void)goForward;
+ - (void)goBack;
+ - (void)reload;
+diff --git a/node_modules/react-native-webview/apple/RNCWebViewImpl.m b/node_modules/react-native-webview/apple/RNCWebViewImpl.m
+index ffcf4b2..6a2a641 100644
+--- a/node_modules/react-native-webview/apple/RNCWebViewImpl.m
++++ b/node_modules/react-native-webview/apple/RNCWebViewImpl.m
+@@ -210,6 +210,45 @@ - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecogni
+   }
+ }
+ 
++- (void) openMenu:(NSDictionary *)point {
++   if (self.menuItems.count == 0) {
++        UIMenuController *menuController = [UIMenuController sharedMenuController];
++        menuController.menuItems = nil;
++        [menuController setMenuVisible:NO animated:YES];
++        return;
++    }
++
++    if (!point || ![point isKindOfClass:[NSDictionary class]]) {
++        return;
++    }
++
++    if (!point[@"x"] || !point[@"y"]) {
++        return;
++    }
++
++    CGFloat x = [point[@"x"] floatValue];
++    CGFloat y = [point[@"y"] floatValue];
++
++    CGRect targetRectangle = CGRectMake(x, y, 100, 100);
++    UIMenuController *menuController = [UIMenuController sharedMenuController];
++    NSMutableArray *menuControllerItems = [NSMutableArray arrayWithCapacity:self.menuItems.count];
++
++    for(NSDictionary *menuItem in self.menuItems) {
++      NSString *menuItemLabel = [RCTConvert NSString:menuItem[@"label"]];
++      NSString *menuItemKey = [RCTConvert NSString:menuItem[@"key"]];
++      NSString *sel = [NSString stringWithFormat:@"%@%@", CUSTOM_SELECTOR, menuItemKey];
++      UIMenuItem *item = [[UIMenuItem alloc] initWithTitle: menuItemLabel
++                                                    action: NSSelectorFromString(sel)];
++      [menuControllerItems addObject: item];
++    }
++
++
++
++    menuController.menuItems = menuControllerItems;
++    [menuController setTargetRect:targetRectangle inView:self];
++    [menuController setMenuVisible:YES animated:YES];
++}
++
+ // Listener for long presses
+ - (void)startLongPress:(UILongPressGestureRecognizer *)pressSender
+ {
+diff --git a/node_modules/react-native-webview/apple/RNCWebViewManager.mm b/node_modules/react-native-webview/apple/RNCWebViewManager.mm
+index 03cdd7f..bdca68e 100644
+--- a/node_modules/react-native-webview/apple/RNCWebViewManager.mm
++++ b/node_modules/react-native-webview/apple/RNCWebViewManager.mm
+@@ -206,6 +206,7 @@ - (RNCView *)view
+ QUICK_RCT_EXPORT_COMMAND_METHOD(stopLoading)
+ QUICK_RCT_EXPORT_COMMAND_METHOD(requestFocus)
+ 
++QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS(openMenu, point:(NSDictionary *)point, point);
+ QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS(postMessage, message:(NSString *)message, message)
+ QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS(injectJavaScript, script:(NSString *)script, script)
+ 
+diff --git a/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts b/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts
+index 63e1d07..517e783 100644
+--- a/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts
++++ b/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts
+@@ -257,6 +257,7 @@ export interface NativeCommands {
+   injectJavaScript: (viewRef: React.ElementRef<HostComponent<NativeProps>>, javascript: string) => void;
+   requestFocus: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+   postMessage: (viewRef: React.ElementRef<HostComponent<NativeProps>>, data: string) => void;
++  openMenu: (viewRef: React.ElementRef<HostComponent<NativeProps>>, { x, y }: { x: number; y: number }) => void;
+   // Android Only
+   loadUrl: (viewRef: React.ElementRef<HostComponent<NativeProps>>, url: string) => void;
+   clearFormData: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
+@@ -266,7 +267,7 @@ export interface NativeCommands {
+ }
+ 
+ export const Commands = codegenNativeCommands<NativeCommands>({
+-  supportedCommands: ['goBack', 'goForward', 'reload', 'stopLoading', 'injectJavaScript', 'requestFocus', 'postMessage', 'loadUrl', 'clearFormData', 'clearCache', 'clearHistory'],
++  supportedCommands: ['openMenu', 'goBack', 'goForward', 'reload', 'stopLoading', 'injectJavaScript', 'requestFocus', 'postMessage', 'loadUrl', 'clearFormData', 'clearCache', 'clearHistory'],
+ });
+ 
+ export default codegenNativeComponent<NativeProps>(
+diff --git a/node_modules/react-native-webview/src/WebView.android.tsx b/node_modules/react-native-webview/src/WebView.android.tsx
+index 6100702..acbb923 100644
+--- a/node_modules/react-native-webview/src/WebView.android.tsx
++++ b/node_modules/react-native-webview/src/WebView.android.tsx
+@@ -96,6 +96,7 @@ const WebViewComponent = forwardRef<{}, AndroidWebViewProps>(({
+   })
+ 
+   useImperativeHandle(ref, () => ({
++    openMenu: ({ x, y }: { x: number; y: number; }) => webViewRef.current && Commands.openMenu(webViewRef.current, {x, y}),
+     goForward: () => webViewRef.current && Commands.goForward(webViewRef.current),
+     goBack: () => webViewRef.current && Commands.goBack(webViewRef.current),
+     reload: () => {
+diff --git a/node_modules/react-native-webview/src/WebView.ios.tsx b/node_modules/react-native-webview/src/WebView.ios.tsx
+index 1970a61..9ae26b6 100644
+--- a/node_modules/react-native-webview/src/WebView.ios.tsx
++++ b/node_modules/react-native-webview/src/WebView.ios.tsx
+@@ -111,6 +111,7 @@ const WebViewComponent = forwardRef<{}, IOSWebViewProps>(({
+   });
+ 
+   useImperativeHandle(ref, () => ({
++    openMenu: ({x, y}: {x: number, y: number}) => webViewRef.current && Commands.openMenu(webViewRef.current, {x, y}),
+     goForward: () => webViewRef.current && Commands.goForward(webViewRef.current),
+     goBack: () => webViewRef.current && Commands.goBack(webViewRef.current),
+     reload: () => {
