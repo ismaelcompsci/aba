@@ -219,6 +219,7 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
 }
 
 export interface ReaderContextProps {
+  openMenu: ({ x, y }: { x: number; y: number }) => void;
   setAnnotations: (annotations: Annotation[]) => void;
   useMenuAction: (action: MenuActions) => void;
   registerBook: (bookRef: WebView) => void;
@@ -389,6 +390,7 @@ export interface ReaderContextProps {
 
 const ReaderContext = createContext<ReaderContextProps>({
   setAnnotations: () => {},
+  openMenu: () => {},
   useMenuAction: () => {},
   registerBook: () => {},
   // setAtStart: () => {},
@@ -456,6 +458,10 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const registerBook = useCallback((bookRef: WebView) => {
     book.current = bookRef;
+  }, []);
+
+  const openMenu = useCallback(({ x, y }: { x: number; y: number }) => {
+    book.current?.openMenu({ x, y });
   }, []);
 
   const changeTheme = useCallback((newTheme: Theme) => {
@@ -651,6 +657,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const contextValue = useMemo(
     () => ({
+      openMenu,
       setAnnotations,
       useMenuAction,
       registerBook,
@@ -699,6 +706,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setSearchResults,
     }),
     [
+      openMenu,
       useMenuAction,
       setAnnotations,
       // addMark,

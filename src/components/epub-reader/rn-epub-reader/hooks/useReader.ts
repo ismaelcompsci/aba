@@ -4,6 +4,7 @@ import { ReaderContext, ReaderContextProps } from "../context";
 
 export function useReader() {
   const {
+    openMenu,
     setAnnotations,
     useMenuAction,
     // changeFontFamily,
@@ -34,6 +35,7 @@ export function useReader() {
   } = useContext(ReaderContext);
 
   return {
+    openMenu,
     setAnnotations,
     useMenuAction,
     // changeFontFamily,
@@ -90,5 +92,6 @@ export function useReader() {
     | "cover"
     | "useMenuAction"
     | "setAnnotations"
+    | "openMenu"
   >;
 }

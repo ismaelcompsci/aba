@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import axios from "axios";
@@ -68,7 +68,8 @@ const EBookReader = ({
     index: -1,
     value: "",
   });
-  const { setIsPdf, useMenuAction, setAnnotations } = useReader();
+  const op = useRef(false);
+  const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
 
   const isPdf = bookPath.endsWith(".pdf");
   const enableSwipe = isPdf;
@@ -99,6 +100,7 @@ const EBookReader = ({
   };
 
   const onPress = () => {
+    if (op.current) return;
     setHide((p) => !p);
   };
 
@@ -128,6 +130,7 @@ const EBookReader = ({
   };
 
   const onCustomMenuSelection = (event: MenuSelectionEvent) => {
+    console.log(event.nativeEvent);
     switch (event.nativeEvent.key) {
       case "copy":
         useMenuAction({ action: "copy" });
@@ -159,9 +162,13 @@ const EBookReader = ({
 
     setBookAnnotations((prev: BookAnnotations) => {
       const newAnnotations = { ...prev };
+      const filteredNewAnnotaions = newAnnotations[book.id].filter(
+        (anns) => anns.value !== annotation.value
+      );
 
       if (newAnnotations[book.id]?.length >= 0) {
-        newAnnotations[book.id].push(annotation);
+        filteredNewAnnotaions.push(annotation);
+        newAnnotations[book.id] = filteredNewAnnotaions;
       } else {
         newAnnotations[book.id] = [annotation];
       }
@@ -171,14 +178,16 @@ const EBookReader = ({
   };
 
   const onAnnotationClick = ({ index, pos, value }: ShowAnnotation) => {
-    setAnnotaionOpen({
-      open: true,
-      x: pos.point.x,
-      y: pos.point.y,
-      dir: pos.dir,
-      value,
-      index,
-    });
+    op.current = true;
+    // setAnnotaionOpen({
+    //   open: true,
+    //   x: pos.point.x,
+    //   y: pos.point.y,
+    //   dir: pos.dir,
+    //   value,
+    //   index,
+    // });
+    openMenu({ x: pos.point.x, y: pos.point.y });
   };
 
   const annotationAction = (action: string) => {
@@ -227,7 +236,14 @@ const EBookReader = ({
         title={book.media.metadata.title || ""}
         setEpubReaderOverviewModal={setEpubReaderOverviewModal}
       >
-        <FullScreen pos="absolute" t={0} b={0} r={0} l={0}>
+        <FullScreen
+          pos="absolute"
+          t={0}
+          b={0}
+          r={0}
+          l={0}
+          onPress={() => (op.current = false)}
+        >
           <ScrollLabels
             showingNext={showingNext}
             showingPrev={showingPrev}
@@ -263,12 +279,12 @@ const EBookReader = ({
             ]}
             onCustomMenuSelection={onCustomMenuSelection}
           />
-          <Popover
+          {/* <Popover
             open={annotaionOpen.open}
             stayInFrame
             strategy="absolute"
             placement="bottom"
-            onOpenChange={(open) =>
+            onOpenChange={(open) => {
               setAnnotaionOpen({
                 open,
                 x: 0,
@@ -276,8 +292,9 @@ const EBookReader = ({
                 dir: "",
                 index: -1,
                 value: "",
-              })
-            }
+              });
+              op.current = false;
+            }}
           >
             <Popover.Content
               position="absolute"
@@ -290,8 +307,6 @@ const EBookReader = ({
               p={0}
               bg={"transparent"}
             >
-              <Popover.Arrow />
-              <Popover.Close />
               <Popover.ScrollView horizontal>
                 <Group
                   orientation="horizontal"
@@ -302,6 +317,7 @@ const EBookReader = ({
                       x: width / 2 - groupWidth / 2,
                     }));
                   }}
+                  size={"$1"}
                 >
                   <Group.Item>
                     <Button onPress={() => annotationAction("delete")}>
@@ -321,7 +337,7 @@ const EBookReader = ({
                 </Group>
               </Popover.ScrollView>
             </Popover.Content>
-          </Popover>
+          </Popover> */}
         </FullScreen>
       </Menu>
       <BookChapterModal />

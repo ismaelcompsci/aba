@@ -9855,6 +9855,9 @@ class Reader {
           range
         } = e.detail;
         const pos = getPosition(range);
+        const ann = this.annotationsByValue.get(value);
+        this.currentAnnotation = ann;
+        debugMessage(\`ann got \${JSON.stringify(ann)}\`)
         toReactMessage({
           type: "annotationClick",
           index,
@@ -9980,6 +9983,7 @@ class Reader {
       this.view.renderer.pause = false;
       if (annotation) {
         this.currentAnnotation = annotation;
+        this.annotationsByValue.set(annotation.value, annotation)
       }
     });
   };
@@ -9988,6 +9992,7 @@ class Reader {
       this.view.addAnnotation(ann);
       const list = this.annotations.get(ann.index);
       if (list) list.push(ann);else this.annotations.set(ann.index, [ann]);
+      this.annotationsByValue.set(ann.value, ann);
     });
   };
   copy = () => {

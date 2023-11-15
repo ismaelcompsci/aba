@@ -164,7 +164,7 @@ export function View({
   const testPress = () => {
     setTimeout(() => {
       onPress();
-    }, 100);
+    }, 130);
   };
 
   const tapGesture = Gesture.Tap().onTouchesUp((_event) => {

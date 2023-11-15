@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "client": "TAMAGUI_TARGET=native expo start --dev-client",
     "xcode": "xed ./ios",
-    "prod": "TAMAGUI_TARGET=native npx expo start --no-dev --minify"
+    "prod": "TAMAGUI_TARGET=native npx expo start --no-dev --minify",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@epubjs-react-native/expo-file-system": "^1.0.0",
@@ -68,7 +69,7 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-track-player": "^4.0.1",
     "react-native-web": "~0.19.6",
-    "react-native-webview": "13.2.2",
+    "react-native-webview": "^13.2.2",
     "rn-fetch-blob": "^0.12.0",
     "tamagui": "^1.76.0",
     "zeego": "^1.7.2",

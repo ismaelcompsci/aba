@@ -184,6 +184,22 @@ index 03cdd7f..bdca68e 100644
  QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS(postMessage, message:(NSString *)message, message)
  QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS(injectJavaScript, script:(NSString *)script, script)
  
+diff --git a/node_modules/react-native-webview/index.d.ts b/node_modules/react-native-webview/index.d.ts
+index 394b444..1c18083 100644
+--- a/node_modules/react-native-webview/index.d.ts
++++ b/node_modules/react-native-webview/index.d.ts
+@@ -42,6 +42,11 @@ declare class WebView<P = {}> extends Component<WebViewProps & P> {
+      */
+     postMessage: (message: string) => void;
+     
++     /**
++     * open selection menu at x and y 
++     */
++    openMenu: ({x, y}: {x: number, y: number}) => void
++
+      /**
+      * (Android only)
+      * Removes the autocomplete popup from the currently focused form field, if present.
 diff --git a/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts b/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts
 index 63e1d07..517e783 100644
 --- a/node_modules/react-native-webview/src/RNCWebViewNativeComponent.ts
@@ -229,3 +245,18 @@ index 1970a61..9ae26b6 100644
      goForward: () => webViewRef.current && Commands.goForward(webViewRef.current),
      goBack: () => webViewRef.current && Commands.goBack(webViewRef.current),
      reload: () => {
+diff --git a/node_modules/react-native-webview/src/WebViewTypes.ts b/node_modules/react-native-webview/src/WebViewTypes.ts
+index c83e3de..200a331 100644
+--- a/node_modules/react-native-webview/src/WebViewTypes.ts
++++ b/node_modules/react-native-webview/src/WebViewTypes.ts
+@@ -21,7 +21,9 @@ type WebViewCommands =
+   | 'postMessage'
+   | 'injectJavaScript'
+   | 'loadUrl'
+-  | 'requestFocus';
++  | 'requestFocus'
++  | 'openMenu';
++
+ 
+ type AndroidWebViewCommands = 'clearHistory' | 'clearCache' | 'clearFormData';
+ 
