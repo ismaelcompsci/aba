@@ -8,9 +8,9 @@ import { View, XStack } from "tamagui";
 import useIconTheme from "../../../hooks/use-icon-theme";
 import { epubReaderOverviewModalAtom } from "../../../state/app-state";
 
+import Annotations from "./tab-views/annotations";
 import { Content } from "./tab-views/content";
 import { Overview } from "./tab-views/overview";
-import Annotations from "./Annotations";
 
 const renderScene = SceneMap({
   overview: Overview,

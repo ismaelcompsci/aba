@@ -3,10 +3,10 @@ import { useLocalSearchParams } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { Button, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
 
-import { epubReaderOverviewModalAtom } from "../../../state/app-state";
-import { bookAnnotationsAtom } from "../../../state/local-state";
-import { FullScreen, ScreenCenter } from "../../center";
-import { useReader } from "../rn-epub-reader";
+import { epubReaderOverviewModalAtom } from "../../../../state/app-state";
+import { bookAnnotationsAtom } from "../../../../state/local-state";
+import { FullScreen, ScreenCenter } from "../../../center";
+import { useReader } from "../../rn-epub-reader";
 
 const Annotations = () => {
   const { goToLocation } = useReader();
