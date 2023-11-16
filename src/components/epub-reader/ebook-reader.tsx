@@ -41,6 +41,12 @@ interface EBookReaderProps {
   bookPath: string;
   initialLocation: string | undefined;
 }
+/**
+ * Possible Issues / Fixes / TODOS
+ * Dismiss ActionMode for android on view press -> https://stackoverflow.com/a/77408989
+ *
+ * Touch events for open menu and pdf swiping inside webview. because android is bad
+ */
 
 const EBookReader = ({
   book,
@@ -60,14 +66,7 @@ const EBookReader = ({
   const [showingNext, setShowingNext] = useState(false);
   const [showingPrev, setShowingPrev] = useState(false);
   const [currentLabel, setCurrentLabel] = useState("");
-  const [annotaionOpen, setAnnotaionOpen] = useState({
-    open: false,
-    x: 0,
-    y: 0,
-    dir: "",
-    index: -1,
-    value: "",
-  });
+
   const op = useRef(false);
   const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
 
@@ -153,6 +152,7 @@ const EBookReader = ({
   };
 
   const onNewAnnotation = (annotation: Annotation) => {
+    console.log(annotation);
     // @ts-ignore
     if (annotation.pos) delete annotation.pos;
     // @ts-ignore
@@ -162,11 +162,11 @@ const EBookReader = ({
 
     setBookAnnotations((prev: BookAnnotations) => {
       const newAnnotations = { ...prev };
-      const filteredNewAnnotaions = newAnnotations[book.id].filter(
+      const filteredNewAnnotaions = newAnnotations[book.id]?.filter(
         (anns) => anns.value !== annotation.value
       );
 
-      if (newAnnotations[book.id]?.length >= 0) {
+      if (filteredNewAnnotaions && newAnnotations[book.id]?.length >= 0) {
         filteredNewAnnotaions.push(annotation);
         newAnnotations[book.id] = filteredNewAnnotaions;
       } else {
@@ -190,18 +190,18 @@ const EBookReader = ({
     openMenu({ x: pos.point.x, y: pos.point.y });
   };
 
-  const annotationAction = (action: string) => {
-    if (action === "delete") {
-      const filteredAnnotations = bookAnnotations[book.id].filter(
-        (an) => an.value !== annotaionOpen.value
-      );
-      setBookAnnotations((prev: BookAnnotations) => {
-        const newAnnotaions = { ...prev };
-        newAnnotaions[book.id] = filteredAnnotations;
-        return newAnnotaions;
-      });
-    }
-  };
+  // const annotationAction = (action: string) => {
+  //   if (action === "delete") {
+  //     const filteredAnnotations = bookAnnotations[book.id].filter(
+  //       (an) => an.value !== annotaionOpen.value
+  //     );
+  //     setBookAnnotations((prev: BookAnnotations) => {
+  //       const newAnnotaions = { ...prev };
+  //       newAnnotaions[book.id] = filteredAnnotations;
+  //       return newAnnotaions;
+  //     });
+  //   }
+  // };
 
   const updateProgress = async (payload: {
     ebookLocation: string;
@@ -279,65 +279,6 @@ const EBookReader = ({
             ]}
             onCustomMenuSelection={onCustomMenuSelection}
           />
-          {/* <Popover
-            open={annotaionOpen.open}
-            stayInFrame
-            strategy="absolute"
-            placement="bottom"
-            onOpenChange={(open) => {
-              setAnnotaionOpen({
-                open,
-                x: 0,
-                y: 0,
-                dir: "",
-                index: -1,
-                value: "",
-              });
-              op.current = false;
-            }}
-          >
-            <Popover.Content
-              position="absolute"
-              y={
-                annotaionOpen.dir === "up"
-                  ? annotaionOpen.y + 25
-                  : annotaionOpen.y
-              }
-              x={60}
-              p={0}
-              bg={"transparent"}
-            >
-              <Popover.ScrollView horizontal>
-                <Group
-                  orientation="horizontal"
-                  onLayout={(event) => {
-                    const groupWidth = event.nativeEvent.layout.width;
-                    setAnnotaionOpen((prev) => ({
-                      ...prev,
-                      x: width / 2 - groupWidth / 2,
-                    }));
-                  }}
-                  size={"$1"}
-                >
-                  <Group.Item>
-                    <Button onPress={() => annotationAction("delete")}>
-                      <Text>Delete</Text>
-                    </Button>
-                  </Group.Item>
-                  <Group.Item>
-                    <Button onPress={() => annotationAction("underline")}>
-                      <Text>Underline</Text>
-                    </Button>
-                  </Group.Item>
-                  <Group.Item>
-                    <Button onPress={() => annotationAction("strikethrough")}>
-                      <Text>Strikethrough</Text>
-                    </Button>
-                  </Group.Item>
-                </Group>
-              </Popover.ScrollView>
-            </Popover.Content>
-          </Popover> */}
         </FullScreen>
       </Menu>
       <BookChapterModal />
