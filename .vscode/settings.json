@@ -6,5 +6,6 @@
     "editor.formatOnSaveMode": "file", // required to format on save
     "files.autoSave": "onFocusChange", // optional but recommended
     "vs-code-prettier-eslint.prettierLast": false,// set as "true" to run 'prettier' last not first
-    "editor.minimap.enabled": false
+    "editor.minimap.enabled": false,
+    "java.configuration.updateBuildConfiguration": "disabled"
   }

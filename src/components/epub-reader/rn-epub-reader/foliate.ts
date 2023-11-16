@@ -9978,12 +9978,14 @@ class Reader {
         value,
         pos
       };
-    }), 500);
+      this.currentAnnotation = annotation
+    }), 1);
     doc.addEventListener("touchend", () => {
       this.view.renderer.pause = false;
       if (annotation) {
         this.currentAnnotation = annotation;
         this.annotationsByValue.set(annotation.value, annotation)
+        annotation = null;
       }
     });
   };
@@ -10006,6 +10008,7 @@ class Reader {
     });
   };
   highlight = color => {
+    debug(\`\${JSON.stringify(this.currentAnnotation)}\`)
     if (this.currentAnnotation) {
       this.view.addAnnotation({
         value: this.currentAnnotation.value,
@@ -10013,7 +10016,9 @@ class Reader {
       }, false);
       this.currentAnnotation.color = color;
       this.currentAnnotation.created = new Date().toISOString();
-      this.currentAnnotation.text = this.currentAnnotation.range.toString();
+      if (this.currentAnnotation.range) {
+        this.currentAnnotation.text = this.currentAnnotation.range.toString();
+      }
       const annotations = this.annotations.get(this.currentAnnotation.index);
       if (annotations) annotations.push(this.currentAnnotation);else this.annotations.set(this.currentAnnotation.index, [this.currentAnnotation]);
       toReactMessage({

@@ -21,7 +21,6 @@ import {
   Text,
   XGroup,
   XStack,
-  YStack,
 } from "tamagui";
 
 import {
@@ -45,12 +44,10 @@ const LINESTEP = 0.1;
 const SCROLL_ENABLED = false;
 
 const Menu = ({
-  children,
   hide,
   title,
   setEpubReaderOverviewModal,
 }: {
-  children: React.ReactNode;
   hide: boolean;
   title: string;
   setEpubReaderOverviewModal: (open: boolean) => void;
@@ -127,13 +124,7 @@ const Menu = ({
   }, [hide]);
 
   return (
-    <YStack
-      pos={"relative"}
-      h={"100%"}
-      w={"100%"}
-      alignItems="center"
-      justifyContent="center"
-    >
+    <>
       {hide && (
         <Header>
           <HeaderFrame pt={top}>
@@ -269,10 +260,8 @@ const Menu = ({
         </Header>
       )}
 
-      {children}
-
       {hide && <Footer></Footer>}
-    </YStack>
+    </>
   );
 };
 

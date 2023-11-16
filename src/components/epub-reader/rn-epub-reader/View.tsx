@@ -1,12 +1,21 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
-import { I18nManager, useWindowDimensions, View as RNView } from "react-native";
+import {
+  I18nManager,
+  Platform,
+  useWindowDimensions,
+  View as RNView,
+} from "react-native";
 import {
   Directions,
   Gesture,
   GestureDetector,
+  GestureType,
 } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
-import { WebView, WebViewMessageEvent } from "react-native-webview";
+import {
+  WebView,
+  WebViewMessageEvent,
+} from "@ismaelcompsci/react-native-webview";
 import Clipboard from "@react-native-clipboard/clipboard";
 import RNFetchBlob from "rn-fetch-blob";
 
@@ -174,7 +183,7 @@ export function View({
       if (touch < third) {
         runOnJS(goPrevious)();
       } else if (touch > third && touch < third + third) {
-        runOnJS(onPress)();
+        runOnJS(testPress)();
       } else {
         runOnJS(goNext)();
       }
@@ -192,8 +201,8 @@ export function View({
   const t = _theme();
 
   return (
-    <GestureDetector
-      gesture={Gesture.Race(tapGesture, rightFlingGesture, leftFlingGesture)}
+    <GesturePerPlatform
+      gestures={[tapGesture, rightFlingGesture, leftFlingGesture]}
     >
       <RNView
         style={{
@@ -234,6 +243,24 @@ export function View({
           }}
         />
       </RNView>
-    </GestureDetector>
+    </GesturePerPlatform>
   );
 }
+
+const GesturePerPlatform = ({
+  children,
+  gestures,
+}: {
+  children: React.ReactNode;
+  gestures: GestureType[];
+}) => {
+  if (Platform.OS === "ios") {
+    return (
+      <GestureDetector gesture={Gesture.Race(...gestures)}>
+        {children}
+      </GestureDetector>
+    );
+  } else {
+    return <>{children}</>;
+  }
+};

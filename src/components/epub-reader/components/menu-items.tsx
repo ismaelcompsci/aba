@@ -2,7 +2,7 @@ import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
 import { Button, styled } from "tamagui";
 
 export const MenuContainer = styled(Animated.View, {
-  zIndex: 9999,
+  zIndex: 99999,
   h: 300,
   w: "100%",
   px: "$4",

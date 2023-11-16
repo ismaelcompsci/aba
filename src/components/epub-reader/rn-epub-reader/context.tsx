@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { Dimensions } from "react-native";
-import type WebView from "react-native-webview";
+import type WebView from "@ismaelcompsci/react-native-webview";
 
 import { themes } from "../components/themes";
 

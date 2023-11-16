@@ -1,11 +1,12 @@
 import { memo, useEffect, useRef, useState } from "react";
-import { StatusBar, useWindowDimensions } from "react-native";
+import { Platform, StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
+import { Settings } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Button, Group, Popover, Text } from "tamagui";
+import { Button } from "tamagui";
 
 import {
   epubReaderLoadingAtom,
@@ -152,7 +153,6 @@ const EBookReader = ({
   };
 
   const onNewAnnotation = (annotation: Annotation) => {
-    console.log(annotation);
     // @ts-ignore
     if (annotation.pos) delete annotation.pos;
     // @ts-ignore
@@ -177,16 +177,8 @@ const EBookReader = ({
     });
   };
 
-  const onAnnotationClick = ({ index, pos, value }: ShowAnnotation) => {
+  const onAnnotationClick = ({ pos }: ShowAnnotation) => {
     op.current = true;
-    // setAnnotaionOpen({
-    //   open: true,
-    //   x: pos.point.x,
-    //   y: pos.point.y,
-    //   dir: pos.dir,
-    //   value,
-    //   index,
-    // });
     openMenu({ x: pos.point.x, y: pos.point.y });
   };
 
@@ -229,61 +221,84 @@ const EBookReader = ({
     setIsPdf(bookPath.endsWith(".pdf"));
   }, [bookPath]);
 
+  const ReaderFullScreenPress = () => {
+    op.current = false;
+  };
+
   return (
-    <>
+    <ReaderFullscreen
+      onPress={Platform.OS === "ios" ? ReaderFullScreenPress : undefined}
+    >
+      <ScrollLabels
+        showingNext={showingNext}
+        showingPrev={showingPrev}
+        label={currentLabel}
+        readerSettings={ebookSettings}
+        menuHidden={hide}
+      />
+      <Reader
+        height={height}
+        width={width}
+        src={bookPath}
+        enableSwipe={enableSwipe}
+        defaultTheme={ebookSettings}
+        fileSystem={useFileSystem}
+        onPress={onPress}
+        initialLocation={initialLocation}
+        onShowNext={onShowNext}
+        onShowPrevious={onShowPrevious}
+        onLocationChange={onLocationChange}
+        onStarted={() =>
+          setEpubReaderLoading({ loading: true, part: "Opening Book..." })
+        }
+        onReady={onReady}
+        onDisplayError={onDisplayError}
+        onNewAnnotation={onNewAnnotation}
+        onAnnotationClick={onAnnotationClick}
+        menuItems={[
+          { label: "Copy", key: "copy" },
+          { label: "Highlight", key: "highlight" },
+          { label: "Underline", key: "underline" },
+          { label: "Squiggly", key: "squiggly" },
+          { label: "Strikethrough", key: "strikethrough" },
+        ]}
+        onCustomMenuSelection={onCustomMenuSelection}
+      />
       <Menu
         hide={hide}
         title={book.media.metadata.title || ""}
         setEpubReaderOverviewModal={setEpubReaderOverviewModal}
-      >
-        <FullScreen
-          pos="absolute"
-          t={0}
-          b={0}
-          r={0}
-          l={0}
-          onPress={() => (op.current = false)}
-        >
-          <ScrollLabels
-            showingNext={showingNext}
-            showingPrev={showingPrev}
-            label={currentLabel}
-            readerSettings={ebookSettings}
-            menuHidden={hide}
-          />
-          <Reader
-            height={height}
-            width={width}
-            src={bookPath}
-            enableSwipe={enableSwipe}
-            defaultTheme={ebookSettings}
-            fileSystem={useFileSystem}
-            onPress={onPress}
-            initialLocation={initialLocation}
-            onShowNext={onShowNext}
-            onShowPrevious={onShowPrevious}
-            onLocationChange={onLocationChange}
-            onStarted={() =>
-              setEpubReaderLoading({ loading: true, part: "Opening Book..." })
-            }
-            onReady={onReady}
-            onDisplayError={onDisplayError}
-            onNewAnnotation={onNewAnnotation}
-            onAnnotationClick={onAnnotationClick}
-            menuItems={[
-              { label: "Copy", key: "copy" },
-              { label: "Highlight", key: "highlight" },
-              { label: "Underline", key: "underline" },
-              { label: "Squiggly", key: "squiggly" },
-              { label: "Strikethrough", key: "strikethrough" },
-            ]}
-            onCustomMenuSelection={onCustomMenuSelection}
-          />
-        </FullScreen>
-      </Menu>
+      />
       <BookChapterModal />
-    </>
+      {Platform.OS === "android" ? (
+        <Button
+          circular
+          pos={"absolute"}
+          bottom={10}
+          right={15}
+          zIndex={9999}
+          ai={"center"}
+          jc={"center"}
+          onPress={() => setHide((prev) => !prev)}
+          icon={() => <Settings />}
+        />
+      ) : null}
+    </ReaderFullscreen>
   );
+};
+
+const ReaderFullscreen = ({
+  children,
+  onPress,
+}: {
+  children: React.ReactNode;
+  onPress?: () => void;
+}) => {
+  if (Platform.OS === "ios") {
+    return <FullScreen onPress={onPress}>{children}</FullScreen>;
+  } else {
+    return children;
+  }
 };
 
 export default memo(EBookReader);
