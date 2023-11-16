@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import Animated, { StretchInY, StretchOutY } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { Separator, styled, Text, XStack, YStack } from "tamagui";
 
-import { epubReaderTocAtom } from "../../../../state/app-state";
+import {
+  epubReaderOverviewModalAtom,
+  epubReaderTocAtom,
+} from "../../../../state/app-state";
 import { TocItem, useReader } from "../../rn-epub-reader";
 
 type NewTocItem = {
@@ -70,10 +73,12 @@ const TocItemView = ({
 export const Content = () => {
   const { goToLocation, currentLocation } = useReader();
   const epubReaderToc = useAtomValue(epubReaderTocAtom);
+  const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
   const newToc = useMemo(() => flattenTocItems(epubReaderToc || []), []);
 
   const handleTocItemPress = (item: TocItem) => {
     goToLocation(item.href);
+    setEpubReaderOverviewModal(false);
   };
 
   function flattenTocItems(items: TocItem[]): NewTocItem[] {
@@ -109,7 +114,14 @@ export const Content = () => {
   };
 
   return (
-    <YStack flex={1} bg="$background" padding={"$4"}>
+    <YStack
+      flex={1}
+      bg="$background"
+      padding={"$4"}
+      $platform-android={{
+        paddingTop: "$10",
+      }}
+    >
       {newToc.length ? (
         <FlashList
           data={newToc}

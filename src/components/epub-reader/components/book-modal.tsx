@@ -1,86 +1,16 @@
 import { useState } from "react";
-import { Modal, useWindowDimensions } from "react-native";
+import { Modal, Platform, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { X } from "@tamagui/lucide-icons";
-import { useLocalSearchParams } from "expo-router";
-import { useAtom, useAtomValue } from "jotai";
-import { ScrollView, Separator, Text, View, XStack, YStack } from "tamagui";
+import { useAtom } from "jotai";
+import { View, XStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
 import { epubReaderOverviewModalAtom } from "../../../state/app-state";
-import { bookAnnotationsAtom } from "../../../state/local-state";
-import { FullScreen, ScreenCenter } from "../../center";
 
 import { Content } from "./tab-views/content";
 import { Overview } from "./tab-views/overview";
-
-const Annotations = () => {
-  const { id } = useLocalSearchParams();
-  const bookAnnotations = useAtomValue(bookAnnotationsAtom);
-  const annotations = bookAnnotations[Array.isArray(id) ? id[0] : id];
-
-  return (
-    <FullScreen padding={"$4"}>
-      {annotations?.length ? (
-        <ScrollView space height={"100%"} showsVerticalScrollIndicator={false}>
-          {annotations?.map((ann) => {
-            const date = new Date(ann.created);
-            return (
-              <YStack key={ann.value}>
-                <Text>
-                  {ann.color === "strikethrough" ? (
-                    <Text
-                      textDecorationLine="line-through"
-                      textDecorationColor="yellow"
-                    >
-                      {ann.text}
-                    </Text>
-                  ) : null}
-                  {ann.color === "yellow" ? (
-                    <Text
-                      key={ann.value}
-                      backgroundColor={"rgba(255, 255, 0, 0.4)"}
-                    >
-                      {ann.text}
-                    </Text>
-                  ) : null}
-                  {ann.color === "underline" ? (
-                    <Text
-                      textDecorationLine="underline"
-                      textDecorationColor={"yellow"}
-                    >
-                      {ann.text}
-                    </Text>
-                  ) : null}
-                  {ann.color === "squiggly" ? (
-                    <Text
-                      textDecorationLine="underline"
-                      textDecorationColor={"yellow"}
-                      textDecorationStyle="dotted"
-                    >
-                      {ann.text}
-                    </Text>
-                  ) : null}
-                </Text>
-
-                <XStack pt={"$4"} pb={"$2"}>
-                  <Text color={"$gray11"} fontSize={"$1"}>
-                    {date.toLocaleString()}
-                  </Text>
-                </XStack>
-                <Separator />
-              </YStack>
-            );
-          })}
-        </ScrollView>
-      ) : (
-        <ScreenCenter>
-          <Text>empty :/</Text>
-        </ScreenCenter>
-      )}
-    </FullScreen>
-  );
-};
+import Annotations from "./Annotations";
 
 const renderScene = SceneMap({
   overview: Overview,
@@ -94,7 +24,7 @@ export const BookChapterModal = () => {
     epubReaderOverviewModalAtom
   );
 
-  const { color, bgStrong, bg } = useIconTheme();
+  const { color, bg } = useIconTheme();
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
@@ -113,13 +43,23 @@ export const BookChapterModal = () => {
     >
       <XStack
         pos={"absolute"}
-        right={-100}
-        top={-30}
-        height={70}
-        width={200}
-        transform={"rotate(45deg)"}
-        backgroundColor={"$backgroundPress"}
-        zi={99999}
+        $platform-ios={{
+          right: -100,
+          top: -30,
+          height: 70,
+          width: 200,
+          transform: "rotate(45deg)",
+          zIndex: 99999,
+        }}
+        $platform-android={{
+          bottom: -30,
+          left: -100,
+          zIndex: 99999,
+          height: 70,
+          width: 200,
+          transform: "rotate(45deg)",
+        }}
+        bg={"$backgroundPress"}
         style={{
           shadowColor: "#000",
           shadowOffset: {
@@ -132,11 +72,20 @@ export const BookChapterModal = () => {
         }}
       >
         <View
-          left={85}
-          pos={"absolute"}
-          transform={"rotate(45deg)"}
-          bottom={0}
-          zIndex={99999}
+          $platform-ios={{
+            left: 85,
+            pos: "absolute",
+            transform: "rotate(45deg)",
+            bottom: 0,
+            zIndex: 99999,
+          }}
+          $platform-android={{
+            pos: "absolute",
+            top: 0,
+            left: 85,
+            zIndex: 99999,
+            transform: "rotate(45deg)",
+          }}
           onPress={() => setEpubReaderOverviewModal(false)}
           pressStyle={{ opacity: 0.5 }}
         >
@@ -148,6 +97,7 @@ export const BookChapterModal = () => {
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={{ width, height }}
+        tabBarPosition={Platform.OS === "android" ? "bottom" : "top"}
         renderTabBar={(props) => (
           <TabBar
             {...props}

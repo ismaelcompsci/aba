@@ -59,6 +59,9 @@ export const Overview = () => {
       showsVerticalScrollIndicator={false}
       width={width}
       space
+      $platform-android={{
+        paddingTop: "$10",
+      }}
     >
       <XStack>
         {cover ? (
