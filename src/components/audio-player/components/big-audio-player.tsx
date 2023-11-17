@@ -91,7 +91,7 @@ const BigAudioPlayer = ({
       borderRadius={"$7"}
     >
       <LinearGradient
-        flex={1}
+        height={height}
         colors={[colors.colorFour.value, "$backgroundPress"]}
         locations={[0.1, 0.7]}
         borderRadius={"$7"}
@@ -150,6 +150,9 @@ const BigAudioPlayer = ({
               pb={bottom}
               justifyContent="space-between"
               w={"100%"}
+              $platform-android={{
+                paddingBottom: "$4",
+              }}
             >
               <CirlceButton bg={"$backgroundFocus"}>
                 <Bookmark />
