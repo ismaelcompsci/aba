@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
 import {
+  DeviceEventEmitter,
   I18nManager,
   Platform,
   useWindowDimensions,
@@ -12,10 +13,7 @@ import {
   GestureType,
 } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
-import {
-  WebView,
-  WebViewMessageEvent,
-} from "@ismaelcompsci/react-native-webview";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
 import Clipboard from "@react-native-clipboard/clipboard";
 import RNFetchBlob from "rn-fetch-blob";
 
@@ -147,6 +145,11 @@ export function View({
     if (type === "annotationClick") {
       const { index, range, value, pos } = parsedEvent;
       onAnnotationClick({ index, value, pos });
+    }
+
+    if (type === "tts") {
+      const { ssml, action } = parsedEvent;
+      DeviceEventEmitter.emit("TTS.ssml", { ssml, action });
     }
   };
 

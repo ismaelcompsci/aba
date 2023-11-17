@@ -130,7 +130,6 @@ const EBookReader = ({
   };
 
   const onCustomMenuSelection = (event: MenuSelectionEvent) => {
-    console.log(event.nativeEvent);
     switch (event.nativeEvent.key) {
       case "copy":
         useMenuAction({ action: "copy" });
@@ -146,6 +145,9 @@ const EBookReader = ({
         break;
       case "underline":
         useMenuAction({ action: "highlight", color: "underline" });
+        break;
+      case "speak_from_here":
+        useMenuAction({ action: "speak_from_here" });
         break;
       default:
         break;
@@ -261,6 +263,7 @@ const EBookReader = ({
           { label: "Underline", key: "underline" },
           { label: "Squiggly", key: "squiggly" },
           { label: "Strikethrough", key: "strikethrough" },
+          { label: "Speak from here", key: "speak_from_here" },
         ]}
         onCustomMenuSelection={onCustomMenuSelection}
       />

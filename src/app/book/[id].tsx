@@ -1,7 +1,7 @@
 import React from "react";
 import { Animated, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ReadMore from "@fawazahmed/react-native-read-more";
+import ViewMoreText from "react-native-view-more-text";
 import { BlurView } from "@react-native-community/blur";
 import { BookX, ChevronLeft } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -15,7 +15,6 @@ import {
   Image,
   Spinner,
   Text,
-  useTheme,
   View,
   XStack,
   YStack,
@@ -62,8 +61,6 @@ const BookPage = () => {
 
   const insets = useSafeAreaInsets();
   const { bg: backgroundColor, color, bgPress } = useIconTheme();
-  const theme = useTheme();
-  const seeTextColor = theme.blue10.get();
   const IHeight = 400;
 
   const { data: bookItem, isLoading } = useQuery({
@@ -231,6 +228,17 @@ const BookPage = () => {
   const author = getAuthor();
   const series = getSeries();
 
+  const renderViewMore = (onPress: () => void) => (
+    <Text color={"$blue10"} onPress={onPress}>
+      View more
+    </Text>
+  );
+  const renderViewLess = (onPress: () => void) => (
+    <Text color={"$blue10"} onPress={onPress}>
+      View less
+    </Text>
+  );
+
   return (
     <FullScreen>
       {isLoading ? (
@@ -313,20 +321,13 @@ const BookPage = () => {
                     />
                   </XStack>
                 </XStack>
-                <ReadMore
+                <ViewMoreText
+                  renderViewLess={renderViewLess}
+                  renderViewMore={renderViewMore}
                   numberOfLines={DEFAULT_TRUNCATE}
-                  seeMoreText="More"
-                  seeLessText="Less"
-                  seeLessStyle={{ color: seeTextColor }}
-                  seeMoreStyle={{ color: seeTextColor }}
-                  style={{
-                    color,
-                    alignSelf: "flex-start",
-                    textAlign: "justify",
-                  }}
                 >
-                  {bookItem.media.metadata.description}
-                </ReadMore>
+                  <Text>{bookItem.media.metadata.description}</Text>
+                </ViewMoreText>
                 {genres?.length ? (
                   <GenresLabelScroll
                     genres={genres}

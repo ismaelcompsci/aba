@@ -15,7 +15,8 @@ export type MenuActions =
   | { action: "highlight"; color: string }
   | { action: "underline"; color: string }
   | { action: "strikethrough"; color: string }
-  | { action: "squiggly"; color: string };
+  | { action: "squiggly"; color: string }
+  | { action: "speak_from_here"; color?: string };
 
 export type MenuSelectionEvent = {
   nativeEvent: {

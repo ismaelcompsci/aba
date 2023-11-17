@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { Dimensions } from "react-native";
-import type WebView from "@ismaelcompsci/react-native-webview";
+import type WebView from "react-native-webview";
 
 import { themes } from "../components/themes";
 
@@ -219,6 +219,13 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
 }
 
 export interface ReaderContextProps {
+  initTTS: () => void;
+  startTTS: () => void;
+  resumeTTS: () => void;
+  nextTTS: (paused: boolean) => void;
+  prevTTS: (paused: boolean) => void;
+  setMarkTTS: (mark: string) => void;
+  pauseTTSMark: (stopping?: boolean) => void;
   openMenu: ({ x, y }: { x: number; y: number }) => void;
   setAnnotations: (annotations: Annotation[]) => void;
   useMenuAction: (action: MenuActions) => void;
@@ -389,6 +396,13 @@ export interface ReaderContextProps {
 }
 
 const ReaderContext = createContext<ReaderContextProps>({
+  initTTS: () => {},
+  startTTS: () => {},
+  resumeTTS: () => {},
+  nextTTS: () => {},
+  prevTTS: () => {},
+  setMarkTTS: () => {},
+  pauseTTSMark: () => {},
   setAnnotations: () => {},
   openMenu: () => {},
   useMenuAction: () => {},
@@ -552,9 +566,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const goNext = useCallback(() => {
     book.current?.injectJavaScript(`reader.next(); true`);
+    return true;
   }, []);
-
-  // const getLocations = useCallback(() => state.locations, [state.locations]);
 
   const getCurrentLocation = useCallback(
     () => state.currentLocation,
@@ -582,6 +595,11 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
           book.current?.injectJavaScript(`
            reader.highlight('${color}'); true
           `);
+        break;
+      case "speak_from_here":
+        book.current?.injectJavaScript(`
+          reader.speak_from_here();
+        `);
         break;
       default:
         break;
@@ -619,33 +637,55 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   //   dispatch({ type: Types.SET_SEARCH_RESULTS, payload: results });
   // }, []);
 
-  // const addMark = useCallback(
-  //   (
-  //     type: Mark,
-  //     cfiRange: string,
-  //     data?: any,
-  //     callback?: () => void,
-  //     className?: string,
-  //     styles?: any
-  //   ) => {
-  //     const defaultStyles = { fill: "yellow" };
+  const initTTS = useCallback(() => {
+    book.current?.injectJavaScript(`
+      reader.view.initTTS();
+      reader.setPlaying(true);
+    `);
+  }, []);
+  const startTTS = useCallback(() => {
+    book.current?.injectJavaScript(`
+      reader.startTTS();
+    `);
+  }, []);
+  const resumeTTS = useCallback(() => {
+    book.current?.injectJavaScript(`
+      reader.setPlaying(Boolean(true));
+      // reader.resumeTTS();
+    `);
+  }, []);
+  const nextTTS = useCallback((paused: boolean) => {
+    book.current?.injectJavaScript(`
+      reader.nextTTS(Boolean(${paused}));
+    `);
+  }, []);
+  const prevTTS = useCallback((paused: boolean) => {
+    book.current?.injectJavaScript(`
+      reader.view.tts.prev(Boolean(${paused}));
+    `);
+  }, []);
+  const setMarkTTS = useCallback((mark: string) => {
+    book.current?.injectJavaScript(`
+      reader.view.tts.setMark('${mark}');
+    `);
+  }, []);
+  const pauseTTSMark = useCallback((stopping?: boolean) => {
+    const javascript = `reader.setPlaying(false);`;
+    const fullJavascript =
+      javascript +
+      (stopping
+        ? `
+      if (this.prev){
+          this.view.addAnnotation({
+            value: this.prev,
+            color: 'red'
+          }, true);
+        }
+    `
+        : "");
 
-  //     book.current?.injectJavaScript(`
-  //     rendition.annotations.add('${type}', '${cfiRange}', ${JSON.stringify(
-  //       data ?? {}
-  //     )}, ${JSON.stringify(
-  //       callback ? callback() : () => {}
-  //     )}, '${className}', ${JSON.stringify(styles ?? defaultStyles)}); true
-  //   `);
-  //   },
-  //   []
-  // );
-
-  // const removeMark = useCallback((cfiRange: string, type: Mark) => {
-  //   book.current?.injectJavaScript(`
-  //     rendition.annotations.remove('${cfiRange}', '${type}'); true
-  //   `);
-  // }, []);
+    book.current?.injectJavaScript(fullJavascript);
+  }, []);
 
   const setIsPdf = useCallback((isPdf: boolean) => {
     dispatch({ type: Types.SET_IS_PDF, payload: isPdf });
@@ -657,6 +697,13 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const contextValue = useMemo(
     () => ({
+      initTTS,
+      startTTS,
+      resumeTTS,
+      nextTTS,
+      prevTTS,
+      setMarkTTS,
+      pauseTTSMark,
       openMenu,
       setAnnotations,
       useMenuAction,
@@ -706,6 +753,13 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // setSearchResults,
     }),
     [
+      initTTS,
+      startTTS,
+      resumeTTS,
+      nextTTS,
+      prevTTS,
+      setMarkTTS,
+      pauseTTSMark,
       openMenu,
       useMenuAction,
       setAnnotations,

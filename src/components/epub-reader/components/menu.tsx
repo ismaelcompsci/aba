@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { Platform, useWindowDimensions } from "react-native";
+import {
+  DeviceEventEmitter,
+  Platform,
+  useWindowDimensions,
+} from "react-native";
 import {
   ChevronLeft,
   ChevronsDownUp,
@@ -8,12 +12,16 @@ import {
   ChevronsUpDown,
   Fullscreen,
   List,
+  Pause,
+  Play,
   Settings2,
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
+import * as Speech from "expo-speech";
 import { useAtom } from "jotai";
 import {
   Button,
+  H5,
   H6,
   Label,
   Separator,
@@ -21,6 +29,7 @@ import {
   Text,
   XGroup,
   XStack,
+  YStack,
 } from "tamagui";
 
 import {
@@ -28,6 +37,7 @@ import {
   useHeaderHeight,
 } from "../../../hooks/use-header-height";
 import { ebookSettignsAtom } from "../../../state/local-state";
+import { awaitTimeout } from "../../../utils/utils";
 import { ClearIconButton } from "../../buttons/button";
 import { HeaderFrame, HeaderLeft, HeaderRight } from "../../header/header";
 import { LogoContainer } from "../../header/logo";
@@ -43,6 +53,101 @@ const LINESTEP = 0.1;
 
 const SCROLL_ENABLED = false;
 
+const useTTS = () => {
+  const [playing, setPlaying] = useState("stopped");
+
+  const {
+    setMarkTTS,
+    nextTTS,
+    prevTTS,
+    initTTS,
+    resumeTTS,
+    startTTS,
+    pauseTTSMark,
+    goNext,
+  } = useReader();
+
+  const pause = async () => {
+    if (playing === "stopped") return;
+    pauseTTSMark(false);
+    setPlaying("paused");
+    await Speech.pause();
+  };
+
+  const play = async () => {
+    if (playing === "stopped") return start();
+
+    setPlaying("playing");
+    resumeTTS();
+    await Speech.resume();
+  };
+
+  const start = () => {
+    if (playing === "stopped") {
+      initTTS();
+    }
+    startTTS();
+  };
+
+  const forward = () => {
+    initTTS();
+    nextTTS(false);
+  };
+
+  const stop = () => {
+    Speech.stop();
+    pauseTTSMark(true);
+  };
+
+  useEffect(() => {
+    DeviceEventEmitter.addListener("TTS.ssml", async (event) => {
+      const { ssml, action } = event;
+      if (!ssml) {
+        goNext();
+        await awaitTimeout(100);
+        return forward();
+      }
+
+      let mark = 0;
+      const text = ssml?.replace("\r\n.", "\r\n..") + "\r\n.";
+      const regex = /<mark\sname="(\d+)"/g;
+      const matches: string[] = [];
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        matches.push(match[1]);
+      }
+
+      Speech.stop();
+      Speech.speak(text, {
+        language: "en",
+        onError(error) {
+          console.log("[TTS] onerror", error);
+        },
+        onStart: () => {
+          setPlaying("playing");
+        },
+        onDone: () => {
+          if (action !== "resume" || action !== "next") {
+            nextTTS(true);
+          }
+        },
+        onBoundary: () => {
+          setMarkTTS(`${matches[mark]}`);
+          mark++;
+        },
+      });
+    });
+
+    return () => {
+      DeviceEventEmitter.removeAllListeners("TTS.ssml");
+      stop();
+    };
+  }, []);
+
+  return { pause, play, playing, start };
+};
+
 const Menu = ({
   hide,
   title,
@@ -52,6 +157,7 @@ const Menu = ({
   title: string;
   setEpubReaderOverviewModal: (open: boolean) => void;
 }) => {
+  const { pause, play, playing } = useTTS();
   const { height } = useWindowDimensions();
   const { changeTheme, isPdf } = useReader();
 
@@ -254,13 +360,53 @@ const Menu = ({
                 </XStack>
               ) : null}
 
-              <XStack></XStack>
+              <YStack>
+                {/* <XStack width={200} alignItems="center" space="$4">
+                  <Label
+                    paddingRight="$0"
+                    minWidth={90}
+                    justifyContent="flex-end"
+                    size={"$3"}
+                  >
+                    Text to Speech
+                  </Label> */}
+                <XStack ai="center" space="$4">
+                  <Text pr="$4.5">Text to Speech</Text>
+                  <Switch size={"$4"}>
+                    <Switch.Thumb animation="quick" />
+                  </Switch>
+                </XStack>
+              </YStack>
             </MenuContainer>
           ) : null}
         </Header>
       )}
 
-      {hide && <Footer></Footer>}
+      {hide && (
+        <Footer paddingHorizontal="$4" paddingBottom="$4">
+          {/* <XStack ai="center" flex={1} space>
+            {playing === "playing" ? (
+              <Button
+                circular
+                onPress={async () => await pause()}
+                icon={() => <Pause size="$2" />}
+                size="$4"
+                ai="center"
+                jc="center"
+              />
+            ) : (
+              <Button
+                ai="center"
+                jc="center"
+                size="$4"
+                circular
+                onPress={async () => await play()}
+                icon={() => <Play size="$2" />}
+              />
+            )}
+          </XStack> */}
+        </Footer>
+      )}
     </>
   );
 };

@@ -2757,7 +2757,7 @@ class ListIterator {
 }
 class TTS {
   #list;
-  #ranges;
+  ranges;
   #lastMark;
   #serializer = new XMLSerializer();
   constructor(doc, textWalker, highlight) {
@@ -2768,7 +2768,7 @@ class TTS {
         entries,
         ssml
       } = getFragmentWithMarks(range, textWalker);
-      this.#ranges = new Map(entries);
+      this.ranges = new Map(entries);
       return [ssml, range];
     });
   }
@@ -2816,14 +2816,14 @@ class TTS {
     this.#lastMark = null;
     const [doc] = this.#list.find(range_ => range.compareBoundaryPoints(Range.END_TO_START, range_) <= 0);
     let mark;
-    for (const [name, range_] of this.#ranges.entries()) if (range.compareBoundaryPoints(Range.START_TO_START, range_) <= 0) {
+    for (const [name, range_] of this.ranges.entries()) if (range.compareBoundaryPoints(Range.START_TO_START, range_) <= 0) {
       mark = name;
       break;
     }
     return this.#speak(doc, ssml => this.#getMarkElement(ssml, mark));
   }
   setMark(mark) {
-    const range = this.#ranges.get(mark);
+    const range = this.ranges.get(mark);
     if (range) {
       this.#lastMark = mark;
       this.highlight(range.cloneRange());
@@ -9799,6 +9799,7 @@ class Reader {
   currentAnnotation = null;
   annotations = new Map();
   annotationsByValue = new Map();
+  playing;
   style = {
     lineHeight: 1.4,
     justify: true,
@@ -9856,15 +9857,17 @@ class Reader {
         } = e.detail;
         const pos = getPosition(range);
         const ann = this.annotationsByValue.get(value);
-        this.currentAnnotation = ann;
-        debugMessage(\`ann got \${JSON.stringify(ann)}\`)
-        toReactMessage({
-          type: "annotationClick",
-          index,
-          range,
-          value,
-          pos
-        });
+        if (ann) {
+          ann.range = range
+          this.currentAnnotation = ann;
+          toReactMessage({
+            type: "annotationClick",
+            index,
+            range,
+            value,
+            pos
+          });
+        }
       });
       this.view.addEventListener("draw-annotation", e => {
         const {
@@ -9887,7 +9890,7 @@ class Reader {
           } = defaultView.getComputedStyle(el);
           draw(Overlayer[color], {
             writingMode,
-            color: this.highlight_color ? this.highlight_color : "yellow"
+            color: "yellow",
           });
         } else {
           this.highlight_color = color;
@@ -9964,10 +9967,38 @@ class Reader {
     const doc = ev.detail.doc;
     const index = ev.detail.index;
     let annotation = null;
-    doc.addEventListener("selectionchange", main_debounce(() => {
+    this.prev = null;
+    this.selectedAnn = {}
+    doc.addEventListener("selectionchange", () => {
       const range = getSelectionRange(doc);
       if (!range) return;
       this.view.renderer.pause = true;
+
+      if (this.prev){
+          this.view.addAnnotation({
+            value: this.prev,
+            color: 'red'
+          }, true);
+      }
+
+      if (this.playing) {
+        const pos = getPosition(range);
+        const value = this.view.getCFI(index, range);
+        this.selectedAnn.range = range
+        this.view.addAnnotation({
+          value: value,
+          color: 'red'
+        }, false);
+        doc.getSelection().removeAllRanges();
+        this.prev = value;
+      }
+    })
+    this.doc = doc
+    doc.addEventListener("touchend", () => {
+      this.view.renderer.pause = false;
+      const range = getSelectionRange(doc)
+      if (!range) return;
+      this.currentAnnotation = null;
       const pos = getPosition(range);
       const value = this.view.getCFI(index, range);
       const lang = main_getLang(range.commonAncestorContainer);
@@ -9978,15 +10009,8 @@ class Reader {
         value,
         pos
       };
-      this.currentAnnotation = annotation
-    }), 1);
-    doc.addEventListener("touchend", () => {
-      this.view.renderer.pause = false;
-      if (annotation) {
-        this.currentAnnotation = annotation;
-        this.annotationsByValue.set(annotation.value, annotation)
-        annotation = null;
-      }
+      this.currentAnnotation = annotation;
+      this.annotationsByValue.set(annotation.value, annotation)
     });
   };
   setAnnotations = annotations => {
@@ -10007,8 +10031,11 @@ class Reader {
       error: "copy-error"
     });
   };
+  setPlaying = (playing) => {
+    this.playing = playing;
+  }
   highlight = color => {
-    debug(\`\${JSON.stringify(this.currentAnnotation)}\`)
+    debug(color);
     if (this.currentAnnotation) {
       this.view.addAnnotation({
         value: this.currentAnnotation.value,
@@ -10028,6 +10055,50 @@ class Reader {
       this.currentAnnotation = null;
     }
   };
+  speak_from_here = () => {
+    this.playing = true;
+    this.view.initTTS().then(() =>
+      toReactMessage({
+        type: "tts",
+        action: "speak_from_here",
+        ssml: this.view.tts.from(this.currentAnnotation.range),
+      })
+    );
+  };
+
+  startTTS = () => {
+    let ssml;
+    if (this.currentLocation) {
+      ssml = this.view.tts.from(this.currentLocation.range)
+    } else {
+      ssml = this.view.tts.start();
+    }
+      
+    toReactMessage({
+      type: "tts",
+      action: "start",
+      ssml: ssml,
+    });
+  };
+
+  resumeTTS = () => {
+    const ssml = this.view.tts.resume()
+    toReactMessage({
+      type: "tts",
+      action: "resume",
+      ssml: ssml,
+    })
+  }
+
+  nextTTS = (paused) => {
+    const ssml = this.view.tts.next(paused);
+    toReactMessage({
+      type: "tts",
+      action: "next",
+      ssml: ssml,
+    })
+  }
+
   showNext = ev => {
     /**
      * TODO instead of rendering a component in react do it here.
@@ -10057,6 +10128,7 @@ class Reader {
       cfi,
       time
     } = e.detail;
+    this.currentLocation = e.detail;
     if (this.#previousFraction !== fraction) {
       toReactMessage({
         type: "onLocationChange",

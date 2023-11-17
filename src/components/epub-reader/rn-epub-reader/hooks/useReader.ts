@@ -4,14 +4,21 @@ import { ReaderContext, ReaderContextProps } from "../context";
 
 export function useReader() {
   const {
+    initTTS,
+    startTTS,
+    resumeTTS,
+    nextTTS,
+    prevTTS,
+    setMarkTTS,
+    pauseTTSMark,
     openMenu,
     setAnnotations,
     useMenuAction,
     // changeFontFamily,
     changeTheme,
     goToLocation,
-    // goPrevious,
-    // goNext,
+    goPrevious,
+    goNext,
     // getLocations,
     // getCurrentLocation,
     getMeta,
@@ -35,14 +42,21 @@ export function useReader() {
   } = useContext(ReaderContext);
 
   return {
+    initTTS,
+    startTTS,
+    resumeTTS,
+    nextTTS,
+    prevTTS,
+    setMarkTTS,
+    pauseTTSMark,
     openMenu,
     setAnnotations,
     useMenuAction,
     // changeFontFamily,
     changeTheme,
     goToLocation,
-    // goPrevious,
-    // goNext,
+    goPrevious,
+    goNext,
     // getLocations,
     // getCurrentLocation,
     getMeta,
@@ -68,8 +82,8 @@ export function useReader() {
     // | "changeFontFamily"
     | "changeTheme"
     | "goToLocation"
-    // | "goPrevious"
-    // | "goNext"
+    | "goPrevious"
+    | "goNext"
     // | "getLocations"
     // | "getCurrentLocation"
     | "getMeta"
@@ -93,5 +107,12 @@ export function useReader() {
     | "useMenuAction"
     | "setAnnotations"
     | "openMenu"
+    | "initTTS"
+    | "startTTS"
+    | "nextTTS"
+    | "prevTTS"
+    | "resumeTTS"
+    | "setMarkTTS"
+    | "pauseTTSMark"
   >;
 }
