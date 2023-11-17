@@ -18,10 +18,9 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import * as Speech from "expo-speech";
-import { useAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import {
   Button,
-  H5,
   H6,
   Label,
   Separator,
@@ -36,6 +35,7 @@ import {
   HEADER_HEIGHT,
   useHeaderHeight,
 } from "../../../hooks/use-header-height";
+import useIconTheme from "../../../hooks/use-icon-theme";
 import { ebookSettignsAtom } from "../../../state/local-state";
 import { awaitTimeout } from "../../../utils/utils";
 import { ClearIconButton } from "../../buttons/button";
@@ -148,6 +148,16 @@ const useTTS = () => {
   return { pause, play, playing, start };
 };
 
+const def = {
+  tts: false,
+  voice: "",
+};
+type GeneralEpubReaderSettings = {
+  tts: boolean;
+  voice: string;
+};
+const generalEpubReaderSettingsAtom = atom<GeneralEpubReaderSettings>(def);
+
 const Menu = ({
   hide,
   title,
@@ -160,11 +170,15 @@ const Menu = ({
   const { pause, play, playing } = useTTS();
   const { height } = useWindowDimensions();
   const { changeTheme, isPdf } = useReader();
+  const { color } = useIconTheme();
 
   const { top } = useHeaderHeight();
 
   const [openSettings, setOpenSettings] = useState(false);
   const [readerSettings, setReaderSettigns] = useAtom(ebookSettignsAtom);
+  const [generalEpubReaderSettings, setGeneralEpubReaderSettings] = useAtom(
+    generalEpubReaderSettingsAtom
+  );
 
   const [audioplayerMode, setAudioplayerMode] = useState(
     readerSettings.maxBlockSize !== height
@@ -361,18 +375,19 @@ const Menu = ({
               ) : null}
 
               <YStack>
-                {/* <XStack width={200} alignItems="center" space="$4">
-                  <Label
-                    paddingRight="$0"
-                    minWidth={90}
-                    justifyContent="flex-end"
-                    size={"$3"}
-                  >
-                    Text to Speech
-                  </Label> */}
                 <XStack ai="center" space="$4">
                   <Text pr="$4.5">Text to Speech</Text>
-                  <Switch size={"$4"}>
+                  <Switch
+                    size={"$4"}
+                    defaultChecked={generalEpubReaderSettings.tts}
+                    checked={generalEpubReaderSettings.tts}
+                    onCheckedChange={(checked) =>
+                      setGeneralEpubReaderSettings({
+                        ...generalEpubReaderSettings,
+                        tts: checked,
+                      })
+                    }
+                  >
                     <Switch.Thumb animation="quick" />
                   </Switch>
                 </XStack>
@@ -384,27 +399,29 @@ const Menu = ({
 
       {hide && (
         <Footer paddingHorizontal="$4" paddingBottom="$4">
-          {/* <XStack ai="center" flex={1} space>
-            {playing === "playing" ? (
-              <Button
-                circular
-                onPress={async () => await pause()}
-                icon={() => <Pause size="$2" />}
-                size="$4"
-                ai="center"
-                jc="center"
-              />
-            ) : (
-              <Button
-                ai="center"
-                jc="center"
-                size="$4"
-                circular
-                onPress={async () => await play()}
-                icon={() => <Play size="$2" />}
-              />
-            )}
-          </XStack> */}
+          <XStack ai="center" flex={1}>
+            {generalEpubReaderSettings.tts ? (
+              playing === "playing" ? (
+                <Button
+                  circular
+                  onPress={async () => await pause()}
+                  icon={() => <Pause size="$1" fill={color} />}
+                  size="$4"
+                  ai="center"
+                  jc="center"
+                />
+              ) : (
+                <Button
+                  ai="center"
+                  jc="center"
+                  size="$4"
+                  circular
+                  onPress={async () => await play()}
+                  icon={() => <Play fill={color} size="$1" />}
+                />
+              )
+            ) : null}
+          </XStack>
         </Footer>
       )}
     </>
