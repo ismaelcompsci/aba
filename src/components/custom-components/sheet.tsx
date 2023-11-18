@@ -76,7 +76,7 @@ const Sheet = ({
   // Fixed values (for snap positions)
   const _minHeight = minHeight || 120;
   const _maxHeight = maxHeight || dimensions.screen.height;
-  const _expandedHeight = expandedHeight || dimensions.screen.height * 0.25;
+  const _expandedHeight = expandedHeight || dimensions.screen.height;
 
   const springConfig: WithSpringConfig = {
     damping: 50,
