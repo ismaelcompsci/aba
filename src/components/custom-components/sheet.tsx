@@ -65,6 +65,7 @@ const Sheet = ({
     const listener = Dimensions.addEventListener(
       "change",
       ({ window, screen }) => {
+        onOpenChange && onOpenChange(false);
         setDimensions({ window, screen });
       }
     );

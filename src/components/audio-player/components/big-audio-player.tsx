@@ -38,7 +38,7 @@ const BigAudioPlayer = ({
 
   const { color, bgPress } = useIconTheme();
 
-  const imageWidth = width * 0.7;
+  const imageWidth = Math.min(width * 0.7, 464);
   const imageHeight = imageWidth;
 
   useEffect(() => {
