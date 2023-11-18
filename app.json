@@ -41,6 +41,14 @@
         "backgroundImage": "./assets/ic_background.png"
       },
       "package": "com.ismael.aba"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "438aca6c-eeb8-4393-b327-6a3b41205a9b"
+      }
     }
   }
 }
