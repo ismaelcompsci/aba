@@ -9967,16 +9967,16 @@ class Reader {
     const doc = ev.detail.doc;
     const index = ev.detail.index;
     let annotation = null;
-    this.prev = null;
+    this.prevValue = null;
     this.selectedAnn = {}
     doc.addEventListener("selectionchange", () => {
       const range = getSelectionRange(doc);
       if (!range) return;
       this.view.renderer.pause = true;
 
-      if (this.prev){
+      if (this.prevValue && this.playing){
           this.view.addAnnotation({
-            value: this.prev,
+            value: this.prevValue,
             color: 'red'
           }, true);
       }
@@ -9990,7 +9990,7 @@ class Reader {
           color: 'red'
         }, false);
         doc.getSelection().removeAllRanges();
-        this.prev = value;
+        this.prevValue = value;
       }
     })
     this.doc = doc
@@ -10068,7 +10068,7 @@ class Reader {
 
   startTTS = () => {
     let ssml;
-    if (this.currentLocation) {
+    if (this.currentLocation?.range) {
       ssml = this.view.tts.from(this.currentLocation.range)
     } else {
       ssml = this.view.tts.start();

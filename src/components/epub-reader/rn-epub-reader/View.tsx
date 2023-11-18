@@ -55,6 +55,7 @@ export function View({
     setCover,
     setCurrentLocation,
     setMeta,
+    isPdf,
     theme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
@@ -205,7 +206,12 @@ export function View({
 
   return (
     <GesturePerPlatform
-      gestures={[tapGesture, rightFlingGesture, leftFlingGesture]}
+      isPdf={isPdf}
+      gestures={
+        Platform.OS === "ios"
+          ? [tapGesture, rightFlingGesture, leftFlingGesture]
+          : [rightFlingGesture, leftFlingGesture]
+      }
     >
       <RNView
         style={{
@@ -221,6 +227,9 @@ export function View({
           source={{ uri: templateUri }}
           showsVerticalScrollIndicator={false}
           webviewDebuggingEnabled={true}
+          incognito={true}
+          cacheMode="LOAD_NO_CACHE"
+          cacheEnabled={false}
           javaScriptEnabled={true}
           originWhitelist={["*"]}
           scrollEnabled={false}
@@ -253,7 +262,9 @@ export function View({
 const GesturePerPlatform = ({
   children,
   gestures,
+  isPdf,
 }: {
+  isPdf: boolean;
   children: React.ReactNode;
   gestures: GestureType[];
 }) => {
@@ -264,6 +275,15 @@ const GesturePerPlatform = ({
       </GestureDetector>
     );
   } else {
-    return <>{children}</>;
+    console.log(isPdf);
+    if (isPdf) {
+      return (
+        <GestureDetector gesture={Gesture.Race(...gestures)}>
+          {children}
+        </GestureDetector>
+      );
+    } else {
+      return <>{children}</>;
+    }
   }
 };

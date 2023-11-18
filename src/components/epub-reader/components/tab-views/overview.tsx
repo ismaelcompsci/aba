@@ -70,7 +70,7 @@ export const Overview = () => {
             borderRadius="$4"
             source={{
               uri: `data:image/png;base64,${cover}`,
-              width: width * 0.5,
+              width: Math.min(width * 0.5, 300),
               height: height * 0.35,
             }}
           />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   DeviceEventEmitter,
   Platform,
@@ -41,7 +41,7 @@ import { awaitTimeout } from "../../../utils/utils";
 import { ClearIconButton } from "../../buttons/button";
 import { HeaderFrame, HeaderLeft, HeaderRight } from "../../header/header";
 import { LogoContainer } from "../../header/logo";
-import { useReader } from "../rn-epub-reader";
+import { Theme, useReader } from "../rn-epub-reader";
 
 import { Footer, Header } from "./header-footer";
 import { MenuContainer, ThemeButton, XGroupButton } from "./menu-items";
@@ -53,8 +53,35 @@ const LINESTEP = 0.1;
 
 const SCROLL_ENABLED = false;
 
+type TTSState = {
+  inProgress: boolean;
+  paused: boolean;
+  pitch: number;
+  rate: number;
+  voiceList: null | Speech.Voice[];
+  voice: undefined | string;
+  language: string;
+  text: string | undefined;
+  action: string | undefined;
+};
+
 const useTTS = () => {
-  const [playing, setPlaying] = useState("stopped");
+  const state = useRef<TTSState>({
+    inProgress: false,
+    paused: true,
+    pitch: 1,
+    rate: 0.75,
+    voiceList: null,
+    voice: undefined,
+    language: "en",
+    text: undefined,
+    action: undefined,
+  });
+
+  const skip = useRef(false);
+
+  const [inProgress, setInProgress] = useState(false);
+  const [paused, setPaused] = useState(true);
 
   const {
     setMarkTTS,
@@ -67,26 +94,13 @@ const useTTS = () => {
     goNext,
   } = useReader();
 
-  const pause = async () => {
-    if (playing === "stopped") return;
-    pauseTTSMark(false);
-    setPlaying("paused");
-    await Speech.pause();
-  };
-
-  const play = async () => {
-    if (playing === "stopped") return start();
-
-    setPlaying("playing");
-    resumeTTS();
-    await Speech.resume();
-  };
-
-  const start = () => {
-    if (playing === "stopped") {
-      initTTS();
-    }
-    startTTS();
+  const _loadAllVoices = async () => {
+    const availableVoices = await Speech.getAvailableVoicesAsync();
+    state.current = {
+      ...state.current,
+      voiceList: availableVoices,
+      voice: undefined,
+    };
   };
 
   const forward = () => {
@@ -94,58 +108,144 @@ const useTTS = () => {
     nextTTS(false);
   };
 
-  const stop = () => {
-    Speech.stop();
-    pauseTTSMark(true);
-  };
+  const speak = async () => {
+    if (!state.current.text) {
+      goNext();
+      await awaitTimeout(100);
+      return forward();
+    }
 
-  useEffect(() => {
-    DeviceEventEmitter.addListener("TTS.ssml", async (event) => {
-      const { ssml, action } = event;
-      if (!ssml) {
-        goNext();
-        await awaitTimeout(100);
-        return forward();
-      }
+    let mark = 0;
+    const text = state.current.text?.replace("\r\n.", "\r\n..") + "\r\n.";
+    const regex = /<mark\sname="(\d+)"/g;
+    const matches: string[] = [];
+    let match;
 
-      let mark = 0;
-      const text = ssml?.replace("\r\n.", "\r\n..") + "\r\n.";
-      const regex = /<mark\sname="(\d+)"/g;
-      const matches: string[] = [];
-      let match;
+    while ((match = regex.exec(text)) !== null) {
+      matches.push(match[1]);
+    }
 
-      while ((match = regex.exec(text)) !== null) {
-        matches.push(match[1]);
-      }
+    const isPlaying = await Speech.isSpeakingAsync();
+    if (isPlaying) {
+      /**
+       * clearing the queue
+       * using the skip because stop() fires the onDone event
+       */
+      skip.current = true;
+      await Speech.stop();
+      await Speech.pause();
+    }
 
-      Speech.stop();
+    if (text) {
       Speech.speak(text, {
-        language: "en",
-        onError(error) {
-          console.log("[TTS] onerror", error);
-        },
+        voice: state.current.voice,
+        language: state.current.language,
+        pitch: state.current.pitch,
+        rate: state.current.rate,
         onStart: () => {
-          setPlaying("playing");
+          setPaused(false);
         },
         onDone: () => {
-          if (action !== "resume" || action !== "next") {
-            nextTTS(true);
+          if (skip.current) return;
+          if (!skip.current) {
+            nextTTS(false);
+            skip.current = false;
           }
         },
+        /**
+         * onMark is only availible on web
+         * so we use onBoundry ``
+         */
         onBoundary: () => {
           setMarkTTS(`${matches[mark]}`);
           mark++;
+          skip.current = false;
         },
       });
+    }
+  };
+
+  const start = () => {
+    initTTS();
+    startTTS();
+    state.current = { ...state.current, inProgress: true };
+    setInProgress(true);
+    setPaused(false);
+  };
+
+  const stop = () => {
+    state.current = {
+      ...state.current,
+      inProgress: false,
+      paused: false,
+      text: undefined,
+    };
+    pauseTTSMark(true);
+    setInProgress(false);
+    setPaused(true);
+    Speech.pause();
+  };
+
+  const pause = async () => {
+    await Speech.pause();
+    state.current = { ...state.current, paused: true };
+    pauseTTSMark(false);
+    setPaused(true);
+  };
+
+  const resume = () => {
+    if (!state.current.inProgress) {
+      start();
+      return Speech.resume();
+    }
+    resumeTTS();
+    Speech.resume();
+    state.current = { ...state.current, paused: false };
+    setPaused(false);
+  };
+
+  const pitch = (pitch: number) => {
+    state.current = {
+      ...state.current,
+      pitch: pitch,
+    };
+  };
+
+  const rate = (rate: number) => {
+    state.current = { ...state.current, rate: rate };
+  };
+
+  useEffect(() => {
+    if (Platform.OS !== "ios") return;
+
+    DeviceEventEmitter.addListener("TTS.ssml", async (event) => {
+      const { ssml, action } = event;
+      state.current = { ...state.current, text: ssml, action: action };
+      speak();
     });
 
     return () => {
-      DeviceEventEmitter.removeAllListeners("TTS.ssml");
       stop();
+      state.current = {
+        ...state.current,
+        inProgress: false,
+        paused: false,
+        text: undefined,
+      };
+      DeviceEventEmitter.removeAllListeners("TTS.ssml");
+      Speech.stop();
     };
   }, []);
 
-  return { pause, play, playing, start };
+  useEffect(() => {
+    (async () => {
+      if (Platform.OS === "ios") {
+        await _loadAllVoices();
+      }
+    })();
+  }, []);
+
+  return { state, pause, resume, inProgress, paused, stop };
 };
 
 const def = {
@@ -167,8 +267,8 @@ const Menu = ({
   title: string;
   setEpubReaderOverviewModal: (open: boolean) => void;
 }) => {
-  const { pause, play, playing } = useTTS();
-  const { height } = useWindowDimensions();
+  const { pause, resume, inProgress, paused, stop } = useTTS();
+  const { height, width } = useWindowDimensions();
   const { changeTheme, isPdf } = useReader();
   const { color } = useIconTheme();
 
@@ -242,6 +342,23 @@ const Menu = ({
       setOpenSettings(false);
     }
   }, [hide]);
+
+  useEffect(() => {
+    setReaderSettigns((prev: Theme) => ({ ...prev, maxInlineSize: width }));
+  }, [width]);
+
+  useEffect(() => {
+    if (!generalEpubReaderSettings.tts && inProgress) {
+      console.log("STOPPPED IN THING");
+      stop();
+    }
+  }, [generalEpubReaderSettings.tts]);
+
+  useEffect(() => {
+    if (inProgress) {
+      setGeneralEpubReaderSettings((prev) => ({ ...prev, tts: true }));
+    }
+  }, [inProgress]);
 
   return (
     <>
@@ -376,20 +493,24 @@ const Menu = ({
 
               <YStack>
                 <XStack ai="center" space="$4">
-                  <Text pr="$4.5">Text to Speech</Text>
-                  <Switch
-                    size={"$4"}
-                    defaultChecked={generalEpubReaderSettings.tts}
-                    checked={generalEpubReaderSettings.tts}
-                    onCheckedChange={(checked) =>
-                      setGeneralEpubReaderSettings({
-                        ...generalEpubReaderSettings,
-                        tts: checked,
-                      })
-                    }
-                  >
-                    <Switch.Thumb animation="quick" />
-                  </Switch>
+                  {!isPdf ? (
+                    <>
+                      <Text pr="$4.5">Text to Speech</Text>
+                      <Switch
+                        size={"$4"}
+                        defaultChecked={generalEpubReaderSettings.tts}
+                        checked={generalEpubReaderSettings.tts}
+                        onCheckedChange={(checked) =>
+                          setGeneralEpubReaderSettings({
+                            ...generalEpubReaderSettings,
+                            tts: checked,
+                          })
+                        }
+                      >
+                        <Switch.Thumb animation="quick" />
+                      </Switch>
+                    </>
+                  ) : null}
                 </XStack>
               </YStack>
             </MenuContainer>
@@ -400,8 +521,8 @@ const Menu = ({
       {hide && (
         <Footer paddingHorizontal="$4" paddingBottom="$4">
           <XStack ai="center" flex={1}>
-            {generalEpubReaderSettings.tts ? (
-              playing === "playing" ? (
+            {Platform.OS === "ios" && generalEpubReaderSettings.tts ? (
+              !paused ? (
                 <Button
                   circular
                   onPress={async () => await pause()}
@@ -416,7 +537,7 @@ const Menu = ({
                   jc="center"
                   size="$4"
                   circular
-                  onPress={async () => await play()}
+                  onPress={async () => await resume()}
                   icon={() => <Play fill={color} size="$1" />}
                 />
               )

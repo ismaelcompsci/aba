@@ -485,7 +485,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
         lineHeight: newTheme.lineHeight,
         justify: newTheme.justify,
         hyphenate: newTheme.hyphenate,
-        // invert: newTheme.invert,
         theme: t,
         fontSize: newTheme.fontSize,
       },
@@ -519,10 +518,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   //   dispatch({ type: Types.SET_AT_END, payload: atEnd });
   // }, []);
 
-  // const setTotalLocations = useCallback((totalLocations: number) => {
-  //   dispatch({ type: Types.SET_TOTAL_LOCATIONS, payload: totalLocations });
-  // }, []);
-
   const setCurrentLocation = useCallback((location: LocationChange) => {
     dispatch({ type: Types.SET_CURRENT_LOCATION, payload: location });
   }, []);
@@ -533,10 +528,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   // const setProgress = useCallback((progress: number) => {
   //   dispatch({ type: Types.SET_PROGRESS, payload: progress });
-  // }, []);
-
-  // const setLocations = useCallback((locations: ePubCfi[]) => {
-  //   dispatch({ type: Types.SET_LOCATIONS, payload: locations });
   // }, []);
 
   const setIsLoading = useCallback((isLoading: boolean) => {
@@ -561,7 +552,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const goPrevious = useCallback(() => {
-    book.current?.injectJavaScript(`reader.prev(); true`);
+    book.current?.injectJavaScript(`reader.prev(); true;`);
   }, []);
 
   const goNext = useCallback(() => {
@@ -651,7 +642,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   const resumeTTS = useCallback(() => {
     book.current?.injectJavaScript(`
       reader.setPlaying(Boolean(true));
-      // reader.resumeTTS();
+      reader.resumeTTS();
     `);
   }, []);
   const nextTTS = useCallback((paused: boolean) => {
@@ -670,20 +661,20 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     `);
   }, []);
   const pauseTTSMark = useCallback((stopping?: boolean) => {
-    const javascript = `reader.setPlaying(false);`;
+    const javascript = `reader.setPlaying(false); true;`;
     const fullJavascript =
       javascript +
       (stopping
         ? `
-      if (this.prev){
-          this.view.addAnnotation({
-            value: this.prev,
+      if (reader.prev){
+          reader.view.addAnnotation({
+            value: reader.prev,
             color: 'red'
           }, true);
-        }
+        };
+        true;
     `
-        : "");
-
+        : "true;");
     book.current?.injectJavaScript(fullJavascript);
   }, []);
 

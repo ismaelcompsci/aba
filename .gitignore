@@ -11,6 +11,8 @@ npm-debug.*
 web-build/
 
 expo-env.d.ts 
+eas.*
+eas.json
 
 
 # macOS
