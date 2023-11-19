@@ -162,7 +162,6 @@ const LibraryPage = ({
 
   return (
     <FullScreen>
-      {/* sort & filter */}
       <XStack
         w="100%"
         justifyContent="space-between"

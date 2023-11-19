@@ -39,6 +39,7 @@ const ItemProgress = ({
       value={userProgressPercent * 100}
       strokeColorConfig={[
         { color: rest.activeStrokeColor || "#2ecc71", value: 0 },
+        { color: rest.activeStrokeColor || "#2ecc71", value: 99 },
         { color: "#2ecc71", value: 100 },
       ]}
     />

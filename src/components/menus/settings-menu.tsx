@@ -30,7 +30,6 @@ const SettingsMenu = () => {
   const isDark = appTheme.scheme === "dark";
 
   const disconnect = () => {
-    // disconnect socket here
     setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });
     setEbookSettings(DefaultSettings.ebookSettings);
     setAppTheme(DefaultSettings.theme);
@@ -63,7 +62,8 @@ const SettingsMenu = () => {
           <DropdownMenu.ItemTitle>Dark mode</DropdownMenu.ItemTitle>
         </DropdownMenu.CheckboxItem>
 
-        <DropdownMenu.Item
+        {/* DEVELOPMENT ONLY */}
+        {/* <DropdownMenu.Item
           key="test-page"
           onSelect={() => router.push("/test/")}
         >
@@ -73,7 +73,7 @@ const SettingsMenu = () => {
               name: "teletype.answer", // required
             }}
           ></DropdownMenu.ItemIcon>
-        </DropdownMenu.Item>
+        </DropdownMenu.Item> */}
 
         <DropdownMenu.Item key="disconnect" destructive onSelect={disconnect}>
           <DropdownMenu.ItemTitle>Disconnect</DropdownMenu.ItemTitle>
