@@ -18,7 +18,7 @@ type NewTocItem = {
   depth: number;
 };
 
-const Bar = styled(Animated.View, {
+export const Bar = styled(Animated.View, {
   entering: StretchInY,
   exiting: StretchOutY,
 });

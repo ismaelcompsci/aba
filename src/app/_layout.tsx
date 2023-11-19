@@ -78,11 +78,11 @@ export default function Layout() {
   const animation = Platform.OS === "ios" ? "fade" : "default";
 
   return (
-    <TamaguiProvider config={appConfig}>
-      <Theme
-        name={(appTheme.full ? appTheme.full : appTheme.scheme) as ThemeName}
-      >
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <TamaguiProvider config={appConfig}>
+        <Theme
+          name={(appTheme.full ? appTheme.full : appTheme.scheme) as ThemeName}
+        >
           <Stack
             initialRouteName="index"
             screenOptions={{
@@ -91,9 +91,9 @@ export default function Layout() {
             }}
           />
           <AudioPlayerContainer />
-        </QueryClientProvider>
-      </Theme>
-    </TamaguiProvider>
+        </Theme>
+      </TamaguiProvider>
+    </QueryClientProvider>
   );
 }
 
