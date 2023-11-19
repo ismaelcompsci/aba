@@ -96,10 +96,52 @@ const BookFilesTable = () => {
 
   if (!ebookFiles.length) return null;
 
+  const Preview = ({ item }: { item: LibraryFile }) => {
+    return (
+      <YStack
+        bg={"$background"}
+        width={300}
+        key={item.metadata.filename}
+        jc="center"
+        space="$1"
+        p="$4"
+      >
+        <Text
+          numberOfLines={2}
+          color="$color"
+          fow="700"
+          fontFamily="$mono"
+          textTransform="none"
+          fontSize={"$2"}
+        >
+          {item.metadata.filename}
+        </Text>
+        <XStack ai="center" justifyContent="space-between" w={"100%"}>
+          <YStack space={"$1"}>
+            <Text fontSize={"$2"} color={"$gray9"}>
+              Size
+            </Text>
+            <Text>{humanFileSize(item.metadata.size || 0, true)}</Text>
+          </YStack>
+          <YStack space={"$1"}>
+            <Text fontSize={"$2"} color={"$gray9"}>
+              Format
+            </Text>
+            <Text>{item.metadata.ext.toUpperCase()}</Text>
+          </YStack>
+        </XStack>
+      </YStack>
+    );
+  };
+
+  const getPreview = (item: LibraryFile) => {
+    return <Preview item={item} />;
+  };
+
   const renderItem = ({ item }: { item: LibraryFile }) => {
     return (
       <ListItem p={0}>
-        <ContextMenu.Root style={{ width: "100%" }}>
+        <ContextMenu.Root style={{ width: width }}>
           <ContextMenu.Trigger action="press">
             <XStack
               ai="center"
@@ -107,7 +149,7 @@ const BookFilesTable = () => {
               py="$3"
               px="$4"
               key={item.metadata.filename}
-              w={"100%"}
+              bg={"$background"}
             >
               <H4
                 color="$color"
@@ -134,44 +176,7 @@ const BookFilesTable = () => {
           </ContextMenu.Trigger>
           <ContextMenu.Content>
             <ContextMenu.Preview size="INHERIT">
-              {() => (
-                <YStack
-                  bg={"$background"}
-                  h={"$9"}
-                  w={width - 50}
-                  key={item.metadata.filename}
-                  jc="center"
-                  space="$1"
-                  px="$4"
-                >
-                  <Text
-                    numberOfLines={2}
-                    color="$color"
-                    fow="700"
-                    fontFamily="$mono"
-                    textTransform="none"
-                    fontSize={"$2"}
-                  >
-                    {item.metadata.filename}
-                  </Text>
-                  <XStack ai="center" justifyContent="space-between" w={"100%"}>
-                    <YStack space={"$1"}>
-                      <Text fontSize={"$2"} color={"$gray9"}>
-                        Size
-                      </Text>
-                      <Text>
-                        {humanFileSize(item.metadata.size || 0, true)}
-                      </Text>
-                    </YStack>
-                    <YStack space={"$1"}>
-                      <Text fontSize={"$2"} color={"$gray9"}>
-                        Format
-                      </Text>
-                      <Text>{item.metadata.ext.toUpperCase()}</Text>
-                    </YStack>
-                  </XStack>
-                </YStack>
-              )}
+              {getPreview(item)}
             </ContextMenu.Preview>
             <ContextMenu.Label>File</ContextMenu.Label>
 
