@@ -1,15 +1,15 @@
 import { useMemo } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
-import { Separator, Spinner } from "tamagui";
+import { Separator, Spinner, useWindowDimensions } from "tamagui";
 
-import { FullScreen, ScreenCenter } from "../../components/center";
 import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
+import { Screen } from "../../components/layout/screen";
 import { GenreList } from "../../components/tables/genre-table";
 import { progressFilters } from "../../constants/consts";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryFilterData } from "../../types/aba";
@@ -20,7 +20,8 @@ const GenresPage = () => {
   const [currentLibraryId] = useAtom(currentLibraryIdAtom);
   const [serverConfig] = useAtom(currentServerConfigAtom);
 
-  const { bottom } = useSafeAreaInsets();
+  const { bottom } = useAppSafeAreas();
+  const { width } = useWindowDimensions();
 
   const { data: filterData, isLoading } = useQuery({
     queryKey: ["filter-data", currentLibraryId, user?.id, serverConfig?.id],
@@ -57,7 +58,7 @@ const GenresPage = () => {
     () => (
       <VirtualScrollView
         showsVerticalScrollIndicator={false}
-        style={{ paddingVertical: 20 }}
+        style={{ paddingBottom: bottom, width, paddingHorizontal: 24 }}
       >
         {progressFilters.length ? (
           <GenreList
@@ -112,14 +113,9 @@ const GenresPage = () => {
   );
 
   return (
-    <FullScreen flex={1} bg="$background" px={"$4"} space="$4">
-      {isLoading ? (
-        <ScreenCenter>
-          <Spinner />
-        </ScreenCenter>
-      ) : null}
-      {FilterLists}
-    </FullScreen>
+    <Screen centered px={"$4"} space="$4">
+      {isLoading ? <Spinner /> : FilterLists}
+    </Screen>
   );
 };
 

@@ -21,7 +21,7 @@ import {
 import SettingsMenu from "../components/menus/settings-menu";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
 import { ServerSelect } from "../components/server-selects/servers-select.ios";
-import { useHeaderHeight } from "../hooks/use-header-height";
+import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
@@ -98,7 +98,7 @@ export default function Layout() {
 }
 
 const Header = ({ navigation, route }: NativeStackHeaderProps) => {
-  const { headerHeight, top } = useHeaderHeight();
+  const { headerHeight, top } = useAppSafeAreas();
   const { iconColor } = useIconTheme();
   const { name } = route;
 

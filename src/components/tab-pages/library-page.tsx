@@ -4,15 +4,17 @@ import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
-import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
+import { Spinner, Text } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { changingLibraryAtom } from "../../state/app-state";
 import { descOrderAtom, sortAtom } from "../../state/local-state";
 import { LibraryItemMinified } from "../../types/aba";
 import { LibraryItems, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
-import { FullScreen, ScreenCenterWithTabBar } from "../center";
+import { Flex } from "../layout/flex";
+import { Screen } from "../layout/screen";
 import { SortSelect } from "../sort-popover";
 
 interface LibraryPageProps {
@@ -37,6 +39,7 @@ const LibraryPage = ({
   const queryClient = useQueryClient();
 
   const { width: screenWidth } = useWindowDimensions();
+  const { bottom } = useAppSafeAreas();
 
   let numOfColumns;
   if (screenWidth <= 479) {
@@ -132,15 +135,15 @@ const LibraryPage = ({
     index: number;
   }) => {
     return (
-      <XStack pt="$3">
-        <BookCard
-          serverConfig={serverConfig}
-          isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-          token={userToken}
-          item={item}
-          w="100%"
-        />
-      </XStack>
+      <BookCard
+        serverConfig={serverConfig}
+        isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+        token={userToken}
+        item={item}
+        grow
+        centered
+        p="$2"
+      />
     );
   };
 
@@ -161,14 +164,17 @@ const LibraryPage = ({
       : null;
 
   return (
-    <FullScreen>
-      <XStack
-        w="100%"
+    <Screen>
+      <Flex
+        row
+        centered
         justifyContent="space-between"
-        alignItems="center"
         px="$2"
-        bg={"$backgroundHover"}
-        elevation={"$0.5"}
+        bg="$backgroundHover"
+        shadowColor={"$backgroundStrong"}
+        shadowOffset={{ height: 2, width: 0 }}
+        shadowOpacity={0.25}
+        shadowRadius={6}
       >
         <Text fontWeight="$8">{libraryItems?.pages[0]?.data?.total} Books</Text>
         {filter && seriesName ? (
@@ -177,14 +183,14 @@ const LibraryPage = ({
           </Text>
         ) : null}
         <SortSelect placement="bottom-end" />
-      </XStack>
+      </Flex>
       {/* items */}
       {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-        <ScreenCenterWithTabBar>
+        <Screen centered headerAndTabBar>
           {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
-        </ScreenCenterWithTabBar>
+        </Screen>
       ) : (
-        <YStack w="100%" h="100%">
+        <Flex fill>
           <FlashList
             showsVerticalScrollIndicator={false}
             horizontal={false}
@@ -194,11 +200,11 @@ const LibraryPage = ({
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
             estimatedItemSize={bookWidth}
-            ListFooterComponent={() => <Separator w={0} h={30} />}
+            contentContainerStyle={{ paddingBottom: bottom }}
           />
-        </YStack>
+        </Flex>
       )}
-    </FullScreen>
+    </Screen>
   );
 };
 

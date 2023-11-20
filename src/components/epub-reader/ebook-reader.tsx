@@ -19,7 +19,7 @@ import {
 } from "../../state/local-state";
 import { LibraryItemExpanded, User } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
-import { FullScreen } from "../center";
+import { Screen } from "../layout/screen";
 
 import { BookChapterModal } from "./components/book-modal";
 import Menu from "./components/menu";
@@ -86,7 +86,7 @@ const EBookReader = ({
       percent: 1,
     });
     await awaitTimeout(100);
-    setEpubReaderLoading({ loading: false, part: "Opening Book..." });
+    setEpubReaderLoading({ loading: false });
   };
 
   const onShowPrevious = (show: boolean, label: string) => {
@@ -298,7 +298,11 @@ const ReaderFullscreen = ({
   onPress?: () => void;
 }) => {
   if (Platform.OS === "ios") {
-    return <FullScreen onPress={onPress}>{children}</FullScreen>;
+    return (
+      <Screen centered onPress={onPress}>
+        {children}
+      </Screen>
+    );
   } else {
     return children;
   }

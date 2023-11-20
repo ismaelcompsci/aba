@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import * as Burnt from "burnt";
 import { Redirect, router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { Spinner } from "tamagui";
 
-import { ScreenCenter } from "../components/center";
+import { Screen } from "../components/layout/screen";
 import {
   attemptingConnectionAtom,
   currentLibraryIdAtom,
@@ -188,16 +187,12 @@ export default function IndexPage() {
   }, [user, isMounted, attemptingConnection, deviceData]);
 
   return (
-    <>
+    <Screen centered>
       {!user || attemptingConnection ? (
-        <ScreenCenter>
-          <Spinner />
-        </ScreenCenter>
+        <Spinner />
       ) : (
-        <ScreenCenter>
-          <Redirect href={"/library/"} />
-        </ScreenCenter>
+        <Redirect href={"/library/"} />
       )}
-    </>
+    </Screen>
   );
 }

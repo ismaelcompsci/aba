@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
@@ -10,9 +9,10 @@ import {
 import { Backpack, Home, Library } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
-import { Text, useTheme, View } from "tamagui";
+import { Text, useTheme } from "tamagui";
 
-import { FullScreen } from "../../components/center";
+import { Flex } from "../../components/layout/flex";
+import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
@@ -99,16 +99,16 @@ const HomePage = () => {
     }
   };
 
-  const renderLazyPlaceHolder = (props: {
+  const renderLazyPlaceHolder = (route: {
     route: {
       key: string;
       title: string;
     };
   }) => {
     return (
-      <View flex={1} jc="center" ai="center">
-        <Text>Loading {props.route.title}</Text>
-      </View>
+      <Flex fill centered>
+        <Text>Loading {route.route.title}</Text>
+      </Flex>
     );
   };
 
@@ -139,23 +139,21 @@ const HomePage = () => {
   };
 
   return (
-    <FullScreen>
+    <Screen>
       {!user ? (
         <NoServer />
       ) : (
-        <FullScreen>
-          <TabView
-            lazy
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            renderTabBar={renderTabBar}
-            renderLazyPlaceholder={renderLazyPlaceHolder}
-            onIndexChange={setIndex}
-            initialLayout={{ width: layout.width, height: layout.height }}
-          />
-        </FullScreen>
+        <TabView
+          lazy
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          renderTabBar={renderTabBar}
+          renderLazyPlaceholder={renderLazyPlaceHolder}
+          onIndexChange={setIndex}
+          initialLayout={{ width: layout.width, height: layout.height }}
+        />
       )}
-    </FullScreen>
+    </Screen>
   );
 };
 

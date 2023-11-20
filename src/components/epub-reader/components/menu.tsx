@@ -14,27 +14,18 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { atom, useAtom } from "jotai";
-import {
-  Button,
-  H6,
-  Label,
-  Separator,
-  Switch,
-  Text,
-  XGroup,
-  XStack,
-  YStack,
-} from "tamagui";
+import { Button, H6, Label, Separator, Switch, Text, XGroup } from "tamagui";
 
 import {
   HEADER_HEIGHT,
-  useHeaderHeight,
-} from "../../../hooks/use-header-height";
+  useAppSafeAreas,
+} from "../../../hooks/use-app-safe-areas";
 import useIconTheme from "../../../hooks/use-icon-theme";
 import { ebookSettignsAtom } from "../../../state/local-state";
 import { ClearIconButton } from "../../buttons/button";
 import { HeaderFrame, HeaderLeft, HeaderRight } from "../../header/header";
 import { LogoContainer } from "../../header/logo";
+import { Flex } from "../../layout/flex";
 import useTTS from "../hooks/use-tts";
 import { Theme, useReader } from "../rn-epub-reader";
 
@@ -77,11 +68,12 @@ const Menu = ({
     voice,
     setVoice,
   } = useTTS();
+
   const { height, width } = useWindowDimensions();
   const { changeTheme, isPdf } = useReader();
   const { color } = useIconTheme();
 
-  const { top } = useHeaderHeight();
+  const { top } = useAppSafeAreas();
 
   const [openSettings, setOpenSettings] = useState(false);
   const [readerSettings, setReaderSettigns] = useAtom(ebookSettignsAtom);
@@ -181,13 +173,13 @@ const Menu = ({
                   <ChevronLeft />
                 </ClearIconButton>
               </LogoContainer>
-              <H6
+              <Text
                 numberOfLines={1}
                 $sm={{ maxWidth: "$15" }}
                 $md={{ maxWidth: "$20" }}
               >
                 {title}
-              </H6>
+              </Text>
             </HeaderLeft>
             <HeaderRight>
               <ClearIconButton onPress={() => setEpubReaderOverviewModal(true)}>
@@ -201,8 +193,8 @@ const Menu = ({
           {openSettings ? (
             <MenuContainer t={HEADER_HEIGHT}>
               {/* theme & font size */}
-              <XStack justifyContent="space-between">
-                <XStack gap="$4">
+              <Flex row justifyContent="space-between">
+                <Flex row gap="$4">
                   {themes.map((theme) => (
                     <ThemeButton
                       onPress={() => onThemeChange(theme)}
@@ -218,7 +210,7 @@ const Menu = ({
                       Aa
                     </ThemeButton>
                   ))}
-                </XStack>
+                </Flex>
                 {!isPdf ? (
                   <XGroup>
                     <XGroupButton
@@ -235,10 +227,10 @@ const Menu = ({
                     </XGroupButton>
                   </XGroup>
                 ) : null}
-              </XStack>
+              </Flex>
               {/* Scroll & gap  */}
-              <XStack justifyContent="space-between">
-                <XStack alignItems="center" space="$2">
+              <Flex row justifyContent="space-between">
+                <Flex alignItems="center" space="$2">
                   {Platform.OS === "ios" && SCROLL_ENABLED ? (
                     <>
                       <Label
@@ -258,7 +250,7 @@ const Menu = ({
                       </Switch>
                     </>
                   ) : null}
-                </XStack>
+                </Flex>
                 {!isPdf ? (
                   <XGroup>
                     <XGroupButton
@@ -273,11 +265,11 @@ const Menu = ({
                     />
                   </XGroup>
                 ) : null}
-              </XStack>
+              </Flex>
               {/* line space */}
               {!isPdf ? (
-                <XStack justifyContent="space-between">
-                  <XStack ai="center" space="$4">
+                <Flex row justifyContent="space-between">
+                  <Flex row ai="center" space="$4">
                     <Text>AudioPlayer mode</Text>
                     <Button
                       onPress={onBlockSizeChange}
@@ -285,7 +277,7 @@ const Menu = ({
                     >
                       <Fullscreen />
                     </Button>
-                  </XStack>
+                  </Flex>
                   <XGroup>
                     <XGroupButton
                       onPress={() => onLineSpaceChange(-LINESTEP)}
@@ -298,11 +290,11 @@ const Menu = ({
                       px={16.5}
                     />
                   </XGroup>
-                </XStack>
+                </Flex>
               ) : null}
 
-              <YStack space>
-                <XStack ai="center" space="$4">
+              <Flex space>
+                <Flex row ai="center" space="$4">
                   {!isPdf ? (
                     <>
                       <Text pr="$7">Text to Speech</Text>
@@ -321,7 +313,7 @@ const Menu = ({
                       </Switch>
                     </>
                   ) : null}
-                </XStack>
+                </Flex>
                 {!isPdf &&
                 Platform.OS === "ios" &&
                 generalEpubReaderSettings.tts ? (
@@ -333,7 +325,7 @@ const Menu = ({
                     setVoice={setVoice}
                   />
                 ) : null}
-              </YStack>
+              </Flex>
             </MenuContainer>
           ) : null}
         </Header>
@@ -341,7 +333,7 @@ const Menu = ({
 
       {hide && (
         <Footer paddingHorizontal="$4" paddingBottom="$4">
-          <XStack ai="center" flex={1}>
+          <Flex row ai="center" fill>
             {Platform.OS === "ios" && generalEpubReaderSettings.tts ? (
               !paused ? (
                 <Button
@@ -363,7 +355,7 @@ const Menu = ({
                 />
               )
             ) : null}
-          </XStack>
+          </Flex>
         </Footer>
       )}
     </>

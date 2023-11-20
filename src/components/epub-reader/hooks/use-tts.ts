@@ -185,9 +185,11 @@ const useTTS = () => {
 
   useEffect(() => {
     (async () => {
-      state.current.voice = voice;
-      await pause();
-      resume();
+      if (inProgress) {
+        state.current.voice = voice;
+        await pause();
+        resume();
+      }
     })();
   }, [voice]);
 

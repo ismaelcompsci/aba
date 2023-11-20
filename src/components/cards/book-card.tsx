@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import FastImage from "react-native-fast-image";
 import { BookX } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { Card, Text, XStack, YStack, YStackProps } from "tamagui";
+import { Card, Text } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
 import { LibraryItemMinified } from "../../types/aba";
@@ -11,6 +11,7 @@ import { getItemCoverSrc } from "../../utils/api";
 import { cleanString } from "../../utils/utils";
 import { AuthorText } from "../author-text";
 import ItemProgress from "../item-progress";
+import { Flex, FlexProps } from "../layout/flex";
 
 interface BookCardProps {
   item: LibraryItemMinified;
@@ -25,7 +26,7 @@ const BookCard = ({
   serverConfig,
   isCoverSquareAspectRatio,
   ...rest
-}: BookCardProps & YStackProps) => {
+}: BookCardProps & FlexProps) => {
   const [error, setError] = useState(false);
   const coverUrl = getItemCoverSrc(item, serverConfig, token);
 
@@ -43,51 +44,53 @@ const BookCard = ({
   }, [isCoverSquareAspectRatio]);
 
   return (
-    <YStack alignItems="center" bg="$background" {...rest} pt="$2">
-      <Card
-        w={bookWidth + 3}
-        height={bookHeight + 2.5}
-        size="$4"
-        elevation={"$0.75"}
-        bordered
-        pressStyle={{ scale: 0.875 }}
-        animation="bouncy"
-        onPress={handlePress}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <XStack pos={"absolute"} zIndex={"$5"} t={-8} r={-6}>
-          <ItemProgress
-            id={item.id}
-            radius={12}
-            activeStrokeWidth={2}
-            inActiveStrokeWidth={3}
-            progressValueFontSize={8}
-            circleBackgroundColor={bgPress}
-            activeStrokeColor={color}
-          />
-        </XStack>
-        {!coverUrl || error ? (
-          <BookX size="$10" />
-        ) : (
-          <FastImage
-            resizeMode="cover"
-            onError={() => setError(true)}
-            id={item.media.metadata.title || ""}
-            style={{
-              borderRadius: 8,
-              width: bookWidth,
-              height: bookHeight,
-              alignSelf: "center",
-              justifyContent: "center",
-            }}
-            source={{
-              uri: coverUrl + `&format=webp`,
-            }}
-          />
-        )}
-      </Card>
-      <YStack maxWidth={bookWidth}>
+    <Flex {...rest}>
+      <Flex>
+        <Card
+          w={bookWidth + 3}
+          height={bookHeight + 2.5}
+          size="$4"
+          elevation={"$0.75"}
+          bordered
+          pressStyle={{ scale: 0.875 }}
+          animation="bouncy"
+          onPress={handlePress}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Flex pos={"absolute"} zIndex={"$5"} t={-8} r={-6}>
+            <ItemProgress
+              id={item.id}
+              radius={12}
+              activeStrokeWidth={2}
+              inActiveStrokeWidth={3}
+              progressValueFontSize={8}
+              circleBackgroundColor={bgPress}
+              activeStrokeColor={color}
+            />
+          </Flex>
+          {!coverUrl || error ? (
+            <BookX size="$10" />
+          ) : (
+            <FastImage
+              resizeMode="cover"
+              onError={() => setError(true)}
+              id={item.media.metadata.title || ""}
+              style={{
+                borderRadius: 8,
+                width: bookWidth,
+                height: bookHeight,
+                alignSelf: "center",
+                justifyContent: "center",
+              }}
+              source={{
+                uri: coverUrl + `&format=webp`,
+              }}
+            />
+          )}
+        </Card>
+      </Flex>
+      <Flex maxWidth={bookWidth}>
         <Text numberOfLines={1} fontWeight="$10" pt="$2">
           {item.media?.metadata?.title}
         </Text>
@@ -99,8 +102,8 @@ const BookCard = ({
             30
           )}
         </AuthorText>
-      </YStack>
-    </YStack>
+      </Flex>
+    </Flex>
   );
 };
 

@@ -1,8 +1,9 @@
 import { FlatList } from "react-native";
-import { styled, Text, useTheme, View, XStack, YStack } from "tamagui";
+import { styled, Text, useTheme } from "tamagui";
 
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import BookCard from "../cards/book-card";
+import { Flex } from "../layout/flex";
 
 interface BookShelfProps {
   shelf: PersonalizedView;
@@ -27,42 +28,36 @@ const BookShelf = ({
     return null;
   }
   return (
-    <Shelf>
+    <Flex>
       <ShelfLabel>{shelf.label}</ShelfLabel>
       <FlatList
         data={shelf.entities || []}
         horizontal
-        ItemSeparatorComponent={() => <View w={10} />}
+        ItemSeparatorComponent={() => <Flex w={10} />}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         style={{
           backgroundColor: bg,
         }}
         renderItem={({ item, index }) => (
-          <XStack
+          <Flex
             pl={index === 0 ? "$4" : null}
             pr={index === shelf.entities.length - 1 ? "$4" : null}
           >
             <BookCard
+              pt={"$2"}
               isCoverSquareAspectRatio={isCoverSquareAspectRatio}
               key={item.id}
               serverConfig={serverConfig}
               item={item}
               token={token}
             />
-          </XStack>
+          </Flex>
         )}
       />
-    </Shelf>
+    </Flex>
   );
 };
-
-const Shelf = styled(YStack, {
-  w: "100%",
-  h: "$18",
-  space: "$2",
-  bg: "$background",
-});
 
 const ShelfLabel = styled(Text, {
   pl: "$4",

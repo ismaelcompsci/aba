@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { AnimatePresence, Button, Text, XStack, YStack } from "tamagui";
 
-import { HEADER_HEIGHT } from "../../../hooks/use-header-height";
+import { HEADER_HEIGHT } from "../../../hooks/use-app-safe-areas";
 import { Theme } from "../rn-epub-reader";
 
 import { themes } from "./themes";

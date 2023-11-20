@@ -42,6 +42,7 @@ export const PlayPauseControl = ({
   small?: boolean;
 }) => {
   const { playing } = useIsPlaying();
+
   return (
     <>
       {playing ? (

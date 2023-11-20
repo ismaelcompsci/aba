@@ -14,7 +14,7 @@ import {
 } from "tamagui";
 
 import { getBorderRadius } from "../../../utils/ui";
-import { FullScreen } from "../../center";
+import { Screen } from "../../layout/screen";
 
 import { Bar } from "./tab-views/content";
 
@@ -140,7 +140,7 @@ const TTSVoiceModal = ({
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
         >
-          <FullScreen flex={1}>
+          <Screen flex={1}>
             <YStack flex={1} pt="$6">
               <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -170,7 +170,7 @@ const TTSVoiceModal = ({
                 />
               </Dialog.Close>
             </Unspaced>
-          </FullScreen>
+          </Screen>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>

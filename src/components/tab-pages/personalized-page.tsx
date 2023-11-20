@@ -5,24 +5,18 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import {
-  ScrollView,
-  Separator,
-  Spinner,
-  Stack,
-  Text,
-  XStack,
-  YStack,
-} from "tamagui";
+import { ScrollView, Separator, Spinner, Stack, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { changingLibraryAtom } from "../../state/app-state";
 import { LibraryFilterData } from "../../types/aba";
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
 import GenreCard from "../cards/genre-card";
-import { FullScreen, ScreenCenterWithTabBar } from "../center";
+import { Flex } from "../layout/flex";
+import { Screen } from "../layout/screen";
 
 interface PersonalizedPageProps {
   currentLibraryId: string | null;
@@ -39,6 +33,7 @@ const PersonalizedPage = ({
 }: PersonalizedPageProps) => {
   const changingLibrary = useAtomValue(changingLibraryAtom);
   const { width } = useWindowDimensions();
+  const { bottom } = useAppSafeAreas();
 
   const {
     data: personalizedLibrary,
@@ -116,11 +111,16 @@ const PersonalizedPage = ({
   }, [width, genreLength, currentLibraryId]);
 
   return (
-    <FullScreen>
+    <Screen
+      centered
+      headerAndTabBar={
+        isInitialLoading || isLoading || changingLibrary || isEmpty
+          ? true
+          : false
+      }
+    >
       {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-        <ScreenCenterWithTabBar>
-          {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
-        </ScreenCenterWithTabBar>
+        <>{isEmpty ? <Text>EMPTY</Text> : <Spinner />}</>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -130,15 +130,16 @@ const PersonalizedPage = ({
           pt={"$3"}
         >
           {genreLength ? (
-            <YStack space="$2">
-              <XStack px="$4" jc="space-between" ai="center">
+            <Flex space="$2">
+              <Flex centered row px="$4" jc="space-between">
+                {/* todo make component personalized header text */}
                 <Text fontSize="$6" bg="$background">
                   Genres
                 </Text>
                 <ClearIconButton onPress={() => router.push("/genres/")}>
                   <Maximize2 size={"$1"} />
                 </ClearIconButton>
-              </XStack>
+              </Flex>
               <ScrollView
                 showsHorizontalScrollIndicator={false}
                 horizontal
@@ -151,7 +152,7 @@ const PersonalizedPage = ({
                   </Stack>
                 ))}
               </ScrollView>
-            </YStack>
+            </Flex>
           ) : null}
           {personalizedLibrary?.map((library: PersonalizedView) => (
             <BookShelf
@@ -162,10 +163,10 @@ const PersonalizedPage = ({
               token={userToken}
             />
           ))}
-          <Separator w={0} h={20} />
+          <Separator w={0} pb={bottom} />
         </ScrollView>
       )}
-    </FullScreen>
+    </Screen>
   );
 };
 

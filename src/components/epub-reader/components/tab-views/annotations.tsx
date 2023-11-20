@@ -5,7 +5,7 @@ import { Button, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
 
 import { epubReaderOverviewModalAtom } from "../../../../state/app-state";
 import { bookAnnotationsAtom } from "../../../../state/local-state";
-import { FullScreen, ScreenCenter } from "../../../center";
+import { Screen } from "../../../layout/screen";
 import { useReader } from "../../rn-epub-reader";
 
 const Annotations = () => {
@@ -21,7 +21,7 @@ const Annotations = () => {
   };
 
   return (
-    <FullScreen
+    <Screen
       padding={"$4"}
       $platform-android={{
         paddingTop: "$10",
@@ -86,11 +86,11 @@ const Annotations = () => {
           })}
         </ScrollView>
       ) : (
-        <ScreenCenter>
+        <Screen>
           <Text>empty :/</Text>
-        </ScreenCenter>
+        </Screen>
       )}
-    </FullScreen>
+    </Screen>
   );
 };
 export default Annotations;

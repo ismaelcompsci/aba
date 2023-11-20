@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 
-import { FullScreen } from "../../components/center";
 import EBookReader from "../../components/epub-reader/ebook-reader";
 import { ReaderProvider } from "../../components/epub-reader/rn-epub-reader";
+import { Screen } from "../../components/layout/screen";
 import LoadingBook from "../../components/loading-book";
 import { useNewUser } from "../../hooks/use-new-user";
 import { currentItemAtom, serverAddressAtom } from "../../state/app-state";
@@ -55,8 +55,8 @@ const ReaderPage = () => {
   }, []);
 
   return (
-    <FullScreen pos="relative">
-      <ReaderProvider>
+    <ReaderProvider>
+      <Screen centered>
         <LoadingBook
           url={url}
           user={user}
@@ -73,8 +73,8 @@ const ReaderPage = () => {
             initialLocation={initialLocation}
           />
         ) : null}
-      </ReaderProvider>
-    </FullScreen>
+      </Screen>
+    </ReaderProvider>
   );
 };
 

@@ -3,10 +3,11 @@ import { KeyboardAvoidingView, Platform } from "react-native";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
-import { Button, Card, Spinner, Text, YStack } from "tamagui";
+import { Button, Card, Spinner, Text } from "tamagui";
 
-import { ScreenCenter } from "../../components/center";
 import AddServerForm from "../../components/connection-form/add-server-form";
+import { Flex } from "../../components/layout/flex";
+import { Screen } from "../../components/layout/screen";
 import ServerConfigMenu from "../../components/menus/server-config-menu";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
 import {
@@ -168,7 +169,7 @@ const ServerConnectPage = () => {
   }, [deviceData.serverConnectionConfigs]);
 
   return (
-    <ScreenCenter>
+    <Screen centered>
       <KeyboardAvoidingView
         keyboardVerticalOffset={64}
         style={{ width: "100%", paddingHorizontal: "10%" }}
@@ -200,9 +201,9 @@ const ServerConnectPage = () => {
               </Button>
             ))
           ) : (
-            <YStack w={"100%"} alignItems="center" justifyContent="center">
+            <Flex centered>
               <Text>Empty :/</Text>
-            </YStack>
+            </Flex>
           )}
 
           <Card.Footer>
@@ -214,7 +215,7 @@ const ServerConnectPage = () => {
           </Card.Footer>
         </Card>
       </KeyboardAvoidingView>
-    </ScreenCenter>
+    </Screen>
   );
 };
 

@@ -6,7 +6,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { styled } from "tamagui";
 
-import { HEADER_HEIGHT } from "../../../hooks/use-header-height";
+import { HEADER_HEIGHT } from "../../../hooks/use-app-safe-areas";
 
 export const Header = styled(Animated.View, {
   h: HEADER_HEIGHT,

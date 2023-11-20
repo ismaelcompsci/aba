@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAtom } from "jotai";
 import RNFetchBlob from "rn-fetch-blob";
-import { Progress, Text, XStack } from "tamagui";
+import { Progress, Text } from "tamagui";
 
 import { epubDir } from "../constants/consts";
 import { epubReaderLoadingAtom } from "../state/app-state";
@@ -13,7 +13,8 @@ import {
 } from "../types/aba";
 import { ebookFormat } from "../utils/utils";
 
-import { ScreenCenter } from "./center";
+import { Flex } from "./layout/flex";
+import { Screen } from "./layout/screen";
 
 const LoadingBook = ({
   ebookFile,
@@ -86,18 +87,19 @@ const LoadingBook = ({
     })();
   }, []);
 
-  if (epubReaderLoading.loading === false) return null;
+  if (!epubReaderLoading.loading) return null;
 
   return (
-    <ScreenCenter
-      paddingBottom={0}
+    <Screen
+      h={"100%"}
+      width={"100%"}
       px="$8"
       space="$4"
       pos="absolute"
-      zIndex={88888}
-      bg={"$background"}
+      zi={88888}
+      centered
     >
-      <XStack gap="$4" ai="center" bg={"$background"}>
+      <Flex row gap="$4" ai="center" bg={"$background"}>
         {epubReaderLoading.percent ? (
           <Progress
             value={
@@ -113,11 +115,11 @@ const LoadingBook = ({
             : 0}
           %
         </Text>
-      </XStack>
+      </Flex>
       <Text>
         {epubReaderLoading.part ? epubReaderLoading.part : "Opening"}...
       </Text>
-    </ScreenCenter>
+    </Screen>
   );
 };
 

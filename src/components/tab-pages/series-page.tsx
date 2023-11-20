@@ -3,13 +3,15 @@ import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Separator, Spinner, Text, XStack, YStack } from "tamagui";
+import { Separator, Spinner, Text } from "tamagui";
 
 import { SERIES_INFINITE_LIMIT } from "../../constants/consts";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { SeriesBooksMinified } from "../../types/aba";
 import { LibrarySeries, ServerConfig } from "../../types/types";
 import SeriesCard from "../cards/series-card";
-import { FullScreen, ScreenCenterWithTabBar } from "../center";
+import { Flex } from "../layout/flex";
+import { Screen } from "../layout/screen";
 
 interface SeriesPageProps {
   currentLibraryId: string | null;
@@ -25,6 +27,7 @@ const SeriesPage = ({
   isCoverSquareAspectRatio,
 }: SeriesPageProps) => {
   const { width: screenWidth } = useWindowDimensions();
+  const { bottom, headerHeight } = useAppSafeAreas();
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
 
@@ -97,44 +100,45 @@ const SeriesPage = ({
   const handleRenderItem = useCallback(
     ({ item }: { item: SeriesBooksMinified }) => {
       return (
-        <XStack ai="center" jc="center" w="100%">
+        // <Flex ai="center" jc="center" w="100%">
+        <Flex grow centered>
           <SeriesCard
             item={item}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
             serverConfig={serverConfig}
           />
-        </XStack>
+        </Flex>
       );
     },
     [currentLibraryId]
   );
 
+  const showLoadingOrEmpty = isInitialLoading || isLoading || isEmpty;
+
   return (
-    <FullScreen>
-      {isInitialLoading || isLoading || isEmpty ? (
-        <ScreenCenterWithTabBar>
+    <Screen headerAndTabBar={showLoadingOrEmpty ? true : false}>
+      {showLoadingOrEmpty ? (
+        <Flex fill centered pb={headerHeight}>
           {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
-        </ScreenCenterWithTabBar>
+        </Flex>
       ) : (
-        <YStack w="100%" h="100%">
-          <FlashList
-            showsVerticalScrollIndicator={false}
-            horizontal={false}
-            data={flattenData || []}
-            numColumns={columns}
-            onEndReached={loadNextPageData}
-            keyExtractor={(item) => `${item.id}}`}
-            renderItem={handleRenderItem}
-            ItemSeparatorComponent={() => <Separator w={0} h={10} />}
-            estimatedItemSize={bookWidth * 2}
-            ListFooterComponent={() => <Separator w={0} h={30} />}
-            ListEmptyComponent={() => {
-              return <Text>EMPTY</Text>;
-            }}
-          />
-        </YStack>
+        <FlashList
+          showsVerticalScrollIndicator={false}
+          horizontal={false}
+          data={flattenData}
+          numColumns={columns}
+          onEndReached={loadNextPageData}
+          keyExtractor={(item) => `${item.id}}`}
+          renderItem={handleRenderItem}
+          ItemSeparatorComponent={() => <Separator w={0} h={10} />}
+          estimatedItemSize={bookWidth * 2}
+          contentContainerStyle={{ paddingBottom: bottom }}
+          ListEmptyComponent={() => {
+            return <Text>EMPTY</Text>;
+          }}
+        />
       )}
-    </FullScreen>
+    </Screen>
   );
 };
 

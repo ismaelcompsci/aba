@@ -16,8 +16,8 @@ import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
-import { ScreenCenter } from "../center";
 import Sheet from "../custom-components/sheet";
+import { Screen } from "../layout/screen";
 
 import BigAudioPlayer from "./components/big-audio-player";
 import { ProgressSlider } from "./components/progress-slider";
@@ -262,13 +262,9 @@ const AudioPlayerContainer = () => {
       {ready ? (
         <BigAudioPlayer audiobookInfo={audiobookInfo} setOpen={setOpen} />
       ) : (
-        <ScreenCenter
-          bg={"$backgroundPress"}
-          borderRadius={"$7"}
-          paddingBottom={0}
-        >
+        <Screen bg={"$backgroundPress"} borderRadius={"$7"} paddingBottom={0}>
           <Spinner />
-        </ScreenCenter>
+        </Screen>
       )}
     </Sheet>
   );
