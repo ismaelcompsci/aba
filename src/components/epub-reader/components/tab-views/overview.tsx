@@ -1,24 +1,19 @@
 import React from "react";
 import { useWindowDimensions } from "react-native";
 import RenderHtml from "react-native-render-html";
-import {
-  H3,
-  Image,
-  ScrollView,
-  Separator,
-  Text,
-  XStack,
-  YStack,
-} from "tamagui";
+import { H3, Image, ScrollView, Text } from "tamagui";
 
+import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
 import useIconTheme from "../../../../hooks/use-icon-theme";
 import { AuthorText } from "../../../author-text";
+import { Flex } from "../../../layout/flex";
 import { useReader } from "../../rn-epub-reader";
 
 export const Overview = () => {
   const { cover, getMeta } = useReader();
   const epubReaderMetadata = getMeta();
   const { width, height } = useWindowDimensions();
+  const { bottom } = useAppSafeAreas();
   const { color } = useIconTheme();
 
   const author = () => {
@@ -63,38 +58,39 @@ export const Overview = () => {
         paddingTop: "$10",
       }}
     >
-      <XStack>
-        {cover ? (
-          <Image
-            resizeMode="cover"
-            borderRadius="$4"
-            source={{
-              uri: `data:image/png;base64,${cover}`,
-              width: Math.min(width * 0.5, 300),
-              height: height * 0.35,
-            }}
+      <Flex pb={bottom}>
+        <Flex row>
+          {cover ? (
+            <Image
+              resizeMode="cover"
+              borderRadius="$4"
+              source={{
+                uri: `data:image/png;base64,${cover}`,
+                width: Math.min(width * 0.5, 300),
+                height: height * 0.35,
+              }}
+            />
+          ) : null}
+          <Flex fill padding={"$2"}>
+            <Flex fill>
+              <H3>{title()}</H3>
+              <AuthorText>{author()}</AuthorText>
+            </Flex>
+            <Flex>
+              <Text color={"$gray11"}>{dateString}</Text>
+              <Text color={"$gray11"}>{epubReaderMetadata.identifier}</Text>
+              <Text color={"$gray11"}>{epubReaderMetadata.publisher}</Text>
+            </Flex>
+          </Flex>
+        </Flex>
+        {epubReaderMetadata.description ? (
+          <RenderHtml
+            tagsStyles={{ body: { color: color } }}
+            contentWidth={width}
+            source={{ html: epubReaderMetadata.description }}
           />
         ) : null}
-        <YStack flex={1} padding={"$2"}>
-          <YStack flex={1}>
-            <H3>{title()}</H3>
-            <AuthorText>{author()}</AuthorText>
-          </YStack>
-          <YStack>
-            <Text color={"$gray11"}>{dateString}</Text>
-            <Text color={"$gray11"}>{epubReaderMetadata.identifier}</Text>
-            <Text color={"$gray11"}>{epubReaderMetadata.publisher}</Text>
-          </YStack>
-        </YStack>
-      </XStack>
-      {epubReaderMetadata.description ? (
-        <RenderHtml
-          tagsStyles={{ body: { color: color } }}
-          contentWidth={width}
-          source={{ html: epubReaderMetadata.description }}
-        />
-      ) : null}
-      <Separator h="$4" w={0} />
+      </Flex>
     </ScrollView>
   );
 };

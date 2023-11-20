@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { useAtomValue, useSetAtom } from "jotai";
-import {
-  Adapt,
-  Popover,
-  PopoverProps,
-  Text,
-  ToggleGroup,
-  XStack,
-} from "tamagui";
+import { Adapt, Popover, PopoverProps, Text, ToggleGroup } from "tamagui";
 
 import useIconTheme from "../../hooks/use-icon-theme";
 import {
@@ -20,6 +13,7 @@ import {
 import { awaitTimeout } from "../../utils/utils";
 import { iconMap } from "../adbs-icons";
 import { IconButton } from "../buttons/button";
+import { Flex } from "../layout/flex";
 
 export function ServerSelect({ ...props }: PopoverProps) {
   const libraries = useAtomValue(librariesAtom);
@@ -112,7 +106,8 @@ export function ServerSelect({ ...props }: PopoverProps) {
 
             return (
               <ToggleGroup.Item value={lib?.name} key={lib?.id}>
-                <XStack
+                <Flex
+                  row
                   $sm={{
                     width: width * 0.35,
                   }}
@@ -122,7 +117,7 @@ export function ServerSelect({ ...props }: PopoverProps) {
                 >
                   <Text fontWeight="$7">{lib.name}</Text>
                   <Icon color={iconColor} size={"$1"} />
-                </XStack>
+                </Flex>
               </ToggleGroup.Item>
             );
           })}

@@ -14,8 +14,6 @@ import {
   Paragraph,
   Square,
   Text,
-  XStack,
-  YStack,
 } from "tamagui";
 import * as ContextMenu from "zeego/context-menu";
 
@@ -29,6 +27,7 @@ import { LibraryFile } from "../../types/aba";
 import { humanFileSize } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
 import { DataTable } from "../custom-components/data-table";
+import { Flex } from "../layout/flex";
 import PressBookFileMenu from "../menus/book-file-menu";
 
 const BookFilesTable = () => {
@@ -70,9 +69,9 @@ const BookFilesTable = () => {
   const getCheckMark = (item: LibraryFile) => {
     if ("isSupplementary" in item && item.isSupplementary === false) {
       return (
-        <YStack pl={"$2"}>
+        <Flex pl={"$2"}>
           <CheckCircle color="$green10" size={"$1"} />
-        </YStack>
+        </Flex>
       );
     }
 
@@ -98,13 +97,13 @@ const BookFilesTable = () => {
 
   const Preview = ({ item }: { item: LibraryFile }) => {
     return (
-      <YStack
-        bg={"$background"}
+      <Flex
         width={300}
         key={item.metadata.filename}
         jc="center"
         space="$1"
         p="$4"
+        bg="$background"
       >
         <Text
           numberOfLines={2}
@@ -116,21 +115,27 @@ const BookFilesTable = () => {
         >
           {item.metadata.filename}
         </Text>
-        <XStack ai="center" justifyContent="space-between" w={"100%"}>
-          <YStack space={"$1"}>
+        <Flex
+          row
+          ai="center"
+          justifyContent="space-between"
+          w={"100%"}
+          bg="$background"
+        >
+          <Flex space={"$1"}>
             <Text fontSize={"$2"} color={"$gray9"}>
               Size
             </Text>
             <Text>{humanFileSize(item.metadata.size || 0, true)}</Text>
-          </YStack>
-          <YStack space={"$1"}>
+          </Flex>
+          <Flex space={"$1"}>
             <Text fontSize={"$2"} color={"$gray9"}>
               Format
             </Text>
             <Text>{item.metadata.ext.toUpperCase()}</Text>
-          </YStack>
-        </XStack>
-      </YStack>
+          </Flex>
+        </Flex>
+      </Flex>
     );
   };
 
@@ -143,7 +148,8 @@ const BookFilesTable = () => {
       <ListItem p={0}>
         <ContextMenu.Root style={{ width: width }}>
           <ContextMenu.Trigger action="press">
-            <XStack
+            <Flex
+              row
               ai="center"
               pos="relative"
               py="$3"
@@ -166,13 +172,13 @@ const BookFilesTable = () => {
                 {item.metadata.filename}
                 {getCheckMark(item)}
               </H4>
-              <XStack pr={0} flex={1} justifyContent="flex-end">
+              <Flex row pr={0} fill justifyContent="flex-end">
                 <ClearIconButton onPress={() => onBookOpenPressed(item)}>
                   <BookOpen />
                 </ClearIconButton>
                 <PressBookFileMenu onButtonPress={() => onButtonPress(item)} />
-              </XStack>
-            </XStack>
+              </Flex>
+            </Flex>
           </ContextMenu.Trigger>
           <ContextMenu.Content>
             <ContextMenu.Preview size="INHERIT">
@@ -212,7 +218,7 @@ const BookFilesTable = () => {
         >
           {({ open }: { open: boolean }) => {
             return (
-              <>
+              <Flex fill row jc="space-between">
                 <Paragraph space="$4">
                   Ebook Files
                   <Button size={"$2"} bg={"$gray6"}>
@@ -223,18 +229,18 @@ const BookFilesTable = () => {
                 <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                   <ChevronDown size="$1" />
                 </Square>
-              </>
+              </Flex>
             );
           }}
         </Accordion.Trigger>
         <Accordion.Content padding={false} maxWidth={width}>
-          <XStack maxWidth={width}>
+          <Flex maxWidth={width}>
             <DataTable
               title="Files"
               data={ebookFiles}
               renderItem={renderItem}
             />
-          </XStack>
+          </Flex>
         </Accordion.Content>
       </Accordion.Item>
     </Accordion>

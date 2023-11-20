@@ -1,17 +1,10 @@
 import { memo, useState } from "react";
 import { ChevronDown } from "@tamagui/lucide-icons";
-import {
-  Accordion,
-  Button,
-  H4,
-  Paragraph,
-  Square,
-  Text,
-  XStack,
-} from "tamagui";
+import { Accordion, Button, H4, Paragraph, Square, Text } from "tamagui";
 
 import { AudioTrack } from "../../types/aba";
 import { DataTable } from "../custom-components/data-table";
+import { Flex } from "../layout/flex";
 
 const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
   const [opened, setOpened] = useState("");
@@ -33,7 +26,7 @@ const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
 
   const renderItem = ({ item }: { item: AudioTrack }) => {
     return (
-      <XStack ai="center" pos="relative" py="$3" px="$4" key={item.index}>
+      <Flex row ai="center" pos="relative" py="$3" px="$4" key={item.index}>
         <H4
           color="$color"
           fow="700"
@@ -45,10 +38,10 @@ const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
         >
           {item.title}
         </H4>
-        <XStack pl="$7" flex={1} justifyContent="flex-end">
+        <Flex row pl="$7" flex={1} justifyContent="flex-end">
           <Text>{secondsToTimestamp(item.duration)}</Text>
-        </XStack>
-      </XStack>
+        </Flex>
+      </Flex>
     );
   };
 
@@ -71,7 +64,7 @@ const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
         >
           {({ open }: { open: boolean }) => {
             return (
-              <>
+              <Flex fill row jc="space-between">
                 <Paragraph space="$4">
                   Tracks
                   <Button size={"$2"} bg={"$gray6"}>
@@ -82,14 +75,14 @@ const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
                 <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                   <ChevronDown size="$1" />
                 </Square>
-              </>
+              </Flex>
             );
           }}
         </Accordion.Trigger>
         <Accordion.Content padding={false}>
-          <XStack w={"100%"}>
+          <Flex fill>
             <DataTable title="Tracks" data={tracks} renderItem={renderItem} />
-          </XStack>
+          </Flex>
         </Accordion.Content>
       </Accordion.Item>
     </Accordion>

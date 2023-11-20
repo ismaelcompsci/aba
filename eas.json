@@ -20,13 +20,14 @@
       },
       "android": {
         "buildType": "apk"
-      },
-      "previewTest": {
-        "developmentClient": true
-      },
-      "production": {}
+      }
     },
-    "submit": {
-      "production": {}
-    }
+    "previewTest" : {
+      "developmentClient": true
+    },
+    "production": {}
+  },
+  "submit": {
+    "production": {}
   }
+}

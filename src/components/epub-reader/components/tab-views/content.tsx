@@ -2,12 +2,14 @@ import { useMemo } from "react";
 import Animated, { StretchInY, StretchOutY } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Separator, styled, Text, XStack, YStack } from "tamagui";
+import { Separator, styled, Text } from "tamagui";
 
+import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
 import {
   epubReaderOverviewModalAtom,
   epubReaderTocAtom,
 } from "../../../../state/app-state";
+import { Flex } from "../../../layout/flex";
 import { TocItem, useReader } from "../../rn-epub-reader";
 
 type NewTocItem = {
@@ -33,8 +35,9 @@ const TocItemView = ({
   const { currentLocation } = useReader();
 
   return (
-    <YStack>
-      <XStack
+    <Flex>
+      <Flex
+        row
         h="$3"
         ai="center"
         pressStyle={{
@@ -61,12 +64,12 @@ const TocItemView = ({
             pos={"absolute"}
           />
         ) : null}
-        <XStack paddingHorizontal={"$2"}>
+        <Flex paddingHorizontal={"$2.5"}>
           <Text>{item.label}</Text>
-        </XStack>
-      </XStack>
+        </Flex>
+      </Flex>
       <Separator borderRadius={"$4"} />
-    </YStack>
+    </Flex>
   );
 };
 
@@ -75,6 +78,8 @@ export const Content = () => {
   const epubReaderToc = useAtomValue(epubReaderTocAtom);
   const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
   const newToc = useMemo(() => flattenTocItems(epubReaderToc || []), []);
+
+  const { bottom } = useAppSafeAreas();
 
   const handleTocItemPress = (item: TocItem) => {
     goToLocation(item.href);
@@ -114,10 +119,10 @@ export const Content = () => {
   };
 
   return (
-    <YStack
+    <Flex
       flex={1}
       bg="$background"
-      padding={"$4"}
+      paddingHorizontal={"$4"}
       $platform-android={{
         paddingTop: "$10",
       }}
@@ -130,8 +135,11 @@ export const Content = () => {
           keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
           initialScrollIndex={currentLocation?.tocItem.id}
+          contentContainerStyle={{
+            paddingBottom: bottom,
+          }}
         />
       ) : null}
-    </YStack>
+    </Flex>
   );
 };

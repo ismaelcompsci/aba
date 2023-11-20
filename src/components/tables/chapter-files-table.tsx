@@ -1,17 +1,10 @@
 import { memo, useState } from "react";
 import { ChevronDown } from "@tamagui/lucide-icons";
-import {
-  Accordion,
-  Button,
-  H4,
-  Paragraph,
-  Square,
-  Text,
-  XStack,
-} from "tamagui";
+import { Accordion, Button, H4, Paragraph, Square, Text } from "tamagui";
 
 import { BookChapter, LibraryItem } from "../../types/aba";
 import { DataTable } from "../custom-components/data-table";
+import { Flex } from "../layout/flex";
 
 const ChapterFilesTable = memo(
   ({ libraryItem }: { libraryItem: LibraryItem }) => {
@@ -37,7 +30,7 @@ const ChapterFilesTable = memo(
 
     const renderItem = ({ item }: { item: BookChapter }) => {
       return (
-        <XStack ai="center" pos="relative" py="$3" px="$4" key={item.id}>
+        <Flex row ai="center" pos="relative" py="$3" px="$4" key={item.id}>
           <H4
             color="$color"
             fow="700"
@@ -49,10 +42,10 @@ const ChapterFilesTable = memo(
           >
             {item.title}
           </H4>
-          <XStack pl="$7" flex={1} justifyContent="flex-end">
+          <Flex row pl="$7" flex={1} justifyContent="flex-end">
             <Text>{secondsToTimestamp(item.start)}</Text>
-          </XStack>
-        </XStack>
+          </Flex>
+        </Flex>
       );
     };
 
@@ -75,7 +68,7 @@ const ChapterFilesTable = memo(
           >
             {({ open }: { open: boolean }) => {
               return (
-                <>
+                <Flex row fill jc="space-between">
                   <Paragraph space="$4">
                     Chapters
                     <Button size={"$2"} bg={"$gray6"}>
@@ -86,18 +79,18 @@ const ChapterFilesTable = memo(
                   <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                     <ChevronDown size="$1" />
                   </Square>
-                </>
+                </Flex>
               );
             }}
           </Accordion.Trigger>
           <Accordion.Content padding={false}>
-            <XStack w={"100%"}>
+            <Flex fill>
               <DataTable
                 title="Chapters"
                 data={chapters}
                 renderItem={renderItem}
               />
-            </XStack>
+            </Flex>
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>

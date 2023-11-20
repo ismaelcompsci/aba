@@ -7,13 +7,12 @@ import {
   ListItem,
   ScrollView,
   Separator,
-  Stack,
   Text,
   Unspaced,
-  YStack,
 } from "tamagui";
 
 import { getBorderRadius } from "../../../utils/ui";
+import { Flex } from "../../layout/flex";
 import { Screen } from "../../layout/screen";
 
 import { Bar } from "./tab-views/content";
@@ -87,9 +86,9 @@ const TTSVoiceModal = ({
                     pos={"absolute"}
                   />
                 ) : null}
-                <Stack pl="$2">
+                <Flex pl="$2">
                   <Text>{item.name}</Text>
-                </Stack>
+                </Flex>
               </ListItem>
             );
           })}
@@ -140,8 +139,8 @@ const TTSVoiceModal = ({
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
         >
-          <Screen flex={1}>
-            <YStack flex={1} pt="$6">
+          <Screen>
+            <Flex fill pt="$6">
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 overflowX="visible"
@@ -157,7 +156,7 @@ const TTSVoiceModal = ({
                 />
                 <Separator w={0} h="$19" />
               </ScrollView>
-            </YStack>
+            </Flex>
             <Unspaced>
               <Dialog.Close asChild>
                 <Button

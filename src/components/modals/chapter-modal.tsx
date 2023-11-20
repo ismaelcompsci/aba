@@ -2,20 +2,13 @@ import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import TrackPlayer from "react-native-track-player";
 import { List, X } from "@tamagui/lucide-icons";
-import {
-  Button,
-  Dialog,
-  ScrollView,
-  Stack,
-  Text,
-  Unspaced,
-  XStack,
-} from "tamagui";
+import { Button, Dialog, ScrollView, Text, Unspaced } from "tamagui";
 
 import { AudioPlayerTrackExtra } from "../../types/types";
 import { formatSeconds } from "../../utils/utils";
 import { CirlceButton } from "../audio-player/components/circle-button";
 import { useTracks } from "../audio-player/hooks/use-tracks";
+import { Flex } from "../layout/flex";
 
 const ChaptersModal = () => {
   const [openSheet, setOpenSheet] = useState(false);
@@ -74,7 +67,8 @@ const ChaptersModal = () => {
           <Dialog.Title>Chapters</Dialog.Title>
           <ScrollView flex={1} showsVerticalScrollIndicator={false}>
             {audioTracks?.map((track, i) => (
-              <XStack
+              <Flex
+                row
                 key={track.id}
                 height={"$4"}
                 ai="center"
@@ -84,7 +78,7 @@ const ChaptersModal = () => {
                 }}
               >
                 {track.id === currentTrack?.id ? (
-                  <Stack
+                  <Flex
                     h={"$2"}
                     w={10}
                     bg={"$blue10"}
@@ -97,7 +91,7 @@ const ChaptersModal = () => {
                   {i} - {track.title}
                 </Text>
                 <Text ml="auto">{formatSeconds(track.startOffset)}</Text>
-              </XStack>
+              </Flex>
             ))}
           </ScrollView>
           <Unspaced>

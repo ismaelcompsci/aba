@@ -173,13 +173,13 @@ const Menu = ({
                   <ChevronLeft />
                 </ClearIconButton>
               </LogoContainer>
-              <Text
+              <H6
                 numberOfLines={1}
                 $sm={{ maxWidth: "$15" }}
                 $md={{ maxWidth: "$20" }}
               >
                 {title}
-              </Text>
+              </H6>
             </HeaderLeft>
             <HeaderRight>
               <ClearIconButton onPress={() => setEpubReaderOverviewModal(true)}>

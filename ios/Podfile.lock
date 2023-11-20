@@ -85,7 +85,7 @@ PODS:
     - React-NativeModulesApple
     - React-RCTAppDelegate
     - ReactCommon/turbomodule/core
-  - ExpoSpeech (11.3.0):
+  - ExpoSpeech (11.5.0):
     - ExpoModulesCore
   - ExpoSystemUI (2.4.0):
     - ExpoModulesCore
@@ -903,7 +903,7 @@ SPEC CHECKSUMS:
   ExpoKeepAwake: be4cbd52d9b177cde0fd66daa1913afa3161fc1d
   ExpoLinearGradient: 5966dd5d49872cc9c104fedc8bbc298b6049b2e8
   ExpoModulesCore: 51cb2e7ab4c8da14be3f40b66d54c1781002e99d
-  ExpoSpeech: 3c06cdcd31c07889a9f7085c2496ab97364427be
+  ExpoSpeech: 8a73bb7e6e84a5b5b8dbaabd5b4f287bec39bf3b
   ExpoSystemUI: fa4854e3226e87f86d3383570264c6e4e90bc782
   ExpoWebBrowser: 2c788f9c07718a780fe6d8bf2f6195c47609faaa
   EXSplashScreen: c0e7f2d4a640f3b875808ed0b88575538daf6d82

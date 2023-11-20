@@ -3,10 +3,10 @@ import { Modal, Platform, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { X } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
-import { View, XStack } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
 import { epubReaderOverviewModalAtom } from "../../../state/app-state";
+import { Flex } from "../../layout/flex";
 
 import Annotations from "./tab-views/annotations";
 import { Content } from "./tab-views/content";
@@ -41,7 +41,7 @@ export const BookChapterModal = () => {
       onRequestClose={() => setEpubReaderOverviewModal(false)}
       statusBarTranslucent
     >
-      <XStack
+      <Flex
         pos={"absolute"}
         $platform-ios={{
           right: -100,
@@ -71,7 +71,7 @@ export const BookChapterModal = () => {
           elevation: 4,
         }}
       >
-        <View
+        <Flex
           $platform-ios={{
             left: 85,
             pos: "absolute",
@@ -90,8 +90,8 @@ export const BookChapterModal = () => {
           pressStyle={{ opacity: 0.5 }}
         >
           <X />
-        </View>
-      </XStack>
+        </Flex>
+      </Flex>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
