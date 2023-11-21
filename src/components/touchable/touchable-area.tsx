@@ -1,3 +1,6 @@
+/**
+ * https://github.com/Uniswap/wallet/tree/0339c44a5eb3fe23aeb423186c5de54a6f3cf720/packages/ui
+ */
 import { useCallback, useMemo, useRef } from "react";
 import { GestureResponderEvent } from "react-native";
 import {
