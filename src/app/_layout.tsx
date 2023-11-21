@@ -11,16 +11,15 @@ import { TamaguiProvider, Theme, ThemeName } from "tamagui";
 
 import appConfig from "../../tamagui.config";
 import AudioPlayerContainer from "../components/audio-player/audio-player";
-import { ClearIconButton, IconButton } from "../components/buttons/button";
 import {
   HeaderFrame,
   HeaderLeft,
   HeaderRight,
   HeaderSafeArea,
 } from "../components/header/header";
-import SettingsMenu from "../components/menus/settings-menu";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
 import { ServerSelect } from "../components/server-selects/servers-select.ios";
+import { TouchableArea } from "../components/touchable/touchable-area";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
@@ -141,27 +140,35 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
       <HeaderFrame pt={top}>
         <HeaderLeft ai={"center"}>
           {showLogo ? (
-            <ClearIconButton>
+            <TouchableArea>
               <Library />
-            </ClearIconButton>
+            </TouchableArea>
           ) : (
-            <ClearIconButton p={0} onPress={handleBack}>
+            <TouchableArea hapticFeedback hitSlop={20} onPress={handleBack}>
               <ChevronLeft />
-            </ClearIconButton>
+            </TouchableArea>
           )}
           {showServerSwitch && !isIndex && getServerSelect()}
         </HeaderLeft>
-        <HeaderRight>
+        <HeaderRight gap={16}>
           {showSearch ? (
-            <IconButton onPress={() => router.push("/search/")}>
+            <TouchableArea
+              hapticFeedback
+              hitSlop={20}
+              onPress={() => router.push("/search/")}
+            >
               <Search color={iconColor} />
-            </IconButton>
+            </TouchableArea>
           ) : null}
-          {/* <SettingsMenu /> */}
           {showSettings ? (
-            <IconButton onPress={() => router.push("/settings/all-settings")}>
-              <Settings />
-            </IconButton>
+            <TouchableArea
+              hapticFeedback
+              hitSlop={20}
+              onPress={() => router.push("/settings/all-settings")}
+              jc="center"
+            >
+              <Settings size={24} />
+            </TouchableArea>
           ) : null}
         </HeaderRight>
       </HeaderFrame>

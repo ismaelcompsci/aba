@@ -19,5 +19,4 @@ export const HeaderLeft = styled(XStack, {
 export const HeaderRight = styled(XStack, {
   flex: 1,
   justifyContent: "flex-end",
-  space: "$2",
 });
