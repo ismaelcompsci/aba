@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Search } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Separator, Spinner, styled, Text, YStack } from "tamagui";
+import { ScrollView, Spinner, styled, Text, YStack } from "tamagui";
 
 import AuthorSearchCard from "../../components/cards/author-search-card";
 import ItemSearchCard from "../../components/cards/item-search-card";
 import NarratorSearchCard from "../../components/cards/narrator-search-card";
 import SeriesSearchCard from "../../components/cards/series-search-card";
 import InputWithIcon from "../../components/custom-components/input-with-icon";
+import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import useDebounce from "../../hooks/use-debounce";
@@ -43,7 +43,6 @@ const SearchPage = () => {
   const [searchInput, setSearchInput] = useState("");
 
   const [debouncedSearchInput] = useDebounce(searchInput, 500);
-  const { bottom } = useSafeAreaInsets();
 
   const isCoverSquareAspectRatio = library?.settings.coverAspectRatio === 1;
 
@@ -102,7 +101,10 @@ const SearchPage = () => {
   };
 
   return (
-    <Screen px="$2">
+    <Screen edges={["top", "bottom"]}>
+      <BackHeader alignment="center" mx={16} pt={16}>
+        <Text fontSize="$6">Search</Text>
+      </BackHeader>
       {/* search */}
       <Flex px={"$4"} py={"$4"}>
         <InputWithIcon
@@ -184,7 +186,6 @@ const SearchPage = () => {
               })}
             </ResultSection>
           ) : null}
-          <Separator w={0} h={bottom} />
         </ScrollView>
       </Flex>
     </Screen>

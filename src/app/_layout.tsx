@@ -122,7 +122,10 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "test/index" ||
     name === "book/[id]" ||
     name === "reader/[id]" ||
-    name === "settings"
+    name === "settings" ||
+    name === "genres/index" ||
+    name === "library/[filter]/[id]" ||
+    name === "search/index"
   ) {
     return null;
   }
@@ -156,6 +159,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hapticFeedback
               hitSlop={20}
               onPress={() => router.push("/search/")}
+              opacity={0.8}
             >
               <Search color={iconColor} />
             </TouchableArea>
@@ -166,6 +170,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hitSlop={20}
               onPress={() => router.push("/settings/all-settings")}
               jc="center"
+              opacity={0.8}
             >
               <Settings size={24} />
             </TouchableArea>

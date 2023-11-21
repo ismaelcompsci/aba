@@ -1,6 +1,8 @@
 import { useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
+import { Text } from "tamagui";
 
+import BackHeader from "../../../components/layout/back-header";
 import { Screen } from "../../../components/layout/screen";
 import LibraryPage from "../../../components/tab-pages/library-page";
 import {
@@ -9,6 +11,7 @@ import {
   userTokenAtom,
 } from "../../../state/app-state";
 import { currentServerConfigAtom } from "../../../state/local-state";
+import { decode } from "../../../utils/utils";
 
 const FilterPage = () => {
   const { filter, id } = useLocalSearchParams();
@@ -24,7 +27,12 @@ const FilterPage = () => {
   }
 
   return (
-    <Screen>
+    <Screen edges={["top"]}>
+      <BackHeader alignment="center" mx={16} py={16}>
+        <Text numberOfLines={1} fontSize="$6">
+          {decode(id as string)}
+        </Text>
+      </BackHeader>
       <LibraryPage
         currentLibraryId={currentLibraryId}
         serverConfig={serverConfig}

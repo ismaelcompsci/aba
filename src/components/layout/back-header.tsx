@@ -17,7 +17,7 @@ type BackButtonProps = {
   onPressBack?: () => void;
 } & TouchableAreaProps;
 
-const BackButton = ({
+export const BackButton = ({
   onPressBack,
   color,
   size,
@@ -44,6 +44,7 @@ const BackButton = ({
 type BackHeaderProps = {
   alignment?: "left" | "center";
   endAdornment?: JSX.Element;
+  showButtonLabel?: boolean;
   onPressBack?: () => void;
 } & FlexProps;
 
@@ -53,6 +54,7 @@ const BackHeader = ({
   alignment,
   endAdornment = <Flex width={24} />,
   onPressBack,
+  showButtonLabel,
   children,
   ...rest
 }: PropsWithChildren<BackHeaderProps>) => {
@@ -63,7 +65,11 @@ const BackHeader = ({
       justifyContent={alignment === "left" ? "flex-start" : "space-between"}
       {...rest}
     >
-      <BackButton size={BACK_BUTTON_SIZE} onPressBack={onPressBack} />
+      <BackButton
+        size={BACK_BUTTON_SIZE}
+        onPressBack={onPressBack}
+        showButtonLabel={showButtonLabel}
+      />
       {children}
       {endAdornment}
     </Flex>

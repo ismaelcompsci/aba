@@ -2,7 +2,7 @@ import React from "react";
 import { Animated, useWindowDimensions } from "react-native";
 import ViewMoreText from "react-native-view-more-text";
 import { BlurView } from "@react-native-community/blur";
-import { BookX, ChevronLeft } from "@tamagui/lucide-icons";
+import { BookX } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
@@ -10,18 +10,18 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Button, H3, H6, Image, Spinner, Text } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
-import { ClearIconButton } from "../../components/buttons/button";
 import OpenItemActionButton from "../../components/buttons/open-item-action-button";
 import { ParallaxScrollView } from "../../components/custom-components/parallax-scroll-view";
 import GenresLabelScroll from "../../components/genres-label-scroll";
 import ItemProgress from "../../components/item-progress";
+import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
-import { HEADER_HEIGHT, useAppSafeAreas } from "../../hooks/use-app-safe-areas";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentItemAtom,
@@ -148,16 +148,7 @@ const BookPage = () => {
             { opacity },
           ]}
         />
-        <Flex row height={HEADER_HEIGHT} pt={top}>
-          <ClearIconButton
-            display="flex"
-            flexDirection="row"
-            onPress={() => router.back()}
-          >
-            <ChevronLeft />
-            <Text>Go Back</Text>
-          </ClearIconButton>
-        </Flex>
+        <BackHeader alignment="center" mx={16} pt={16 + top} showButtonLabel />
       </Flex>
     );
   };

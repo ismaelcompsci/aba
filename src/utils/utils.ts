@@ -150,6 +150,9 @@ export const getUserMediaProgress = (
 export const encode = (text: string) =>
   encodeURIComponent(Buffer.from(text).toString("base64"));
 
+export const decode = (text: string) =>
+  Buffer.from(decodeURIComponent(text), "base64").toString();
+
 export function randomIntFromInterval(min: number, max: number) {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
