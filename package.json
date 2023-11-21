@@ -74,7 +74,8 @@
     "rn-fetch-blob": "^0.12.0",
     "tamagui": "^1.77.1",
     "zeego": "^1.7.2",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "expo-haptics": "~12.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

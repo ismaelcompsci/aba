@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { ChevronLeft, Library, Search } from "@tamagui/lucide-icons";
+import { ChevronLeft, Library, Search, Settings } from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
@@ -106,11 +106,10 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "library/index" ||
     name === "index" ||
     name === "server-connect/index";
-
-  const showSearch = name !== "server-connect/index";
-
+  const showSearch = name === "library/index";
   const isIndex = name === "index";
-  const showServerSwitch = name !== "server-connect/index";
+  const showServerSwitch = name === "library/index";
+  const showSettings = name === "library/index";
 
   const handleBack = () => {
     router.back();
@@ -120,7 +119,12 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     navigation.setOptions({ gestureEnabled: !showLogo });
   }, [showLogo]);
 
-  if (name === "test/index" || name === "book/[id]" || name === "reader/[id]") {
+  if (
+    name === "test/index" ||
+    name === "book/[id]" ||
+    name === "reader/[id]" ||
+    name === "settings"
+  ) {
     return null;
   }
 
@@ -153,7 +157,12 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <Search color={iconColor} />
             </IconButton>
           ) : null}
-          <SettingsMenu />
+          {/* <SettingsMenu /> */}
+          {showSettings ? (
+            <IconButton onPress={() => router.push("/settings/all-settings")}>
+              <Settings />
+            </IconButton>
+          ) : null}
         </HeaderRight>
       </HeaderFrame>
     </HeaderSafeArea>
