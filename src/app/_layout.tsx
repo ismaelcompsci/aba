@@ -78,10 +78,8 @@ export default function Layout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TamaguiProvider config={appConfig}>
-        <Theme
-          name={(appTheme.full ? appTheme.full : appTheme.scheme) as ThemeName}
-        >
+      <TamaguiProvider config={appConfig} defaultTheme="system">
+        <Theme name={appTheme.scheme}>
           <Stack
             initialRouteName="index"
             screenOptions={{

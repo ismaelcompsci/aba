@@ -1,6 +1,7 @@
 import { Text } from "tamagui";
 
 import BackHeader from "../../components/layout/back-header";
+import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 
 const Settings = () => {
@@ -9,6 +10,7 @@ const Settings = () => {
       <BackHeader alignment="center" mx={16} pt={16}>
         <Text fontSize={"$6"}>Settings</Text>
       </BackHeader>
+      <Flex centered fill></Flex>
     </Screen>
   );
 };

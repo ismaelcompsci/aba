@@ -9,9 +9,8 @@ import {
 import { Backpack, Home, Library } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
-import { Text, useTheme } from "tamagui";
+import { Spinner } from "tamagui";
 
-import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
 import LibraryPage from "../../components/tab-pages/library-page";
@@ -48,11 +47,7 @@ const HomePage = () => {
     { key: "_seriesPage", title: "Series" },
   ]);
 
-  const { iconColor } = useIconTheme();
-
-  const theme = useTheme();
-  const bg = theme.background.get();
-  const color = theme.color.get();
+  const { iconColor, bg, color } = useIconTheme();
 
   if (!userToken) {
     return router.push("/server-connect/");
@@ -105,10 +100,16 @@ const HomePage = () => {
       title: string;
     };
   }) => {
+    const props = {
+      header:
+        route.route.key === "_personalPage" ||
+        route.route.key === "_seriesPage",
+      headerAndTabBar: route.route.key === "_libraryPage",
+    };
     return (
-      <Flex fill centered>
-        <Text>Loading {route.route.title}</Text>
-      </Flex>
+      <Screen centered {...props}>
+        <Spinner />
+      </Screen>
     );
   };
 

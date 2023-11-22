@@ -5,6 +5,7 @@ import { useAtom, useSetAtom } from "jotai";
 import { Spinner } from "tamagui";
 
 import { Screen } from "../components/layout/screen";
+import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import {
   attemptingConnectionAtom,
   currentLibraryIdAtom,
@@ -30,6 +31,8 @@ export default function IndexPage() {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
+
+  const { headerHeight } = useAppSafeAreas();
 
   const makeConnection = async ({
     user,
@@ -182,12 +185,12 @@ export default function IndexPage() {
         !deviceData.lastServerConnectionConfigId &&
         !deviceData.serverConnectionConfigs.length)
     ) {
-      router.push("/server-connect/");
+      router.replace("/server-connect/");
     }
   }, [user, isMounted, attemptingConnection, deviceData]);
 
   return (
-    <Screen centered>
+    <Screen centered pb={headerHeight}>
       {!user || attemptingConnection ? (
         <Spinner />
       ) : (

@@ -1,5 +1,6 @@
 import { memo, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
+import { FadeInUp } from "react-native-reanimated";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -13,10 +14,10 @@ import { changingLibraryAtom } from "../../state/app-state";
 import { LibraryFilterData } from "../../types/aba";
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
-import { ClearIconButton } from "../buttons/button";
 import GenreCard from "../cards/genre-card";
-import { Flex } from "../layout/flex";
+import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { TouchableArea } from "../touchable/touchable-area";
 
 interface PersonalizedPageProps {
   currentLibraryId: string | null;
@@ -32,7 +33,6 @@ const PersonalizedPage = ({
   isCoverSquareAspectRatio,
 }: PersonalizedPageProps) => {
   const changingLibrary = useAtomValue(changingLibraryAtom);
-  const { width } = useWindowDimensions();
   const { bottom } = useAppSafeAreas();
 
   const {
@@ -66,6 +66,57 @@ const PersonalizedPage = ({
     }
   );
 
+  const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
+
+  return (
+    <Screen
+      centered
+      headerAndTabBar={
+        isInitialLoading || isLoading || changingLibrary || isEmpty
+          ? true
+          : false
+      }
+    >
+      {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
+        <>{isEmpty ? <Text>EMPTY</Text> : <Spinner />}</>
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          bg={"$background"}
+          h={"100%"}
+          space={"$3"}
+          pt={"$3"}
+        >
+          <GenresScrollView
+            currentLibraryId={currentLibraryId}
+            serverConfig={serverConfig}
+            userToken={userToken}
+          />
+          {personalizedLibrary?.map((library: PersonalizedView) => (
+            <BookShelf
+              isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+              key={library.id}
+              shelf={library}
+              serverConfig={serverConfig}
+              token={userToken}
+            />
+          ))}
+          <Separator w={0} pb={bottom} />
+        </ScrollView>
+      )}
+    </Screen>
+  );
+};
+
+const GenresScrollView = ({
+  currentLibraryId,
+  userToken,
+  serverConfig,
+}: {
+  currentLibraryId: string | null;
+  serverConfig: ServerConfig | null;
+  userToken: string;
+}) => {
   const { data: filterData } = useQuery({
     queryKey: ["filter-data", currentLibraryId, userToken, serverConfig?.id],
     queryFn: async () => {
@@ -80,9 +131,9 @@ const PersonalizedPage = ({
     staleTime: 1000 * 60 * 60,
   });
 
-  const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
   const genres = filterData?.genres || [];
   const genreLength = genres.length || 0;
+  const { width } = useWindowDimensions();
 
   const showGenres = useMemo(() => {
     const showGenreCards = [];
@@ -111,62 +162,33 @@ const PersonalizedPage = ({
   }, [width, genreLength, currentLibraryId]);
 
   return (
-    <Screen
-      centered
-      headerAndTabBar={
-        isInitialLoading || isLoading || changingLibrary || isEmpty
-          ? true
-          : false
-      }
-    >
-      {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-        <>{isEmpty ? <Text>EMPTY</Text> : <Spinner />}</>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          bg={"$background"}
-          h={"100%"}
-          space={"$3"}
-          pt={"$3"}
-        >
-          {genreLength ? (
-            <Flex space="$2">
-              <Flex centered row px="$4" jc="space-between">
-                {/* todo make component personalized header text */}
-                <Text fontSize="$6" bg="$background">
-                  Genres
-                </Text>
-                <ClearIconButton onPress={() => router.push("/genres/")}>
-                  <Maximize2 size={"$1"} />
-                </ClearIconButton>
-              </Flex>
-              <ScrollView
-                showsHorizontalScrollIndicator={false}
-                horizontal
-                space="$4"
-                pb="$2"
-              >
-                {showGenres.map((genre, index) => (
-                  <Stack pl={index === 0 ? "$4" : null} key={index}>
-                    <GenreCard genre={genre} />
-                  </Stack>
-                ))}
-              </ScrollView>
-            </Flex>
-          ) : null}
-          {personalizedLibrary?.map((library: PersonalizedView) => (
-            <BookShelf
-              isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-              key={library.id}
-              shelf={library}
-              serverConfig={serverConfig}
-              token={userToken}
-            />
-          ))}
-          <Separator w={0} pb={bottom} />
-        </ScrollView>
-      )}
-    </Screen>
+    <Flex space="$2">
+      <Flex centered row px="$4" py="$2" jc="space-between">
+        {/* todo make component personalized header text */}
+        <Text fontSize="$6" bg="$background">
+          Genres
+        </Text>
+        <TouchableArea hapticFeedback onPress={() => router.push("/genres/")}>
+          <Maximize2 size={"$1"} />
+        </TouchableArea>
+      </Flex>
+      {showGenres.length ? (
+        <AnimatedFlex entering={FadeInUp}>
+          <ScrollView
+            showsHorizontalScrollIndicator={false}
+            horizontal
+            space="$4"
+            pb="$2"
+          >
+            {showGenres.map((genre, index) => (
+              <Stack pl={index === 0 ? "$4" : null} key={index}>
+                <GenreCard genre={genre} />
+              </Stack>
+            ))}
+          </ScrollView>
+        </AnimatedFlex>
+      ) : null}
+    </Flex>
   );
 };
 
