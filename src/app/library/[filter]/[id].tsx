@@ -14,7 +14,7 @@ import { currentServerConfigAtom } from "../../../state/local-state";
 import { decode } from "../../../utils/utils";
 
 const FilterPage = () => {
-  const { filter, id } = useLocalSearchParams();
+  const { filter, id, name } = useLocalSearchParams();
 
   const currentLibraryId = useAtomValue(currentLibraryIdAtom);
   const serverConfig = useAtomValue(currentServerConfigAtom);
@@ -22,7 +22,6 @@ const FilterPage = () => {
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
   if (!userToken) {
-    // TODO BETTER ERROR
     return null;
   }
 
@@ -30,7 +29,7 @@ const FilterPage = () => {
     <Screen edges={["top"]}>
       <BackHeader alignment="center" mx={16} py={16}>
         <Text numberOfLines={1} fontSize="$6">
-          {decode(id as string)}
+          {name || decode(id as string)}
         </Text>
       </BackHeader>
       <LibraryPage

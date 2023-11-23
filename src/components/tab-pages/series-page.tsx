@@ -100,7 +100,6 @@ const SeriesPage = ({
   const handleRenderItem = useCallback(
     ({ item }: { item: SeriesBooksMinified }) => {
       return (
-        // <Flex ai="center" jc="center" w="100%">
         <Flex grow centered>
           <SeriesCard
             item={item}

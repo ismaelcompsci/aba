@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { ChevronLeft, Library, Search, Settings } from "@tamagui/lucide-icons";
@@ -7,7 +7,7 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TamaguiProvider, Theme, ThemeName } from "tamagui";
+import { TamaguiProvider, Theme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
 import AudioPlayerContainer from "../components/audio-player/audio-player";
@@ -18,7 +18,7 @@ import {
   HeaderSafeArea,
 } from "../components/header/header";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
-import { ServerSelect } from "../components/server-selects/servers-select.ios";
+import ServerSelect from "../components/server-selects/servers-select.ios";
 import { TouchableArea } from "../components/touchable/touchable-area";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import useIconTheme from "../hooks/use-icon-theme";
@@ -116,6 +116,14 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     navigation.setOptions({ gestureEnabled: !showLogo });
   }, [showLogo]);
 
+  const getServerSelect = useMemo(() => {
+    if (Platform.OS === "android") {
+      return <AndroidServerSelect />;
+    } else {
+      return <ServerSelect placement="bottom-end" />;
+    }
+  }, []);
+
   if (
     name === "test/index" ||
     name === "book/[id]" ||
@@ -127,14 +135,6 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   ) {
     return null;
   }
-
-  const getServerSelect = () => {
-    if (Platform.OS === "android") {
-      return <AndroidServerSelect />;
-    } else {
-      return <ServerSelect placement="bottom-end" />;
-    }
-  };
 
   return (
     <HeaderSafeArea h={headerHeight}>
@@ -149,7 +149,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <ChevronLeft />
             </TouchableArea>
           )}
-          {showServerSwitch && !isIndex && getServerSelect()}
+          {showServerSwitch && getServerSelect}
         </HeaderLeft>
         <HeaderRight gap={16}>
           {showSearch ? (

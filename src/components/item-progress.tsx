@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import CircularProgress, {
   CircularProgressBase,
 } from "react-native-circular-progress-indicator";
-import { CircularProgressBaseProps } from "react-native-circular-progress-indicator/lib/typescript/types";
+import {
+  CircularProgressBaseProps,
+  CircularProgressProps,
+} from "react-native-circular-progress-indicator/lib/typescript/types";
 import styles from "react-native-circular-progress-indicator/src/circularProgress/styles";
 import { CheckCircle } from "@tamagui/lucide-icons";
 import { useAtomValue } from "jotai";
@@ -22,7 +25,7 @@ const ItemProgress = ({
   withText?: boolean;
   showOnlyBase?: boolean;
   checkMarkSize?: number;
-} & Omit<CircularProgressBaseProps, "value">) => {
+} & Omit<CircularProgressBaseProps & CircularProgressProps, "value">) => {
   const mediaProgress = useAtomValue(mediaProgressAtom);
 
   const userMediaProgress = useMemo(() => {
@@ -63,6 +66,7 @@ const ItemProgress = ({
     );
   } else
     return (
+      // @ts-ignore
       <Flex style={[styles({ radius: rest?.radius }).container]}>
         {userProgressPercent < 1 ? (
           <CircularProgressBase

@@ -2,18 +2,17 @@ import { memo } from "react";
 import { FlatList, ScrollViewProps } from "react-native";
 
 const VirtualScrollView = memo((props: ScrollViewProps) => {
-  const renderListHeaderComponent = () => {
-    return <>{props.children}</>;
-  };
-
   return (
     <FlatList
       {...props}
+      ListHeaderComponent={<>{props.children}</>}
       data={[]}
-      keyExtractor={(_e, i) => "dom" + i.toString()}
-      ListEmptyComponent={null}
+      keyExtractor={(): string => "key"}
+      keyboardShouldPersistTaps="always"
       renderItem={null}
-      ListHeaderComponent={renderListHeaderComponent}
+      scrollEventThrottle={16}
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
     />
   );
 });

@@ -6,15 +6,7 @@ import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import {
-  Accordion,
-  Button,
-  H4,
-  ListItem,
-  Paragraph,
-  Square,
-  Text,
-} from "tamagui";
+import { Accordion, H4, ListItem, Paragraph, Square, Text } from "tamagui";
 import * as ContextMenu from "zeego/context-menu";
 
 import {
@@ -221,9 +213,7 @@ const BookFilesTable = () => {
               <Flex fill row jc="space-between">
                 <Paragraph space="$4">
                   Ebook Files
-                  <Button size={"$2"} bg={"$gray6"}>
-                    <Text>{ebookFiles.length}</Text>
-                  </Button>
+                  <Text>{ebookFiles.length}</Text>
                 </Paragraph>
 
                 <Square animation="quick" rotate={open ? "180deg" : "0deg"}>

@@ -12,6 +12,39 @@ import { showPlayerAtom } from "../../state/app-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { ActionButton } from "../book-info";
 
+const PlayButton = ({ bookItemId, id }: { bookItemId: string; id: string }) => {
+  const playerState = usePlaybackState();
+  const isPlaying = playerState.state === State.Playing;
+  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+
+  return (
+    <ActionButton
+      onPress={() => {
+        isPlaying
+          ? showPlayer.libraryItemId === id
+            ? TrackPlayer.pause()
+            : setShowPlayer({ playing: true, libraryItemId: bookItemId })
+          : showPlayer.playing && showPlayer.libraryItemId === id
+          ? TrackPlayer.play()
+          : setShowPlayer({ playing: true, libraryItemId: bookItemId });
+      }}
+      bg={"$green10"}
+    >
+      {isPlaying && showPlayer.libraryItemId === id ? (
+        <>
+          <Pause />
+          <Text>Pause</Text>
+        </>
+      ) : (
+        <>
+          <Play size="$1" />
+          <Text>Play</Text>
+        </>
+      )}
+    </ActionButton>
+  );
+};
+
 const OpenItemActionButton = ({
   bookItem,
   id,
@@ -19,12 +52,9 @@ const OpenItemActionButton = ({
   bookItem: LibraryItemExpanded;
   id: string;
 }) => {
-  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const isMissing = bookItem?.isMissing;
   const isInvalid = bookItem?.isInvalid;
 
-  const playerState = usePlaybackState();
-  const isPlaying = playerState.state === State.Playing;
   const ebookFile =
     "ebookFile" in bookItem.media ? bookItem.media.ebookFile : null;
   const ebookFormat = ebookFile?.ebookFormat;
@@ -52,33 +82,9 @@ const OpenItemActionButton = ({
 
   const showPlay = canShowPlay();
   const showRead = canShowRead();
+
   if (showPlay) {
-    return (
-      <ActionButton
-        onPress={() => {
-          isPlaying
-            ? showPlayer.libraryItemId === id
-              ? TrackPlayer.pause()
-              : setShowPlayer({ playing: true, libraryItemId: bookItem.id })
-            : showPlayer.playing && showPlayer.libraryItemId === id
-            ? TrackPlayer.play()
-            : setShowPlayer({ playing: true, libraryItemId: bookItem.id });
-        }}
-        bg={"$green10"}
-      >
-        {isPlaying && showPlayer.libraryItemId === id ? (
-          <>
-            <Pause />
-            <Text>Pause</Text>
-          </>
-        ) : (
-          <>
-            <Play size="$1" />
-            <Text>Play</Text>
-          </>
-        )}
-      </ActionButton>
-    );
+    return <PlayButton bookItemId={bookItem.id} id={id} />;
   } else if (showRead) {
     return (
       <ActionButton
@@ -91,31 +97,11 @@ const OpenItemActionButton = ({
     );
   } else {
     return (
-      <Button
-        chromeless
-        onPress={() => console.log("ITEM IS MISSING")}
-        bg={"$red10Dark"}
-        theme={"blue"}
-        flex={1}
-      >
+      <Button chromeless bg={"$red10Dark"} flex={1}>
         <Text>Missing</Text>
       </Button>
     );
   }
 };
 
-export default memo(OpenItemActionButton, (prev, next) => {
-  if (
-    "ebookFile" in prev.bookItem.media &&
-    "ebookFile" in next.bookItem.media
-  ) {
-    return (
-      prev.bookItem.media.ebookFile?.ino === next.bookItem.media.ebookFile?.ino
-    );
-  } else if (
-    "tracks" in prev.bookItem.media &&
-    "tracks" in next.bookItem.media
-  ) {
-    return prev.bookItem.updatedAt === next.bookItem.updatedAt;
-  } else return false;
-});
+export default memo(OpenItemActionButton);

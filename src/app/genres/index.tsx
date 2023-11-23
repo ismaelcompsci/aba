@@ -43,7 +43,7 @@ const GenresPage = () => {
   const languages = filterData?.languages || [];
   const tags = filterData?.tags || [];
   // const series = filterData?.series || [];
-  const narrators = filterData?.narrators || [];
+  // const narrators = filterData?.narrators || [];
 
   const onFilterPressed = ({
     item,

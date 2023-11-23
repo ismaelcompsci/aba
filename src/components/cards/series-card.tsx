@@ -32,7 +32,7 @@ const SeriesCard = ({
   );
 
   const handlePress = () => {
-    router.push(`/library/series/${encode(item.id)}`);
+    router.push(`/library/series/${encode(item.id)}?name=${item.name}`);
   };
 
   return (

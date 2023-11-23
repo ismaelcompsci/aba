@@ -3,13 +3,13 @@ import { MoreHorizontal } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
 import { useAtomValue } from "jotai";
-import { Button } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { useNewUser } from "../../hooks/use-new-user";
 import { mediaProgressAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { cleanString } from "../../utils/utils";
+import { TouchableArea } from "../touchable/touchable-area";
 
 function BookMoreMenu({
   title,
@@ -83,9 +83,9 @@ function BookMoreMenu({
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <Button>
+        <TouchableArea hapticFeedback onPress={() => {}} px="$2">
           <MoreHorizontal />
-        </Button>
+        </TouchableArea>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <DropdownMenu.Label>Book Actions</DropdownMenu.Label>

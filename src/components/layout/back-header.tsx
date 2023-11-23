@@ -30,8 +30,8 @@ export const BackButton = ({
       hapticFeedback
       alignItems="center"
       hitSlop={24}
-      {...rest}
       onPress={goBack}
+      {...rest}
     >
       <Flex row alignItems="center" gap={8}>
         <ChevronLeft color={color} size={size} />

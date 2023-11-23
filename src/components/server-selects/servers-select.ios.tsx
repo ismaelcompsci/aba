@@ -15,7 +15,7 @@ import { iconMap } from "../adbs-icons";
 import { IconButton } from "../buttons/button";
 import { Flex } from "../layout/flex";
 
-export function ServerSelect({ ...props }: PopoverProps) {
+const ServerSelect = ({ ...props }: PopoverProps) => {
   const libraries = useAtomValue(librariesAtom);
   const library = useAtomValue(currentLibraryAtom);
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
@@ -125,4 +125,5 @@ export function ServerSelect({ ...props }: PopoverProps) {
       </Popover.Content>
     </Popover>
   );
-}
+};
+export default ServerSelect;
