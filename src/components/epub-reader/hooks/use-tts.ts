@@ -83,29 +83,31 @@ const useTTS = () => {
       return forward();
     }
 
-    let mark = 0;
-    const text = state.current.text?.replace("\r\n.", "\r\n..") + "\r\n.";
-    const regex = /<mark\sname="(\d+)"/g;
-    const matches: string[] = [];
+    const ssmlText = state.current.text?.replace("\r\n.", "\r\n..");
+    const regex = /<mark name="(\d+\/?)".*?\/>([^<]*)/g;
+    let matches: { name: string; content: string }[] = [];
     let match;
-
-    while ((match = regex.exec(text)) !== null) {
-      matches.push(match[1]);
+    while ((match = regex.exec(ssmlText)) !== null) {
+      const name = match[1];
+      const content = match[2].trim();
+      matches.push({ name, content });
     }
+    const plainText = ssmlText.replace(/<[^>]*>/g, "").replace("-", " ");
 
-    const isPlaying = await Speech.isSpeakingAsync();
-    if (isPlaying) {
-      /**
-       * clearing the queue
-       * using the skip because stop() fires the onDone event
-       */
-      skip.current = true;
-      await Speech.stop();
-      await Speech.pause();
-    }
+    // const isPlaying = await Speech.isSpeakingAsync();
+    // if (isPlaying) {
+    //   /**
+    //    * clearing the queue
+    //    * using the skip because stop() fires the onDone event
+    //    */
+    //   skip.current = true;
+    //   await Speech.stop();
+    //   await Speech.pause();
+    // }
 
-    if (text) {
-      Speech.speak(text, {
+    let mark = 0;
+    if (plainText) {
+      Speech.speak(plainText, {
         voice: state.current.voice,
         language: state.current.language,
         pitch: state.current.pitch,
@@ -114,20 +116,38 @@ const useTTS = () => {
           setPaused(false);
         },
         onDone: () => {
-          if (skip.current) return;
-          if (!skip.current) {
-            nextTTS(false);
-            skip.current = false;
-          }
+          console.log("DONE");
+          // if (skip.current) return;
+          // if (!skip.current) {
+          console.log("DONE CALLED");
+          nextTTS(false);
+          skip.current = false;
+          // }
         },
         /**
          * onMark is only availible on web
          * so we use onBoundry ``
          */
-        onBoundary: () => {
-          setMarkTTS(`${matches[mark]}`);
+        onBoundary: (ev: SpeechSynthesisEvent) => {
+          const evWord = plainText.slice(
+            ev.charIndex,
+            ev.charIndex + ev.charLength
+          );
+          let word = matches.find((match) => {
+            return (
+              evWord.includes(match.content) || match.content.startsWith(evWord)
+            );
+          });
+
+          if (!word) {
+            word = matches[mark];
+            return;
+          }
+          if (word) {
+            setMarkTTS(word.name);
+            matches = matches.filter((match) => match.name !== word?.name);
+          }
           mark++;
-          skip.current = false;
         },
       });
     }
