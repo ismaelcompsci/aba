@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
-import { FadeInUp } from "react-native-reanimated";
+import { FadeIn, FadeInUp } from "react-native-reanimated";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -15,6 +15,7 @@ import { LibraryFilterData } from "../../types/aba";
 import { PersonalizedView, ServerConfig } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import GenreCard from "../cards/genre-card";
+import VirtualScrollView from "../custom-components/virtual-scroll-view";
 import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { TouchableArea } from "../touchable/touchable-area";
@@ -70,45 +71,60 @@ const PersonalizedPage = ({
 
   return (
     <Screen
-      centered
       headerAndTabBar={
         isInitialLoading || isLoading || changingLibrary || isEmpty
           ? true
           : false
       }
     >
-      {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-        <>{isEmpty ? <Text>EMPTY</Text> : <Spinner />}</>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          bg={"$background"}
-          h={"100%"}
-          space={"$3"}
-          pt={"$3"}
-        >
-          <GenresScrollView
-            currentLibraryId={currentLibraryId}
-            serverConfig={serverConfig}
-            userToken={userToken}
-          />
-          {personalizedLibrary?.map((library: PersonalizedView) => (
-            <BookShelf
-              isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-              key={library.id}
-              shelf={library}
-              serverConfig={serverConfig}
-              token={userToken}
-            />
-          ))}
-          <Separator w={0} pb={bottom} />
-        </ScrollView>
-      )}
+      <VirtualScrollView
+        contentContainerStyle={
+          isEmpty || isLoading
+            ? { flex: 1, justifyContent: "center" }
+            : undefined
+        }
+      >
+        <GenreCardList
+          currentLibraryId={currentLibraryId}
+          serverConfig={serverConfig}
+          userToken={userToken}
+        />
+        {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
+          <Flex h={"100%"} centered>
+            {isEmpty ? (
+              <Text>EMPTY :/</Text>
+            ) : (
+              <Flex>
+                <Spinner />
+              </Flex>
+            )}
+          </Flex>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            bg={"$background"}
+            h={"100%"}
+            space={"$3"}
+            pt={"$3"}
+          >
+            {personalizedLibrary?.map((library: PersonalizedView) => (
+              <BookShelf
+                isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+                key={library.id}
+                shelf={library}
+                serverConfig={serverConfig}
+                token={userToken}
+              />
+            ))}
+            <Separator w={0} pb={bottom} />
+          </ScrollView>
+        )}
+      </VirtualScrollView>
     </Screen>
   );
 };
 
-const GenresScrollView = ({
+const GenreCardList = ({
   currentLibraryId,
   userToken,
   serverConfig,
@@ -160,6 +176,10 @@ const GenresScrollView = ({
 
     return showGenreCards;
   }, [width, genreLength, currentLibraryId]);
+
+  if (!genreLength) {
+    return null;
+  }
 
   return (
     <Flex space="$2">

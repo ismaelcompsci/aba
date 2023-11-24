@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
+import { FadeIn } from "react-native-reanimated";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
-import { Button, Card, Spinner, Text } from "tamagui";
+import { Button, Card, ScrollView, Spinner, Text } from "tamagui";
 
 import AddServerForm from "../../components/connection-form/add-server-form";
-import { Flex } from "../../components/layout/flex";
+import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import ServerConfigMenu from "../../components/menus/server-config-menu";
 import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
@@ -169,51 +170,63 @@ const ServerConnectPage = () => {
   }, [deviceData.serverConnectionConfigs]);
 
   return (
-    <Screen centered>
+    <Screen header centered>
       <KeyboardAvoidingView
-        keyboardVerticalOffset={64}
-        style={{ width: "100%", paddingHorizontal: "10%" }}
-        behavior={Platform.OS === "ios" ? "position" : "height"}
+        style={{
+          justifyContent: "center",
+          width: "100%",
+          paddingHorizontal: "10%",
+        }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Card width="100%" bordered space="$4" p="$2">
-          {showAddServerForm ? (
-            <AddServerForm
-              serverConnections={serverConnections}
-              makeConnection={makeConnection}
-              setShowAddServerForm={setShowAddServerForm}
-            />
-          ) : serverConnections?.length ? (
-            serverConnections.map((server) => (
-              <Button
-                key={server.id}
-                disabled={loading}
-                onPress={() => {
-                  setPressedServer(server);
-                  connectToServer(server);
-                }}
-                $gtSm={{ jc: "space-between" }}
-              >
-                {server.name}
-                {pressedServer?.id === server.id && loading ? (
-                  <Spinner />
-                ) : null}
-                <ServerConfigMenu config={server} />
-              </Button>
-            ))
-          ) : (
-            <Flex centered>
-              <Text>Empty :/</Text>
-            </Flex>
-          )}
-
-          <Card.Footer>
-            {!showAddServerForm && (
-              <Button w={"100%"} onPress={() => setShowAddServerForm(true)}>
-                Add new server
-              </Button>
+        <ScrollView
+          bounces={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+          }}
+        >
+          <Card width="100%" bordered space="$4" p="$2">
+            {showAddServerForm ? (
+              <AnimatedFlex entering={FadeIn}>
+                <AddServerForm
+                  serverConnections={serverConnections}
+                  makeConnection={makeConnection}
+                  setShowAddServerForm={setShowAddServerForm}
+                />
+              </AnimatedFlex>
+            ) : serverConnections?.length ? (
+              serverConnections.map((server) => (
+                <Button
+                  key={server.id}
+                  disabled={loading}
+                  onPress={() => {
+                    setPressedServer(server);
+                    connectToServer(server);
+                  }}
+                  $gtSm={{ jc: "space-between" }}
+                >
+                  {server.name}
+                  {pressedServer?.id === server.id && loading ? (
+                    <Spinner />
+                  ) : null}
+                  <ServerConfigMenu config={server} />
+                </Button>
+              ))
+            ) : (
+              <Flex centered>
+                <Text>Empty :/</Text>
+              </Flex>
             )}
-          </Card.Footer>
-        </Card>
+
+            <Card.Footer>
+              {!showAddServerForm && (
+                <Button w={"100%"} onPress={() => setShowAddServerForm(true)}>
+                  Add new server
+                </Button>
+              )}
+            </Card.Footer>
+          </Card>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
   );
