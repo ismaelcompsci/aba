@@ -138,13 +138,13 @@ const EBookReader = ({
         useMenuAction({ action: "highlight", color: "yellow" });
         break;
       case "strikethrough":
-        useMenuAction({ action: "highlight", color: "strikethrough" });
+        useMenuAction({ action: "strikethrough", color: "strikethrough" });
         break;
       case "squiggly":
-        useMenuAction({ action: "highlight", color: "squiggly" });
+        useMenuAction({ action: "squiggly", color: "squiggly" });
         break;
       case "underline":
-        useMenuAction({ action: "highlight", color: "underline" });
+        useMenuAction({ action: "underline", color: "underline" });
         break;
       case "speak_from_here":
         useMenuAction({ action: "speak_from_here" });

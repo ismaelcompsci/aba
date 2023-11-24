@@ -144,7 +144,7 @@ export function View({
     }
 
     if (type === "annotationClick") {
-      const { index, range, value, pos } = parsedEvent;
+      const { index, value, pos } = parsedEvent;
       onAnnotationClick({ index, value, pos });
     }
 

@@ -230,7 +230,7 @@ const Menu = ({
               </Flex>
               {/* Scroll & gap  */}
               <Flex row justifyContent="space-between">
-                <Flex alignItems="center" space="$2">
+                <Flex row alignItems="center" space="$2">
                   {Platform.OS === "ios" && SCROLL_ENABLED ? (
                     <>
                       <Label

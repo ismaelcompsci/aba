@@ -26,6 +26,14 @@ export default `
         background: var(--bg);
         color: var(--fg);
       }
+
+      foliate-view::part(head), foliate-view::part(foot) {
+          font-family: system-ui;
+          font-size: 9pt;
+      }
+      foliate-view {
+          --overlayer-highlight-blend-mode: var(--mode);
+      }
     </style>
   </head>
 

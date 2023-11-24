@@ -552,11 +552,11 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const goPrevious = useCallback(() => {
-    book.current?.injectJavaScript(`reader.prev(); true;`);
+    book.current?.injectJavaScript(`reader.view.prev(); true;`);
   }, []);
 
   const goNext = useCallback(() => {
-    book.current?.injectJavaScript(`reader.next(); true`);
+    book.current?.injectJavaScript(`reader.view.next(); true`);
     return true;
   }, []);
 
@@ -571,30 +571,33 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const getMeta = useCallback(() => state.meta, [state.meta]);
 
-  const useMenuAction = useCallback(({ action, color }: MenuActions) => {
-    switch (action) {
-      case "copy":
-        book.current?.injectJavaScript(`
-          reader.copy(); true;
-        `);
-        break;
-      case "strikethrough":
-      case "squiggly":
-      case "underline":
-      case "highlight":
-        if (color)
-          book.current?.injectJavaScript(`
-           reader.highlight('${color}'); true
-          `);
-        break;
-      case "speak_from_here":
-        book.current?.injectJavaScript(`
-          reader.speak_from_here();
-        `);
-        break;
-      default:
-        break;
-    }
+  const useMenuAction = useCallback(({ action }: MenuActions) => {
+    book.current?.injectJavaScript(`
+    reader.onSelectedResponse({ action: '${action}' });
+    `);
+    // switch (action) {
+    //   case "copy":
+    //     book.current?.injectJavaScript(`
+    //       reader.copy(); true;
+    //     `);
+    //     break;
+    //   case "strikethrough":
+    //   case "squiggly":
+    //   case "underline":
+    //   case "highlight":
+    //     if (color)
+    //       book.current?.injectJavaScript(`
+    //        reader.highlight('${color}'); true
+    //       `);
+    //     break;
+    //   case "speak_from_here":
+    //     book.current?.injectJavaScript(`
+    //       reader.speak_from_here();
+    //     `);
+    //     break;
+    //   default:
+    //     break;
+    // }
   }, []);
 
   const setAnnotations = useCallback((annotations: Annotation[]) => {

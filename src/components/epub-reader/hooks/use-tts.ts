@@ -205,10 +205,11 @@ const useTTS = () => {
 
   useEffect(() => {
     (async () => {
-      if (inProgress) {
+      if (state.current.inProgress) {
+        console.log("CAHNGING VOICE");
         state.current.voice = voice;
-        await pause();
-        resume();
+        await Speech.pause();
+        await Speech.resume();
       }
     })();
   }, [voice]);

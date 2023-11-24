@@ -6,6 +6,7 @@ import { Button, ScrollView, Separator, Text } from "tamagui";
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
 import { epubReaderOverviewModalAtom } from "../../../../state/app-state";
 import { bookAnnotationsAtom } from "../../../../state/local-state";
+import { cleanString } from "../../../../utils/utils";
 import { Flex } from "../../../layout/flex";
 import { Screen } from "../../../layout/screen";
 import { useReader } from "../../rn-epub-reader";
@@ -34,7 +35,12 @@ const Annotations = () => {
       pb={!annotations?.length ? headerHeight : undefined}
     >
       {annotations?.length ? (
-        <ScrollView space height={"100%"} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          space
+          height={"100%"}
+          width={"100%"}
+          showsVerticalScrollIndicator={false}
+        >
           {annotations?.map((ann, index) => {
             const date = new Date(ann.created);
             return (
@@ -45,7 +51,7 @@ const Annotations = () => {
                       textDecorationLine="line-through"
                       textDecorationColor="yellow"
                     >
-                      {ann.text}
+                      {cleanString(ann.text, 350)}
                     </Text>
                   ) : null}
                   {ann.color === "yellow" ? (
@@ -53,7 +59,7 @@ const Annotations = () => {
                       key={ann.value}
                       backgroundColor={"rgba(255, 255, 0, 0.4)"}
                     >
-                      {ann.text}
+                      {cleanString(ann.text, 350)}
                     </Text>
                   ) : null}
                   {ann.color === "underline" ? (
@@ -61,7 +67,7 @@ const Annotations = () => {
                       textDecorationLine="underline"
                       textDecorationColor={"yellow"}
                     >
-                      {ann.text}
+                      {cleanString(ann.text, 350)}
                     </Text>
                   ) : null}
                   {ann.color === "squiggly" ? (
@@ -70,7 +76,7 @@ const Annotations = () => {
                       textDecorationColor={"yellow"}
                       textDecorationStyle="dotted"
                     >
-                      {ann.text}
+                      {cleanString(ann.text, 350)}
                     </Text>
                   ) : null}
                 </Text>

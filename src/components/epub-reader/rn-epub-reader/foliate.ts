@@ -1341,6 +1341,12 @@ const makeMarginals = (length, part) => Array.from({
   child.setAttribute('part', part);
   return div;
 });
+const setStylesImportant = (el, styles) => {
+  const {
+    style
+  } = el;
+  for (const [k, v] of Object.entries(styles)) style.setProperty(k, v, 'important');
+};
 class View {
   #observer = new ResizeObserver(() => this.expand());
   #element = document.createElement('div');
@@ -1440,16 +1446,16 @@ class View {
     // debugMessage('[SCROLLED] SCROLLED...')
     const vertical = this.#vertical;
     const doc = this.document;
-    Object.assign(doc.documentElement.style, {
-      boxSizing: 'border-box',
-      padding: vertical ? \`\${gap}px 0\` : \`0 \${gap}px\`,
-      columnWidth: 'auto',
-      height: 'auto',
-      width: 'auto'
+    setStylesImportant(doc.documentElement, {
+      'box-sizing': 'border-box',
+      'padding': vertical ? \`\${gap}px 0\` : \`0 \${gap}px\`,
+      'column-width': 'auto',
+      'height': 'auto',
+      'width': 'auto'
     });
-    Object.assign(doc.body.style, {
-      [vertical ? 'maxHeight' : 'maxWidth']: \`\${columnWidth}px\`,
-      margin: 'auto'
+    setStylesImportant(doc.body, {
+      [vertical ? 'max-height' : 'max-width']: \`\${columnWidth}px\`,
+      'margin': 'auto'
     });
     this.setImageSize();
     this.expand();
@@ -1464,35 +1470,35 @@ class View {
     const vertical = this.#vertical;
     this.#size = vertical ? height : width;
     const doc = this.document;
-    Object.assign(doc.documentElement.style, {
-      boxSizing: 'border-box',
-      columnWidth: \`\${Math.trunc(columnWidth)}px\`,
-      columnGap: \`\${gap}px\`,
-      columnFill: 'auto',
+    setStylesImportant(doc.documentElement, {
+      'box-sizing': 'border-box',
+      'column-width': \`\${Math.trunc(columnWidth)}px\`,
+      'column-gap': \`\${gap}px\`,
+      'column-fill': 'auto',
       ...(vertical ? {
-        width: \`\${width}px\`
+        'width': \`\${width}px\`
       } : {
-        height: \`\${height}px\`
+        'height': \`\${height}px\`
       }),
-      padding: vertical ? \`\${gap / 2}px 0\` : \`0 \${gap / 2}px\`,
-      overflow: 'hidden',
+      'padding': vertical ? \`\${gap / 2}px 0\` : \`0 \${gap / 2}px\`,
+      'overflow': 'hidden',
       // force wrap long words
-      overflowWrap: 'anywhere',
+      'overflow-wrap': 'anywhere',
       // reset some potentially problematic props
-      position: 'static',
-      border: '0',
-      margin: '0',
-      maxHeight: 'none',
-      maxWidth: 'none',
-      minHeight: 'none',
-      minWidth: 'none',
+      'position': 'static',
+      'border': '0',
+      'margin': '0',
+      'max-height': 'none',
+      'max-width': 'none',
+      'min-height': 'none',
+      'min-width': 'none',
       // fix glyph clipping in WebKit
-      webkitLineBoxContain: 'block glyphs replaced'
+      '-webkit-line-box-contain': 'block glyphs replaced'
     });
-    Object.assign(doc.body.style, {
-      maxHeight: 'none',
-      maxWidth: 'none',
-      margin: '0'
+    setStylesImportant(doc.body, {
+      'max-height': 'none',
+      'max-width': 'none',
+      'margin': '0'
     });
     this.setImageSize();
     this.expand();
@@ -1511,13 +1517,13 @@ class View {
         maxHeight,
         maxWidth
       } = doc.defaultView.getComputedStyle(el);
-      Object.assign(el.style, {
-        maxHeight: vertical ? maxHeight !== 'none' && maxHeight !== '0px' ? maxHeight : '100%' : \`\${height - margin * 2}px\`,
-        maxWidth: vertical ? \`\${width - margin * 2}px\` : maxWidth !== 'none' && maxWidth !== '0px' ? maxWidth : '100%',
-        objectFit: 'contain',
-        pageBreakInside: 'avoid',
-        breakInside: 'avoid',
-        boxSizing: 'border-box'
+      setStylesImportant(el, {
+        'max-height': vertical ? maxHeight !== 'none' && maxHeight !== '0px' ? maxHeight : '100%' : \`\${height - margin * 2}px\`,
+        'max-width': vertical ? \`\${width - margin * 2}px\` : maxWidth !== 'none' && maxWidth !== '0px' ? maxWidth : '100%',
+        'object-fit': 'contain',
+        'page-break-inside': 'avoid',
+        'break-inside': 'avoid',
+        'box-sizing': 'border-box'
       });
     }
   }
@@ -1723,7 +1729,6 @@ class Paginator extends HTMLElement {
       doc.addEventListener('touchmove', this.#onTouchMove.bind(this), opts);
       doc.addEventListener('touchend', this.#onTouchEnd.bind(this));
     });
-    debugMessage('[PAGINATOR] INITED');
     this.#mediaQueryListener = () => {
       if (!this.#view) return;
       this.#background.style.background = getBackground(this.#view.document);
@@ -1754,7 +1759,6 @@ class Paginator extends HTMLElement {
   }
   #createView() {
     if (this.#view) this.#container.removeChild(this.#view.element);
-    // debugMessage(\`[CREATEVIEW] anchor \${this.#anchor} \${JSON.stringify(this.#anchor)}\`)
     this.#view = new View({
       container: this,
       onExpand: () => this.scrollToAnchor(this.#anchor)
@@ -2017,7 +2021,7 @@ class Paginator extends HTMLElement {
       const start = scrollTop;
       const end = this.end - scrollheight;
       if (end > 50) {
-        if (this.atEnd || this.#canGoToPrevSection) return;
+        if (this.atEnd || this.#canGoToPrevSection || this.#canGoToNextSection) return;
         this.#canGoToNextSection = true;
         this.dispatchEvent(new CustomEvent('next', {
           detail: {
@@ -2027,7 +2031,7 @@ class Paginator extends HTMLElement {
         return;
       }
       if (start < -50) {
-        if (this.atStart || this.#canGoToNextSection) return;
+        if (this.atStart || this.#canGoToNextSection || this.#canGoToPrevSection) return;
         this.#canGoToPrevSection = true;
         this.dispatchEvent(new CustomEvent('previous', {
           detail: {
@@ -2036,11 +2040,9 @@ class Paginator extends HTMLElement {
         }));
         return;
       }
-
-      // this.#canGoToPrevSection = false
-      // this.#canGoToNextSection = false
-
-      if (this.sentEvent) {
+      this.#canGoToPrevSection = false;
+      this.#canGoToNextSection = false;
+      if (this.sentEvent && (this.#canGoToPrevSection || this.#canGoToPrevSection)) {
         this.sentEvent = false;
         this.dispatchEvent(new CustomEvent('next', {
           detail: {
@@ -2757,7 +2759,7 @@ class ListIterator {
 }
 class TTS {
   #list;
-  ranges;
+  #ranges;
   #lastMark;
   #serializer = new XMLSerializer();
   constructor(doc, textWalker, highlight) {
@@ -2768,7 +2770,7 @@ class TTS {
         entries,
         ssml
       } = getFragmentWithMarks(range, textWalker);
-      this.ranges = new Map(entries);
+      this.#ranges = new Map(entries);
       return [ssml, range];
     });
   }
@@ -2816,14 +2818,14 @@ class TTS {
     this.#lastMark = null;
     const [doc] = this.#list.find(range_ => range.compareBoundaryPoints(Range.END_TO_START, range_) <= 0);
     let mark;
-    for (const [name, range_] of this.ranges.entries()) if (range.compareBoundaryPoints(Range.START_TO_START, range_) <= 0) {
+    for (const [name, range_] of this.#ranges.entries()) if (range.compareBoundaryPoints(Range.START_TO_START, range_) <= 0) {
       mark = name;
       break;
     }
     return this.#speak(doc, ssml => this.#getMarkElement(ssml, mark));
   }
   setMark(mark) {
-    const range = this.ranges.get(mark);
+    const range = this.#ranges.get(mark);
     if (range) {
       this.#lastMark = mark;
       this.highlight(range.cloneRange());
@@ -9551,12 +9553,12 @@ te({
 
 
 
-const toReactMessage = e => {
+const format = {};
+format.loc = (a, b) => \`\${a} of \${b}\`;
+format.page = (a, b) => b ? \`Page \${a} of \${b}\` : \`Page \${a}\`;
+const emit = e => {
   window.ReactNativeWebView.postMessage(JSON.stringify(e));
 };
-toReactMessage({
-  type: "onStarted"
-});
 const main_debounce = (f, wait, immediate) => {
   let timeout;
   return (...args) => {
@@ -9673,9 +9675,9 @@ const isFBZ = ({
   name,
   type
 }) => type === "application/x-zip-compressed-fb2" || name.endsWith(".fb2.zip") || name.endsWith(".fbz");
-const getView = async file => {
+const getBook = async file => {
   if (!file.size) {
-    toReactMessage({
+    emit({
       type: "onDisplayError",
       reason: "book-error-not-found"
     });
@@ -9715,7 +9717,7 @@ const getView = async file => {
     }
   }
   if (!book) {
-    toReactMessage({
+    emit({
       type: "onDisplayError",
       reason: "unsupported-type"
     });
@@ -9792,362 +9794,41 @@ const main_getLang = el => {
   if (el.parentElement) return main_getLang(el.parentElement);
 };
 class Reader {
-  #tocMap;
-  #isPdf;
-  #currentTocPos;
-  #previousFraction;
-  currentAnnotation = null;
   annotations = new Map();
   annotationsByValue = new Map();
-  playing;
-  style = {
-    lineHeight: 1.4,
-    justify: true,
-    hyphenate: true
-  };
-  constructor(path, bookLocation) {
-    this.path = path;
-    this.initalLocation = bookLocation;
-    this.currentLocation = undefined;
-    if (path) {
-      this.getBookBlob(path).catch(error => {
-        var err = new Error("Cannot load book at " + path);
+  style = {};
+  isPdf;
+  highlight_color = "yellow";
+  constructor(bookPath, initLocation) {
+    this.initLocation = initLocation;
+    if (bookPath) {
+      this.getBookBlob(bookPath).catch(error => {
+        var err = new Error("Cannot load book at " + bookPath);
         debug(\`[READER] ERROR \${JSON.stringify(err)} or \${error}\`);
       });
     }
-    this.#tocMap = new Map();
-    debug("[READER] CONSTRUCTED");
   }
-  getBookBlob = input => {
-    var opening;
-    opening = request(input, "binary").then(this.openEpub.bind(this));
-    return opening;
-  };
-
-  /**
-   * Open an archived epub
-   * @private
-   * @param  {binary} data
-   * @param  {string} [encoding]
-   * @return {Promise}
-   */
-  openEpub = (data, encoding) => {
-    var blobData = new Blob([data]);
-    var file = new File([blobData], this.path);
-    this.open(file);
-  };
-  open = async file => {
-    try {
-      this.#isPdf = await isPDF(file);
-      this.book = await getView(file);
-      this.view = document.createElement("foliate-view");
-      this.view.addEventListener("relocate", this.onRelocate);
-      this.view.addEventListener("create-overlay", e => {
-        const {
-          index
-        } = e.detail;
-        const list = this.annotations.get(index);
-        if (list) for (const annotation of list) this.view.addAnnotation(annotation);
-      });
-      this.view.addEventListener("show-annotation", e => {
-        const {
-          value,
-          index,
-          range
-        } = e.detail;
-        const pos = getPosition(range);
-        const ann = this.annotationsByValue.get(value);
-        if (ann) {
-          ann.range = range
-          this.currentAnnotation = ann;
-          toReactMessage({
-            type: "annotationClick",
-            index,
-            range,
-            value,
-            pos
-          });
-        }
-      });
-      this.view.addEventListener("draw-annotation", e => {
-        const {
-          draw,
-          annotation,
-          doc,
-          range
-        } = e.detail;
-        const {
-          color
-        } = annotation;
-        if (["underline", "squiggly", "strikethrough"].includes(color)) {
-          const {
-            defaultView
-          } = doc;
-          const node = range.startContainer;
-          const el = node.nodeType === 1 ? node : node.parentElement;
-          const {
-            writingMode
-          } = defaultView.getComputedStyle(el);
-          draw(Overlayer[color], {
-            writingMode,
-            color: "yellow",
-          });
-        } else {
-          this.highlight_color = color;
-          draw(Overlayer.highlight, {
-            color
-          });
-        }
-      });
-      this.view.addEventListener("external-link", e => {
-        e.preventDefault();
-      });
-      this.view.addEventListener("load", e => this.#onLoad(e));
-      await this.view.open(this.book);
-      document.body.append(this.view);
-      if (!this.#isPdf) {
-        this.view.renderer.addEventListener("next", this.showNext, {
-          passive: false
-        });
-        this.view.renderer.addEventListener("previous", this.showPrevious, {
-          passive: false
-        });
-      }
-      const {
-        book
-      } = this.view;
-      const toc = book.toc;
-      this.book = book;
-      let count = 0;
-      toc?.flatMap((item, i) => {
-        if (item.subitems?.length > 0) {
-          return item.subitems.map(subitem => {
-            this.#tocMap.set(count, {
-              label: subitem?.label,
-              id: subitem?.id
-            });
-            count += 1;
-          });
-        } else {
-          this.#tocMap.set(count, {
-            label: item?.label,
-            id: item?.id
-          });
-          count += 1;
-        }
-      });
-      if (!this.#isPdf) {
-        this.initalLocation ? await this.view.goTo(this.initalLocation) : this.view.renderer.next();
-      } else {
-        this.initalLocation ? await this.view.goTo(Number(this.initalLocation)) : this.view.renderer.next();
-      }
-      const onReadyPayload = {
-        metadata: book.metadata,
-        toc: book.toc
-      };
-      await this.getCover();
-      toReactMessage({
-        type: "onReady",
-        book: onReadyPayload
-      });
-    } catch (err) {
-      debug("[READER_OPEN_ERROR] " + err);
-      toReactMessage({
-        type: "onDisplayError",
-        reason: "book-error-failed-to-open"
-      });
-    }
-  };
-  #onLoad = ev => {
-    debug("ON LOAD");
-
-    /**
-     * @type {Document}
-     */
-    const doc = ev.detail.doc;
-    const index = ev.detail.index;
-    let annotation = null;
-    this.prevValue = null;
-    this.selectedAnn = {}
-    doc.addEventListener("selectionchange", () => {
-      const range = getSelectionRange(doc);
-      if (!range) return;
-      this.view.renderer.pause = true;
-
-      if (this.prevValue && this.playing){
-          this.view.addAnnotation({
-            value: this.prevValue,
-            color: 'red'
-          }, true);
-      }
-
-      if (this.playing) {
-        const pos = getPosition(range);
-        const value = this.view.getCFI(index, range);
-        this.selectedAnn.range = range
-        this.view.addAnnotation({
-          value: value,
-          color: 'red'
-        }, false);
-        doc.getSelection().removeAllRanges();
-        this.prevValue = value;
-      }
-    })
-    this.doc = doc
-    doc.addEventListener("touchend", () => {
-      this.view.renderer.pause = false;
-      const range = getSelectionRange(doc)
-      if (!range) return;
-      this.currentAnnotation = null;
-      const pos = getPosition(range);
-      const value = this.view.getCFI(index, range);
-      const lang = main_getLang(range.commonAncestorContainer);
-      annotation = {
-        index,
-        range,
-        lang,
-        value,
-        pos
-      };
-      this.currentAnnotation = annotation;
-      this.annotationsByValue.set(annotation.value, annotation)
-    });
-  };
-  setAnnotations = annotations => {
-    annotations.forEach(ann => {
-      this.view.addAnnotation(ann);
-      const list = this.annotations.get(ann.index);
-      if (list) list.push(ann);else this.annotations.set(ann.index, [ann]);
-      this.annotationsByValue.set(ann.value, ann);
-    });
-  };
-  copy = () => {
-    const text = this.currentAnnotation.range.toString();
-    if (text) toReactMessage({
-      type: "menuAction",
-      value: text
-    });else toReactMessage({
-      type: "menuAction",
-      error: "copy-error"
-    });
-  };
-  setPlaying = (playing) => {
-    this.playing = playing;
-  }
-  highlight = color => {
-    debug(color);
-    if (this.currentAnnotation) {
-      this.view.addAnnotation({
-        value: this.currentAnnotation.value,
-        color: color
-      }, false);
-      this.currentAnnotation.color = color;
-      this.currentAnnotation.created = new Date().toISOString();
-      if (this.currentAnnotation.range) {
-        this.currentAnnotation.text = this.currentAnnotation.range.toString();
-      }
-      const annotations = this.annotations.get(this.currentAnnotation.index);
-      if (annotations) annotations.push(this.currentAnnotation);else this.annotations.set(this.currentAnnotation.index, [this.currentAnnotation]);
-      toReactMessage({
-        type: "newAnnotation",
-        annotation: this.currentAnnotation
-      });
-      this.currentAnnotation = null;
-    }
-  };
-  speak_from_here = () => {
-    this.playing = true;
-    this.view.initTTS().then(() =>
-      toReactMessage({
-        type: "tts",
-        action: "speak_from_here",
-        ssml: this.view.tts.from(this.currentAnnotation.range),
-      })
-    );
-  };
-
-  startTTS = () => {
-    let ssml;
-    if (this.currentLocation?.range) {
-      ssml = this.view.tts.from(this.currentLocation.range)
+  init = async () => {
+    this.view = document.createElement("foliate-view");
+    this.pageTotal = this.book.pageList;
+    await this.view.open(this.book);
+    document.body.append(this.view);
+    this.#handleEvents();
+    if (!this.isPdf) {
+      this.initLocation ? await this.view.goTo(this.initLocation) : this.view.renderer.next();
     } else {
-      ssml = this.view.tts.start();
+      this.initLocation ? await this.view.goTo(Number(this.initLocation)) : this.view.renderer.next();
     }
-      
-    toReactMessage({
-      type: "tts",
-      action: "start",
-      ssml: ssml,
+    this.sectionFractions = this.view.getSectionFractions()
+    await  this.getCover();
+    const onReadyPayload = {
+      metadata: this.book.metadata,
+      toc: this.book.toc
+    };
+    emit({
+      type: "onReady",
+      book: onReadyPayload
     });
-  };
-
-  resumeTTS = () => {
-    const ssml = this.view.tts.resume()
-    toReactMessage({
-      type: "tts",
-      action: "resume",
-      ssml: ssml,
-    })
-  }
-
-  nextTTS = (paused) => {
-    const ssml = this.view.tts.next(paused);
-    toReactMessage({
-      type: "tts",
-      action: "next",
-      ssml: ssml,
-    })
-  }
-
-  showNext = ev => {
-    /**
-     * TODO instead of rendering a component in react do it here.
-     */
-    const nextLabel = ev.detail.show ? this.#tocMap.get(this.#currentTocPos?.id + 1)?.label : null;
-    toReactMessage({
-      type: "showNext",
-      show: ev.detail.show,
-      label: nextLabel
-    });
-  };
-  showPrevious = ev => {
-    const prevLabel = ev.detail.show ? this.#tocMap.get(this.#currentTocPos?.id - 1)?.label : null;
-    toReactMessage({
-      type: "showPrevious",
-      show: ev.detail.show,
-      label: prevLabel
-    });
-  };
-  onRelocate = e => {
-    const {
-      section,
-      fraction,
-      location,
-      tocItem,
-      pageItem,
-      cfi,
-      time
-    } = e.detail;
-    this.currentLocation = e.detail;
-    if (this.#previousFraction !== fraction) {
-      toReactMessage({
-        type: "onLocationChange",
-        section,
-        fraction,
-        location,
-        tocItem,
-        pageItem,
-        cfi,
-        time
-      });
-    }
-    this.#previousFraction = fraction;
-  };
-  next = () => {
-    this.view?.renderer?.next();
-  };
-  prev = () => {
-    this.view?.renderer?.prev();
   };
   setTheme = ({
     style,
@@ -10169,12 +9850,223 @@ class Reader {
       renderer.setAttribute("max-column-count", layout.maxColumnCount);
       renderer.setStyles?.(getCSS(this.style));
     }
+    if (theme.name !== "light") {
+      \$style.setProperty("--mode", "screen");
+    } else {
+      \$style.setProperty("--mode", "multiply");
+    }
+  };
+  #handleEvents = () => {
+    this.view.addEventListener("relocate", e => {
+      const {
+        heads,
+        feet
+      } = this.view.renderer;
+      if (heads) {
+        const {
+          tocItem
+        } = e.detail;
+        heads.at(-1).innerText = tocItem?.label ?? "";
+        if (heads.length > 1) heads[0].innerText = this.book.metadata.title;
+      }
+      if (feet) {
+        const {
+          pageItem,
+          location: {
+            current,
+            next,
+            total
+          }
+        } = e.detail;
+        if (pageItem) {
+          // only show page number at the end
+          // because we only have visible range for the spread,
+          // not each column
+          feet.at(-1).innerText = format.page(pageItem.label, this.pageTotal);
+          if (feet.length > 1) feet[0].innerText = format.loc(current + 1, total);
+        } else {
+          feet[0].innerText = format.loc(current + 1, total);
+          if (feet.length > 1) {
+            const r = 1 - 1 / feet.length;
+            const end = Math.floor((1 - r) * current + r * next);
+            feet.at(-1).innerText = format.loc(end + 1, total);
+          }
+        }
+      }
+      emit({
+        type: "onLocationChange",
+        ...e.detail
+      });
+    });
+    this.view.addEventListener("create-overlay", e => {
+      const {
+        index
+      } = e.detail;
+      const list = this.annotations.get(index);
+      if (list) for (const annotation of list) this.view.addAnnotation(annotation);
+    });
+    this.view.addEventListener("show-annotation", e => {
+      const {
+        value,
+        index,
+        range
+      } = e.detail;
+      const pos = getPosition(range);
+      const ann = this.annotationsByValue.get(value);
+      if (ann) {
+        ann.range = range;
+        this.currentlySelected = ann;
+        emit({
+          type: "annotationClick",
+          index,
+          range,
+          value,
+          pos
+        });
+      }
+    });
+    this.view.addEventListener("draw-annotation", e => {
+      const {
+        draw,
+        annotation,
+        doc,
+        range
+      } = e.detail;
+      const {
+        color
+      } = annotation;
+      if (["underline", "squiggly", "strikethrough"].includes(color)) {
+        const {
+          defaultView
+        } = doc;
+        const node = range.startContainer;
+        const el = node.nodeType === 1 ? node : node.parentElement;
+        const {
+          writingMode
+        } = defaultView.getComputedStyle(el);
+        draw(Overlayer[color], {
+          writingMode,
+          color: this.highlight_color
+        });
+      } else {
+        draw(Overlayer.highlight, {
+          color: this.highlight_color
+        });
+      }
+    });
+    this.view.addEventListener("external-link", e => {
+      e.preventDefault();
+    });
+    this.view.addEventListener("load", e => this.#onLoad(e));
+    if (!this.isPdf) {
+      this.view.renderer.addEventListener("next", this.showNext, {
+        passive: false
+      });
+      this.view.renderer.addEventListener("previous", this.showPrevious, {
+        passive: false
+      });
+    }
+  };
+
+  /**
+   *
+   *
+   * @param {Object} e - The event object.
+   * @param {Object} e.detail - Details of the event.
+   * @param {Document} e.detail.doc - The document object.
+   * @param {number} e.detail.index - The index value.
+   */
+  #onLoad = e => {
+    const {
+      doc,
+      index
+    } = e.detail;
+    let isSelecting = false;
+    doc.addEventListener("selectionchange", () => {
+      const range = getSelectionRange(doc);
+      if (!range) return;
+      this.view.renderer.pause = true;
+    });
+    doc.addEventListener("touchstart", () => isSelecting = true);
+    doc.addEventListener("touchend", () => {
+      this.view.renderer.pause = false;
+      isSelecting = false;
+      const range = getSelectionRange(doc);
+      if (!range) return;
+      const pos = getPosition(range);
+      const value = this.view.getCFI(index, range);
+      const lang = main_getLang(range.commonAncestorContainer);
+      this.currentlySelected = {
+        index,
+        range,
+        lang,
+        value,
+        pos,
+        created: new Date().toISOString(),
+        text: range.toString()
+      };
+    });
+  };
+  onSelectedResponse = ({
+    action
+  }) => {
+    switch (action) {
+      case "highlight":
+        this.addAnnotation();
+        break;
+      case "strikethrough":
+        this.addAnnotation(action);
+        break;
+      case "squiggly":
+        this.addAnnotation(action);
+        break;
+      case "underline":
+        this.addAnnotation(action);
+        break;
+      default:
+        break;
+    }
+  };
+  addAnnotation = method => {
+    this.view.addAnnotation({
+      value: this.currentlySelected.value,
+      color: method ? method : this.highlight_color
+    }, false);
+    this.currentlySelected.color = method ? method : this.highlight_color;
+    emit({
+      type: "newAnnotation",
+      annotation: this.currentlySelected
+    });
+  };
+  setAnnotations = annotations => {
+    annotations.forEach(ann => {
+      this.view.addAnnotation(ann);
+      const list = this.annotations.get(ann.index);
+      if (list) list.push(ann);else this.annotations.set(ann.index, [ann]);
+      this.annotationsByValue.set(ann.value, ann);
+    });
+  };
+  showNext = ev => {
+    const nextLabel = null;
+    emit({
+      type: "showNext",
+      show: ev.detail.show,
+      label: nextLabel
+    });
+  };
+  showPrevious = ev => {
+    const prevLabel = null;
+    emit({
+      type: "showPrevious",
+      show: ev.detail.show,
+      label: prevLabel
+    });
   };
   async getCover() {
     try {
       const blob = await this.book.getCover?.();
       const base64Image = blob ? await blobToBase64(blob) : null;
-      toReactMessage({
+      emit({
         type: "cover",
         cover: base64Image
       });
@@ -10184,12 +10076,404 @@ class Reader {
       return null;
     }
   }
+  getBookBlob = input => {
+    var opening;
+    opening = request(input, "binary").then(this.openEpub.bind(this));
+    return opening;
+  };
+
+  /**
+   * Open an archived epub
+   * @private
+   * @param  {binary} data
+   * @param  {string} [encoding]
+   * @return {Promise}
+   */
+  openEpub = async (data, encoding) => {
+    var blobData = new Blob([data]);
+    var file = new File([blobData], this.path);
+    this.isPdf = await isPDF(file);
+    this.book = await getBook(file);
+    await this.init();
+  };
 }
+
+// class Reader {
+//   #tocMap;
+//   #isPdf;
+//   #currentTocPos;
+//   #previousFraction;
+//   currentAnnotation = null;
+//   annotations = new Map();
+//   annotationsByValue = new Map();
+
+//   open = async (file) => {
+//     try {
+//       this.#isPdf = await isPDF(file);
+//       this.book = await getView(file);
+
+//       this.view = document.createElement("foliate-view");
+//       this.view.addEventListener("relocate", this.onRelocate);
+
+//       this.view.addEventListener("create-overlay", (e) => {
+//         const { index } = e.detail;
+//         const list = this.annotations.get(index);
+//         if (list)
+//           for (const annotation of list) this.view.addAnnotation(annotation);
+//       });
+
+//       this.view.addEventListener("show-annotation", (e) => {
+//         const { value, index, range } = e.detail;
+//         const pos = getPosition(range);
+//         const ann = this.annotationsByValue.get(value);
+//         if (ann) {
+//           ann.range = range;
+//           this.currentAnnotation = ann;
+//           emit({
+//             type: "annotationClick",
+//             index,
+//             range,
+//             value,
+//             pos,
+//           });
+//         }
+//       });
+
+//       this.view.addEventListener("draw-annotation", (e) => {
+//         const { draw, annotation, doc, range } = e.detail;
+//         const { color } = annotation;
+//         if (["underline", "squiggly", "strikethrough"].includes(color)) {
+//           const { defaultView } = doc;
+//           const node = range.startContainer;
+//           const el = node.nodeType === 1 ? node : node.parentElement;
+//           const { writingMode } = defaultView.getComputedStyle(el);
+//           draw(Overlayer[color], {
+//             writingMode,
+//             color: "yellow",
+//           });
+//         } else {
+//           draw(Overlayer.highlight, {
+//             color,
+//           });
+//         }
+//       });
+
+//       this.view.addEventListener("external-link", (e) => {
+//         e.preventDefault();
+//       });
+
+//       this.view.addEventListener("load", (e) => this.#onLoad(e));
+//       await this.view.open(this.book);
+//       document.body.append(this.view);
+
+//       if (!this.#isPdf) {
+//         this.view.renderer.addEventListener("next", this.showNext, {
+//           passive: false,
+//         });
+//         this.view.renderer.addEventListener("previous", this.showPrevious, {
+//           passive: false,
+//         });
+//       }
+
+//       const { book } = this.view;
+//       const toc = book.toc;
+//       this.book = book;
+
+//       let count = 0;
+//       toc?.flatMap((item, i) => {
+//         if (item.subitems?.length > 0) {
+//           return item.subitems.map((subitem) => {
+//             this.#tocMap.set(count, { label: subitem?.label, id: subitem?.id });
+//             count += 1;
+//           });
+//         } else {
+//           this.#tocMap.set(count, { label: item?.label, id: item?.id });
+//           count += 1;
+//         }
+//       });
+
+//       if (!this.#isPdf) {
+//         this.initalLocation
+//           ? await this.view.goTo(this.initalLocation)
+//           : this.view.renderer.next();
+//       } else {
+//         this.initalLocation
+//           ? await this.view.goTo(Number(this.initalLocation))
+//           : this.view.renderer.next();
+//       }
+
+//       const onReadyPayload = {
+//         metadata: book.metadata,
+//         toc: book.toc,
+//       };
+
+//       await this.getCover();
+//       emit({ type: "onReady", book: onReadyPayload });
+//     } catch (err) {
+//       debugMessage("[READER_OPEN_ERROR] " + err);
+//       emit({
+//         type: "onDisplayError",
+//         reason: "book-error-failed-to-open",
+//       });
+//     }
+//   };
+
+//   #onLoad = (ev) => {
+//     debugMessage("ON LOAD");
+
+//     /**
+//      * @type {Document}
+//      */
+//     const doc = ev.detail.doc;
+//     const index = ev.detail.index;
+
+//     let annotation = null;
+//     this.prevValueAnn = null;
+//     doc.addEventListener("selectionchange", () => {
+//       const range = getSelectionRange(doc);
+//       if (!range) return;
+//       this.view.renderer.pause = true;
+
+//       if (this.prevValue) {
+//         this.view.addAnnotation(
+//           {
+//             value: this.prevValue,
+//             color: "red",
+//           },
+//           true
+//         );
+//       }
+
+//       if (this.playing) {
+//         const pos = getPosition(range);
+//         const value = this.view.getCFI(index, range);
+//         this.selectedAnn.range = range;
+//         this.view.addAnnotation(
+//           {
+//             value: value,
+//             color: "red",
+//           },
+//           false
+//         );
+//         doc.getSelection().removeAllRanges();
+//         this.prevValue = value;
+//       }
+//     });
+
+//     doc.addEventListener("touchend", () => {
+//       this.view.renderer.pause = false;
+//       const range = getSelectionRange(doc);
+//       if (!range) return;
+//       const pos = getPosition(range);
+//       const value = this.view.getCFI(index, range);
+//       const lang = main_getLang(range.commonAncestorContainer);
+//       annotation = {
+//         index,
+//         range,
+//         lang,
+//         value,
+//         pos,
+//       };
+//       this.currentAnnotation = annotation;
+//       this.annotationsByValue.set(annotation.value, annotation);
+//       // if (annotation) {
+//       //   this.currentAnnotation = annotation;
+//       //   this.annotationsByValue.set(annotation.value, annotation)
+//       // }
+//     });
+//   };
+
+//   setAnnotations = (annotations) => {
+//     annotations.forEach((ann) => {
+//       this.view.addAnnotation(ann);
+//       const list = this.annotations.get(ann.index);
+//       if (list) list.push(ann);
+//       else this.annotations.set(ann.index, [ann]);
+//       this.annotationsByValue.set(ann.value, ann);
+//     });
+//   };
+
+//   copy = () => {
+//     const text = this.currentAnnotation.range.toString();
+//     if (text)
+//       emit({
+//         type: "menuAction",
+//         value: text,
+//       });
+//     else
+//       emit({
+//         type: "menuAction",
+//         error: "copy-error",
+//       });
+//   };
+
+//   highlight = (color) => {
+//     // get value from args check if it extis if it does edit it
+//     if (this.currentAnnotation) {
+//       this.view.addAnnotation(
+//         {
+//           value: this.currentAnnotation.value,
+//           color: color,
+//         },
+//         false
+//       );
+//       this.currentAnnotation.color = color;
+//       this.currentAnnotation.created = new Date().toISOString();
+//       if (this.currentAnnotation.range) {
+//         this.currentAnnotation.text = this.currentAnnotation.range.toString();
+//       }
+//       const annotations = this.annotations.get(this.currentAnnotation.index);
+//       if (annotations) annotations.push(this.currentAnnotation);
+//       else
+//         this.annotations.set(this.currentAnnotation.index, [
+//           this.currentAnnotation,
+//         ]);
+
+//       emit({
+//         type: "newAnnotation",
+//         annotation: this.currentAnnotation,
+//       });
+
+//       this.currentAnnotation = null;
+//     }
+//   };
+
+//   speak_from_here = () => {
+//     this.playing = true;
+//     this.view.initTTS().then(() =>
+//       emit({
+//         type: "tts",
+//         action: "speak_from_here",
+//         ssml: this.view.tts.from(this.currentAnnotation.range),
+//       })
+//     );
+//   };
+
+//   resumeTTS = () => {
+//     const ssml = this.view.tts.resume();
+//     this.view.initTTS().then(() =>
+//       emit({
+//         type: "tts",
+//         action: "resume",
+//         ssml: ssml,
+//       })
+//     );
+//   };
+
+//   startTTS = () => {
+//     let ssml;
+//     if (this.currentLocation?.range) {
+//       ssml = this.view.tts.from(this.currentLocation.range);
+//     } else {
+//       ssml = this.view.tts.start();
+//     }
+
+//     emit({
+//       type: "tts",
+//       action: "start",
+//       ssml: ssml,
+//     });
+//   };
+
+//   nextTTS = () => {
+//     const ssml = this.view.tts.next();
+//     emit({
+//       type: "tts",
+//       action: "next",
+//       ssml: ssml,
+//     });
+//   };
+
+//   setPlaying = (playing) => {
+//     this.playing = playing;
+//   };
+
+//   showNext = (ev) => {
+//     /**
+//      * TODO instead of rendering a component in react do it here.
+//      */
+//     const nextLabel = ev.detail.show
+//       ? this.#tocMap.get(this.#currentTocPos?.id + 1)?.label
+//       : null;
+
+//     emit({
+//       type: "showNext",
+//       show: ev.detail.show,
+//       label: nextLabel,
+//     });
+//   };
+
+//   showPrevious = (ev) => {
+//     const prevLabel = ev.detail.show
+//       ? this.#tocMap.get(this.#currentTocPos?.id - 1)?.label
+//       : null;
+//     emit({
+//       type: "showPrevious",
+//       show: ev.detail.show,
+//       label: prevLabel,
+//     });
+//   };
+
+//   onRelocate = (e) => {
+//     const { section, fraction, location, tocItem, pageItem, cfi, time } =
+//       e.detail;
+
+//     this.currentLocation = e.detail;
+//     if (this.#previousFraction !== fraction) {
+//       emit({
+//         type: "onLocationChange",
+//         section,
+//         fraction,
+//         location,
+//         tocItem,
+//         pageItem,
+//         cfi,
+//         time,
+//       });
+//     }
+//     this.#previousFraction = fraction;
+//   };
+
+//   setTheme = ({ style, layout }) => {
+//     Object.assign(this.style, style);
+//     const { theme } = style;
+
+//     const \$style = document.documentElement.style;
+//     \$style.setProperty("--bg", theme.bg);
+//     \$style.setProperty("--fg", theme.fg);
+
+//     const renderer = this.view?.renderer;
+
+//     if (renderer) {
+//       renderer.setAttribute("flow", layout.flow ? "scrolled" : "paginated");
+//       renderer.setAttribute("gap", layout.gap * 100 + "%");
+//       renderer.setAttribute("max-inline-size", layout.maxInlineSize + "px");
+//       renderer.setAttribute("max-block-size", layout.maxBlockSize + "px");
+//       renderer.setAttribute("max-column-count", layout.maxColumnCount);
+//       renderer.setStyles?.(getCSS(this.style));
+//     }
+//   };
+//   async getCover() {
+//     try {
+//       const blob = await this.book.getCover?.();
+//       const base64Image = blob ? await blobToBase64(blob) : null;
+
+//       emit({
+//         type: "cover",
+//         cover: base64Image,
+//       });
+//     } catch (e) {
+//       console.warn(e);
+//       console.warn("Failed to load cover");
+//       return null;
+//     }
+//   }
+// }
+
 /* harmony default export */ const main = (Reader);
 __webpack_exports__ = __webpack_exports__["default"];
 /******/ 	return __webpack_exports__;
 /******/ })()
 ;
 });
-//# sourceMappingURL=foliate.js.map
-`;
+//# sourceMappingURL=foliate.js.map`;
