@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
-import { FadeIn, FadeInUp } from "react-native-reanimated";
+import { FadeInRight } from "react-native-reanimated";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -77,20 +77,14 @@ const PersonalizedPage = ({
           : false
       }
     >
-      <VirtualScrollView
-        contentContainerStyle={
-          isEmpty || isLoading
-            ? { flex: 1, justifyContent: "center" }
-            : undefined
-        }
-      >
+      <VirtualScrollView>
         <GenreCardList
           currentLibraryId={currentLibraryId}
           serverConfig={serverConfig}
           userToken={userToken}
         />
         {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-          <Flex h={"100%"} centered>
+          <Flex h="100%">
             {isEmpty ? (
               <Text>EMPTY :/</Text>
             ) : (
@@ -108,13 +102,14 @@ const PersonalizedPage = ({
             pt={"$3"}
           >
             {personalizedLibrary?.map((library: PersonalizedView) => (
-              <BookShelf
-                isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-                key={library.id}
-                shelf={library}
-                serverConfig={serverConfig}
-                token={userToken}
-              />
+              <AnimatedFlex key={library.id} entering={FadeInRight}>
+                <BookShelf
+                  isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+                  shelf={library}
+                  serverConfig={serverConfig}
+                  token={userToken}
+                />
+              </AnimatedFlex>
             ))}
             <Separator w={0} pb={bottom} />
           </ScrollView>
@@ -133,7 +128,7 @@ const GenreCardList = ({
   serverConfig: ServerConfig | null;
   userToken: string;
 }) => {
-  const { data: filterData } = useQuery({
+  const { data: filterData, isLoading } = useQuery({
     queryKey: ["filter-data", currentLibraryId, userToken, serverConfig?.id],
     queryFn: async () => {
       if (!serverConfig?.id) return null;
@@ -177,14 +172,13 @@ const GenreCardList = ({
     return showGenreCards;
   }, [width, genreLength, currentLibraryId]);
 
-  if (!genreLength) {
+  if (!genreLength || isLoading) {
     return null;
   }
 
   return (
-    <Flex space="$2">
-      <Flex centered row px="$4" py="$2" jc="space-between">
-        {/* todo make component personalized header text */}
+    <AnimatedFlex space="$2" entering={FadeInRight}>
+      <Flex centered row px="$4" py="$2" jc="space-between" alignItems="center">
         <Text fontSize="$6" bg="$background">
           Genres
         </Text>
@@ -193,22 +187,20 @@ const GenreCardList = ({
         </TouchableArea>
       </Flex>
       {showGenres.length ? (
-        <AnimatedFlex entering={FadeInUp}>
-          <ScrollView
-            showsHorizontalScrollIndicator={false}
-            horizontal
-            space="$4"
-            pb="$2"
-          >
-            {showGenres.map((genre, index) => (
-              <Stack pl={index === 0 ? "$4" : null} key={index}>
-                <GenreCard genre={genre} />
-              </Stack>
-            ))}
-          </ScrollView>
-        </AnimatedFlex>
+        <ScrollView
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          space="$4"
+          pb="$2"
+        >
+          {showGenres.map((genre, index) => (
+            <Stack pl={index === 0 ? "$4" : null} key={index}>
+              <GenreCard genre={genre} />
+            </Stack>
+          ))}
+        </ScrollView>
       ) : null}
-    </Flex>
+    </AnimatedFlex>
   );
 };
 

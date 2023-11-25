@@ -39,11 +39,8 @@ const GenresPage = () => {
   });
 
   const genres = filterData?.genres || [];
-  // const authors = filterData?.authors || [];
   const languages = filterData?.languages || [];
   const tags = filterData?.tags || [];
-  // const series = filterData?.series || [];
-  // const narrators = filterData?.narrators || [];
 
   const onFilterPressed = ({
     item,
@@ -98,15 +95,7 @@ const GenresPage = () => {
             onPress={onFilterPressed}
           />
         ) : null}
-        {/* {narrators.length ? (
-          <GenreList
-            key={"narrators"}
-            data={narrators}
-            title="Narrators"
-            filter="narrators"
-            onPress={onFilterPressed}
-          />
-        ) : null} */}
+
         <Separator h={bottom} w={0} />
       </VirtualScrollView>
     ),

@@ -1,7 +1,12 @@
 import { useEffect, useMemo } from "react";
 import { Appearance, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
-import { ChevronLeft, Library, Search, Settings } from "@tamagui/lucide-icons";
+import {
+  ChevronLeft,
+  Library,
+  MoreVertical,
+  Search,
+} from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
@@ -104,7 +109,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "index" ||
     name === "server-connect/index";
   const showSearch = name === "library/index";
-  const isIndex = name === "index";
+  // const isIndex = name === "index";
   const showServerSwitch = name === "library/index";
   const showSettings = name === "library/index";
 
@@ -166,11 +171,11 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             <TouchableArea
               hapticFeedback
               hitSlop={20}
-              onPress={() => router.push("/settings/all-settings")}
+              onPress={() => router.push("/settings/settings-and-more")}
               jc="center"
               opacity={0.8}
             >
-              <Settings size={24} />
+              <MoreVertical size={24} />
             </TouchableArea>
           ) : null}
         </HeaderRight>
