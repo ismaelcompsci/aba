@@ -6,6 +6,7 @@ import {
 } from "react-native-reanimated";
 import { LineChart } from "react-native-wagmi-charts";
 import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
+import { useAtomValue } from "jotai";
 import { Text } from "tamagui";
 
 import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
@@ -16,6 +17,8 @@ import { TouchableArea } from "../../components/touchable/touchable-area";
 import useChartDimensions from "../../hooks/use-chart-dimensions";
 import useIconTheme from "../../hooks/use-icon-theme";
 import { StatsDuration, useUserStats } from "../../hooks/use-user-stats";
+import { mediaProgressAtom } from "../../state/app-state";
+import { ListeningStats } from "../../types/types";
 
 const UserPage = () => {
   return (
@@ -26,7 +29,6 @@ const UserPage = () => {
       <VirtualScrollView>
         <Flex gap={16} pt={12}>
           <Flex gap={16} space={4}>
-            <StatsDetailHeader />
             <Stats />
           </Flex>
         </Flex>
@@ -47,7 +49,8 @@ const Stats = () => {
   const { statsData, setDuration, empty, selectedDuration } = useUserStats();
 
   return (
-    <Flex overflow="hidden">
+    <Flex overflow="hidden" space="$4">
+      <StatsDetailHeader listeningStats={statsData.allStats} />
       <StatsChart statsData={statsData.chartData} empty={empty} />
       <StatsChartTimeLabels
         setDuration={setDuration}
@@ -77,17 +80,21 @@ const StatsChart = ({
       yRange={empty ? { min: 0, max: 1000 } : undefined}
       onCurrentIndexChange={hapticHit}
     >
-      <LineChart width={chartWidth} height={chartHeight}>
-        <LineChart.Path />
-        <LineChart.CursorLine color={color} />
-        <LineChart.CursorCrosshair
-          onActivated={hapticHit}
-          onEnded={hapticHit}
-          outerSize={18}
-          size={12}
-          color={color}
-        />
-      </LineChart>
+      <Flex gap={8}>
+        <LineChart width={chartWidth} height={chartHeight}>
+          <Flex gap={28}>
+            <LineChart.Path color={color} />
+            <LineChart.CursorLine color={color} />
+            <LineChart.CursorCrosshair
+              onActivated={hapticHit}
+              onEnded={hapticHit}
+              outerSize={18}
+              size={12}
+              color={color}
+            />
+          </Flex>
+        </LineChart>
+      </Flex>
     </LineChart.Provider>
   );
 };
@@ -154,13 +161,46 @@ const StatsChartTimeLabels = ({
   );
 };
 
-const StatsDetailHeader = () => {
+const StatsDetailHeader = ({
+  listeningStats,
+}: {
+  listeningStats?: ListeningStats;
+}) => {
+  const userMediaProgress = useAtomValue(mediaProgressAtom);
+
+  const itemsFinshed = userMediaProgress?.filter((lip) => !!lip.isFinished);
+
+  const daysListened = listeningStats?.days
+    ? Object.values(listeningStats?.days).length
+    : 0;
+
+  const totalMinutesListening = listeningStats?.totalTime
+    ? Math.round(listeningStats?.totalTime / 60)
+    : 0;
+
   return (
     <Flex gap={12} mx={16}>
-      <Text fontSize={18} fontWeight={"400"}>
+      <Text fontSize={20} fontWeight={"400"}>
         Your Stats
       </Text>
-      <Flex row></Flex>
+      <Flex row>
+        <StatItem stat={itemsFinshed?.length ?? 0} label={"Items finshed"} />
+        <StatItem stat={daysListened} label={"Days listened"} />
+        <StatItem stat={totalMinutesListening} label={"Minutes listened"} />
+      </Flex>
+    </Flex>
+  );
+};
+
+const StatItem = ({ stat, label }: { stat: number; label: string }) => {
+  return (
+    <Flex fill centered>
+      <Text fontWeight={"700"} fontSize={32}>
+        {stat}
+      </Text>
+      <Text color="$gray11" fontSize={12}>
+        {label}
+      </Text>
     </Flex>
   );
 };
