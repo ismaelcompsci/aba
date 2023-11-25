@@ -1,9 +1,12 @@
 import { Track } from "react-native-track-player";
 
 import {
+  BookMetadata,
   LibraryItem,
   LibraryItemExpanded,
   LibraryItemMinified,
+  PlaybackSession,
+  PodcastMetadata,
   Series,
   SeriesBooksMinified,
   ServerSettings,
@@ -105,4 +108,23 @@ export type PlayingState = {
   playing: boolean;
   libraryItemId?: string;
   startTime?: number;
+};
+
+export type ListeningStats = {
+  totalTime: number;
+  items: {
+    [key: string]: {
+      id: string;
+      timeListening: number;
+      mediaMetadata: BookMetadata | PodcastMetadata;
+    };
+  };
+  days: {
+    [key: string]: number;
+  };
+  dayOfWeek: {
+    [key: string]: number;
+  };
+  today: number;
+  recentSessions: PlaybackSession[];
 };

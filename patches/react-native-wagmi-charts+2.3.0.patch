@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-native-wagmi-charts/src/charts/line/useAnimatedPath.ts b/node_modules/react-native-wagmi-charts/src/charts/line/useAnimatedPath.ts
+index d77da26..d2cd06d 100644
+--- a/node_modules/react-native-wagmi-charts/src/charts/line/useAnimatedPath.ts
++++ b/node_modules/react-native-wagmi-charts/src/charts/line/useAnimatedPath.ts
+@@ -23,8 +23,8 @@ export default function useAnimatedPath({
+     () => {
+       return path;
+     },
+-    (_, previous) => {
+-      if (previous) {
++    (result, previous) => {
++      if (result !== previous) {
+         transition.value = 0;
+         transition.value = withTiming(1);
+       }
