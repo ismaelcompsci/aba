@@ -1,14 +1,20 @@
 import { StyleSheet, View } from "react-native";
 import {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { LineChart } from "react-native-wagmi-charts";
+import {
+  LineChart,
+  useLineChartDatetime,
+  useLineChartPrice,
+} from "react-native-wagmi-charts";
 import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
 import { useAtomValue } from "jotai";
 import { Text } from "tamagui";
 
+import AnimatedText from "../../components/custom-components/animated-text";
 import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
@@ -38,15 +44,18 @@ const UserPage = () => {
 };
 
 const TIME_DURATIONS = [
-  [StatsDuration.Hour, "1H"],
-  [StatsDuration.Day, "1D"],
+  // [StatsDuration.Hour, "1H"],
+  // [StatsDuration.Day, "1D"],
   [StatsDuration.Week, "1W"],
   [StatsDuration.Month, "1M"],
   [StatsDuration.Year, "1Y"],
 ] as const;
 
 const Stats = () => {
-  const { statsData, setDuration, empty, selectedDuration } = useUserStats();
+  const { statsData, setDuration, empty, selectedDuration, loading } =
+    useUserStats();
+
+  if (loading) return <Flex></Flex>;
 
   return (
     <Flex overflow="hidden" space="$4">
@@ -81,8 +90,9 @@ const StatsChart = ({
       onCurrentIndexChange={hapticHit}
     >
       <Flex gap={8}>
-        <LineChart width={chartWidth} height={chartHeight}>
-          <Flex gap={28}>
+        <StatsChartText />
+        <Flex gap={24}>
+          <LineChart width={chartWidth} height={chartHeight}>
             <LineChart.Path color={color} />
             <LineChart.CursorLine color={color} />
             <LineChart.CursorCrosshair
@@ -92,11 +102,47 @@ const StatsChart = ({
               size={12}
               color={color}
             />
-          </Flex>
-        </LineChart>
+          </LineChart>
+        </Flex>
       </Flex>
     </LineChart.Provider>
   );
+};
+
+const StatsChartText = () => {
+  return (
+    <Flex mx={8}>
+      <StatsChartValueText />
+      <StatsChartDatetimeText />
+    </Flex>
+  );
+};
+
+const StatsChartValueText = () => {
+  const { color } = useIconTheme();
+
+  const number = useLineChartPrice();
+
+  const minutesListening = useDerivedValue(() => {
+    const minutes =
+      number.formatted.value === "" ? -1 : Number(number.formatted.value);
+
+    return !minutes || minutes < 0 || Number.isNaN(minutes)
+      ? minutes === -1
+        ? ""
+        : "0 minutes"
+      : String(minutes) + " minutes";
+  }, [number]);
+
+  return <AnimatedText fontSize={48} text={minutesListening} color={color} />;
+};
+
+const StatsChartDatetimeText = () => {
+  const { formatted } = useLineChartDatetime({
+    locale: "en-US",
+    options: { day: "2-digit", month: "2-digit", year: "2-digit" },
+  });
+  return <AnimatedText text={formatted} fontSize={18} color={"$gray9"} />;
 };
 
 const StatsChartTimeLabels = ({
@@ -107,14 +153,14 @@ const StatsChartTimeLabels = ({
   selectedDuration: number;
 }) => {
   const { chartWidth, buttonWidth, labelWidth } = useChartDimensions();
-  const previousIndex = useSharedValue(2);
-  const currentIndex = useSharedValue(2);
+  const previousIndex = useSharedValue(0);
+  const currentIndex = useSharedValue(0);
 
   const sliderStyle = useAnimatedStyle(
     () => ({
       transform: [
         {
-          translateX: withSpring(buttonWidth * currentIndex.value + 20, {
+          translateX: withSpring(buttonWidth * (currentIndex.value + 1) + 20, {
             mass: 1,
             damping: 28,
             stiffness: 225,
@@ -129,7 +175,7 @@ const StatsChartTimeLabels = ({
   );
 
   return (
-    <Flex row alignSelf="center" width={chartWidth}>
+    <Flex row alignSelf="center" jc={"center"} width={chartWidth}>
       <View style={StyleSheet.absoluteFill}>
         <AnimatedFlex
           bg="$backgroundPress"
