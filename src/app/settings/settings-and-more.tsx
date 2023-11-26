@@ -126,7 +126,7 @@ const SettingsRow = ({
           // alignItems={subText ? "flex-start" : "center"}
           alignItems={"center"}
           flexBasis={0}
-          gap="12"
+          gap={12}
         >
           <Flex centered height={32} width={32}>
             {icon}

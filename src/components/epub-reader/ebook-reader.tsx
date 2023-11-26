@@ -74,8 +74,10 @@ const EBookReader = ({
   const isPdf = bookPath.endsWith(".pdf");
   const enableSwipe = isPdf;
 
+  const annotationKey = `${book.id}-${user.id}`;
+
   const onReady = async (readyBook: ReaderBook) => {
-    const annotations = bookAnnotations[book.id];
+    const annotations = bookAnnotations[annotationKey];
     if (annotations) setAnnotations(annotations);
 
     setEpubReaderToc(readyBook.toc);
@@ -164,15 +166,15 @@ const EBookReader = ({
 
     setBookAnnotations((prev: BookAnnotations) => {
       const newAnnotations = { ...prev };
-      const filteredNewAnnotaions = newAnnotations[book.id]?.filter(
+      const filteredNewAnnotaions = newAnnotations[annotationKey]?.filter(
         (anns) => anns.value !== annotation.value
       );
 
-      if (filteredNewAnnotaions && newAnnotations[book.id]?.length >= 0) {
+      if (filteredNewAnnotaions && newAnnotations[annotationKey]?.length >= 0) {
         filteredNewAnnotaions.push(annotation);
-        newAnnotations[book.id] = filteredNewAnnotaions;
+        newAnnotations[annotationKey] = filteredNewAnnotaions;
       } else {
-        newAnnotations[book.id] = [annotation];
+        newAnnotations[annotationKey] = [annotation];
       }
 
       return newAnnotations;

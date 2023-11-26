@@ -82,7 +82,6 @@ export enum StatsDuration {
 
 export const useUserStats = () => {
   const [duration, setDuration] = useState<StatsDuration>(StatsDuration.Week);
-  const [empty, setEmpty] = useState(false);
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
 
@@ -126,15 +125,12 @@ export const useUserStats = () => {
               value: Math.floor(value),
               timestamp: listeningDate.getTime(),
             });
-            setEmpty(false);
           }
 
           if (data.length === 1) {
-            setEmpty(true);
             data.unshift({ timestamp: data[0].timestamp - 100, value: 0 });
           }
           if (!data.length) {
-            setEmpty(true);
             data.push({ timestamp: new Date().getTime(), value: 0 });
             data.push({ timestamp: new Date().getTime(), value: 0 });
           }
@@ -163,7 +159,6 @@ export const useUserStats = () => {
       error,
       selectedDuration: duration,
       setDuration,
-      empty,
     };
-  }, [duration, data, userStats, empty]);
+  }, [duration, data, userStats]);
 };

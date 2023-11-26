@@ -17,8 +17,6 @@ import {
   useAppSafeAreas,
 } from "../../../hooks/use-app-safe-areas";
 import { ebookSettignsAtom } from "../../../state/local-state";
-import { HeaderFrame, HeaderLeft, HeaderRight } from "../../header/header";
-import { LogoContainer } from "../../header/logo";
 import { BackButton } from "../../layout/back-header";
 import { Flex } from "../../layout/flex";
 import { TouchableArea } from "../../touchable/touchable-area";
@@ -91,11 +89,15 @@ const Menu = ({
     <>
       {hide && (
         <Header>
-          <HeaderFrame pt={top}>
-            <HeaderLeft ai="center">
-              <LogoContainer>
-                <BackButton />
-              </LogoContainer>
+          <Flex
+            row
+            flex={1}
+            alignItems="center"
+            paddingHorizontal={"$4"}
+            pt={top}
+          >
+            <Flex row flex={1} gap="$4" ai={"center"}>
+              <BackButton />
               <H6
                 numberOfLines={1}
                 $sm={{ maxWidth: "$15" }}
@@ -103,8 +105,8 @@ const Menu = ({
               >
                 {title}
               </H6>
-            </HeaderLeft>
-            <HeaderRight>
+            </Flex>
+            <Flex row alignItems="center" gap={16}>
               <TouchableArea
                 hapticFeedback
                 onPress={() => setEpubReaderOverviewModal(true)}
@@ -117,8 +119,8 @@ const Menu = ({
               >
                 <Settings2 />
               </TouchableArea>
-            </HeaderRight>
-          </HeaderFrame>
+            </Flex>
+          </Flex>
           <EbookSettingsMenu
             openSettings={openSettings}
             hide={hide}

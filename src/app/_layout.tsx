@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Appearance, Platform } from "react-native";
+import { Appearance, Platform, UIManager } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import {
   ChevronLeft,
@@ -16,12 +16,7 @@ import { TamaguiProvider, Theme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
 import AudioPlayerContainer from "../components/audio-player/audio-player";
-import {
-  HeaderFrame,
-  HeaderLeft,
-  HeaderRight,
-  HeaderSafeArea,
-} from "../components/header/header";
+import { Flex } from "../components/layout/flex";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
 import ServerSelect from "../components/server-selects/servers-select.ios";
 import { TouchableArea } from "../components/touchable/touchable-area";
@@ -31,6 +26,12 @@ import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
 SplashScreen.preventAutoHideAsync();
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const queryClient = new QueryClient();
 
@@ -84,7 +85,7 @@ export default function Layout() {
   return (
     <QueryClientProvider client={queryClient}>
       <TamaguiProvider config={appConfig} defaultTheme="system">
-        <Theme name={appTheme.scheme}>
+        <Theme name={"dark"}>
           <Stack
             initialRouteName="index"
             screenOptions={{
@@ -142,9 +143,9 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   }
 
   return (
-    <HeaderSafeArea h={headerHeight}>
-      <HeaderFrame pt={top}>
-        <HeaderLeft ai={"center"}>
+    <Flex h={headerHeight}>
+      <Flex row flex={1} alignItems="center" paddingHorizontal={"$4"} pt={top}>
+        <Flex row flex={1} gap="$4" ai={"center"}>
           {showLogo ? (
             <TouchableArea>
               <Library />
@@ -155,8 +156,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             </TouchableArea>
           )}
           {showServerSwitch && getServerSelect}
-        </HeaderLeft>
-        <HeaderRight gap={16}>
+        </Flex>
+        <Flex row alignItems="center" gap={16}>
           {showSearch ? (
             <TouchableArea
               hapticFeedback
@@ -178,8 +179,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <MoreVertical size={24} />
             </TouchableArea>
           ) : null}
-        </HeaderRight>
-      </HeaderFrame>
-    </HeaderSafeArea>
+        </Flex>
+      </Flex>
+    </Flex>
   );
 };

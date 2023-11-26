@@ -53,8 +53,7 @@ const TIME_DURATIONS = [
 ] as const;
 
 const Stats = () => {
-  const { statsData, setDuration, empty, selectedDuration, loading } =
-    useUserStats();
+  const { statsData, setDuration, selectedDuration, loading } = useUserStats();
 
   if (loading)
     return (
@@ -66,7 +65,7 @@ const Stats = () => {
   return (
     <Flex overflow="hidden" space="$4">
       <StatsDetailHeader listeningStats={statsData.allStats} />
-      <StatsChart statsData={statsData.chartData} empty={empty} />
+      <StatsChart statsData={statsData.chartData} />
       <StatsChartTimeLabels
         setDuration={setDuration}
         selectedDuration={selectedDuration}
@@ -99,10 +98,8 @@ const Stats = () => {
 
 const StatsChart = ({
   statsData,
-  empty,
 }: {
   statsData: { timestamp: number; value: number }[];
-  empty: boolean;
 }) => {
   const { color } = useIconTheme();
   const { chartWidth, chartHeight } = useChartDimensions();
@@ -114,7 +111,7 @@ const StatsChart = ({
   return (
     <LineChart.Provider
       data={statsData}
-      yRange={empty ? { min: 0, max: 1000 } : undefined}
+      yRange={{ min: 0, max: 100000 }}
       onCurrentIndexChange={hapticHit}
     >
       <Flex gap={8}>
@@ -213,8 +210,8 @@ const StatsChartTimeLabels = ({
         <AnimatedFlex
           bg="$backgroundPress"
           borderRadius={20}
-          style={[StyleSheet.absoluteFillObject, sliderStyle]}
           width={labelWidth}
+          style={[StyleSheet.absoluteFillObject, sliderStyle]}
         />
       </View>
       {TIME_DURATIONS.map(([duration, label], index) => {
