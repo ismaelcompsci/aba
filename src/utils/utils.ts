@@ -1,3 +1,4 @@
+import { formatDistance } from "date-fns";
 import { ThemeName } from "tamagui";
 
 import { EbookFile, User } from "../types/aba";
@@ -169,3 +170,31 @@ export function generateUUID(digits: number) {
 
 export const formatSeconds = (time: number) =>
   new Date(time * 1000).toISOString().slice(11, 19);
+
+export const dateDistanceFromNow = (timestamp: number) => {
+  return formatDistance(timestamp, Date.now(), { addSuffix: true });
+};
+
+/**
+ * https://github.com/advplyr/audiobookshelf-app/blob/f89148b92e3f8b2f2bc929f7b440d859eae3eb0d/plugins/init.client.js#L75
+ */
+export const elapsedTime = (seconds: number, useFullNames = false): string => {
+  "worklet";
+  if (seconds < 60) {
+    return `${Math.floor(seconds)} sec${useFullNames ? "onds" : ""}`;
+  }
+  let minutes = Math.floor(seconds / 60);
+  if (minutes < 70) {
+    return `${minutes} min${
+      useFullNames ? `ute${minutes === 1 ? "" : "s"}` : ""
+    }`;
+  }
+  const hours = Math.floor(minutes / 60);
+  minutes -= hours * 60;
+  if (!minutes) {
+    return `${hours} ${useFullNames ? "hours" : "hr"}`;
+  }
+  return `${hours} ${
+    useFullNames ? `hour${hours === 1 ? "" : "s"}` : "hr"
+  } ${minutes} ${useFullNames ? `minute${minutes === 1 ? "" : "s"}` : "min"}`;
+};

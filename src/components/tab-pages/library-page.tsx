@@ -140,8 +140,6 @@ const LibraryPage = ({
         isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         token={userToken}
         item={item}
-        grow
-        centered
         p="$2"
       />
     );

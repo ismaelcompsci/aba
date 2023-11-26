@@ -35,7 +35,7 @@ function padMissingDates(
 
     if (timeDifference <= duration) {
       pastDaysListenedDates.push({
-        value: Math.floor(value) / 60, // seconds to minutes
+        value: Math.floor(value),
         timestamp: listeningDate,
       });
     }
@@ -123,9 +123,10 @@ export const useUserStats = () => {
 
           if (timeDifference <= duration) {
             data.push({
-              value: Math.floor(value) / 60, // seconds to minutes
+              value: Math.floor(value),
               timestamp: listeningDate.getTime(),
             });
+            console.log(value);
             setEmpty(false);
           }
 
@@ -138,6 +139,14 @@ export const useUserStats = () => {
             data.push({ timestamp: new Date().getTime(), value: 0 });
             data.push({ timestamp: new Date().getTime(), value: 0 });
           }
+
+          data.sort((a, b) => {
+            if (a.timestamp < b.timestamp) {
+              return -1;
+            } else if (a.timestamp > b.timestamp) return 1;
+
+            return 0;
+          });
         }
       }
     }

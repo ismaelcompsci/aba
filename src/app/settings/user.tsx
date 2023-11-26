@@ -12,7 +12,7 @@ import {
 } from "react-native-wagmi-charts";
 import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
 import { useAtomValue } from "jotai";
-import { Text } from "tamagui";
+import { Separator, Spinner, Text } from "tamagui";
 
 import AnimatedText from "../../components/custom-components/animated-text";
 import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
@@ -20,21 +20,24 @@ import BackHeader from "../../components/layout/back-header";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import { TouchableArea } from "../../components/touchable/touchable-area";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import useChartDimensions from "../../hooks/use-chart-dimensions";
 import useIconTheme from "../../hooks/use-icon-theme";
 import { StatsDuration, useUserStats } from "../../hooks/use-user-stats";
 import { mediaProgressAtom } from "../../state/app-state";
 import { ListeningStats } from "../../types/types";
+import { dateDistanceFromNow, elapsedTime } from "../../utils/utils";
 
 const UserPage = () => {
+  const { bottom } = useAppSafeAreas();
   return (
     <Screen edges={["top"]}>
       <BackHeader alignment="center" mx={16} py={16}>
         <Text fontSize={18}>User</Text>
       </BackHeader>
       <VirtualScrollView>
-        <Flex gap={16} pt={12}>
-          <Flex gap={16} space={4}>
+        <Flex gap={16} pb={bottom}>
+          <Flex gap={4}>
             <Stats />
           </Flex>
         </Flex>
@@ -44,8 +47,6 @@ const UserPage = () => {
 };
 
 const TIME_DURATIONS = [
-  // [StatsDuration.Hour, "1H"],
-  // [StatsDuration.Day, "1D"],
   [StatsDuration.Week, "1W"],
   [StatsDuration.Month, "1M"],
   [StatsDuration.Year, "1Y"],
@@ -55,7 +56,12 @@ const Stats = () => {
   const { statsData, setDuration, empty, selectedDuration, loading } =
     useUserStats();
 
-  if (loading) return <Flex></Flex>;
+  if (loading)
+    return (
+      <Flex centered>
+        <Spinner />
+      </Flex>
+    );
 
   return (
     <Flex overflow="hidden" space="$4">
@@ -65,6 +71,28 @@ const Stats = () => {
         setDuration={setDuration}
         selectedDuration={selectedDuration}
       />
+      <Separator mx={16} />
+      <Flex gap={12} mx={16}>
+        <Text fontSize={20}>Recent Sessions</Text>
+        {statsData.allStats?.recentSessions.map((session) => (
+          <Flex
+            key={session.id}
+            row
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Flex>
+              <Text fontSize={16} color="$gray12">
+                {session.mediaMetadata.title}
+              </Text>
+              <Text fontSize={12} color="$gray10">
+                {dateDistanceFromNow(session.updatedAt)}
+              </Text>
+            </Flex>
+            <Text color="$gray12">{elapsedTime(session.timeListening)}</Text>
+          </Flex>
+        ))}
+      </Flex>
     </Flex>
   );
 };
@@ -90,6 +118,9 @@ const StatsChart = ({
       onCurrentIndexChange={hapticHit}
     >
       <Flex gap={8}>
+        <Text mx={8} fontSize={18}>
+          Time listening
+        </Text>
         <StatsChartText />
         <Flex gap={24}>
           <LineChart width={chartWidth} height={chartHeight}>
@@ -124,14 +155,16 @@ const StatsChartValueText = () => {
   const number = useLineChartPrice();
 
   const minutesListening = useDerivedValue(() => {
-    const minutes =
-      number.formatted.value === "" ? -1 : Number(number.formatted.value);
+    const seconds =
+      number.formatted.value === ""
+        ? -1
+        : parseFloat(number.formatted.value.replace(/,/g, ""));
 
-    return !minutes || minutes < 0 || Number.isNaN(minutes)
-      ? minutes === -1
+    return !seconds || seconds < 0 || Number.isNaN(seconds)
+      ? seconds === -1
         ? ""
-        : "0 minutes"
-      : String(minutes) + " minutes";
+        : "0 min"
+      : elapsedTime(seconds);
   }, [number]);
 
   return <AnimatedText fontSize={48} text={minutesListening} color={color} />;

@@ -8,5 +8,6 @@
 - [ ] fix in reader when switching to previous chapter and then switching scroll view it goes to start of chapter
 - [ ] better audioplayer fix jumping
 - [ ] better tts (inside webview)
+- [ ] fix performance when change epub reader settings ex. (changing font size)
 
 
