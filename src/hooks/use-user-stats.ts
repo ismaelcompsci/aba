@@ -126,7 +126,6 @@ export const useUserStats = () => {
               value: Math.floor(value),
               timestamp: listeningDate.getTime(),
             });
-            console.log(value);
             setEmpty(false);
           }
 

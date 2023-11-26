@@ -575,29 +575,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     book.current?.injectJavaScript(`
     reader.onSelectedResponse({ action: '${action}' });
     `);
-    // switch (action) {
-    //   case "copy":
-    //     book.current?.injectJavaScript(`
-    //       reader.copy(); true;
-    //     `);
-    //     break;
-    //   case "strikethrough":
-    //   case "squiggly":
-    //   case "underline":
-    //   case "highlight":
-    //     if (color)
-    //       book.current?.injectJavaScript(`
-    //        reader.highlight('${color}'); true
-    //       `);
-    //     break;
-    //   case "speak_from_here":
-    //     book.current?.injectJavaScript(`
-    //       reader.speak_from_here();
-    //     `);
-    //     break;
-    //   default:
-    //     break;
-    // }
   }, []);
 
   const setAnnotations = useCallback((annotations: Annotation[]) => {

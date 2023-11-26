@@ -206,7 +206,6 @@ const useTTS = () => {
   useEffect(() => {
     (async () => {
       if (state.current.inProgress) {
-        console.log("CAHNGING VOICE");
         state.current.voice = voice;
         await Speech.pause();
         await Speech.resume();

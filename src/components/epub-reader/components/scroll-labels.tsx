@@ -1,8 +1,9 @@
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { useAtomValue } from "jotai";
 import { AnimatePresence, Button, Text, XStack, YStack } from "tamagui";
 
 import { HEADER_HEIGHT } from "../../../hooks/use-app-safe-areas";
-import { Theme } from "../rn-epub-reader";
+import { ebookSettignsAtom } from "../../../state/local-state";
 
 import { themes } from "./themes";
 
@@ -10,16 +11,18 @@ const ScrollLabels = ({
   showingNext,
   showingPrev,
   label,
-  readerSettings,
+
   menuHidden,
 }: {
   showingNext: boolean;
   showingPrev: boolean;
   label: string;
-  readerSettings: Theme;
+
   menuHidden: boolean;
 }) => {
-  const theme = themes.find((t) => t.name === readerSettings.theme);
+  const ebookSettings = useAtomValue(ebookSettignsAtom);
+
+  const theme = themes.find((t) => t.name === ebookSettings.theme);
   return (
     <>
       <AnimatePresence>

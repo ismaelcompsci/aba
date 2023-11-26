@@ -5,7 +5,7 @@ export const MenuContainer = styled(Animated.View, {
   zIndex: 99999,
   h: 300,
   w: "100%",
-  px: "$4",
+  px: "$5",
   py: "$4",
   bg: "$background",
   pos: "absolute",

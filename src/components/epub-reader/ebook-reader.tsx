@@ -235,7 +235,6 @@ const EBookReader = ({
         showingNext={showingNext}
         showingPrev={showingPrev}
         label={currentLabel}
-        readerSettings={ebookSettings}
         menuHidden={hide}
       />
       <Reader
