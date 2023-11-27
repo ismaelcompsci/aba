@@ -1,6 +1,7 @@
 import { FlatList } from "react-native";
 import { styled, Text, useTheme } from "tamagui";
 
+import { LibraryItemMinified } from "../../types/aba";
 import { PersonalizedView } from "../../types/types";
 import BookCard from "../cards/book-card";
 import { Flex } from "../layout/flex";
@@ -27,6 +28,35 @@ const BookShelf = ({
   if (shelf.label === "Recent Series") {
     return null;
   }
+
+  const Card = ({
+    type,
+    item,
+  }: {
+    type: string;
+    item: LibraryItemMinified;
+  }) => {
+    switch (type) {
+      case "episode":
+      case "podcast":
+      case "book":
+        return (
+          <BookCard
+            pt={"$2"}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+            key={item.id}
+            serverAddress={serverAddress}
+            item={item}
+            token={token}
+            type={type}
+          />
+        );
+      default:
+        break;
+    }
+  };
+
+  console.log({ type: shelf.type });
   return (
     <Flex>
       <ShelfLabel>{shelf.label}</ShelfLabel>
@@ -34,24 +64,18 @@ const BookShelf = ({
         data={shelf.entities || []}
         horizontal
         ItemSeparatorComponent={() => <Flex w={10} />}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => item.id + String(index)}
         showsHorizontalScrollIndicator={false}
         style={{
           backgroundColor: bg,
         }}
         renderItem={({ item, index }) => (
           <Flex
+            key={index}
             pl={index === 0 ? "$4" : null}
             pr={index === shelf.entities.length - 1 ? "$4" : null}
           >
-            <BookCard
-              pt={"$2"}
-              isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-              key={item.id}
-              serverAddress={serverAddress}
-              item={item}
-              token={token}
-            />
+            <Card item={item} type={shelf.type} />
           </Flex>
         )}
       />

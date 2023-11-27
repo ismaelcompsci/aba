@@ -47,7 +47,7 @@ const PersonalizedPage = ({
         try {
           if (!serverAddress) return [];
           const response = await axios.get(
-            `${serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
+            `${serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed,numEpisodesIncomplete`,
             { headers: { Authorization: `Bearer ${userToken}` } }
           );
 

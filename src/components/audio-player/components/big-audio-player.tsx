@@ -5,9 +5,10 @@ import { getColors } from "react-native-image-colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "@tamagui/linear-gradient";
 import { Bookmark, ChevronDown } from "@tamagui/lucide-icons";
-import { H3, H6, Stack, XStack, YStack } from "tamagui";
+import { H3, H6 } from "tamagui";
 
 import useIconTheme from "../../../hooks/use-icon-theme";
+import { Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
 import ChaptersModal from "../../modals/chapter-modal";
 
@@ -84,7 +85,7 @@ const BigAudioPlayer = ({
   }, [audiobookInfo]);
 
   return (
-    <YStack
+    <Flex
       bg={"$backgroundPress"}
       width={width}
       height={height}
@@ -96,22 +97,22 @@ const BigAudioPlayer = ({
         locations={[0.1, 0.7]}
         borderRadius={"$7"}
       >
-        <YStack
+        <Flex
+          fill
           px={"$4"}
-          flex={1}
           borderRadius={"$7"}
           paddingTop={48 + 10}
           space={"$2"}
         >
-          <XStack ai={"center"} width={"100%"} justifyContent="space-between">
+          <Flex row ai={"center"} width={"100%"} justifyContent="space-between">
             <CirlceButton onPress={() => setOpen(false)}>
               <ChevronDown />
             </CirlceButton>
             <AudioPlayerMore setOpen={setOpen} />
-          </XStack>
+          </Flex>
           {/* IMAGE */}
-          <XStack width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
-            <Stack $gtSm={{ pt: "$0" }} $gtMd={{ pt: "$9" }}>
+          <Flex row width={"100%"} height={"50%"} jc={"center"} ai={"center"}>
+            <Flex $gtSm={{ pt: "$0" }} $gtMd={{ pt: "$9" }}>
               <FastImage
                 style={{
                   width: imageWidth,
@@ -123,15 +124,15 @@ const BigAudioPlayer = ({
                   uri: audiobookInfo.cover || "",
                 }}
               />
-            </Stack>
-          </XStack>
+            </Flex>
+          </Flex>
           {/* INFO */}
-          <YStack paddingTop={"$5"} $gtSm={{ paddingTop: "$12" }}>
+          <Flex paddingTop={"$5"} $gtSm={{ paddingTop: "$12" }}>
             <H3>{audiobookInfo.title}</H3>
             <H6>{audiobookInfo.author}</H6>
-          </YStack>
+          </Flex>
           {/* PROGRESS */}
-          <YStack space={"$2"} pt={"$4"} width={"100%"}>
+          <Flex space={"$2"} pt={"$4"} width={"100%"}>
             <ProgressSlider
               showThumb
               color={color}
@@ -140,12 +141,13 @@ const BigAudioPlayer = ({
               }}
               audiobookInfo={audiobookInfo}
             />
-          </YStack>
+          </Flex>
           {/* CONTROLS */}
           <BigAudioPlayerControls />
           {/* ACTIONS */}
-          <XStack ai="flex-end" flex={1}>
-            <XStack
+          <Flex row ai="flex-end" flex={1}>
+            <Flex
+              row
               p={"$4"}
               pb={bottom}
               justifyContent="space-between"
@@ -160,11 +162,11 @@ const BigAudioPlayer = ({
 
               <PlaybackSpeedControls />
               <ChaptersModal />
-            </XStack>
-          </XStack>
-        </YStack>
+            </Flex>
+          </Flex>
+        </Flex>
       </LinearGradient>
-    </YStack>
+    </Flex>
   );
 };
 
