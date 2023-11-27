@@ -4,7 +4,10 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Button, ScrollView, Separator, Text } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
-import { epubReaderOverviewModalAtom } from "../../../../state/app-state";
+import {
+  epubReaderOverviewModalAtom,
+  userAtom,
+} from "../../../../state/app-state";
 import { bookAnnotationsAtom } from "../../../../state/local-state";
 import { cleanString } from "../../../../utils/utils";
 import { Flex } from "../../../layout/flex";
@@ -12,11 +15,13 @@ import { Screen } from "../../../layout/screen";
 import { useReader } from "../../rn-epub-reader";
 
 const Annotations = () => {
+  const user = useAtomValue(userAtom);
   const { goToLocation } = useReader();
   const { id } = useLocalSearchParams();
   const bookAnnotations = useAtomValue(bookAnnotationsAtom);
   const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
-  const annotations = bookAnnotations[Array.isArray(id) ? id[0] : id];
+  const annotationKey = `${id}-${user?.id}`;
+  const annotations = bookAnnotations[annotationKey];
 
   const { headerHeight } = useAppSafeAreas();
 
