@@ -9,7 +9,6 @@ import { useAtomValue } from "jotai";
 import { ScrollView, Separator, Spinner, Stack, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
-import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { changingLibraryAtom } from "../../state/app-state";
 import { LibraryFilterData } from "../../types/aba";
 import { PersonalizedView } from "../../types/types";
@@ -34,7 +33,6 @@ const PersonalizedPage = ({
   isCoverSquareAspectRatio,
 }: PersonalizedPageProps) => {
   const changingLibrary = useAtomValue(changingLibraryAtom);
-  const { bottom } = useAppSafeAreas();
 
   const {
     data: personalizedLibrary,
@@ -106,7 +104,7 @@ const PersonalizedPage = ({
                 />
               </AnimatedFlex>
             ))}
-            <Separator w={0} pb={bottom} />
+            <Separator w={0} pb={24} />
           </ScrollView>
         )}
       </VirtualScrollView>

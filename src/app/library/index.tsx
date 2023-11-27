@@ -35,7 +35,6 @@ const tabs: Tabs = {
 const HomePage = () => {
   const [user] = useAtom(userAtom);
   const [currentLibraryId] = useAtom(currentLibraryIdAtom);
-  // const [serverConfig] = useAtom(currentServerConfigAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
