@@ -16,7 +16,6 @@ import { router } from "expo-router";
 import { Text } from "tamagui";
 
 import { LibraryItemMinified } from "../../types/aba";
-import { ServerConfig } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import ItemProgress from "../item-progress";
 import { AnimatedFlex, Flex } from "../layout/flex";
@@ -27,19 +26,19 @@ import { pulseAnimation } from "./genre-card";
 interface BookCardProps {
   item: LibraryItemMinified;
   token?: string;
-  serverConfig: ServerConfig | null;
+  serverAddress: string;
   isCoverSquareAspectRatio: boolean;
 }
 
 const BookCard = ({
   item,
   token,
-  serverConfig,
+  serverAddress,
   isCoverSquareAspectRatio,
   ...rest
 }: BookCardProps & TouchableAreaProps) => {
   const [error, setError] = useState(false);
-  const coverUrl = getItemCoverSrc(item, serverConfig, token);
+  const coverUrl = getItemCoverSrc(item, null, token, serverAddress);
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;

@@ -259,8 +259,9 @@ const EbookSettingsMenu = ({
               key={theme.name}
               bg={theme.bg}
               borderColor={
-                readerSettings.theme === theme.name ? "$blue10" : undefined
+                readerSettings.theme === theme.name ? "$blue10" : "$gray11"
               }
+              borderWidth={1}
               br={100}
               px={10}
               py={0}

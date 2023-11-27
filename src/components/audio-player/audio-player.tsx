@@ -8,10 +8,11 @@ import { Spinner } from "tamagui";
 import useIconTheme from "../../hooks/use-icon-theme";
 import {
   playbackSessionAtom,
+  serverAddressAtom,
   showPlayerAtom,
-  userAtom,
+  userTokenAtom,
 } from "../../state/app-state";
-import { currentServerConfigAtom, deviceIdAtom } from "../../state/local-state";
+import { deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
@@ -28,8 +29,8 @@ import {
 } from "./components/small-audio-player";
 
 const AudioPlayerContainer = () => {
-  const serverConfig = useAtomValue(currentServerConfigAtom);
-  const user = useAtomValue(userAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
+  const userToken = useAtomValue(userTokenAtom);
   const [deviceId, setDeviceId] = useAtom(deviceIdAtom);
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const [ready, setReady] = useState(false);
@@ -37,7 +38,7 @@ const AudioPlayerContainer = () => {
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
   const setPlaybackSession = useSetAtom(playbackSessionAtom);
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const { color, bgPress } = useIconTheme();
 
@@ -53,7 +54,7 @@ const AudioPlayerContainer = () => {
       session.audioTracks.forEach((track) =>
         tracks.push({
           id: trackIndex++,
-          url: `${serverConfig.serverAddress}${track.contentUrl}?token=${user?.token}`,
+          url: `${serverAddress}${track.contentUrl}?token=${userToken}`,
           duration: track.duration,
           title: track.title,
           startOffset: track.startOffset,
@@ -124,7 +125,7 @@ const AudioPlayerContainer = () => {
   };
 
   const startSession = async () => {
-    const apiRoute = `${serverConfig.serverAddress}/api/items/${showPlayer.libraryItemId}/play`;
+    const apiRoute = `${serverAddress}/api/items/${showPlayer.libraryItemId}/play`;
     const payload = {
       deviceInfo: {
         clientName: "aba-mobile",
@@ -140,7 +141,7 @@ const AudioPlayerContainer = () => {
         payload,
         {
           headers: {
-            Authorization: `Bearer ${user?.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         }
       );
@@ -148,8 +149,9 @@ const AudioPlayerContainer = () => {
       console.log(`[AUDIOPLAYER] RECIVED SESSION FOR ${data.displayTitle}`);
       const cover = getItemCoverSrc(
         data.libraryItem,
-        serverConfig,
-        user?.token
+        null,
+        userToken,
+        serverAddress
       );
 
       const metadata = {

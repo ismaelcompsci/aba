@@ -20,10 +20,10 @@ import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentLibraryIdAtom,
   isCoverSquareAspectRatioAtom,
+  serverAddressAtom,
   userAtom,
   userTokenAtom,
 } from "../../state/app-state";
-import { currentServerConfigAtom } from "../../state/local-state";
 import { TabName, Tabs } from "../../types/types";
 
 const tabs: Tabs = {
@@ -35,7 +35,8 @@ const tabs: Tabs = {
 const HomePage = () => {
   const [user] = useAtom(userAtom);
   const [currentLibraryId] = useAtom(currentLibraryIdAtom);
-  const [serverConfig] = useAtom(currentServerConfigAtom);
+  // const [serverConfig] = useAtom(currentServerConfigAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
@@ -66,7 +67,7 @@ const HomePage = () => {
         return (
           <PersonalizedPage
             currentLibraryId={currentLibraryId}
-            serverConfig={serverConfig}
+            serverAddress={serverAddress}
             userToken={userToken}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
@@ -75,7 +76,7 @@ const HomePage = () => {
         return (
           <LibraryPage
             currentLibraryId={currentLibraryId}
-            serverConfig={serverConfig}
+            serverAddress={serverAddress}
             userToken={userToken}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
@@ -84,7 +85,7 @@ const HomePage = () => {
         return (
           <SeriesPage
             currentLibraryId={currentLibraryId}
-            serverConfig={serverConfig}
+            serverAddress={serverAddress}
             userToken={userToken}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />

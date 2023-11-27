@@ -1,4 +1,8 @@
+import { Platform } from "react-native";
 import RNFetchBlob from "rn-fetch-blob";
+
+export const IS_ANDROID = Platform.OS === "android";
+export const IS_IOS = Platform.OS === "ios";
 
 export const LIBRARY_INFINITE_LIMIT = 30;
 export const SERIES_INFINITE_LIMIT = 30;

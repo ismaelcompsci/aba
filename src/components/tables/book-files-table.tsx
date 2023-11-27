@@ -6,7 +6,7 @@ import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Accordion, H4, ListItem, Paragraph, Square, Text } from "tamagui";
+import { Accordion, H4, Paragraph, Square, Text } from "tamagui";
 import * as ContextMenu from "zeego/context-menu";
 
 import {
@@ -137,7 +137,7 @@ const BookFilesTable = () => {
 
   const renderItem = ({ item }: { item: LibraryFile }) => {
     return (
-      <ListItem p={0}>
+      <Flex p={0} flex={1}>
         <ContextMenu.Root style={{ width: width }}>
           <ContextMenu.Trigger action="press">
             <Flex
@@ -173,9 +173,9 @@ const BookFilesTable = () => {
             </Flex>
           </ContextMenu.Trigger>
           <ContextMenu.Content>
-            <ContextMenu.Preview size="INHERIT">
+            {/* <ContextMenu.Preview size="INHERIT">
               {getPreview(item)}
-            </ContextMenu.Preview>
+            </ContextMenu.Preview> */}
             <ContextMenu.Label>File</ContextMenu.Label>
 
             <ContextMenu.Item
@@ -186,7 +186,7 @@ const BookFilesTable = () => {
             </ContextMenu.Item>
           </ContextMenu.Content>
         </ContextMenu.Root>
-      </ListItem>
+      </Flex>
     );
   };
 

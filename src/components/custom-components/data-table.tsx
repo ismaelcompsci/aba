@@ -1,4 +1,6 @@
-import { H3, ListItem, ScrollView, XStack, YStack } from "tamagui";
+import { H3, ListItem, ScrollView } from "tamagui";
+
+import { Flex } from "../layout/flex";
 
 export function DataTable<T>({
   title = "",
@@ -12,26 +14,24 @@ export function DataTable<T>({
   scrollable?: boolean;
 }) {
   return (
-    <ScrollView>
-      <YStack borderWidth={1} borderColor="$borderColor" f={1} ov="hidden">
-        {!!title && (
-          <XStack ai="center" py="$2" px="$4" backgroundColor="$borderColor">
-            <H3 size="$3">{title}</H3>
-          </XStack>
-        )}
+    <Flex borderWidth={1} borderColor="$borderColor" flex={1} ov="hidden">
+      {!!title && (
+        <Flex row ai="center" py="$2" px="$4" backgroundColor="$borderColor">
+          <H3 size="$3">{title}</H3>
+        </Flex>
+      )}
 
-        <ScrollView
-          minHeight={100}
-          maxHeight={scrollable ? 300 : null}
-          overScrollMode="auto"
-        >
-          {data.map((item, i) => (
-            <ListItem key={i} p={0}>
-              {renderItem({ item })}
-            </ListItem>
-          ))}
-        </ScrollView>
-      </YStack>
-    </ScrollView>
+      <ScrollView
+        minHeight={100}
+        maxHeight={scrollable ? 300 : null}
+        overScrollMode="auto"
+      >
+        {data.map((item, i) => (
+          <ListItem key={i} p={0}>
+            {renderItem({ item })}
+          </ListItem>
+        ))}
+      </ScrollView>
+    </Flex>
   );
 }

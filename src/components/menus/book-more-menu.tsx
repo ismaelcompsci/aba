@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Alert } from "react-native";
 import { MoreHorizontal } from "@tamagui/lucide-icons";
 import axios from "axios";
@@ -19,8 +20,9 @@ function BookMoreMenu({
   itemId: string;
 }) {
   const mediaProgress = useAtomValue(mediaProgressAtom);
-  const userMediaProgress = mediaProgress?.find(
-    (prog) => prog.libraryItemId === itemId
+  const userMediaProgress = useMemo(
+    () => mediaProgress?.find((prog) => prog.libraryItemId === itemId),
+    [itemId]
   );
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const { user, refreshUser } = useNewUser(true);

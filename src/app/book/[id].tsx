@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Animated, useWindowDimensions } from "react-native";
 import ViewMoreText from "react-native-view-more-text";
 import { BlurView } from "@react-native-community/blur";
@@ -36,17 +36,83 @@ import { encode, getGradient } from "../../utils/utils";
 
 const DEFAULT_TRUNCATE = 5;
 
+const BookParallaxHeader = ({
+  bookItem,
+}: {
+  bookItem?: LibraryItemExpanded;
+}) => {
+  const { width } = useWindowDimensions();
+  const appScheme = useAtomValue(appThemeAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
+  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+
+  const imageWidth = isCoverSquareAspectRatio ? width * 0.75 : undefined;
+
+  const cover = getItemCoverSrc(bookItem, null, userToken, serverAddress);
+
+  return (
+    <Flex fill>
+      {cover ? (
+        <Image
+          position="absolute"
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          resizeMode="cover"
+          source={{
+            uri: cover || "",
+          }}
+        />
+      ) : null}
+      <BlurView
+        style={{
+          height: "100%",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+        }}
+        blurType={appScheme.scheme}
+        blurAmount={3}
+        reducedTransparencyFallbackColor="black"
+      />
+      {!cover || cover === "" ? (
+        <Flex centered fill>
+          <BookX size="$19" />
+        </Flex>
+      ) : (
+        <Animated.Image
+          resizeMode="contain"
+          style={{
+            position: "absolute",
+            zIndex: 50,
+            top: -10,
+            bottom: 0,
+            left: isCoverSquareAspectRatio ? width / 2 - imageWidth! / 2 : 0,
+            right: 0,
+          }}
+          source={{
+            uri: cover || "",
+            width: imageWidth,
+          }}
+        />
+      )}
+    </Flex>
+  );
+};
+
 const BookPage = () => {
   // @ts-ignore
   const { id } = useLocalSearchParams<{
     id: string;
   }>();
-  const appScheme = useAtomValue(appThemeAtom);
   const { width, height } = useWindowDimensions();
   const { top } = useAppSafeAreas();
 
   const userToken = useAtomValue(userTokenAtom);
-  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
 
@@ -70,62 +136,6 @@ const BookPage = () => {
     },
   });
 
-  const cover = getItemCoverSrc(bookItem, null, userToken, serverAddress);
-  const renderParallaxHeader = () => {
-    const imageWidth = isCoverSquareAspectRatio ? width * 0.75 : undefined;
-
-    return (
-      <Flex fill>
-        {cover ? (
-          <Image
-            position="absolute"
-            top={0}
-            left={0}
-            bottom={0}
-            right={0}
-            resizeMode="cover"
-            source={{
-              uri: cover || "",
-            }}
-          />
-        ) : null}
-        <BlurView
-          style={{
-            height: "100%",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            bottom: 0,
-            right: 0,
-          }}
-          blurType={appScheme.scheme}
-          blurAmount={3}
-          reducedTransparencyFallbackColor="black"
-        />
-        {!cover || cover === "" ? (
-          <Flex centered fill>
-            <BookX size="$19" />
-          </Flex>
-        ) : (
-          <Animated.Image
-            resizeMode="contain"
-            style={{
-              position: "absolute",
-              zIndex: 50,
-              top: -10,
-              bottom: 0,
-              left: isCoverSquareAspectRatio ? width / 2 - imageWidth! / 2 : 0,
-              right: 0,
-            }}
-            source={{
-              uri: cover || "",
-              width: imageWidth,
-            }}
-          />
-        )}
-      </Flex>
-    );
-  };
   const renderFixedHeader = (value: Animated.Value) => {
     const opacity = value.interpolate({
       inputRange: [0, 150, 200],
@@ -151,6 +161,10 @@ const BookPage = () => {
         <BackHeader alignment="center" mx={16} pt={16 + top} showButtonLabel />
       </Flex>
     );
+  };
+
+  const renderParallaxHeader = () => {
+    return <BookParallaxHeader bookItem={bookItem} />;
   };
 
   const getSeries = () => {
@@ -200,14 +214,19 @@ const BookPage = () => {
     return null;
   };
 
-  const numberChapters = numChapters();
   const tracks =
     bookItem && "tracks" in bookItem.media ? bookItem?.media.tracks : null;
   const numTracks = tracks?.length;
 
-  const genres = getGenres();
-  const author = getAuthor();
-  const series = getSeries();
+  const { author, genres, series, numberChapters } = useMemo(
+    () => ({
+      genres: getGenres(),
+      author: getAuthor(),
+      series: getSeries(),
+      numberChapters: numChapters(),
+    }),
+    [bookItem]
+  );
 
   const renderViewMore = (onPress: () => void) => (
     <Text color={"$blue10"} onPress={onPress}>
@@ -258,9 +277,9 @@ const BookPage = () => {
             />
             <Flex minHeight={height - IHeight}>
               <Flex px={10} space="$1">
-                <H3 numberOfLines={3} mt={-20}>
+                <Text fontSize={"$9"} numberOfLines={3} mt={-20}>
                   {bookItem.media.metadata.title}
-                </H3>
+                </Text>
                 {series ? <H6 onPress={handleSeriesPress}>{series}</H6> : null}
                 {author ? (
                   <Text

@@ -11,7 +11,7 @@ import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { changingLibraryAtom } from "../../state/app-state";
 import { descOrderAtom, sortAtom } from "../../state/local-state";
 import { LibraryItemMinified } from "../../types/aba";
-import { LibraryItems, ServerConfig } from "../../types/types";
+import { LibraryItems } from "../../types/types";
 import BookCard from "../cards/book-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
@@ -19,14 +19,14 @@ import { SortSelect } from "../sort-popover";
 
 interface LibraryPageProps {
   currentLibraryId?: string | null;
-  serverConfig: ServerConfig | null;
+  serverAddress: string;
   filter?: string;
   userToken: string;
   isCoverSquareAspectRatio: boolean;
 }
 
 const LibraryPage = ({
-  serverConfig,
+  serverAddress,
   currentLibraryId,
   filter,
   userToken,
@@ -70,16 +70,15 @@ const LibraryPage = ({
       sort,
       `${descOrder}`,
       filter ? filter : null,
-      serverConfig?.id,
+      serverAddress,
     ],
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        if (!serverConfig?.id)
-          return { data: { results: [], page: 0, total: 0 } };
+        if (!serverAddress) return { data: { results: [], page: 0, total: 0 } };
 
         const d = descOrder ? 1 : 0;
         const { data }: { data: LibraryItems } = await axios.get(
-          `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/items`,
+          `${serverAddress}/api/libraries/${currentLibraryId}/items`,
           {
             params: {
               limit: LIBRARY_INFINITE_LIMIT,
@@ -136,7 +135,7 @@ const LibraryPage = ({
   }) => {
     return (
       <BookCard
-        serverConfig={serverConfig}
+        serverAddress={serverAddress}
         isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         token={userToken}
         item={item}

@@ -6,13 +6,13 @@ import { userAtom } from "../state/app-state";
 import { currentServerConfigAtom } from "../state/local-state";
 import { User } from "../types/aba";
 
-export const useNewUser = (skipAutoRefresh?: boolean) => {
+export const useNewUser = (skipInitialRefresh?: boolean) => {
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const [user, setUser] = useAtom(userAtom);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (skipAutoRefresh) return;
+    if (skipInitialRefresh) return;
     (async () => {
       await refreshUser();
     })();

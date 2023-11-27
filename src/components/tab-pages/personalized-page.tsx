@@ -12,7 +12,7 @@ import BookShelf from "../../components/library/bookshelf";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { changingLibraryAtom } from "../../state/app-state";
 import { LibraryFilterData } from "../../types/aba";
-import { PersonalizedView, ServerConfig } from "../../types/types";
+import { PersonalizedView } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import GenreCard from "../cards/genre-card";
 import VirtualScrollView from "../custom-components/virtual-scroll-view";
@@ -22,14 +22,14 @@ import { TouchableArea } from "../touchable/touchable-area";
 
 interface PersonalizedPageProps {
   currentLibraryId: string | null;
-  serverConfig: ServerConfig | null;
+  serverAddress: string;
   userToken: string;
   isCoverSquareAspectRatio: boolean;
 }
 
 const PersonalizedPage = ({
   currentLibraryId,
-  serverConfig,
+  serverAddress,
   userToken,
   isCoverSquareAspectRatio,
 }: PersonalizedPageProps) => {
@@ -41,18 +41,13 @@ const PersonalizedPage = ({
     isLoading,
     isInitialLoading,
   } = useQuery(
-    [
-      "personalized-library-view",
-      currentLibraryId,
-      userToken,
-      serverConfig?.id,
-    ],
+    ["personalized-library-view", currentLibraryId, userToken, serverAddress],
     {
       queryFn: async (): Promise<PersonalizedView[] | undefined> => {
         try {
-          if (!serverConfig?.id) return [];
+          if (!serverAddress) return [];
           const response = await axios.get(
-            `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
+            `${serverAddress}/api/libraries/${currentLibraryId}/personalized?minified=1&include=rssfeed`,
             { headers: { Authorization: `Bearer ${userToken}` } }
           );
 
@@ -80,7 +75,7 @@ const PersonalizedPage = ({
       <VirtualScrollView>
         <GenreCardList
           currentLibraryId={currentLibraryId}
-          serverConfig={serverConfig}
+          serverAddress={serverAddress}
           userToken={userToken}
         />
         {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
@@ -106,7 +101,7 @@ const PersonalizedPage = ({
                 <BookShelf
                   isCoverSquareAspectRatio={isCoverSquareAspectRatio}
                   shelf={library}
-                  serverConfig={serverConfig}
+                  serverAddress={serverAddress}
                   token={userToken}
                 />
               </AnimatedFlex>
@@ -122,18 +117,18 @@ const PersonalizedPage = ({
 const GenreCardList = ({
   currentLibraryId,
   userToken,
-  serverConfig,
+  serverAddress,
 }: {
   currentLibraryId: string | null;
-  serverConfig: ServerConfig | null;
+  serverAddress: string;
   userToken: string;
 }) => {
   const { data: filterData, isLoading } = useQuery({
-    queryKey: ["filter-data", currentLibraryId, userToken, serverConfig?.id],
+    queryKey: ["filter-data", currentLibraryId, userToken, serverAddress],
     queryFn: async () => {
-      if (!serverConfig?.id) return null;
+      if (!serverAddress) return null;
       const { data }: { data: LibraryFilterData } = await axios.get(
-        `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/filterdata`,
+        `${serverAddress}/api/libraries/${currentLibraryId}/filterdata`,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
 

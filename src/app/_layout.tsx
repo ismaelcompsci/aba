@@ -20,16 +20,14 @@ import { Flex } from "../components/layout/flex";
 import AndroidServerSelect from "../components/server-selects/server-select.android";
 import ServerSelect from "../components/server-selects/servers-select.ios";
 import { TouchableArea } from "../components/touchable/touchable-area";
+import { IS_ANDROID, IS_IOS } from "../constants/consts";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
 SplashScreen.preventAutoHideAsync();
-if (
-  Platform.OS === "android" &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
+if (IS_ANDROID && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -80,12 +78,12 @@ export default function Layout() {
 
   if (!loaded) return null;
 
-  const animation = Platform.OS === "ios" ? "fade" : "default";
+  const animation = IS_IOS ? "fade" : "default";
 
   return (
     <QueryClientProvider client={queryClient}>
       <TamaguiProvider config={appConfig} defaultTheme="system">
-        <Theme name={"dark"}>
+        <Theme name={appTheme.scheme}>
           <Stack
             initialRouteName="index"
             screenOptions={{
@@ -143,7 +141,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   }
 
   return (
-    <Flex h={headerHeight}>
+    <Flex bg="$background" h={headerHeight}>
       <Flex row flex={1} alignItems="center" paddingHorizontal={"$4"} pt={top}>
         <Flex row flex={1} gap="$4" ai={"center"}>
           {showLogo ? (
@@ -163,7 +161,6 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hapticFeedback
               hitSlop={20}
               onPress={() => router.push("/search/")}
-              opacity={0.8}
             >
               <Search color={iconColor} />
             </TouchableArea>
@@ -174,7 +171,6 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hitSlop={20}
               onPress={() => router.push("/settings/settings-and-more")}
               jc="center"
-              opacity={0.8}
             >
               <MoreVertical size={24} />
             </TouchableArea>

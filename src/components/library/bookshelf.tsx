@@ -1,7 +1,7 @@
 import { FlatList } from "react-native";
 import { styled, Text, useTheme } from "tamagui";
 
-import { PersonalizedView, ServerConfig } from "../../types/types";
+import { PersonalizedView } from "../../types/types";
 import BookCard from "../cards/book-card";
 import { Flex } from "../layout/flex";
 
@@ -9,14 +9,14 @@ interface BookShelfProps {
   shelf: PersonalizedView;
   isCoverSquareAspectRatio: boolean;
   token?: string;
-  serverConfig: ServerConfig | null;
+  serverAddress: string;
 }
 
 const BookShelf = ({
   shelf,
   isCoverSquareAspectRatio,
   token,
-  serverConfig,
+  serverAddress,
 }: BookShelfProps) => {
   const theme = useTheme();
   const bg = theme.background.get();
@@ -48,7 +48,7 @@ const BookShelf = ({
               pt={"$2"}
               isCoverSquareAspectRatio={isCoverSquareAspectRatio}
               key={item.id}
-              serverConfig={serverConfig}
+              serverAddress={serverAddress}
               item={item}
               token={token}
             />

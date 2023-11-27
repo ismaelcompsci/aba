@@ -8,21 +8,21 @@ import { Separator, Spinner, Text } from "tamagui";
 import { SERIES_INFINITE_LIMIT } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { SeriesBooksMinified } from "../../types/aba";
-import { LibrarySeries, ServerConfig } from "../../types/types";
+import { LibrarySeries } from "../../types/types";
 import SeriesCard from "../cards/series-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 
 interface SeriesPageProps {
   currentLibraryId: string | null;
-  serverConfig: ServerConfig | null;
+  serverAddress: string;
   userToken: string;
   isCoverSquareAspectRatio: boolean;
 }
 
 const SeriesPage = ({
   currentLibraryId,
-  serverConfig,
+  serverAddress,
   userToken,
   isCoverSquareAspectRatio,
 }: SeriesPageProps) => {
@@ -42,13 +42,12 @@ const SeriesPage = ({
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["library-series", currentLibraryId, userToken, serverConfig?.id],
+    queryKey: ["library-series", currentLibraryId, userToken, serverAddress],
     queryFn: async ({ pageParam = 0 }) => {
       try {
-        if (!serverConfig?.id)
-          return { data: { results: [], page: 0, total: 0 } };
+        if (!serverAddress) return { data: { results: [], page: 0, total: 0 } };
         const { data }: { data: LibrarySeries } = await axios.get(
-          `${serverConfig?.serverAddress}/api/libraries/${currentLibraryId}/series`,
+          `${serverAddress}/api/libraries/${currentLibraryId}/series`,
           {
             params: {
               limit: SERIES_INFINITE_LIMIT,
@@ -102,9 +101,10 @@ const SeriesPage = ({
       return (
         <Flex grow centered>
           <SeriesCard
+            userToken={userToken}
             item={item}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-            serverConfig={serverConfig}
+            serverAddress={serverAddress}
           />
         </Flex>
       );
