@@ -5,16 +5,17 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
-import { Slider, SliderTrackProps, styled, Text, XStack } from "tamagui";
+import { Slider, SliderTrackProps, Text } from "tamagui";
 
 import { playbackSessionAtom, userAtom } from "../../../state/app-state";
 import { currentServerConfigAtom } from "../../../state/local-state";
 import { formatSeconds } from "../../../utils/utils";
+import { Flex } from "../../layout/flex";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
 import { AudiobookInfo } from "./small-audio-player";
 
-const TIME_BETWEEN_SESSION_UPDATES = 15;
+const TIME_BETWEEN_SESSION_UPDATES = 10;
 
 export const ProgressSlider = ({
   color,
@@ -116,10 +117,10 @@ export const ProgressSlider = ({
 
   return (
     <>
-      <ProgressContainer>
+      <Flex gap="$1" alignItems="center" justifyContent="space-between" mt={4}>
         {!!overallCurrentTime && !!totalDuration ? (
           <Slider
-            flex={1}
+            width={"100%"}
             size={"$4"}
             min={0}
             value={[isSeeking ? seek : overallCurrentTime]}
@@ -135,15 +136,15 @@ export const ProgressSlider = ({
               <Slider.TrackActive bg={color} />
             </Slider.Track>
             {showThumb ? (
-              <Slider.Thumb size="$2" index={0} circular elevate />
+              <Slider.Thumb size="$1" index={0} circular elevate />
             ) : null}
           </Slider>
         ) : (
-          <PlaceHolderSlider />
+          <PlaceHolderSlider showThumb={showThumb} />
         )}
-      </ProgressContainer>
+      </Flex>
       {showThumb ? (
-        <XStack ai={"center"} jc={"space-between"} pt={"$2.5"}>
+        <Flex row ai={"center"} jc={"space-between"} pt={"$2.5"}>
           <Text fontSize={"$1"} color={"$gray10"}>
             {formatSeconds(isSeeking ? seek : overallCurrentTime)}
           </Text>
@@ -153,26 +154,19 @@ export const ProgressSlider = ({
               totalDuration - (isSeeking ? seek : overallCurrentTime)
             )}
           </Text>
-        </XStack>
+        </Flex>
       ) : null}
     </>
   );
 };
 
-const ProgressContainer = styled(XStack, {
-  gap: "$1",
-  alignItems: "center",
-  justifyContent: "space-between",
-  mt: 4,
-});
-
-const PlaceHolderSlider = () => {
+const PlaceHolderSlider = ({ showThumb }: { showThumb: boolean }) => {
   return (
-    <Slider flex={1} defaultValue={[0]} max={100} step={1}>
+    <Slider width={"100%"} size={"$4"} defaultValue={[0]} max={100} step={1}>
       <Slider.Track>
         <Slider.TrackActive />
       </Slider.Track>
-      <Slider.Thumb size="$1" index={0} circular elevate />
+      {showThumb ? <Slider.Thumb size="$1" index={0} circular elevate /> : null}
     </Slider>
   );
 };

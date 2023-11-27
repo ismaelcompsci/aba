@@ -400,6 +400,7 @@ export type LibraryItem = {
   mediaType: "book" | "podcast";
   media: Media;
   libraryFiles: LibraryFile[];
+  recentEpisode?: PodcastEpisode;
 };
 
 export type LibraryItemMinified = Omit<

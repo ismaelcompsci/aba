@@ -21,6 +21,7 @@ export const AudioPlayerInfo = ({
     <XStack flex={1} gap="$3" alignItems="center">
       {audiobookInfo.cover ? (
         <Image
+          borderRadius={2}
           width={42}
           height={42}
           resizeMode="contain"

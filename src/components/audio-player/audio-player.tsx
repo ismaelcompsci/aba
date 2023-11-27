@@ -18,7 +18,7 @@ import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { generateUUID } from "../../utils/utils";
 import Sheet from "../custom-components/sheet";
-import { Screen } from "../layout/screen";
+import { Flex } from "../layout/flex";
 
 import BigAudioPlayer from "./components/big-audio-player";
 import { ProgressSlider } from "./components/progress-slider";
@@ -234,22 +234,20 @@ const AudioPlayerContainer = () => {
 
   const renderHeader = () => {
     return (
-      <>
+      <SmallAudioPlayerWrapper onPress={() => setOpen(true)}>
         {ready ? (
-          <SmallAudioPlayerWrapper onPress={() => setOpen(true)}>
+          <>
             <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
             <ProgressSlider
               showThumb={false}
               color={color}
               audiobookInfo={audiobookInfo}
             />
-          </SmallAudioPlayerWrapper>
+          </>
         ) : (
-          <SmallAudioPlayerWrapper ai="center">
-            <Spinner />
-          </SmallAudioPlayerWrapper>
+          <Spinner />
         )}
-      </>
+      </SmallAudioPlayerWrapper>
     );
   };
 
@@ -264,9 +262,14 @@ const AudioPlayerContainer = () => {
       {ready ? (
         <BigAudioPlayer audiobookInfo={audiobookInfo} setOpen={setOpen} />
       ) : (
-        <Screen bg={"$backgroundPress"} borderRadius={"$7"} paddingBottom={0}>
+        <Flex
+          fill
+          bg={"$backgroundPress"}
+          borderRadius={"$7"}
+          paddingBottom={0}
+        >
           <Spinner />
-        </Screen>
+        </Flex>
       )}
     </Sheet>
   );

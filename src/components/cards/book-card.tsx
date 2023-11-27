@@ -28,6 +28,7 @@ interface BookCardProps {
   token?: string;
   serverAddress: string;
   isCoverSquareAspectRatio: boolean;
+  type: string;
 }
 
 const BookCard = ({
@@ -35,6 +36,7 @@ const BookCard = ({
   token,
   serverAddress,
   isCoverSquareAspectRatio,
+  type,
   ...rest
 }: BookCardProps & TouchableAreaProps) => {
   const [error, setError] = useState(false);
@@ -42,6 +44,12 @@ const BookCard = ({
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
+  const isPodcast = item.mediaType === "podcast";
+
+  const { recentEpisode } = item;
+
+  const recentEpisodeNumber = recentEpisode ? recentEpisode.episode : "";
+
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(
     () => ({
@@ -51,7 +59,11 @@ const BookCard = ({
   );
 
   const handlePress = () => {
-    router.push(`/book/${item.id}`);
+    if (recentEpisode) {
+      router.push(`/book/${item.id}/${recentEpisode.id}`);
+    } else {
+      router.push(`/book/${item.id}`);
+    }
   };
 
   const onGestureEvent =
@@ -124,6 +136,17 @@ const BookCard = ({
           </Flex>
         </AnimatedFlex>
       </TapGestureHandler>
+      {recentEpisodeNumber ? (
+        <Flex
+          borderRadius={8}
+          pos={"absolute"}
+          top={15}
+          right={5}
+          bg={"$backgroundStrong"}
+        >
+          <Text>Episdoe #{recentEpisodeNumber}</Text>
+        </Flex>
+      ) : null}
     </TouchableArea>
   );
 };
