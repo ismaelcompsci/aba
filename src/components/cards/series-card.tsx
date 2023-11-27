@@ -28,7 +28,7 @@ const SeriesCard = ({
 
   const seriesCardWidth = bookWidth * 2;
 
-  const bgImg = getItemCoverSrc(item.books[0], null, userToken);
+  const bgImg = getItemCoverSrc(item.books[0], null, userToken, serverAddress);
 
   const handlePress = () => {
     router.push(`/library/series/${encode(item.id)}?name=${item.name}`);
