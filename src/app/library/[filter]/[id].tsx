@@ -8,18 +8,18 @@ import LibraryPage from "../../../components/tab-pages/library-page";
 import {
   currentLibraryIdAtom,
   isCoverSquareAspectRatioAtom,
+  serverAddressAtom,
   userTokenAtom,
 } from "../../../state/app-state";
-import { currentServerConfigAtom } from "../../../state/local-state";
 import { decode } from "../../../utils/utils";
 
 const FilterPage = () => {
   const { filter, id, name } = useLocalSearchParams();
 
   const currentLibraryId = useAtomValue(currentLibraryIdAtom);
-  const serverConfig = useAtomValue(currentServerConfigAtom);
   const userToken = useAtomValue(userTokenAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
 
   if (!userToken) {
     return null;
@@ -34,7 +34,7 @@ const FilterPage = () => {
       </BackHeader>
       <LibraryPage
         currentLibraryId={currentLibraryId}
-        serverConfig={serverConfig}
+        serverAddress={serverAddress}
         filter={`${filter}.${id}`}
         isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         userToken={userToken}

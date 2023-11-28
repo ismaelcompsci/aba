@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
   NavigationState,
@@ -6,11 +6,18 @@ import {
   TabBar,
   TabView,
 } from "react-native-tab-view";
-import { Backpack, Home, Library } from "@tamagui/lucide-icons";
+import {
+  Activity,
+  Backpack,
+  Home,
+  Library,
+  Search,
+} from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { Spinner } from "tamagui";
 
+import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
 import LibraryPage from "../../components/tab-pages/library-page";
@@ -19,9 +26,10 @@ import SeriesPage from "../../components/tab-pages/series-page";
 import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentLibraryIdAtom,
+  currentLibraryMediaTypeAtom,
+  isAdminOrUpAtom,
   isCoverSquareAspectRatioAtom,
   serverAddressAtom,
-  userAtom,
   userTokenAtom,
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
@@ -30,22 +38,50 @@ const tabs: Tabs = {
   Home: Home,
   Library: Library,
   Series: Backpack,
+  Latest: Activity,
+  Search: Search,
+};
+
+type TabPage = {
+  key: string;
+  title: string;
 };
 
 const HomePage = () => {
-  const [user] = useAtom(userAtom);
-  const [currentLibraryId] = useAtom(currentLibraryIdAtom);
+  const currentLibraryId = useAtomValue(currentLibraryIdAtom);
+  const currentLibraryMediaType = useAtomValue(currentLibraryMediaTypeAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
+  const isAdminOrUp = useAtomValue(isAdminOrUpAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+
+  useEffect(() => {
+    let tabs = [];
+
+    if (currentLibraryMediaType === "podcast") {
+      tabs = [
+        { key: "_personalPage", title: "Home" },
+        { key: "_latestPage", title: "Latest" },
+        { key: "_libraryPage", title: "Library" },
+      ];
+
+      if (isAdminOrUp) {
+        tabs.push({ key: "_searchPage", title: "Search" });
+      }
+    } else {
+      tabs = [
+        { key: "_personalPage", title: "Home" },
+        { key: "_libraryPage", title: "Library" },
+        { key: "_seriesPage", title: "Series" },
+      ];
+    }
+
+    setRoutes(tabs);
+  }, [currentLibraryMediaType, currentLibraryId]);
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: "_personalPage", title: "Home" },
-    { key: "_libraryPage", title: "Library" },
-    { key: "_seriesPage", title: "Series" },
-  ]);
+  const [routes, setRoutes] = useState<TabPage[] | null>(null);
 
   const { iconColor, bg, color } = useIconTheme();
 
@@ -89,6 +125,10 @@ const HomePage = () => {
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
         );
+      case "_latestPage":
+        return <Flex></Flex>;
+      case "_searchPage":
+        return <Flex></Flex>;
       default:
         return null;
     }
@@ -141,7 +181,7 @@ const HomePage = () => {
 
   return (
     <Screen>
-      {!user ? (
+      {!userToken || !routes ? (
         <NoServer />
       ) : (
         <TabView

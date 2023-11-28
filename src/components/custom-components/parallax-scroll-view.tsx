@@ -1,14 +1,11 @@
 import React from "react";
-import {
-  Animated,
-  ScrollView,
-  ScrollViewProps,
-  StyleSheet,
-  View,
-} from "react-native";
+import { Animated, StyleSheet, View } from "react-native";
+
+import { VirtualizedList, VirtualizedListProps } from "./virtual-scroll-view";
 
 type OnScrollLisetnerCallback = (state: { value: number }) => void;
-type ParallaxScrollViewProps = ScrollViewProps & {
+
+type ParallaxScrollViewProps = VirtualizedListProps & {
   stickyHeader?: (value: Animated.Value) => React.ReactNode;
   parallaxHeader?: (value: Animated.Value) => React.ReactNode;
   fixedHeader?: (value: Animated.Value) => React.ReactNode;
@@ -17,8 +14,9 @@ type ParallaxScrollViewProps = ScrollViewProps & {
   scaleParallaxHeader: boolean;
   onScroll?: (value: number) => void;
   onSticky?: (sticky: boolean) => void;
-  onRef?: React.RefObject<ScrollView>;
 };
+
+const SAnimatedScrollView = Animated.createAnimatedComponent(VirtualizedList);
 
 export class ParallaxScrollView extends React.Component<ParallaxScrollViewProps> {
   static defaultProps = {
@@ -106,7 +104,7 @@ export class ParallaxScrollView extends React.Component<ParallaxScrollViewProps>
   }
 
   render() {
-    const { children, onRef, ...props } = this.props;
+    const { children, ref, ...props } = this.props;
 
     const event = Animated.event(
       [
@@ -123,8 +121,9 @@ export class ParallaxScrollView extends React.Component<ParallaxScrollViewProps>
 
     return (
       <View style={{ flex: 1 }}>
-        <Animated.ScrollView
-          ref={onRef}
+        <SAnimatedScrollView
+          // @ts-ignore
+          ref={ref}
           {...props}
           onScroll={event}
           stickyHeaderIndices={[2]}
@@ -133,7 +132,7 @@ export class ParallaxScrollView extends React.Component<ParallaxScrollViewProps>
           <View style={{ height: this.stickyMarginTop }} />
           {this.renderStickyHeader()}
           {children}
-        </Animated.ScrollView>
+        </SAnimatedScrollView>
         {this.renderFixedHeader()}
       </View>
     );

@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { useAtom } from "jotai";
 import { Separator, Spinner, Text, useWindowDimensions } from "tamagui";
 
-import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
+import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
 import { Screen } from "../../components/layout/screen";
 import { GenreList } from "../../components/tables/genre-table";
@@ -54,7 +54,7 @@ const GenresPage = () => {
 
   const FilterLists = useMemo(
     () => (
-      <VirtualScrollView
+      <VirtualizedList
         showsVerticalScrollIndicator={false}
         style={{ paddingBottom: bottom, width, paddingHorizontal: 24 }}
       >
@@ -97,7 +97,7 @@ const GenresPage = () => {
         ) : null}
 
         <Separator h={bottom} w={0} />
-      </VirtualScrollView>
+      </VirtualizedList>
     ),
     [genres.length, languages.length, tags.length]
   );

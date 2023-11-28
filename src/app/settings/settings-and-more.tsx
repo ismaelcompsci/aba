@@ -5,7 +5,7 @@ import { Href, router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, Text } from "tamagui";
 
-import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
+import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
@@ -82,7 +82,7 @@ const SettingsAndMore = () => {
       <BackHeader alignment="center" mx={16} pt={16}>
         <Text fontSize={"$6"}>Settings and more</Text>
       </BackHeader>
-      <VirtualScrollView>
+      <VirtualizedList>
         <Flex fill px="$4" pt={12}>
           <SectionList
             ListHeaderComponent={<UserSettings />}
@@ -107,7 +107,7 @@ const SettingsAndMore = () => {
             Disconnect
           </Button>
         </Flex>
-      </VirtualScrollView>
+      </VirtualizedList>
     </Screen>
   );
 };

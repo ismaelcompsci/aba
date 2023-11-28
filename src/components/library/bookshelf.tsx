@@ -48,7 +48,6 @@ const BookShelf = ({
             serverAddress={serverAddress}
             item={item}
             token={token}
-            type={type}
           />
         );
       default:

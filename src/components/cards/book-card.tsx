@@ -18,7 +18,7 @@ import { Text } from "tamagui";
 import { LibraryItemMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import ItemProgress from "../item-progress";
-import { AnimatedFlex, Flex } from "../layout/flex";
+import { AnimatedFlex, Flex, FlexProps } from "../layout/flex";
 import { TouchableArea, TouchableAreaProps } from "../touchable/touchable-area";
 
 import { pulseAnimation } from "./genre-card";
@@ -28,7 +28,6 @@ interface BookCardProps {
   token?: string;
   serverAddress: string;
   isCoverSquareAspectRatio: boolean;
-  type: string;
 }
 
 const BookCard = ({
@@ -36,7 +35,6 @@ const BookCard = ({
   token,
   serverAddress,
   isCoverSquareAspectRatio,
-  type,
   ...rest
 }: BookCardProps & TouchableAreaProps) => {
   const [error, setError] = useState(false);
@@ -46,9 +44,20 @@ const BookCard = ({
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
   const isPodcast = item.mediaType === "podcast";
 
-  const { recentEpisode } = item;
+  const { recentEpisode, media } = item;
+  const numEpisodesIncomplete =
+    ("numEpisodesIncomplete" in item && item.numEpisodesIncomplete) || 0;
 
-  const recentEpisodeNumber = recentEpisode ? recentEpisode.episode : "";
+  const numEpisodes =
+    "episodes" in media && media.episodes && isPodcast
+      ? // @ts-ignore
+        media.episodes.length
+      : // @ts-ignore
+        media.numEpisodes;
+
+  const recentEpisodeNumber = recentEpisode
+    ? recentEpisode.episode ?? ""
+    : null;
 
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(
@@ -94,17 +103,20 @@ const BookCard = ({
     >
       <TapGestureHandler onGestureEvent={onGestureEvent}>
         <AnimatedFlex style={animatedStyle}>
-          <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
-            <ItemProgress
-              id={item.id}
-              radius={10}
-              activeStrokeWidth={3}
-              inActiveStrokeWidth={3}
-              withText={false}
-              showOnlyBase={false}
-              checkMarkSize={18}
-            />
-          </Flex>
+          {!isPodcast || recentEpisode ? (
+            <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
+              <ItemProgress
+                recentEpisode={recentEpisode}
+                id={item.id}
+                radius={10}
+                activeStrokeWidth={3}
+                inActiveStrokeWidth={3}
+                withText={false}
+                showOnlyBase={false}
+                checkMarkSize={18}
+              />
+            </Flex>
+          ) : null}
           {!coverUrl || error ? (
             <BookX size="$10" />
           ) : (
@@ -134,20 +146,50 @@ const BookCard = ({
                 : item.media.metadata.author}
             </Text>
           </Flex>
+          {recentEpisodeNumber ? (
+            <HoverLabel label={`Episode #${recentEpisodeNumber}`} />
+          ) : null}
+          {numEpisodesIncomplete ? (
+            <HoverLabel label={`${numEpisodesIncomplete}`} />
+          ) : null}
+          {numEpisodes && !numEpisodesIncomplete ? (
+            <HoverLabel label={`${numEpisodesIncomplete}`} />
+          ) : null}
         </AnimatedFlex>
       </TapGestureHandler>
-      {recentEpisodeNumber ? (
-        <Flex
-          borderRadius={8}
-          pos={"absolute"}
-          top={15}
-          right={5}
-          bg={"$backgroundStrong"}
-        >
-          <Text>Episdoe #{recentEpisodeNumber}</Text>
-        </Flex>
-      ) : null}
     </TouchableArea>
+  );
+};
+
+const HoverLabel = ({
+  label,
+  ...rest
+}: FlexProps & {
+  label: string;
+}) => {
+  return (
+    <Flex
+      borderRadius={8}
+      pos={"absolute"}
+      top={15}
+      right={5}
+      bg={"$backgroundStrong"}
+      padding={2}
+      shadowColor="$shadowColor"
+      shadowOffset={{
+        width: -6,
+        height: 11,
+      }}
+      shadowOpacity={1}
+      shadowRadius={7}
+      alignItems="center"
+      px={4.5}
+      {...rest}
+    >
+      <Text textAlign="center" fontSize={11}>
+        {label}
+      </Text>
+    </Flex>
   );
 };
 

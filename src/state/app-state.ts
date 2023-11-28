@@ -76,3 +76,13 @@ export const setMediaProgressAtom = atom(null, (get, set, update) => {
     set(userAtom, { ...user, mediaProgress: nextValue });
   }
 });
+
+export const currentLibraryMediaTypeAtom = selectAtom(
+  currentLibraryAtom,
+  (library) => library?.mediaType
+);
+
+export const isAdminOrUpAtom = selectAtom(
+  userAtom,
+  (user) => user && (user.type === "admin" || user?.type === "root")
+);

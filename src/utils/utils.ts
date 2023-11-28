@@ -198,3 +198,18 @@ export const elapsedTime = (seconds: number, useFullNames = false): string => {
     useFullNames ? `hour${hours === 1 ? "" : "s"}` : "hr"
   } ${minutes} ${useFullNames ? `minute${minutes === 1 ? "" : "s"}` : "min"}`;
 };
+
+export const secondsToTimestamp = (seconds: number) => {
+  let _seconds = seconds;
+  let _minutes = Math.floor(seconds / 60);
+  _seconds -= _minutes * 60;
+  const _hours = Math.floor(_minutes / 60);
+  _minutes -= _hours * 60;
+  _seconds = Math.floor(_seconds);
+  if (!_hours) {
+    return `${_minutes}:${_seconds.toString().padStart(2, "0")}`;
+  }
+  return `${_hours}:${_minutes.toString().padStart(2, "0")}:${_seconds
+    .toString()
+    .padStart(2, "0")}`;
+};

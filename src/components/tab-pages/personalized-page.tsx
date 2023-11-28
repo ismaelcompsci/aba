@@ -14,7 +14,7 @@ import { LibraryFilterData } from "../../types/aba";
 import { PersonalizedView } from "../../types/types";
 import { randomIntFromInterval } from "../../utils/utils";
 import GenreCard from "../cards/genre-card";
-import VirtualScrollView from "../custom-components/virtual-scroll-view";
+import { VirtualizedList } from "../custom-components/virtual-scroll-view";
 import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { TouchableArea } from "../touchable/touchable-area";
@@ -70,7 +70,7 @@ const PersonalizedPage = ({
           : false
       }
     >
-      <VirtualScrollView>
+      <VirtualizedList>
         <GenreCardList
           currentLibraryId={currentLibraryId}
           serverAddress={serverAddress}
@@ -107,7 +107,7 @@ const PersonalizedPage = ({
             <Separator w={0} pb={24} />
           </ScrollView>
         )}
-      </VirtualScrollView>
+      </VirtualizedList>
     </Screen>
   );
 };

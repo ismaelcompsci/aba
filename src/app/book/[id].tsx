@@ -20,6 +20,7 @@ import { Screen } from "../../components/layout/screen";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
+import PodcastEpisodesTable from "../../components/tables/podcast-episodes-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import useIconTheme from "../../hooks/use-icon-theme";
@@ -35,74 +36,6 @@ import { getItemCoverSrc } from "../../utils/api";
 import { encode, getGradient } from "../../utils/utils";
 
 const DEFAULT_TRUNCATE = 5;
-
-const BookParallaxHeader = ({
-  bookItem,
-}: {
-  bookItem?: LibraryItemExpanded;
-}) => {
-  const { width } = useWindowDimensions();
-  const appScheme = useAtomValue(appThemeAtom);
-  const userToken = useAtomValue(userTokenAtom);
-  const serverAddress = useAtomValue(serverAddressAtom);
-  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
-
-  const imageWidth = isCoverSquareAspectRatio ? width * 0.75 : undefined;
-
-  const cover = getItemCoverSrc(bookItem, null, userToken, serverAddress);
-
-  return (
-    <Flex fill>
-      {cover ? (
-        <Image
-          position="absolute"
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          resizeMode="cover"
-          source={{
-            uri: cover || "",
-          }}
-        />
-      ) : null}
-      <BlurView
-        style={{
-          height: "100%",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-        }}
-        blurType={appScheme.scheme}
-        blurAmount={3}
-        reducedTransparencyFallbackColor="black"
-      />
-      {!cover || cover === "" ? (
-        <Flex centered fill>
-          <BookX size="$19" />
-        </Flex>
-      ) : (
-        <Animated.Image
-          resizeMode="contain"
-          style={{
-            position: "absolute",
-            zIndex: 50,
-            top: -10,
-            bottom: 0,
-            left: isCoverSquareAspectRatio ? width / 2 - imageWidth! / 2 : 0,
-            right: 0,
-          }}
-          source={{
-            uri: cover || "",
-            width: imageWidth,
-          }}
-        />
-      )}
-    </Flex>
-  );
-};
 
 const BookPage = () => {
   // @ts-ignore
@@ -125,6 +58,7 @@ const BookPage = () => {
       const response = await axios.get(`${serverAddress}/api/items/${id}`, {
         params: {
           expanded: 1,
+          include: "rssfeed",
         },
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -187,7 +121,6 @@ const BookPage = () => {
     if (bookItem && "genres" in bookItem.media.metadata) {
       return bookItem.media.metadata.genres;
     }
-
     return null;
   };
 
@@ -218,14 +151,21 @@ const BookPage = () => {
     bookItem && "tracks" in bookItem.media ? bookItem?.media.tracks : null;
   const numTracks = tracks?.length;
 
-  const { author, genres, series, numberChapters } = useMemo(
+  const isPodcast = bookItem?.mediaType === "podcast";
+  const episodes =
+    bookItem && "episodes" in bookItem.media ? bookItem?.media.episodes : null;
+
+  const { author, genres, series, numberChapters, ebookFiles } = useMemo(
     () => ({
       genres: getGenres(),
       author: getAuthor(),
       series: getSeries(),
       numberChapters: numChapters(),
+      ebookFiles: bookItem?.libraryFiles.filter(
+        (lf) => lf.fileType === "ebook"
+      ),
     }),
-    [bookItem]
+    [bookItem?.id]
   );
 
   const renderViewMore = (onPress: () => void) => (
@@ -301,16 +241,18 @@ const BookPage = () => {
                     alignItems="center"
                     justifyContent="flex-end"
                   >
-                    <ItemProgress
-                      id={id}
-                      radius={22}
-                      activeStrokeWidth={5}
-                      inActiveStrokeWidth={6}
-                      progressValueFontSize={14}
-                      inActiveStrokeOpacity={0.4}
-                      circleBackgroundColor={bgPress}
-                      activeStrokeColor={color}
-                    />
+                    {!isPodcast ? (
+                      <ItemProgress
+                        id={id}
+                        radius={22}
+                        activeStrokeWidth={5}
+                        inActiveStrokeWidth={6}
+                        progressValueFontSize={14}
+                        inActiveStrokeOpacity={0.4}
+                        circleBackgroundColor={bgPress}
+                        activeStrokeColor={color}
+                      />
+                    ) : null}
                     <BookMoreMenu
                       title={bookItem.media.metadata.title}
                       itemId={bookItem.id}
@@ -333,7 +275,10 @@ const BookPage = () => {
                     showsHorizontalScrollIndicator={false}
                   />
                 ) : null}
-                <BookFilesTable />
+                {isPodcast && episodes ? (
+                  <PodcastEpisodesTable episodes={episodes} />
+                ) : null}
+                {ebookFiles?.length ? <BookFilesTable /> : null}
                 {numberChapters ? (
                   <ChapterFilesTable libraryItem={bookItem} />
                 ) : null}
@@ -344,6 +289,74 @@ const BookPage = () => {
         </ParallaxScrollView>
       ) : null}
     </Screen>
+  );
+};
+
+const BookParallaxHeader = ({
+  bookItem,
+}: {
+  bookItem?: LibraryItemExpanded;
+}) => {
+  const { width } = useWindowDimensions();
+  const appScheme = useAtomValue(appThemeAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
+  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+
+  const imageWidth = isCoverSquareAspectRatio ? width * 0.75 : undefined;
+
+  const cover = getItemCoverSrc(bookItem, null, userToken, serverAddress);
+
+  return (
+    <Flex fill>
+      {cover ? (
+        <Image
+          position="absolute"
+          top={0}
+          left={0}
+          bottom={0}
+          right={0}
+          resizeMode="cover"
+          source={{
+            uri: cover || "",
+          }}
+        />
+      ) : null}
+      <BlurView
+        style={{
+          height: "100%",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+        }}
+        blurType={appScheme.scheme}
+        blurAmount={3}
+        reducedTransparencyFallbackColor="black"
+      />
+      {!cover || cover === "" ? (
+        <Flex centered fill>
+          <BookX size="$19" />
+        </Flex>
+      ) : (
+        <Animated.Image
+          resizeMode="contain"
+          style={{
+            position: "absolute",
+            zIndex: 50,
+            top: -10,
+            bottom: 0,
+            left: isCoverSquareAspectRatio ? width / 2 - imageWidth! / 2 : 0,
+            right: 0,
+          }}
+          source={{
+            uri: cover || "",
+            width: imageWidth,
+          }}
+        />
+      )}
+    </Flex>
   );
 };
 

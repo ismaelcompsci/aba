@@ -15,7 +15,7 @@ import { useAtomValue } from "jotai";
 import { Separator, Spinner, Text } from "tamagui";
 
 import AnimatedText from "../../components/custom-components/animated-text";
-import VirtualScrollView from "../../components/custom-components/virtual-scroll-view";
+import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
@@ -35,13 +35,13 @@ const UserPage = () => {
       <BackHeader alignment="center" mx={16} py={16}>
         <Text fontSize={18}>User</Text>
       </BackHeader>
-      <VirtualScrollView>
+      <VirtualizedList>
         <Flex gap={16} pb={bottom}>
           <Flex gap={4}>
             <Stats />
           </Flex>
         </Flex>
-      </VirtualScrollView>
+      </VirtualizedList>
     </Screen>
   );
 };

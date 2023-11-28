@@ -3,6 +3,7 @@ import { ChevronDown } from "@tamagui/lucide-icons";
 import { Accordion, Button, H4, Paragraph, Square, Text } from "tamagui";
 
 import { BookChapter, LibraryItem } from "../../types/aba";
+import { secondsToTimestamp } from "../../utils/utils";
 import { DataTable } from "../custom-components/data-table";
 import { Flex } from "../layout/flex";
 
@@ -12,21 +13,6 @@ const ChapterFilesTable = memo(
 
     const chapters =
       "chapters" in libraryItem.media ? libraryItem.media.chapters : [];
-
-    const secondsToTimestamp = (seconds: number) => {
-      let _seconds = seconds;
-      let _minutes = Math.floor(seconds / 60);
-      _seconds -= _minutes * 60;
-      const _hours = Math.floor(_minutes / 60);
-      _minutes -= _hours * 60;
-      _seconds = Math.floor(_seconds);
-      if (!_hours) {
-        return `${_minutes}:${_seconds.toString().padStart(2, "0")}`;
-      }
-      return `${_hours}:${_minutes.toString().padStart(2, "0")}:${_seconds
-        .toString()
-        .padStart(2, "0")}`;
-    };
 
     const renderItem = ({ item }: { item: BookChapter }) => {
       return (
