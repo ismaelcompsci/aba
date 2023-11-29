@@ -12,7 +12,7 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TamaguiProvider, Theme } from "tamagui";
+import { TamaguiProvider, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
 import AudioPlayerContainer from "../components/audio-player/audio-player";
@@ -22,7 +22,6 @@ import ServerSelect from "../components/server-selects/servers-select.ios";
 import { TouchableArea } from "../components/touchable/touchable-area";
 import { IS_ANDROID, IS_IOS } from "../constants/consts";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
-import useIconTheme from "../hooks/use-icon-theme";
 import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
@@ -100,7 +99,7 @@ export default function Layout() {
 
 const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   const { headerHeight, top } = useAppSafeAreas();
-  const { iconColor } = useIconTheme();
+  const color = useTheme();
   const { name } = route;
 
   const showLogo =
@@ -162,7 +161,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hitSlop={20}
               onPress={() => router.push("/search/")}
             >
-              <Search color={iconColor} />
+              <Search color={color.color.get()} />
             </TouchableArea>
           ) : null}
           {showSettings ? (

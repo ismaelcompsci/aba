@@ -1,10 +1,9 @@
 import React from "react";
 import { useWindowDimensions } from "react-native";
 import RenderHtml from "react-native-render-html";
-import { H3, Image, ScrollView, Text } from "tamagui";
+import { H3, Image, ScrollView, Text, useTheme } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
-import useIconTheme from "../../../../hooks/use-icon-theme";
 import { AuthorText } from "../../../author-text";
 import { Flex } from "../../../layout/flex";
 import { useReader } from "../../rn-epub-reader";
@@ -14,7 +13,7 @@ export const Overview = () => {
   const epubReaderMetadata = getMeta();
   const { width, height } = useWindowDimensions();
   const { bottom } = useAppSafeAreas();
-  const { color } = useIconTheme();
+  const colors = useTheme();
 
   const author = () => {
     if (Array.isArray(epubReaderMetadata.author)) {
@@ -85,7 +84,7 @@ export const Overview = () => {
         </Flex>
         {epubReaderMetadata.description ? (
           <RenderHtml
-            tagsStyles={{ body: { color: color } }}
+            tagsStyles={{ body: { color: colors.color.get() } }}
             contentWidth={width}
             source={{ html: epubReaderMetadata.description }}
           />

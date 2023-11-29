@@ -106,7 +106,7 @@ const BookCard = ({
           {!isPodcast || recentEpisode ? (
             <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
               <ItemProgress
-                recentEpisode={recentEpisode}
+                episodeId={recentEpisode?.id}
                 id={item.id}
                 radius={10}
                 activeStrokeWidth={3}

@@ -3,8 +3,8 @@ import { Modal, Platform, useWindowDimensions } from "react-native";
 import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { X } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
+import { useTheme } from "tamagui";
 
-import useIconTheme from "../../../hooks/use-icon-theme";
 import { epubReaderOverviewModalAtom } from "../../../state/app-state";
 import { Flex } from "../../layout/flex";
 
@@ -24,8 +24,7 @@ export const BookChapterModal = () => {
     epubReaderOverviewModalAtom
   );
 
-  const { color, bg } = useIconTheme();
-
+  const colors = useTheme();
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "overview", title: "overview" },
@@ -102,11 +101,11 @@ export const BookChapterModal = () => {
           <TabBar
             {...props}
             style={{
-              backgroundColor: bg,
+              backgroundColor: colors.background.get(),
             }}
-            indicatorStyle={{ backgroundColor: color }}
+            indicatorStyle={{ backgroundColor: colors.color.get() }}
             labelStyle={{
-              color: color,
+              color: colors.color.get(),
             }}
           />
         )}

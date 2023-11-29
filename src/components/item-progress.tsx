@@ -11,7 +11,6 @@ import { CheckCircle } from "@tamagui/lucide-icons";
 import { useAtomValue } from "jotai";
 
 import { mediaProgressAtom } from "../state/app-state";
-import { PodcastEpisode } from "../types/aba";
 
 import { Flex } from "./layout/flex";
 
@@ -20,20 +19,20 @@ const ItemProgress = ({
   withText = true,
   showOnlyBase,
   checkMarkSize = 16,
-  recentEpisode,
+  episodeId,
   ...rest
 }: {
   id: string;
   withText?: boolean;
   showOnlyBase?: boolean;
   checkMarkSize?: number;
-  recentEpisode?: PodcastEpisode;
+  episodeId?: string;
 } & Omit<CircularProgressBaseProps & CircularProgressProps, "value">) => {
   const mediaProgress = useAtomValue(mediaProgressAtom);
 
   const userMediaProgress = useMemo(() => {
     return mediaProgress?.find((prog) => {
-      if (recentEpisode && prog.episodeId !== recentEpisode.id) return false;
+      if (episodeId && prog.episodeId !== episodeId) return false;
       return prog.libraryItemId === id;
     });
   }, [mediaProgress, id]);

@@ -12,7 +12,7 @@ import {
 } from "react-native-wagmi-charts";
 import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
 import { useAtomValue } from "jotai";
-import { Separator, Spinner, Text } from "tamagui";
+import { Separator, Spinner, Text, useTheme } from "tamagui";
 
 import AnimatedText from "../../components/custom-components/animated-text";
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
@@ -22,7 +22,6 @@ import { Screen } from "../../components/layout/screen";
 import { TouchableArea } from "../../components/touchable/touchable-area";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import useChartDimensions from "../../hooks/use-chart-dimensions";
-import useIconTheme from "../../hooks/use-icon-theme";
 import { StatsDuration, useUserStats } from "../../hooks/use-user-stats";
 import { mediaProgressAtom } from "../../state/app-state";
 import { ListeningStats } from "../../types/types";
@@ -101,7 +100,8 @@ const StatsChart = ({
 }: {
   statsData: { timestamp: number; value: number }[];
 }) => {
-  const { color } = useIconTheme();
+  const colors = useTheme();
+  const color = colors.color.get();
   const { chartWidth, chartHeight } = useChartDimensions();
 
   const hapticHit = async () => {
@@ -147,7 +147,7 @@ const StatsChartText = () => {
 };
 
 const StatsChartValueText = () => {
-  const { color } = useIconTheme();
+  const colors = useTheme();
 
   const number = useLineChartPrice();
 
@@ -164,7 +164,13 @@ const StatsChartValueText = () => {
       : elapsedTime(seconds);
   }, [number]);
 
-  return <AnimatedText fontSize={48} text={minutesListening} color={color} />;
+  return (
+    <AnimatedText
+      fontSize={48}
+      text={minutesListening}
+      color={colors.color.get()}
+    />
+  );
 };
 
 const StatsChartDatetimeText = () => {

@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Adapt, Popover, PopoverProps, Text, ToggleGroup } from "tamagui";
+import {
+  Adapt,
+  Popover,
+  PopoverProps,
+  Text,
+  ToggleGroup,
+  useTheme,
+} from "tamagui";
 
-import useIconTheme from "../../hooks/use-icon-theme";
 import {
   changingLibraryAtom,
   currentLibraryAtom,
@@ -23,7 +29,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
 
   const [open, setOpen] = useState(false);
 
-  const { iconColor } = useIconTheme();
+  const colors = useTheme();
   const { width } = useWindowDimensions();
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
 
@@ -48,7 +54,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
         <IconButton
           minWidth={80}
           bordered
-          icon={<Icon size={14} color={iconColor} />}
+          icon={<Icon size={14} color={colors.color.get()} />}
           size="$2"
         >
           <Text
@@ -118,7 +124,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
                   justifyContent="space-between"
                 >
                   <Text fontWeight="$7">{lib.name}</Text>
-                  <Icon color={iconColor} size={"$1"} />
+                  <Icon color={colors.color.get()} size={"$1"} />
                 </Flex>
               </ToggleGroup.Item>
             );

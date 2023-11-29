@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Button, H3, H6, Image, Spinner, Text } from "tamagui";
+import { Button, H3, H6, Image, Spinner, Text, useTheme } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
 import OpenItemActionButton from "../../components/buttons/open-item-action-button";
@@ -23,7 +23,6 @@ import ChapterFilesTable from "../../components/tables/chapter-files-table";
 import PodcastEpisodesTable from "../../components/tables/podcast-episodes-table";
 import TrackFilesTable from "../../components/tables/track-files-table";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
-import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentItemAtom,
   isCoverSquareAspectRatioAtom,
@@ -49,7 +48,8 @@ const BookPage = () => {
   const serverAddress = useAtomValue(serverAddressAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
 
-  const { bg: backgroundColor, color, bgPress } = useIconTheme();
+  const colors = useTheme();
+
   const IHeight = 400;
 
   const { data: bookItem, isLoading } = useQuery({
@@ -87,7 +87,7 @@ const BookPage = () => {
               right: 0,
               top: 0,
               bottom: 0,
-              backgroundColor,
+              backgroundColor: colors.background.get(),
             },
             { opacity },
           ]}
@@ -211,7 +211,7 @@ const BookPage = () => {
         >
           <Screen edges={["bottom"]}>
             <LinearGradient
-              colors={getGradient(backgroundColor)}
+              colors={getGradient(colors.background.get())}
               start={{ x: 0, y: 1 }}
               end={{ x: 0, y: 0 }}
               style={{
@@ -255,8 +255,8 @@ const BookPage = () => {
                         inActiveStrokeWidth={6}
                         progressValueFontSize={14}
                         inActiveStrokeOpacity={0.4}
-                        circleBackgroundColor={bgPress}
-                        activeStrokeColor={color}
+                        circleBackgroundColor={colors.backgroundPress.get()}
+                        activeStrokeColor={colors.color.get()}
                       />
                     ) : null}
                     <BookMoreMenu

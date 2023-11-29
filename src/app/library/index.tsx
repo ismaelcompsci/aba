@@ -15,7 +15,7 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Spinner } from "tamagui";
+import { Spinner, useTheme } from "tamagui";
 
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
@@ -23,7 +23,6 @@ import NoServer from "../../components/no-server";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
 import SeriesPage from "../../components/tab-pages/series-page";
-import useIconTheme from "../../hooks/use-icon-theme";
 import {
   currentLibraryIdAtom,
   currentLibraryMediaTypeAtom,
@@ -83,7 +82,8 @@ const HomePage = () => {
   const [index, setIndex] = useState(0);
   const [routes, setRoutes] = useState<TabPage[] | null>(null);
 
-  const { iconColor, bg, color } = useIconTheme();
+  const colors = useTheme();
+  const color = colors.color.get();
 
   if (!userToken) {
     return router.push("/server-connect/");
@@ -164,13 +164,13 @@ const HomePage = () => {
     return (
       <TabBar
         style={{
-          backgroundColor: bg,
+          backgroundColor: colors.background.get(),
         }}
         indicatorStyle={{ backgroundColor: color }}
         renderIcon={({ route, focused }) => {
           const Icon = tabs[route.title as TabName];
           return (
-            <Icon size={"$1"} opacity={!focused ? 0.5 : 1} color={iconColor} />
+            <Icon size={"$1"} opacity={!focused ? 0.5 : 1} color={color} />
           );
         }}
         labelStyle={{ color: color }}

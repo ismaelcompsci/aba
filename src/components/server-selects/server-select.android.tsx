@@ -1,8 +1,7 @@
 import { useAtomValue, useSetAtom } from "jotai";
-import { Text } from "tamagui";
+import { Text, useTheme } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
-import useIconTheme from "../../hooks/use-icon-theme";
 import {
   changingLibraryAtom,
   currentLibraryAtom,
@@ -19,7 +18,7 @@ const AndroidServerSelect = () => {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
 
-  const { iconColor } = useIconTheme();
+  const colors = useTheme();
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
 
   const onValueChange = async (value: string) => {
@@ -41,7 +40,7 @@ const AndroidServerSelect = () => {
       <DropdownMenu.Trigger asChild>
         <IconButton
           bordered
-          icon={<Icon size={14} color={iconColor} />}
+          icon={<Icon size={14} color={colors.color.get()} />}
           size="$2"
         >
           <Text

@@ -14,15 +14,14 @@ import {
 } from "react-native-reanimated";
 import { ArrowRight } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { Card, Text, XStack, YStack } from "tamagui";
+import { Card, Text, useTheme, XStack, YStack } from "tamagui";
 
-import useIconTheme from "../../hooks/use-icon-theme";
 import { encode } from "../../utils/utils";
 import { AnimatedFlex } from "../layout/flex";
 import { TouchableArea } from "../touchable/touchable-area";
 
 const GenreCard = ({ genre }: { genre: string }) => {
-  const { bg, color } = useIconTheme();
+  const colors = useTheme();
   const scale = useSharedValue(1);
   const animatedStyle = useAnimatedStyle(
     () => ({
@@ -60,7 +59,7 @@ const GenreCard = ({ genre }: { genre: string }) => {
           >
             <YStack flex={1}>
               <YStack
-                bg={color}
+                bg={colors.color.get()}
                 r={0}
                 borderBottomLeftRadius={"$10"}
                 borderTopRightRadius={"$3"}
@@ -69,7 +68,7 @@ const GenreCard = ({ genre }: { genre: string }) => {
                 w={"$4"}
               >
                 <XStack jc="center" p="$1.5">
-                  <ArrowRight color={bg} size={"$1"} />
+                  <ArrowRight color={colors.background.get()} size={"$1"} />
                 </XStack>
               </YStack>
               <Text

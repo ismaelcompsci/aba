@@ -19,6 +19,7 @@ import { Separator, Text, useTheme } from "tamagui";
 import { isAdminOrUpAtom, showPlayerAtom } from "../../state/app-state";
 import { PodcastEpisodeExpanded } from "../../types/aba";
 import { secondsToTimestamp } from "../../utils/utils";
+import ItemProgress from "../item-progress";
 import { Flex, FlexProps } from "../layout/flex";
 import { TouchableArea } from "../touchable/touchable-area";
 
@@ -66,6 +67,7 @@ const PodcastEpisodesTable = ({
   const gray12 = theme.gray12.get();
   const gray8 = theme.gray8.get();
   const color = theme.color.get();
+  const bgPress = theme.backgroundPress.get();
 
   const onEpisodePress = (episodeId: string) => {
     router.push(`/book/${podcastId}/${episodeId}`);
@@ -150,6 +152,17 @@ const PodcastEpisodesTable = ({
               <PlayingWidget />
             ) : null}
             <Flex grow />
+            <ItemProgress
+              episodeId={item.id}
+              id={podcastId}
+              radius={18}
+              activeStrokeWidth={5}
+              inActiveStrokeWidth={6}
+              progressValueFontSize={14}
+              inActiveStrokeOpacity={0.4}
+              circleBackgroundColor={bgPress}
+              activeStrokeColor={color}
+            />
           </Flex>
         </Flex>
       </TouchableArea>

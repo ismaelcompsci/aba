@@ -5,9 +5,8 @@ import { getColors } from "react-native-image-colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "@tamagui/linear-gradient";
 import { Bookmark, ChevronDown } from "@tamagui/lucide-icons";
-import { H3, H6 } from "tamagui";
+import { H3, H6, useTheme } from "tamagui";
 
-import useIconTheme from "../../../hooks/use-icon-theme";
 import { Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
 import ChaptersModal from "../../modals/chapter-modal";
@@ -33,11 +32,11 @@ const BigAudioPlayer = ({
   audiobookInfo: AudiobookInfo;
   setOpen: (open: boolean) => void;
 }) => {
-  const [colors, setColors] = useState(initialState);
+  const [gradientColors, setColors] = useState(initialState);
   const { width, height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
-  const { color, bgPress } = useIconTheme();
+  const colors = useTheme();
 
   const imageWidth = Math.min(width * 0.7, 464);
   const imageHeight = imageWidth;
@@ -46,7 +45,7 @@ const BigAudioPlayer = ({
     (async () => {
       try {
         const result = await getColors(audiobookInfo.cover || "", {
-          fallback: bgPress,
+          fallback: colors.backgroundPress.get(),
           cache: true,
           key: audiobookInfo.cover || "cover",
         });
@@ -93,7 +92,7 @@ const BigAudioPlayer = ({
     >
       <LinearGradient
         height={height}
-        colors={[colors.colorFour.value, "$backgroundPress"]}
+        colors={[gradientColors.colorFour.value, "$backgroundPress"]}
         locations={[0.1, 0.7]}
         borderRadius={"$7"}
       >
@@ -135,7 +134,7 @@ const BigAudioPlayer = ({
           <Flex space={"$2"} pt={"$4"} width={"100%"}>
             <ProgressSlider
               showThumb
-              color={color}
+              color={colors.color.get()}
               trackProps={{
                 bg: "$backgroundStrong",
               }}

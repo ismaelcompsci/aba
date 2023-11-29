@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { getColors } from "react-native-image-colors";
 import TrackPlayer, { Capability } from "react-native-track-player";
 import axios from "axios";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Spinner } from "tamagui";
+import { useAtom, useAtomValue } from "jotai";
+import { Spinner, useTheme } from "tamagui";
 
-import useIconTheme from "../../hooks/use-icon-theme";
 import {
   playbackSessionAtom,
   serverAddressAtom,
@@ -36,11 +35,11 @@ const AudioPlayerContainer = () => {
   const [ready, setReady] = useState(false);
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
-  const setPlaybackSession = useSetAtom(playbackSessionAtom);
+  const [playbackSession, setPlaybackSession] = useAtom(playbackSessionAtom);
 
   const [open, setOpen] = useState(false);
 
-  const { color, bgPress } = useIconTheme();
+  const colors = useTheme();
 
   const setupPlayer = async (
     session: PlaybackSessionExpanded,
@@ -173,14 +172,24 @@ const AudioPlayerContainer = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const stopPlayer = async () => {
     try {
+      const id = playbackSession?.id;
+      if (id) {
+        await axios.post(`${serverAddress}/api/session/${id}/close`, null, {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        });
+      }
       showPlayer.playing && setShowPlayer({ playing: false });
       await TrackPlayer.pause();
       await TrackPlayer.reset();
     } catch (error) {
       console.log("[AUDIOPLAYER] stopPlayer error ", error);
+      if (axios.isAxiosError(error)) {
+        console.log("[AUDIOPLAYER] could not close session ", error);
+      }
     }
   };
 
@@ -188,7 +197,7 @@ const AudioPlayerContainer = () => {
     if (!audiobookInfo.cover) return;
 
     getColors(audiobookInfo.cover, {
-      fallback: bgPress,
+      fallback: colors.backgroundPress.get(),
       cache: true,
       key: audiobookInfo.cover || "cover",
     });
@@ -245,7 +254,7 @@ const AudioPlayerContainer = () => {
             <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
             <ProgressSlider
               showThumb={false}
-              color={color}
+              color={colors.color.get()}
               audiobookInfo={audiobookInfo}
             />
           </>
@@ -267,12 +276,7 @@ const AudioPlayerContainer = () => {
       {ready ? (
         <BigAudioPlayer audiobookInfo={audiobookInfo} setOpen={setOpen} />
       ) : (
-        <Flex
-          fill
-          bg={"$backgroundPress"}
-          borderRadius={"$7"}
-          paddingBottom={0}
-        >
+        <Flex fill borderRadius={"$7"} paddingBottom={0}>
           <Spinner />
         </Flex>
       )}

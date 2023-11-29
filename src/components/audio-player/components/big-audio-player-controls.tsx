@@ -5,9 +5,8 @@ import {
   SkipBack,
   SkipForward,
 } from "@tamagui/lucide-icons";
-import { XStack } from "tamagui";
+import { useTheme, XStack } from "tamagui";
 
-import useIconTheme from "../../../hooks/use-icon-theme";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
 import { SEEK_INTERVAL } from "./audio-player-controls";
@@ -15,7 +14,8 @@ import { CirlceButton } from "./circle-button";
 import { PlayPauseControl } from "./play-pause-control";
 
 function BigAudioPlayerControls() {
-  const { color } = useIconTheme();
+  const colors = useTheme();
+  const color = colors.color.get();
 
   const { jumpForwards, jumpBackwards } = useAudioPlayerProgress();
 

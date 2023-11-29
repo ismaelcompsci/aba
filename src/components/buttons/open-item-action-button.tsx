@@ -6,9 +6,8 @@ import TrackPlayer, {
 import { BookOpen, Pause, Play } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom } from "jotai/react";
-import { Button, Text } from "tamagui";
+import { Button, Text, useTheme } from "tamagui";
 
-import useIconTheme from "../../hooks/use-icon-theme";
 import { showPlayerAtom } from "../../state/app-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { TouchableArea } from "../touchable/touchable-area";
@@ -26,6 +25,22 @@ const PlayButton = ({
   const isPlaying = playerState.state === State.Playing;
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
 
+  const playerPlayPress = () => {
+    if (isPlaying) {
+      if (showPlayer.libraryItemId === id) {
+        TrackPlayer.pause();
+      } else {
+        setShowPlayer({ playing: true, libraryItemId: bookItemId });
+      }
+    } else {
+      if (showPlayer.playing && showPlayer.libraryItemId === id) {
+        TrackPlayer.play();
+      } else {
+        setShowPlayer({ playing: true, libraryItemId: bookItemId });
+      }
+    }
+  };
+
   return (
     <TouchableArea
       borderRadius={"$4"}
@@ -37,15 +52,7 @@ const PlayButton = ({
       flex={1}
       minHeight={"$4"}
       gap={"$2"}
-      onPress={() => {
-        isPlaying
-          ? showPlayer.libraryItemId === id
-            ? TrackPlayer.pause()
-            : setShowPlayer({ playing: true, libraryItemId: bookItemId })
-          : showPlayer.playing && showPlayer.libraryItemId === id
-          ? TrackPlayer.play()
-          : setShowPlayer({ playing: true, libraryItemId: bookItemId });
-      }}
+      onPress={playerPlayPress}
     >
       {isPlaying && showPlayer.libraryItemId === id ? (
         <>
@@ -69,7 +76,9 @@ const OpenItemActionButton = ({
   bookItem: LibraryItemExpanded;
   id: string;
 }) => {
-  const { bg } = useIconTheme();
+  const colors = useTheme();
+  const background = colors.background.get();
+
   const isMissing = bookItem?.isMissing;
   const isInvalid = bookItem?.isInvalid;
 
@@ -102,7 +111,9 @@ const OpenItemActionButton = ({
   const showRead = canShowRead();
 
   if (showPlay) {
-    return <PlayButton bookItemId={bookItem.id} id={id} textColor={bg} />;
+    return (
+      <PlayButton bookItemId={bookItem.id} id={id} textColor={background} />
+    );
   } else if (showRead) {
     return (
       <TouchableArea
@@ -117,8 +128,8 @@ const OpenItemActionButton = ({
         minHeight={"$4"}
         onPress={() => router.push(`/reader/${bookItem.id}`)}
       >
-        <BookOpen color={bg} size="$1" />
-        <Text color={bg}>Read {ebookFormat?.toUpperCase()}</Text>
+        <BookOpen color={background} size="$1" />
+        <Text color={background}>Read {ebookFormat?.toUpperCase()}</Text>
       </TouchableArea>
     );
   } else {
