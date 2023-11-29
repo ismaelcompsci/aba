@@ -6,6 +6,8 @@ import { sorts } from "../constants/consts";
 import { descOrderAtom, sortAtom } from "../state/local-state";
 
 import { ClearIconButton } from "./buttons/button";
+import { TouchableArea } from "./touchable/touchable-area";
+import { Flex } from "./layout/flex";
 
 export function SortSelect({ ...props }: PopoverProps) {
   const [orderSort, setSort] = useAtom(sortAtom);
@@ -25,13 +27,14 @@ export function SortSelect({ ...props }: PopoverProps) {
   return (
     <Popover stayInFrame strategy="absolute" size="$3" allowFlip {...props}>
       <Popover.Trigger asChild>
-        <ClearIconButton
+        <TouchableArea
           height={"$4"}
           justifyContent="center"
           alignItems="center"
+          mr="$2"
         >
           <ArrowDownWideNarrow />
-        </ClearIconButton>
+        </TouchableArea>
       </Popover.Trigger>
 
       <Adapt when={"xxs"} platform="touch">
@@ -64,7 +67,28 @@ export function SortSelect({ ...props }: PopoverProps) {
       >
         <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
 
-        <ToggleGroup
+        <Flex>
+          {sorts.map((sort) => (
+            <TouchableArea
+              key={sort.value}
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              onPress={() => secondPress(sort)}
+            >
+              <Text>{sort.text}</Text>
+              {orderSort === sort.value ? (
+                descOrder ? (
+                  <ArrowDown size={"$1"} />
+                ) : (
+                  <ArrowUp size={"$1"} />
+                )
+              ) : null}
+            </TouchableArea>
+          ))}
+        </Flex>
+
+        {/* <ToggleGroup
           orientation={"vertical"}
           type={"single"}
           size={"$3"}
@@ -91,7 +115,7 @@ export function SortSelect({ ...props }: PopoverProps) {
               ) : null}
             </ToggleGroup.Item>
           ))}
-        </ToggleGroup>
+        </ToggleGroup> */}
       </Popover.Content>
     </Popover>
   );

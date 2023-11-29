@@ -6,7 +6,9 @@ import TrackPlayer, {
   usePlaybackState,
 } from "react-native-track-player";
 import {
+  ArrowDown,
   ArrowDownWideNarrow,
+  ArrowUp,
   Filter,
   Pause,
   Play,
@@ -14,7 +16,7 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
-import { Separator, Text, useTheme } from "tamagui";
+import { Button, Popover, Separator, Text, useTheme } from "tamagui";
 
 import { isAdminOrUpAtom, showPlayerAtom } from "../../state/app-state";
 import { PodcastEpisodeExpanded } from "../../types/aba";
@@ -26,6 +28,25 @@ import { TouchableArea } from "../touchable/touchable-area";
 import PlayingWidget from "./playing-widget";
 
 type SortKey = keyof PodcastEpisodeExpanded;
+
+const episodeSorts = [
+  {
+    text: "Pub Date",
+    value: "publishedAt",
+  },
+  {
+    text: "Title",
+    value: "title",
+  },
+  {
+    text: "Season",
+    value: "season",
+  },
+  {
+    text: "Episode",
+    value: "episode",
+  },
+];
 
 const PodcastEpisodesTable = ({
   episodes,
@@ -63,11 +84,9 @@ const PodcastEpisodesTable = ({
   const playerState = usePlaybackState();
   const isPlaying = playerState.state === State.Playing;
   const { width } = useWindowDimensions();
-  const theme = useTheme();
-  const gray12 = theme.gray12.get();
-  const gray8 = theme.gray8.get();
-  const color = theme.color.get();
-  const bgPress = theme.backgroundPress.get();
+  const colors = useTheme();
+
+  const color = colors.color.get();
 
   const onEpisodePress = (episodeId: string) => {
     router.push(`/book/${podcastId}/${episodeId}`);
@@ -109,7 +128,7 @@ const PodcastEpisodesTable = ({
             baseStyle={{
               overflow: "hidden",
               maxHeight: 50,
-              color: gray12,
+              color: colors.gray12.get(),
             }}
             source={{ html: subtitle }}
             enableExperimentalMarginCollapsing
@@ -126,7 +145,7 @@ const PodcastEpisodesTable = ({
             <TouchableArea
               alignItems="center"
               borderWidth={1}
-              borderColor={gray8}
+              borderColor={colors.gray8.get()}
               paddingHorizontal="$4"
               paddingVertical="$2"
               flexDirection="row"
@@ -160,7 +179,7 @@ const PodcastEpisodesTable = ({
               inActiveStrokeWidth={6}
               progressValueFontSize={14}
               inActiveStrokeOpacity={0.4}
-              circleBackgroundColor={bgPress}
+              circleBackgroundColor={colors.backgroundPress.get()}
               activeStrokeColor={color}
             />
           </Flex>
@@ -181,9 +200,65 @@ const PodcastEpisodesTable = ({
         <TouchableArea>
           <Filter size={"$1"} />
         </TouchableArea>
-        <TouchableArea>
-          <ArrowDownWideNarrow />
-        </TouchableArea>
+        <Popover placement="left">
+          <Popover.Trigger asChild>
+            <Button
+              unstyled
+              pressStyle={{
+                opacity: 0.8,
+              }}
+            >
+              <ArrowDownWideNarrow />
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content
+            bg={colors.backgroundPress.get()}
+            enterStyle={{ y: -10, opacity: 0 }}
+            exitStyle={{ y: -10, opacity: 0 }}
+            animation={[
+              "quick",
+              {
+                opacity: {
+                  overshootClamping: true,
+                },
+              },
+            ]}
+            p="$3"
+            elevate
+            justifyContent="flex-start"
+            borderWidth={1}
+            borderColor="$borderColor"
+          >
+            <Flex space fill w={"$10"}>
+              {episodeSorts.map((sort) => {
+                return (
+                  <TouchableArea
+                    key={sort.value}
+                    flexDirection="row"
+                    alignItems="center"
+                    gap="$2"
+                    onPress={() => {
+                      // @ts-ignore
+                      setSortKey(sort.value);
+                      if (sort.value === sortKey) {
+                        setDescending((prev) => !prev);
+                      }
+                    }}
+                  >
+                    <Text>{sort.text}</Text>
+                    {sortKey === sort.value ? (
+                      descending ? (
+                        <ArrowDown size={"$0.75"} />
+                      ) : (
+                        <ArrowUp size={"$0.75"} />
+                      )
+                    ) : null}
+                  </TouchableArea>
+                );
+              })}
+            </Flex>
+          </Popover.Content>
+        </Popover>
       </Flex>
       <FlatList
         data={sortedEpisodes}
