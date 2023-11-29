@@ -91,6 +91,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
             },
           },
         ]}
+        padding={0}
       >
         <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
 
@@ -100,6 +101,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
           defaultValue={library?.name}
           onValueChange={onValueChange}
           disableDeactivation
+          bordered={false}
         >
           {libraries.map((lib) => {
             const Icon = lib?.icon ? iconMap[lib.icon] : iconMap["database"];

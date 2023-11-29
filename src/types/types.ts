@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Track } from "react-native-track-player";
 
 import {
@@ -108,6 +109,7 @@ export type PlayingState = {
   playing: boolean;
   libraryItemId?: string;
   startTime?: number;
+  episodeId?: string;
 };
 
 export type ListeningStats = {

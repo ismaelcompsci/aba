@@ -92,7 +92,13 @@ const BookPage = () => {
             { opacity },
           ]}
         />
-        <BackHeader alignment="center" mx={16} pt={16 + top} showButtonLabel />
+        <BackHeader
+          alignment="center"
+          mx={16}
+          pt={16 + top}
+          pb={16}
+          showButtonLabel
+        />
       </Flex>
     );
   };
@@ -276,7 +282,10 @@ const BookPage = () => {
                   />
                 ) : null}
                 {isPodcast && episodes ? (
-                  <PodcastEpisodesTable episodes={episodes} />
+                  <PodcastEpisodesTable
+                    podcastId={bookItem.id}
+                    episodes={episodes}
+                  />
                 ) : null}
                 {ebookFiles?.length ? <BookFilesTable /> : null}
                 {numberChapters ? (

@@ -125,7 +125,12 @@ const AudioPlayerContainer = () => {
   };
 
   const startSession = async () => {
-    const apiRoute = `${serverAddress}/api/items/${showPlayer.libraryItemId}/play`;
+    const route = !showPlayer.episodeId
+      ? `/api/items/${showPlayer.libraryItemId}/play`
+      : `/api/items/${showPlayer.libraryItemId}/play/${showPlayer.episodeId}`;
+
+    const apiRoute = `${serverAddress}${route}`;
+
     const payload = {
       deviceInfo: {
         clientName: "aba-mobile",
