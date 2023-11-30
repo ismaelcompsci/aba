@@ -95,7 +95,7 @@ const BookPage = () => {
         <BackHeader
           alignment="center"
           mx={16}
-          pt={16 + top}
+          pt={top + 16}
           pb={16}
           showButtonLabel
         />
@@ -145,6 +145,8 @@ const BookPage = () => {
       bookItem && "authors" in bookItem.media.metadata
         ? bookItem.media.metadata.authors[0].id
         : null;
+
+    console.log(bookItem?.media.metadata);
 
     if (authorId) router.push(`/library/authors/${encode(authorId)}`);
   };

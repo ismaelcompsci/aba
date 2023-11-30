@@ -148,7 +148,12 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <Library />
             </TouchableArea>
           ) : (
-            <TouchableArea hapticFeedback hitSlop={20} onPress={handleBack}>
+            <TouchableArea
+              pt={16}
+              hapticFeedback
+              hitSlop={20}
+              onPress={handleBack}
+            >
               <ChevronLeft />
             </TouchableArea>
           )}
