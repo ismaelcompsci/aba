@@ -133,7 +133,7 @@ export type ListeningStats = {
   recentSessions: PlaybackSession[];
 };
 
-type PodcastEpisodeWithPodcast = PodcastEpisodeExpanded & {
+export type PodcastEpisodeWithPodcast = PodcastEpisodeExpanded & {
   podcast: PodcastMinified;
 };
 

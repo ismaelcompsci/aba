@@ -1,6 +1,5 @@
 import { memo } from "react";
-import { useWindowDimensions } from "react-native";
-import RenderHTML from "react-native-render-html";
+import React from "react";
 import TrackPlayer, {
   State,
   usePlaybackState,
@@ -14,6 +13,7 @@ import { useUserMediaProgress } from "../../hooks/use-user-media-progress";
 import { showPlayerAtom } from "../../state/app-state";
 import { PodcastEpisodeExpanded } from "../../types/aba";
 import { elapsedTime } from "../../utils/utils";
+import RenderHTML from "../custom-components/render-html";
 import ItemProgress from "../item-progress";
 import { Flex } from "../layout/flex";
 import { PodcastLabel } from "../podcast-label";
@@ -35,12 +35,11 @@ const EpisodeTableRow = ({
     episodeId: item.id,
   });
 
-  const { width } = useWindowDimensions();
   const colors = useTheme();
   const color = colors.color.get();
 
   const episodeType = item.episodeType === "full" ? null : item.episodeType;
-  const subtitle = item.subtitle || item.description || "";
+  const subtitle = item.subtitle;
   const isPlaying = playerState.state === State.Playing;
   const episodeNumber = item.episode;
   const season = item.season;
@@ -80,18 +79,12 @@ const EpisodeTableRow = ({
   return (
     <TouchableArea hapticFeedback onPress={() => onEpisodePress(item.id)}>
       <Flex py="$2" space="$1.5">
-        <Text fontSize={17}>{item.title}</Text>
-        <RenderHTML
-          contentWidth={width}
-          baseStyle={{
-            overflow: "hidden",
-            maxHeight: 50,
-            color: colors.gray12.get(),
-          }}
-          source={{ html: subtitle }}
-          enableExperimentalMarginCollapsing
-          enableExperimentalBRCollapsing
-        />
+        <Text fontSize={18}>{item.title}</Text>
+        {!subtitle && item.description ? (
+          <RenderHTML html={item.description} maxTextLength={80} />
+        ) : (
+          <Text>{item.subtitle}</Text>
+        )}
         <Flex row alignItems="center" gap="$2">
           {episodeNumber ? (
             <PodcastLabel label={`Episode #${episodeNumber}`} />

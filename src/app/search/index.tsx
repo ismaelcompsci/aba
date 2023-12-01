@@ -53,7 +53,7 @@ const SearchPage = () => {
     authorResults?.length +
     narratorResults?.length;
 
-  const { isLoading } = useQuery({
+  const { isLoading, isFetching } = useQuery({
     queryKey: [
       "debounced-search",
       {
@@ -100,6 +100,8 @@ const SearchPage = () => {
     setNarratorResults([]);
   };
 
+  console.log({ isLoading, isFetching });
+
   return (
     <Screen edges={["top", "bottom"]}>
       <BackHeader alignment="center" mx={16} pt={16}>
@@ -116,10 +118,14 @@ const SearchPage = () => {
       {/* results */}
       <Flex fill>
         <ScrollView space="$4" showsVerticalScrollIndicator={false}>
-          {isLoading ? (
-            <Spinner />
+          {isLoading || isFetching ? (
+            <Flex fill centered>
+              <Spinner />
+            </Flex>
           ) : !resultsLength && !isLoading && debouncedSearchInput ? (
-            <Text>Not found :/</Text>
+            <Flex fill centered>
+              <Text>Not found :/</Text>
+            </Flex>
           ) : null}
 
           {bookResults.length ? (
@@ -157,9 +163,17 @@ const SearchPage = () => {
           ) : null}
           {podcastResults.length ? (
             <ResultSection>
-              <Text>Books</Text>
-              {podcastResults.map((_, i) => {
-                return <Text key={i}>podcast</Text>;
+              <Text>Podcasts</Text>
+              {podcastResults.map(({ libraryItem }, i) => {
+                return (
+                  <ItemSearchCard
+                    key={libraryItem.id}
+                    item={libraryItem}
+                    serverAddress={serverAddress}
+                    token={userToken}
+                    isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+                  />
+                );
               })}
             </ResultSection>
           ) : null}

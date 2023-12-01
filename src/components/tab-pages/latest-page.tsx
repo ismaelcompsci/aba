@@ -1,9 +1,14 @@
+import { useMemo } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Text } from "tamagui";
+import { Image, Separator, Text } from "tamagui";
 
-import { RecentEpisodesResponse } from "../../types/types";
+import {
+  PodcastEpisodeWithPodcast,
+  RecentEpisodesResponse,
+} from "../../types/types";
+import { dateDistanceFromNow } from "../../utils/utils";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import EpisodeTableRow from "../tables/episode-table-row";
@@ -49,13 +54,42 @@ const LatestPage = ({
     },
   });
 
-  let flattenData =
-    data?.pages.flatMap((page) => page?.data.episodes || []) || [];
+  const flattenData = useMemo(
+    () => data?.pages.flatMap((page) => page?.data.episodes || []) || [],
+    [data?.pageParams]
+  );
 
   const loadNextPageData = () => {
     if (hasNextPage) {
       fetchNextPage();
     }
+  };
+
+  const renderItem = ({ item }: { item: PodcastEpisodeWithPodcast }) => {
+    const cover = `${serverAddress}/api/items/${item.libraryItemId}/cover?token=${userToken}`;
+    return (
+      <Flex>
+        <Flex row>
+          {cover ? (
+            <Image
+              width={"$5"}
+              height={"$5"}
+              resizeMode="cover"
+              source={{
+                uri: cover,
+              }}
+            />
+          ) : null}
+          <Flex px="$2">
+            <Text fontSize={16}>{item.podcast.metadata.title}</Text>
+            <Text color={"$gray10"}>
+              {dateDistanceFromNow(item.publishedAt)}
+            </Text>
+          </Flex>
+        </Flex>
+        <EpisodeTableRow item={item} podcastId={item.libraryItemId} />
+      </Flex>
+    );
   };
 
   return (
@@ -64,17 +98,21 @@ const LatestPage = ({
         <Flex fill>
           <FlashList
             ListHeaderComponent={() => (
-              <Text fontWeight="800" fontSize={24}>
+              <Text fontWeight="800" fontSize={24} pb="$2">
                 Latest Episodes
               </Text>
             )}
             showsVerticalScrollIndicator={false}
             data={flattenData}
             keyExtractor={(item) => item.id}
-            onEndReached={loadNextPageData}
-            renderItem={({ item }) => (
-              <EpisodeTableRow item={item} podcastId={item.libraryItemId} />
+            ItemSeparatorComponent={() => (
+              <Separator width="95%" alignSelf="center" my="$2" />
             )}
+            onEndReached={loadNextPageData}
+            renderItem={renderItem}
+            contentContainerStyle={{
+              paddingBottom: 40,
+            }}
             estimatedItemSize={149}
           />
         </Flex>

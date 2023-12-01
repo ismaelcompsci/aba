@@ -146,8 +146,6 @@ const BookPage = () => {
         ? bookItem.media.metadata.authors[0].id
         : null;
 
-    console.log(bookItem?.media.metadata);
-
     if (authorId) router.push(`/library/authors/${encode(authorId)}`);
   };
 
@@ -234,7 +232,7 @@ const BookPage = () => {
                     numberOfLines={2}
                     bg="$background"
                     color="$gray10"
-                    textDecorationLine="underline"
+                    textDecorationLine={isPodcast ? "none" : "underline"}
                     onPress={handleAuthorPress}
                   >
                     {author}
