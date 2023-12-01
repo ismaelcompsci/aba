@@ -213,3 +213,13 @@ export const secondsToTimestamp = (seconds: number) => {
     .toString()
     .padStart(2, "0")}`;
 };
+
+export function getObjectValue<T>(obj: T, path: string) {
+  if (!path) return obj;
+  const properties = path.split(".");
+  if (properties)
+    return getObjectValue(
+      obj[properties.shift() as keyof T],
+      properties.join(".")
+    );
+}

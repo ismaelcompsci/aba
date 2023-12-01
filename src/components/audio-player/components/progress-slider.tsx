@@ -130,7 +130,10 @@ export const ProgressSlider = ({
               setIsSeeking(true);
               setSeek(value[0]);
             }}
-            onSlideEnd={() => handleSliderEnd(seek)}
+            disabled={!showThumb}
+            onSlideEnd={() => {
+              showThumb && handleSliderEnd(seek);
+            }}
           >
             <Slider.Track {...trackProps}>
               <Slider.TrackActive bg={color} />

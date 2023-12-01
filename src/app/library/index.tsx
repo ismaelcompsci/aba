@@ -32,6 +32,7 @@ import {
   userTokenAtom,
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
+import LatestPage from "../../components/tab-pages/latest-page";
 
 const tabs: Tabs = {
   Home: Home,
@@ -126,7 +127,14 @@ const HomePage = () => {
           />
         );
       case "_latestPage":
-        return <Flex></Flex>;
+        return (
+          <LatestPage
+            currentLibraryId={currentLibraryId}
+            serverAddress={serverAddress}
+            userToken={userToken}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+          />
+        );
       case "_searchPage":
         return <Flex></Flex>;
       default:

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import CircularProgress, {
   CircularProgressBase,
 } from "react-native-circular-progress-indicator";
@@ -8,9 +7,8 @@ import {
 } from "react-native-circular-progress-indicator/lib/typescript/types";
 import styles from "react-native-circular-progress-indicator/src/circularProgress/styles";
 import { CheckCircle } from "@tamagui/lucide-icons";
-import { useAtomValue } from "jotai";
 
-import { mediaProgressAtom } from "../state/app-state";
+import { useUserMediaProgress } from "../hooks/use-user-media-progress";
 
 import { Flex } from "./layout/flex";
 
@@ -28,30 +26,10 @@ const ItemProgress = ({
   checkMarkSize?: number;
   episodeId?: string;
 } & Omit<CircularProgressBaseProps & CircularProgressProps, "value">) => {
-  const mediaProgress = useAtomValue(mediaProgressAtom);
-
-  const userMediaProgress = useMemo(() => {
-    return mediaProgress?.find((prog) => {
-      if (episodeId && prog.episodeId !== episodeId) return false;
-      return prog.libraryItemId === id;
-    });
-  }, [mediaProgress, id]);
-
-  let useEBookProgress;
-  if (!userMediaProgress || userMediaProgress.progress)
-    useEBookProgress = false;
-  else if (userMediaProgress.ebookProgress)
-    useEBookProgress = userMediaProgress.ebookProgress > 0;
-
-  let userProgressPercent: number;
-  if (useEBookProgress && userMediaProgress?.ebookProgress) {
-    userProgressPercent = Math.max(
-      Math.min(1, userMediaProgress.ebookProgress),
-      0
-    );
-  } else
-    userProgressPercent =
-      Math.max(Math.min(1, userMediaProgress?.progress || 0), 0) || 0;
+  const { userProgressPercent } = useUserMediaProgress({
+    libraryItemId: id,
+    episodeId,
+  });
 
   if (userProgressPercent <= 0 || !userProgressPercent) {
     return null;

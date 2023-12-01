@@ -7,7 +7,9 @@ import {
   LibraryItemExpanded,
   LibraryItemMinified,
   PlaybackSession,
+  PodcastEpisodeExpanded,
   PodcastMetadata,
+  PodcastMinified,
   Series,
   SeriesBooksMinified,
   ServerSettings,
@@ -129,4 +131,15 @@ export type ListeningStats = {
   };
   today: number;
   recentSessions: PlaybackSession[];
+};
+
+type PodcastEpisodeWithPodcast = PodcastEpisodeExpanded & {
+  podcast: PodcastMinified;
+};
+
+export type RecentEpisodesResponse = {
+  episodes: PodcastEpisodeWithPodcast[];
+  total: number;
+  limit: number;
+  page: number;
 };

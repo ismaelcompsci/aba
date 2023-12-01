@@ -171,8 +171,8 @@ const HoverLabel = ({
     <Flex
       borderRadius={8}
       pos={"absolute"}
-      top={15}
-      right={5}
+      top={5}
+      left={3}
       bg={"$backgroundStrong"}
       padding={2}
       shadowColor="$shadowColor"

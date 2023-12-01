@@ -127,6 +127,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     }
   }, []);
 
+  console.log({ name });
+
   if (
     name === "test/index" ||
     name === "book/[id]" ||
@@ -134,7 +136,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "settings" ||
     name === "genres/index" ||
     name === "library/[filter]/[id]" ||
-    name === "search/index"
+    name === "search/index" ||
+    name === "book/[bookId]/[episodeId]"
   ) {
     return null;
   }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as Burnt from "burnt";
 import { Redirect, router } from "expo-router";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Spinner } from "tamagui";
 
 import { Screen } from "../components/layout/screen";
@@ -14,6 +14,7 @@ import {
 import {
   currentServerConfigAtom,
   deviceDataAtom,
+  lastLibraryIdAtom,
   serverSettingsAtom,
 } from "../state/local-state";
 import { LoginServerResponse, ServerConfig } from "../types/types";
@@ -31,6 +32,7 @@ export default function IndexPage() {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
+  const lastLibraryId = useAtomValue(lastLibraryIdAtom);
 
   const { headerHeight } = useAppSafeAreas();
 
@@ -43,7 +45,14 @@ export default function IndexPage() {
   }: LoginServerResponse & { address: string; id?: string }) => {
     if (!user) return;
 
-    setCurrentLibraryId(userDefaultLibraryId);
+    if (
+      lastLibraryId &&
+      (!user.librariesAccessible.length ||
+        user.librariesAccessible.includes(lastLibraryId))
+    ) {
+      setCurrentLibraryId(lastLibraryId);
+    } else setCurrentLibraryId(userDefaultLibraryId);
+
     setServerSettings(serverSettings);
     setUser(user);
 

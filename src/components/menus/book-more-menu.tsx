@@ -15,9 +15,11 @@ import { TouchableArea } from "../touchable/touchable-area";
 function BookMoreMenu({
   title,
   itemId,
+  episodeId,
 }: {
-  title: string | null;
+  title?: string | null;
   itemId: string;
+  episodeId?: string;
 }) {
   const mediaProgress = useAtomValue(mediaProgressAtom);
   const userMediaProgress = useMemo(
@@ -33,15 +35,16 @@ function BookMoreMenu({
       const data = {
         isFinished: markAsFinshed,
       };
-      const response = await axios.patch(
-        `${serverConfig.serverAddress}/api/me/progress/${itemId}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        }
-      );
+
+      const route = episodeId
+        ? `${serverConfig.serverAddress}/api/me/progress/${itemId}/${episodeId}`
+        : `${serverConfig.serverAddress}/api/me/progress/${itemId}`;
+
+      const response = await axios.patch(route, data, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
 
       if (response.data) {
         await refreshUser();

@@ -47,3 +47,8 @@ export const bookAnnotationsAtom = atomWithLocalStorage<BookAnnotations>(
   GeneralSetting.BookAnnotations,
   {}
 );
+
+export const lastLibraryIdAtom = atomWithLocalStorage(
+  GeneralSetting.LastLibraryId,
+  null
+);

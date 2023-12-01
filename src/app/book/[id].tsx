@@ -261,10 +261,12 @@ const BookPage = () => {
                         activeStrokeColor={colors.color.get()}
                       />
                     ) : null}
-                    <BookMoreMenu
-                      title={bookItem.media.metadata.title}
-                      itemId={bookItem.id}
-                    />
+                    {!isPodcast ? (
+                      <BookMoreMenu
+                        title={bookItem.media.metadata.title}
+                        itemId={bookItem.id}
+                      />
+                    ) : null}
                   </Flex>
                 </Flex>
                 <ViewMoreText

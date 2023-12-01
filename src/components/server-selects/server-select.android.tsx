@@ -8,6 +8,7 @@ import {
   currentLibraryIdAtom,
   librariesAtom,
 } from "../../state/app-state";
+import { lastLibraryIdAtom } from "../../state/local-state";
 import { awaitTimeout } from "../../utils/utils";
 import { iconMap } from "../adbs-icons";
 import { IconButton } from "../buttons/button";
@@ -17,6 +18,7 @@ const AndroidServerSelect = () => {
   const library = useAtomValue(currentLibraryAtom);
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
+  const setLastLibraryId = useSetAtom(lastLibraryIdAtom);
 
   const colors = useTheme();
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
@@ -31,6 +33,7 @@ const AndroidServerSelect = () => {
     }
 
     setCurrentLibraryId(updatedLib?.id);
+    setLastLibraryId(updatedLib.id);
     await awaitTimeout(50);
     setChangingLibrary(false);
   };

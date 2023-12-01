@@ -16,6 +16,7 @@ import {
   currentLibraryIdAtom,
   librariesAtom,
 } from "../../state/app-state";
+import { lastLibraryIdAtom } from "../../state/local-state";
 import { awaitTimeout } from "../../utils/utils";
 import { iconMap } from "../adbs-icons";
 import { IconButton } from "../buttons/button";
@@ -24,6 +25,7 @@ import { Flex } from "../layout/flex";
 const ServerSelect = ({ ...props }: PopoverProps) => {
   const libraries = useAtomValue(librariesAtom);
   const library = useAtomValue(currentLibraryAtom);
+  const setLastLibraryId = useSetAtom(lastLibraryIdAtom);
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
 
@@ -44,6 +46,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
 
     setOpen(false);
     setCurrentLibraryId(updatedLib?.id);
+    setLastLibraryId(updatedLib.id);
     await awaitTimeout(30);
     setChangingLibrary(false);
   };
