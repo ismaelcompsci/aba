@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import React from "react";
 import { useWindowDimensions } from "react-native";
+import { ZoomIn } from "react-native-reanimated";
 import {
   NavigationState,
   SceneRendererProps,
   TabBar,
   TabView,
 } from "react-native-tab-view";
+import type { IconProps } from "@tamagui/helpers-icon";
 import {
   Activity,
   Backpack,
@@ -15,9 +18,9 @@ import {
 } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Spinner, useTheme } from "tamagui";
+import { Spinner, Text, useTheme } from "tamagui";
 
-import { Flex } from "../../components/layout/flex";
+import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
 import LatestPage from "../../components/tab-pages/latest-page";
@@ -25,6 +28,7 @@ import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
 import SeriesPage from "../../components/tab-pages/series-page";
 import {
+  changingLibraryAtom,
   currentLibraryIdAtom,
   currentLibraryMediaTypeAtom,
   isAdminOrUpAtom,
@@ -34,7 +38,7 @@ import {
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
 
-const tabs: Tabs = {
+const tabs: Tabs<IconProps> = {
   Home: Home,
   Library: Library,
   Series: Backpack,
@@ -49,6 +53,7 @@ type TabPage = {
 
 const HomePage = () => {
   const currentLibraryId = useAtomValue(currentLibraryIdAtom);
+  const changingLibrary = useAtomValue(changingLibraryAtom);
   const currentLibraryMediaType = useAtomValue(currentLibraryMediaTypeAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
@@ -56,6 +61,7 @@ const HomePage = () => {
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
   useEffect(() => {
+    setRoutes(null);
     let tabs = [];
 
     if (currentLibraryMediaType === "podcast") {
@@ -77,7 +83,7 @@ const HomePage = () => {
     }
 
     setRoutes(tabs);
-  }, [currentLibraryMediaType, currentLibraryId]);
+  }, [currentLibraryMediaType, currentLibraryId, changingLibrary]);
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
@@ -161,12 +167,9 @@ const HomePage = () => {
     );
   };
 
-  const renderTabBar = (
+  const CustomTabBar = (
     props: SceneRendererProps & {
-      navigationState: NavigationState<{
-        key: string;
-        title: string;
-      }>;
+      navigationState: NavigationState<{ key: string; title: string }>;
     }
   ) => {
     return (
@@ -176,12 +179,29 @@ const HomePage = () => {
         }}
         indicatorStyle={{ backgroundColor: color }}
         renderIcon={({ route, focused }) => {
+          const currentRoute = routes?.[index];
+          if (currentRoute && currentRoute.key === route.key) {
+            return null;
+          }
+
           const Icon = tabs[route.title as TabName];
           return (
-            <Icon size={"$1"} opacity={!focused ? 0.5 : 1} color={color} />
+            <AnimatedFlex entering={ZoomIn}>
+              <Icon size={"$1"} opacity={!focused ? 0.5 : 1} color={color} />
+            </AnimatedFlex>
           );
         }}
         labelStyle={{ color: color }}
+        renderLabel={(scene) => {
+          const currentRoute = routes?.[index];
+
+          if (scene.route.key !== currentRoute?.key) return null;
+          return (
+            <AnimatedFlex entering={ZoomIn}>
+              <Text>{scene.route.title}</Text>
+            </AnimatedFlex>
+          );
+        }}
         {...props}
       />
     );
@@ -191,15 +211,20 @@ const HomePage = () => {
     <Screen>
       {!userToken || !routes ? (
         <NoServer />
+      ) : changingLibrary ? (
+        <Flex fill centered pb={44}>
+          <Spinner />
+        </Flex>
       ) : (
         <TabView
           lazy
           navigationState={{ index, routes }}
           renderScene={renderScene}
-          renderTabBar={renderTabBar}
+          renderTabBar={CustomTabBar}
           renderLazyPlaceholder={renderLazyPlaceHolder}
           onIndexChange={setIndex}
           initialLayout={{ width: layout.width, height: layout.height }}
+          style={{ width: layout.width, height: layout.height }}
         />
       )}
     </Screen>

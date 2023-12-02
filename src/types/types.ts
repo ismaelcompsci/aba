@@ -78,8 +78,8 @@ export interface LibrarySeries {
 
 export type TabName = "Home" | "Library" | "Series" | "Latest" | "Search";
 
-export type Tabs = {
-  [key in TabName]: React.ComponentType<any>; // Assuming Home and Library are React components
+export type Tabs<T> = {
+  [key in TabName]: React.ComponentType<T>; // Assuming Home and Library are React components
 };
 
 export type EpubReaderLoading = {

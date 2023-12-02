@@ -165,7 +165,7 @@ const GenreCardList = ({
     return showGenreCards;
   }, [width, genreLength, currentLibraryId]);
 
-  if (!genreLength || isLoading) {
+  if (isLoading) {
     return null;
   }
 
