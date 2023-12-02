@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Image, Separator, Text } from "tamagui";
+import { Image, Separator, Spinner, Text } from "tamagui";
 
 import {
   PodcastEpisodeWithPodcast,
@@ -24,35 +24,35 @@ const LatestPage = ({
   currentLibraryId,
   serverAddress,
   userToken,
-  isCoverSquareAspectRatio,
 }: LatestPageProps) => {
-  const { data, isLoading, hasNextPage, fetchNextPage } = useInfiniteQuery({
-    queryKey: ["latest-episodes"],
-    queryFn: async ({ pageParam = 0 }) => {
-      const response: { data: RecentEpisodesResponse } = await axios.get(
-        `${serverAddress}/api/libraries/${currentLibraryId}/recent-episodes`,
-        {
-          params: {
-            limit: 25,
-            page: pageParam,
-          },
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
+  const { data, isInitialLoading, hasNextPage, fetchNextPage } =
+    useInfiniteQuery({
+      queryKey: ["latest-episodes"],
+      queryFn: async ({ pageParam = 0 }) => {
+        const response: { data: RecentEpisodesResponse } = await axios.get(
+          `${serverAddress}/api/libraries/${currentLibraryId}/recent-episodes`,
+          {
+            params: {
+              limit: 25,
+              page: pageParam,
+            },
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+
+        return { data: response.data, nextPage: pageParam + 1 };
+      },
+      getNextPageParam: (lastPage) => {
+        if (!lastPage?.data) return;
+        if (lastPage?.data.page >= lastPage?.data.total) {
+          return undefined;
         }
-      );
 
-      return { data: response.data, nextPage: pageParam + 1 };
-    },
-    getNextPageParam: (lastPage) => {
-      if (!lastPage?.data) return;
-      if (lastPage?.data.page >= lastPage?.data.total) {
-        return undefined;
-      }
-
-      return lastPage?.nextPage;
-    },
-  });
+        return lastPage?.nextPage;
+      },
+    });
 
   const flattenData = useMemo(
     () => data?.pages.flatMap((page) => page?.data.episodes || []) || [],
@@ -65,8 +65,9 @@ const LatestPage = ({
     }
   };
 
-  const renderItem = ({ item }: { item: PodcastEpisodeWithPodcast }) => {
+  const Item = ({ item }: { item: PodcastEpisodeWithPodcast }) => {
     const cover = `${serverAddress}/api/items/${item.libraryItemId}/cover?token=${userToken}`;
+
     return (
       <Flex>
         <Flex row>
@@ -95,8 +96,16 @@ const LatestPage = ({
   return (
     <Screen>
       <Flex fill px="$4" pt="$2">
+        {isInitialLoading ? <Spinner /> : null}
         <Flex fill>
           <FlashList
+            ListEmptyComponent={() =>
+              !isInitialLoading && (
+                <Flex fill centered>
+                  <Text>Empty :/</Text>
+                </Flex>
+              )
+            }
             ListHeaderComponent={() => (
               <Text fontWeight="800" fontSize={24} pb="$2">
                 Latest Episodes
@@ -104,12 +113,13 @@ const LatestPage = ({
             )}
             showsVerticalScrollIndicator={false}
             data={flattenData}
+            // eslint-disable-next-line react/prop-types
             keyExtractor={(item) => item.id}
             ItemSeparatorComponent={() => (
               <Separator width="95%" alignSelf="center" my="$2" />
             )}
             onEndReached={loadNextPageData}
-            renderItem={renderItem}
+            renderItem={Item}
             contentContainerStyle={{
               paddingBottom: 40,
             }}

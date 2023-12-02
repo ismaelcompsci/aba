@@ -81,7 +81,7 @@ const EpisodeTableRow = ({
       <Flex py="$2" space="$1.5">
         <Text fontSize={18}>{item.title}</Text>
         {!subtitle && item.description ? (
-          <RenderHTML html={item.description} maxTextLength={80} />
+          <RenderHTML html={item.description} maxTextLength={60} />
         ) : (
           <Text>{item.subtitle}</Text>
         )}

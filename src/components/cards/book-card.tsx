@@ -118,7 +118,9 @@ const BookCard = ({
             </Flex>
           ) : null}
           {!coverUrl || error ? (
-            <BookX size="$10" />
+            <Flex width={bookWidth} height={bookHeight} centered>
+              <BookX size="$10" />
+            </Flex>
           ) : (
             <FastImage
               resizeMode="cover"

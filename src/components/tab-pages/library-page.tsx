@@ -182,7 +182,7 @@ const LibraryPage = ({
         <SortSelect placement="bottom-end" />
       </Flex>
       {/* items */}
-      {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
+      {isInitialLoading || changingLibrary || isEmpty ? (
         <Screen centered headerAndTabBar>
           {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
         </Screen>

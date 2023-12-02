@@ -1,13 +1,12 @@
 import { ArrowDown, ArrowDownWideNarrow, ArrowUp } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
-import { Adapt, Popover, PopoverProps, Text, ToggleGroup } from "tamagui";
+import { Button, Popover, PopoverProps, Text } from "tamagui";
 
 import { sorts } from "../constants/consts";
 import { descOrderAtom, sortAtom } from "../state/local-state";
 
-import { ClearIconButton } from "./buttons/button";
-import { TouchableArea } from "./touchable/touchable-area";
 import { Flex } from "./layout/flex";
+import { TouchableArea } from "./touchable/touchable-area";
 
 export function SortSelect({ ...props }: PopoverProps) {
   const [orderSort, setSort] = useAtom(sortAtom);
@@ -25,30 +24,22 @@ export function SortSelect({ ...props }: PopoverProps) {
   };
 
   return (
-    <Popover stayInFrame strategy="absolute" size="$3" allowFlip {...props}>
+    <Popover size="$3" {...props}>
       <Popover.Trigger asChild>
-        <TouchableArea
-          height={"$4"}
+        <Button
           justifyContent="center"
           alignItems="center"
+          unstyled
+          pressStyle={{
+            opacity: 0.7,
+          }}
+          height={"$4"}
+          width={"$4"}
           mr="$2"
         >
           <ArrowDownWideNarrow />
-        </TouchableArea>
+        </Button>
       </Popover.Trigger>
-
-      <Adapt when={"xxs"} platform="touch">
-        <Popover.Sheet modal dismissOnSnapToBottom>
-          <Popover.Sheet.Frame padding="$4">
-            <Adapt.Contents />
-          </Popover.Sheet.Frame>
-          <Popover.Sheet.Overlay
-            animation="lazy"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Popover.Sheet>
-      </Adapt>
 
       <Popover.Content
         borderWidth={1}
@@ -67,55 +58,30 @@ export function SortSelect({ ...props }: PopoverProps) {
       >
         <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
 
-        <Flex>
+        <Flex space>
           {sorts.map((sort) => (
             <TouchableArea
               key={sort.value}
               display="flex"
               flexDirection="row"
-              justifyContent="space-between"
-              onPress={() => secondPress(sort)}
+              alignItems="center"
+              gap="$2"
+              onPress={() => {
+                secondPress(sort);
+                onValueChange(sort.value);
+              }}
             >
               <Text>{sort.text}</Text>
               {orderSort === sort.value ? (
-                descOrder ? (
-                  <ArrowDown size={"$1"} />
+                !descOrder ? (
+                  <ArrowDown size={"$0.75"} />
                 ) : (
-                  <ArrowUp size={"$1"} />
+                  <ArrowUp size={"$0.75"} />
                 )
               ) : null}
             </TouchableArea>
           ))}
         </Flex>
-
-        {/* <ToggleGroup
-          orientation={"vertical"}
-          type={"single"}
-          size={"$3"}
-          onValueChange={onValueChange}
-          disableDeactivation
-          defaultValue={orderSort}
-        >
-          {sorts.map((sort) => (
-            <ToggleGroup.Item
-              value={sort.value}
-              key={sort.value}
-              display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
-              onPress={() => secondPress(sort)}
-            >
-              <Text>{sort.text}</Text>
-              {orderSort === sort.value ? (
-                descOrder ? (
-                  <ArrowDown size={"$1"} />
-                ) : (
-                  <ArrowUp size={"$1"} />
-                )
-              ) : null}
-            </ToggleGroup.Item>
-          ))}
-        </ToggleGroup> */}
       </Popover.Content>
     </Popover>
   );

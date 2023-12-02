@@ -20,6 +20,7 @@ import { Spinner, useTheme } from "tamagui";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
+import LatestPage from "../../components/tab-pages/latest-page";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
 import SeriesPage from "../../components/tab-pages/series-page";
@@ -32,7 +33,6 @@ import {
   userTokenAtom,
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
-import LatestPage from "../../components/tab-pages/latest-page";
 
 const tabs: Tabs = {
   Home: Home,

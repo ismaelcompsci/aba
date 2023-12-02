@@ -1,32 +1,19 @@
 import { useMemo, useState } from "react";
-import { FlatList, useWindowDimensions } from "react-native";
-import RenderHTML from "react-native-render-html";
-import TrackPlayer, {
-  State,
-  usePlaybackState,
-} from "react-native-track-player";
+import { FlatList } from "react-native";
 import {
   ArrowDown,
   ArrowDownWideNarrow,
   ArrowUp,
-  Pause,
-  Play,
   Search,
 } from "@tamagui/lucide-icons";
-import { router } from "expo-router";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { Button, Popover, Separator, Text, useTheme } from "tamagui";
 
-import { useUserMediaProgress } from "../../hooks/use-user-media-progress";
-import { isAdminOrUpAtom, showPlayerAtom } from "../../state/app-state";
+import { isAdminOrUpAtom } from "../../state/app-state";
 import { PodcastEpisodeExpanded } from "../../types/aba";
-import { elapsedTime } from "../../utils/utils";
-import ItemProgress from "../item-progress";
 import { Flex } from "../layout/flex";
-import { PodcastLabel } from "../podcast-label";
 import { TouchableArea } from "../touchable/touchable-area";
 
-import PlayingWidget from "./playing-widget";
 import EpisodeTableRow from "./episode-table-row";
 
 type SortKey = keyof PodcastEpisodeExpanded;

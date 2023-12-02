@@ -55,7 +55,6 @@ const BookShelf = ({
     }
   };
 
-  console.log({ type: shelf.type });
   return (
     <Flex>
       <ShelfLabel>{shelf.label}</ShelfLabel>

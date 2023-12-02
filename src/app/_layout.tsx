@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import { Appearance, Platform, UIManager } from "react-native";
+import { useEffect } from "react";
+import { Appearance, UIManager } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import {
   ChevronLeft,
@@ -17,8 +17,7 @@ import { TamaguiProvider, Theme, useTheme } from "tamagui";
 import appConfig from "../../tamagui.config";
 import AudioPlayerContainer from "../components/audio-player/audio-player";
 import { Flex } from "../components/layout/flex";
-import AndroidServerSelect from "../components/server-selects/server-select.android";
-import ServerSelect from "../components/server-selects/servers-select.ios";
+import ServerSelect from "../components/server-select";
 import { TouchableArea } from "../components/touchable/touchable-area";
 import { IS_ANDROID, IS_IOS } from "../constants/consts";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
@@ -119,16 +118,6 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     navigation.setOptions({ gestureEnabled: !showLogo });
   }, [showLogo]);
 
-  const getServerSelect = useMemo(() => {
-    if (Platform.OS === "android") {
-      return <AndroidServerSelect />;
-    } else {
-      return <ServerSelect placement="bottom-end" />;
-    }
-  }, []);
-
-  console.log({ name });
-
   if (
     name === "test/index" ||
     name === "book/[id]" ||
@@ -160,7 +149,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <ChevronLeft />
             </TouchableArea>
           )}
-          {showServerSwitch && getServerSelect}
+          {showServerSwitch && <ServerSelect placement="bottom-end" />}
         </Flex>
         <Flex row alignItems="center" gap={16}>
           {showSearch ? (
