@@ -96,39 +96,61 @@ const LatestPage = ({
   return (
     <Screen>
       <Flex fill px="$4" pt="$2">
-        {isInitialLoading ? <Spinner /> : null}
-        <Flex fill>
-          <FlashList
-            ListEmptyComponent={() =>
-              !isInitialLoading && (
-                <Flex fill centered>
-                  <Text>Empty :/</Text>
-                </Flex>
-              )
-            }
-            ListHeaderComponent={() => (
-              <Text fontWeight="800" fontSize={24} pb="$2">
-                Latest Episodes
-              </Text>
-            )}
-            showsVerticalScrollIndicator={false}
-            data={flattenData}
-            // eslint-disable-next-line react/prop-types
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => (
-              <Separator width="95%" alignSelf="center" my="$2" />
-            )}
-            onEndReached={loadNextPageData}
-            renderItem={Item}
-            contentContainerStyle={{
-              paddingBottom: 40,
-            }}
-            estimatedItemSize={149}
-          />
-        </Flex>
+        {isInitialLoading ? (
+          <Flex width="100%">
+            <Spinner />
+          </Flex>
+        ) : (
+          <Flex fill>
+            <FlashList
+              ListEmptyComponent={() =>
+                !isInitialLoading && (
+                  <Flex fill centered>
+                    <Text>Empty :/</Text>
+                  </Flex>
+                )
+              }
+              ListHeaderComponent={() => (
+                <Text fontWeight="800" fontSize={24} pb="$2">
+                  Latest Episodes
+                </Text>
+              )}
+              showsVerticalScrollIndicator={false}
+              data={flattenData}
+              // eslint-disable-next-line react/prop-types
+              keyExtractor={(item) => item.id}
+              ItemSeparatorComponent={() => (
+                <Separator width="95%" alignSelf="center" my="$2" />
+              )}
+              onEndReached={loadNextPageData}
+              renderItem={Item}
+              contentContainerStyle={{
+                paddingBottom: 40,
+              }}
+              estimatedItemSize={149}
+            />
+          </Flex>
+        )}
       </Flex>
     </Screen>
   );
 };
+/**
+ *           <Button
+            theme={"blue"}
+            borderRadius={"$4"}
+            padding="$3"
+            width="100%"
+            pressTheme={false}
+            focusTheme={false}
+            hoverTheme={false}
+            pressStyle={{
+              bg: "",
+            }}
+          >
+            <Spinner />
+            <Text>Loading</Text>
+          </Button>
+ */
 
 export default LatestPage;

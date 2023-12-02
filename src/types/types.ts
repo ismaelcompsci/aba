@@ -76,7 +76,7 @@ export interface LibrarySeries {
   include: string;
 }
 
-export type TabName = "Home" | "Library" | "Series" | "Latest" | "Search";
+export type TabName = "Home" | "Library" | "Series" | "Latest" | "Add";
 
 export type Tabs<T> = {
   [key in TabName]: React.ComponentType<T>; // Assuming Home and Library are React components

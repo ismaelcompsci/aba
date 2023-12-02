@@ -43,7 +43,7 @@ const tabs: Tabs<IconProps> = {
   Library: Library,
   Series: Backpack,
   Latest: Activity,
-  Search: Search,
+  Add: Search,
 };
 
 type TabPage = {
@@ -61,7 +61,6 @@ const HomePage = () => {
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
   useEffect(() => {
-    setRoutes(null);
     let tabs = [];
 
     if (currentLibraryMediaType === "podcast") {
@@ -72,7 +71,7 @@ const HomePage = () => {
       ];
 
       if (isAdminOrUp) {
-        tabs.push({ key: "_searchPage", title: "Search" });
+        tabs.push({ key: "_addPage", title: "Add" });
       }
     } else {
       tabs = [
@@ -141,8 +140,12 @@ const HomePage = () => {
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
         );
-      case "_searchPage":
-        return <Flex></Flex>;
+      case "_addPage":
+        return (
+          <Flex>
+            <Text>Add</Text>
+          </Flex>
+        );
       default:
         return null;
     }
