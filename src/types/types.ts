@@ -143,3 +143,20 @@ export type RecentEpisodesResponse = {
   limit: number;
   page: number;
 };
+
+export type PodcastSearch = {
+  B;
+  id: number;
+  artistId: number;
+  title: string;
+  artistName: string;
+  description: string;
+  descriptionPlain: string;
+  releaseDate: string;
+  genres: string[];
+  cover: string;
+  trackCount: number;
+  feedUrl: string;
+  pageUrl: string;
+  explicit: boolean;
+};

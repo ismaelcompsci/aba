@@ -37,6 +37,7 @@ import {
   userTokenAtom,
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
+import AddPage from "../../components/tab-pages/add-page";
 
 const tabs: Tabs<IconProps> = {
   Home: Home,
@@ -141,11 +142,7 @@ const HomePage = () => {
           />
         );
       case "_addPage":
-        return (
-          <Flex>
-            <Text>Add</Text>
-          </Flex>
-        );
+        return <AddPage serverAddress={serverAddress} userToken={userToken} />;
       default:
         return null;
     }
