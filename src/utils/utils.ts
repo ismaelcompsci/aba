@@ -1,3 +1,7 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-control-regex */
+// @ts-ignore
+import Path from "react-native-path";
 import { formatDistance } from "date-fns";
 import { ThemeName } from "tamagui";
 
@@ -223,3 +227,42 @@ export function getObjectValue<T>(obj: T, path: string) {
       properties.join(".")
     );
 }
+
+/**
+ * https://github.com/advplyr/audiobookshelf-app/blob/737b6d7c26379e27afc759baecc145ec698f0419/plugins/init.client.js#L137
+ */
+export const sanitizeFilename = (input: string, colonReplacement = " - ") => {
+  if (typeof input !== "string") {
+    return false;
+  }
+
+  // Max is actually 255-260 for windows but this leaves padding incase ext wasnt put on yet
+  const MAX_FILENAME_LEN = 240;
+
+  const replacement = "";
+  const illegalRe = /[\/\?<>\\:\*\|"]/g;
+  const controlRe = /[\x00-\x1f\x80-\x9f]/g;
+  const reservedRe = /^\.+$/;
+  const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
+  const windowsTrailingRe = /[\. ]+$/;
+  const lineBreaks = /[\n\r]/g;
+
+  let sanitized = input
+    .replace(":", colonReplacement) // Replace first occurrence of a colon
+    .replace(illegalRe, replacement)
+    .replace(controlRe, replacement)
+    .replace(reservedRe, replacement)
+    .replace(lineBreaks, replacement)
+    .replace(windowsReservedRe, replacement)
+    .replace(windowsTrailingRe, replacement);
+
+  if (sanitized.length > MAX_FILENAME_LEN) {
+    const lenToRemove = sanitized.length - MAX_FILENAME_LEN;
+    const ext = Path.extname(sanitized);
+    let basename = Path.basename(sanitized, ext);
+    basename = basename.slice(0, basename.length - lenToRemove);
+    sanitized = basename + ext;
+  }
+
+  return sanitized;
+};

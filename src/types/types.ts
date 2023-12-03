@@ -145,7 +145,7 @@ export type RecentEpisodesResponse = {
 };
 
 export type PodcastSearch = {
-  B;
+  [x: string]: string;
   id: number;
   artistId: number;
   title: string;

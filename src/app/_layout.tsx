@@ -156,7 +156,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             <TouchableArea
               hapticFeedback
               hitSlop={20}
-              onPress={() => router.push("/search/")}
+              onPress={() => router.push("/test/")}
+              // onPress={() => router.push("/search/")}
             >
               <Search color={color.color.get()} />
             </TouchableArea>
