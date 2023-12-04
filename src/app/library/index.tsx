@@ -12,10 +12,12 @@ import type { IconProps } from "@tamagui/helpers-icon";
 import {
   Activity,
   Backpack,
+  HardDrive,
   Home,
   Library,
   Search,
 } from "@tamagui/lucide-icons";
+import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
 import { Spinner, Text, useTheme } from "tamagui";
@@ -23,6 +25,7 @@ import { Spinner, Text, useTheme } from "tamagui";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
+import AddPage from "../../components/tab-pages/add-page";
 import LatestPage from "../../components/tab-pages/latest-page";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
@@ -37,7 +40,7 @@ import {
   userTokenAtom,
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
-import AddPage from "../../components/tab-pages/add-page";
+import PlaylistsPage from "../../components/tab-pages/playlists-page";
 
 const tabs: Tabs<IconProps> = {
   Home: Home,
@@ -45,6 +48,7 @@ const tabs: Tabs<IconProps> = {
   Series: Backpack,
   Latest: Activity,
   Add: Search,
+  Playlists: HardDrive,
 };
 
 type TabPage = {
@@ -60,6 +64,8 @@ const HomePage = () => {
   const userToken = useAtomValue(userTokenAtom);
   const isAdminOrUp = useAtomValue(isAdminOrUpAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+
+  const [userHasPlaylists, setUserHasPlaylists] = useState(false);
 
   useEffect(() => {
     let tabs = [];
@@ -82,8 +88,20 @@ const HomePage = () => {
       ];
     }
 
+    if (userHasPlaylists) {
+      tabs.push({
+        key: "_playlistsPage",
+        title: "Playlists",
+      });
+    }
+
     setRoutes(tabs);
-  }, [currentLibraryMediaType, currentLibraryId, changingLibrary]);
+  }, [
+    currentLibraryMediaType,
+    currentLibraryId,
+    changingLibrary,
+    userHasPlaylists,
+  ]);
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
@@ -95,6 +113,32 @@ const HomePage = () => {
   if (!userToken) {
     return router.push("/server-connect/");
   }
+
+  useEffect(() => {
+    const userPlaylist = async () => {
+      try {
+        const response = await axios.get(
+          `${serverAddress}/api/libraries/${currentLibraryId}`,
+          {
+            params: {
+              include: "filterdata",
+            },
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+
+        const { numUserPlaylists } = response.data;
+
+        setUserHasPlaylists(Boolean(numUserPlaylists));
+      } catch (error) {
+        console.log("[HOMEPAGE] userPlaylists error ", error);
+      }
+    };
+
+    userPlaylist();
+  }, [currentLibraryId]);
 
   const renderScene = ({
     route,
@@ -143,6 +187,15 @@ const HomePage = () => {
         );
       case "_addPage":
         return <AddPage serverAddress={serverAddress} userToken={userToken} />;
+      case "_playlistsPage":
+        return (
+          <PlaylistsPage
+            currentLibraryId={currentLibraryId}
+            serverAddress={serverAddress}
+            userToken={userToken}
+            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+          />
+        );
       default:
         return null;
     }
