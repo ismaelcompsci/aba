@@ -5,9 +5,9 @@ import axios from "axios";
 import { Button, Input, Label, Spinner, Text, XStack } from "tamagui";
 import { z } from "zod";
 
-import { LoginServerResponse, ServerConfig } from "../../types/types";
-import { pingServer } from "../../utils/api";
-import { ErrorMessage } from "../error-message";
+import { LoginServerResponse, ServerConfig } from "../../../types/types";
+import { pingServer } from "../../../utils/api";
+import { ErrorMessage } from "../../error-message";
 
 import { AddServerFormFrame, FormFrame } from "./form";
 

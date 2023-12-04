@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 import { Button, Card, ScrollView, Spinner, Text } from "tamagui";
 
-import AddServerForm from "../../components/connection-form/add-server-form";
+import AddServerForm from "../../components/forms/connection-form/add-server-form";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import ServerConfigMenu from "../../components/menus/server-config-menu";

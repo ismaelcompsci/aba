@@ -134,8 +134,8 @@ const OpenItemActionButton = ({
     );
   } else {
     return (
-      <Button chromeless bg={"$red10Dark"} flex={1}>
-        <Text>Missing</Text>
+      <Button chromeless bg={"$red10Dark"} flex={1} disabled>
+        <Text>Empty</Text>
       </Button>
     );
   }

@@ -8,37 +8,16 @@ import {
 import Popover from "react-native-popover-view";
 import { Mode, Placement, Point } from "react-native-popover-view/dist/Types";
 import { Pen, Trash } from "@tamagui/lucide-icons";
-import {
-  Button,
-  GetRef,
-  Separator,
-  TamaguiElement,
-  Text,
-  useTheme,
-} from "tamagui";
+import { GetRef, Separator, TamaguiElement, Text, useTheme } from "tamagui";
 
-import { Flex, FlexProps } from "../../components/layout/flex";
-import { Screen } from "../../components/layout/screen";
-import { TouchableArea } from "../../components/touchable/touchable-area";
-
-const TestPage = () => {
-  const [tags, setTags] = useState<string[]>([]);
-
-  return (
-    <Screen edges={["top"]} centered px="$4">
-      <Flex fill centered space width={"100%"}>
-        <InputWithTags tags={tags} setTags={setTags} />
-        <Button>End</Button>
-      </Flex>
-    </Screen>
-  );
-};
+import { Flex, FlexProps } from "../layout/flex";
+import { TouchableArea } from "../touchable/touchable-area";
 
 const SELECTED_TAG_DEFAULT = {
   index: -1,
   tag: "",
-  x: -1,
-  y: -1,
+  x: 0,
+  y: 0,
 };
 
 type InputWithTagsProps = {
@@ -77,6 +56,20 @@ export const InputWithTags = ({
       y: e.nativeEvent.pageY,
     });
     setShowPopover(true);
+  };
+
+  const removeTag = () => {
+    tags.splice(selectedTag.index, 1);
+    setTags(tags);
+    setShowPopover(false);
+    setSelectedTag(SELECTED_TAG_DEFAULT);
+  };
+
+  const editTag = () => {
+    textInputRef.current?.setNativeProps({
+      text: selectedTag.tag,
+    });
+    removeTag();
   };
 
   return (
@@ -123,7 +116,7 @@ export const InputWithTags = ({
           paddingLeft: 4,
         }}
       />
-      {selectedTag ? (
+      {selectedTag.x && selectedTag.y ? (
         <Popover
           from={new Point(selectedTag.x, selectedTag.y)}
           mode={Mode.RN_MODAL}
@@ -142,11 +135,11 @@ export const InputWithTags = ({
           }}
         >
           <Flex px="$4" py="$2" row space>
-            <TouchableArea>
+            <TouchableArea onPress={editTag}>
               <Pen size={14} />
             </TouchableArea>
             <Separator vertical />
-            <TouchableArea>
+            <TouchableArea onPress={removeTag}>
               <Trash size={14} color={colors.red11.get()} />
             </TouchableArea>
           </Flex>
@@ -174,7 +167,9 @@ const InputTag = forwardRef<TamaguiElement, InputTagProps>(
         alignItems="center"
         pressStyle={{
           opacity: 0.8,
+          scale: 1.5,
         }}
+        animation="bouncy"
         {...rest}
       >
         <Text color={selected ? "$background" : "$color"} fontSize={12}>
@@ -186,5 +181,3 @@ const InputTag = forwardRef<TamaguiElement, InputTagProps>(
 );
 
 InputTag.displayName = "InputTag";
-
-export default TestPage;
