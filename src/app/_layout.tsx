@@ -126,6 +126,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "genres/index" ||
     name === "library/[filter]/[id]" ||
     name === "search/index" ||
+    name === "playlists/[id]" ||
     name === "book/[bookId]/[episodeId]"
   ) {
     return null;
@@ -156,8 +157,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             <TouchableArea
               hapticFeedback
               hitSlop={20}
-              onPress={() => router.push("/test/")}
-              // onPress={() => router.push("/search/")}
+              // onPress={() => router.push("/test/")}
+              onPress={() => router.push("/search/")}
             >
               <Search color={color.color.get()} />
             </TouchableArea>

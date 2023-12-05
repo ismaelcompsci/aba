@@ -38,8 +38,8 @@ export const PlaylistCover = ({
   const width = covers.length === 1 ? bookWidth : bookWidth / 2;
 
   return (
-    <Flex flex={1}>
-      <Flex flex={1} flexWrap="wrap" row>
+    <Flex fill>
+      <Flex fill flexWrap="wrap" row>
         {item.items.length
           ? covers.map((item, i) => {
               const coverUrl = getItemCoverSrc(

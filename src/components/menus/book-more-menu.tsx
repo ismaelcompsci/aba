@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 import { useMemo } from "react";
 import { Alert } from "react-native";
-import { MoreHorizontal } from "@tamagui/lucide-icons";
+import { MoreHorizontal, MoreVertical } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
 import { useAtomValue } from "jotai";
@@ -16,10 +17,12 @@ function BookMoreMenu({
   title,
   itemId,
   episodeId,
+  vertical,
 }: {
   title?: string | null;
   itemId: string;
   episodeId?: string;
+  vertical?: boolean;
 }) {
   const mediaProgress = useAtomValue(mediaProgressAtom);
   const userMediaProgress = useMemo(
@@ -62,7 +65,7 @@ function BookMoreMenu({
 
   const clearProgress = async () => {
     try {
-      const response = await axios.delete(
+      await axios.delete(
         `${serverConfig.serverAddress}/api/me/progress/${userMediaProgress?.id}`,
         {
           headers: {
@@ -71,9 +74,7 @@ function BookMoreMenu({
         }
       );
 
-      if (response.data) {
-        await refreshUser();
-      }
+      await refreshUser();
     } catch (error) {
       console.log("[APPDIALOG] clear progress error", error);
     } finally {
@@ -89,7 +90,7 @@ function BookMoreMenu({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <TouchableArea hapticFeedback onPress={() => {}} px="$2">
-          <MoreHorizontal />
+          {vertical ? <MoreVertical /> : <MoreHorizontal />}
         </TouchableArea>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

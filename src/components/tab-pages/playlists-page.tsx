@@ -93,7 +93,6 @@ const PlaylistsPage = ({
     );
   };
 
-  console.log({ isLoading, flattenData });
   return (
     <Screen>
       {isLoading ? (
