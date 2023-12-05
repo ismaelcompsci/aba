@@ -71,18 +71,20 @@ export const ProgressSlider = ({
     const secondsSinceLastUpdate = nowInSeconds - lastUpdateInSeconds;
 
     let sync = false;
-    // @ts-ignore
-    setPlaybackSession((prev) => {
-      let timeListening = prev?.timeListening || 0;
-      const newTimeListening = (timeListening += secondsSinceLastUpdate);
-      if (newTimeListening >= TIME_BETWEEN_SESSION_UPDATES) sync = true;
-      return {
-        ...prev,
-        currentTime: overallCurrentTime,
-        updatedAt: nowInMilliseconds,
-        timeListening: newTimeListening,
-      };
-    });
+    let timeListening = playbackSession?.timeListening || 0;
+    const newTimeListening = (timeListening += secondsSinceLastUpdate);
+    if (newTimeListening >= TIME_BETWEEN_SESSION_UPDATES) sync = true;
+
+    sync &&
+      // @ts-ignore
+      setPlaybackSession((prev) => {
+        return {
+          ...prev,
+          currentTime: overallCurrentTime,
+          updatedAt: nowInMilliseconds,
+          timeListening: newTimeListening,
+        };
+      });
 
     if (sync) {
       console.log("SYNCING SESSION");
@@ -139,7 +141,13 @@ export const ProgressSlider = ({
               <Slider.TrackActive bg={color} />
             </Slider.Track>
             {showThumb ? (
-              <Slider.Thumb size="$1" index={0} circular elevate />
+              <Slider.Thumb
+                size={"$1"}
+                scale={isSeeking ? 1.5 : 1}
+                index={0}
+                circular
+                elevate
+              />
             ) : null}
           </Slider>
         ) : (
