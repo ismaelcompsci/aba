@@ -29,6 +29,7 @@ import AddPage from "../../components/tab-pages/add-page";
 import LatestPage from "../../components/tab-pages/latest-page";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
+import PlaylistsPage from "../../components/tab-pages/playlists-page";
 import SeriesPage from "../../components/tab-pages/series-page";
 import {
   changingLibraryAtom,
@@ -40,7 +41,6 @@ import {
   userTokenAtom,
 } from "../../state/app-state";
 import { TabName, Tabs } from "../../types/types";
-import PlaylistsPage from "../../components/tab-pages/playlists-page";
 
 const tabs: Tabs<IconProps> = {
   Home: Home,

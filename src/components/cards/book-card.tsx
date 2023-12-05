@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import FastImage from "react-native-fast-image";
 import {
   TapGestureHandler,
   TapGestureHandlerGestureEvent,
@@ -11,12 +9,12 @@ import {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { BookX } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { Text } from "tamagui";
 
 import { LibraryItemMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
+import { BookCover } from "../covers/book-cover";
 import ItemProgress from "../item-progress";
 import { AnimatedFlex, Flex, FlexProps } from "../layout/flex";
 import { TouchableArea, TouchableAreaProps } from "../touchable/touchable-area";
@@ -37,7 +35,6 @@ const BookCard = ({
   isCoverSquareAspectRatio,
   ...rest
 }: BookCardProps & TouchableAreaProps) => {
-  const [error, setError] = useState(false);
   const coverUrl = getItemCoverSrc(item, null, token, serverAddress);
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
@@ -86,9 +83,9 @@ const BookCard = ({
       },
     });
 
-  useEffect(() => {
-    setError(false);
-  }, [isCoverSquareAspectRatio]);
+  // useEffect(() => {
+  //   setError(false);
+  // }, [isCoverSquareAspectRatio]);
 
   return (
     <TouchableArea
@@ -117,27 +114,14 @@ const BookCard = ({
               />
             </Flex>
           ) : null}
-          {!coverUrl || error ? (
-            <Flex width={bookWidth} height={bookHeight} centered>
-              <BookX size="$10" />
-            </Flex>
-          ) : (
-            <FastImage
-              resizeMode="cover"
-              onError={() => setError(true)}
-              id={item.media.metadata.title || ""}
-              style={{
-                borderRadius: 8,
-                width: bookWidth,
-                height: bookHeight,
-                alignSelf: "center",
-                justifyContent: "center",
-              }}
-              source={{
-                uri: coverUrl + `&format=webp`,
-              }}
-            />
-          )}
+          <BookCover
+            bookHeight={bookHeight}
+            bookWidth={bookWidth}
+            coverUrl={coverUrl}
+            fastImageProps={{
+              resizeMode: "cover",
+            }}
+          />
           <Flex w={bookWidth}>
             <Text numberOfLines={1} fontWeight="$10" pt="$2">
               {item.media?.metadata?.title}

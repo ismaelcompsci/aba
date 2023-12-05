@@ -141,12 +141,13 @@ const BookPage = () => {
   };
 
   const handleAuthorPress = () => {
-    const authorId =
+    const author =
       bookItem && "authors" in bookItem.media.metadata
-        ? bookItem.media.metadata.authors[0].id
+        ? bookItem.media.metadata.authors[0]
         : null;
 
-    if (authorId) router.push(`/library/authors/${encode(authorId)}`);
+    if (author)
+      router.push(`/library/authors/${encode(author.id)}?name=${author.name}`);
   };
 
   const handleSeriesPress = () => {
