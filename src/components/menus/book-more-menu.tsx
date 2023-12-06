@@ -26,7 +26,10 @@ function BookMoreMenu({
 }) {
   const mediaProgress = useAtomValue(mediaProgressAtom);
   const userMediaProgress = useMemo(
-    () => mediaProgress?.find((prog) => prog.libraryItemId === itemId),
+    () =>
+      mediaProgress?.find((prog) => {
+        return prog.libraryItemId === itemId && prog.episodeId === episodeId;
+      }),
     [itemId]
   );
   const serverConfig = useAtomValue(currentServerConfigAtom);

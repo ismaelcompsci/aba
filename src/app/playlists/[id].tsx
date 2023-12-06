@@ -1,22 +1,24 @@
 import { useMemo } from "react";
-import { FlatList } from "react-native";
+import { Alert, FlatList, Modal } from "react-native";
 import FastImage from "react-native-fast-image";
+import { BounceIn } from "react-native-reanimated";
 import TrackPlayer, {
   State,
   usePlaybackState,
 } from "react-native-track-player";
-import { Pause, Play } from "@tamagui/lucide-icons";
-import { useQuery } from "@tanstack/react-query";
+import { MoreVertical, Pause, Play } from "@tamagui/lucide-icons";
+import { useIsFetching, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
 import { Spinner, Text, useTheme } from "tamagui";
+import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { PlaylistCover } from "../../components/covers/playlist-cover";
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import ItemProgress from "../../components/item-progress";
 import BackHeader from "../../components/layout/back-header";
-import { Flex } from "../../components/layout/flex";
+import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import { TouchableArea } from "../../components/touchable/touchable-area";
@@ -36,7 +38,7 @@ const PlaylistsPage = () => {
   const { name, id } = useLocalSearchParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["playlists-page"],
+    queryKey: ["playlists-page", id],
     queryFn: async () => {
       const response: { data: PlaylistExpanded } = await axios.get(
         `${serverAddress}/api/playlists/${id}`,
@@ -53,9 +55,24 @@ const PlaylistsPage = () => {
 
   return (
     <Screen edges={["top"]}>
-      <BackHeader alignment="center" mx={16} py={16}>
+      <BackHeader
+        endAdornment={
+          userToken ? (
+            <PlaylistPageMore
+              name={name as string}
+              playlistId={id as string}
+              serverAddress={serverAddress}
+              userToken={userToken}
+            />
+          ) : undefined
+        }
+        alignment="center"
+        mx={16}
+        py={8}
+      >
         <Text fontSize={18}>{name}</Text>
       </BackHeader>
+      <PageLoading />
       <Flex fill>
         {isLoading || !data || !userToken ? (
           <Spinner />
@@ -77,6 +94,105 @@ const PlaylistsPage = () => {
         )}
       </Flex>
     </Screen>
+  );
+};
+
+const PageLoading = () => {
+  const isFetchingPlaylists = useIsFetching({ queryKey: ["playlists"] });
+  if (!isFetchingPlaylists) return null;
+
+  return (
+    <Modal
+      visible={Boolean(isFetchingPlaylists)}
+      transparent={true}
+      animationType="fade"
+    >
+      <Flex fill centered>
+        <AnimatedFlex
+          bg="$background"
+          h={100}
+          w={180}
+          borderRadius={"$5"}
+          entering={BounceIn}
+          borderWidth={1}
+          borderColor={"$borderColor"}
+          centered
+        >
+          <Flex space>
+            <Spinner />
+            <Text>Deleting playlists...</Text>
+          </Flex>
+        </AnimatedFlex>
+      </Flex>
+    </Modal>
+  );
+};
+
+const PlaylistPageMore = ({
+  userToken,
+  serverAddress,
+  playlistId,
+  name,
+}: {
+  userToken: string;
+  serverAddress: string;
+  playlistId: string;
+  name: string;
+}) => {
+  const queryClient = useQueryClient();
+
+  const deletePlaylist = async () => {
+    try {
+      await axios.delete(`${serverAddress}/api/playlists/${playlistId}`, {
+        headers: { Authorization: `Bearer ${userToken}` },
+      });
+
+      await queryClient.invalidateQueries(["playlists"]);
+
+      router.back();
+    } catch (error) {
+      console.log("[PLAYLISTPAGEMORE] deletePlaylist error", error);
+    }
+  };
+
+  return (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <TouchableArea>
+          <MoreVertical />
+        </TouchableArea>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <DropdownMenu.Item
+          destructive
+          key="mark_as_finshed"
+          onSelect={() =>
+            Alert.alert(
+              "Delete Playlist",
+              `Are you sure you want to delete playlist ${name}`,
+
+              [
+                {
+                  text: "Cancel",
+                  style: "cancel",
+                },
+                {
+                  text: "Okay",
+                  style: "destructive",
+                  onPress: async () => await deletePlaylist(),
+                },
+              ],
+              {
+                cancelable: true,
+              }
+            )
+          }
+        >
+          <DropdownMenu.ItemTitle>Delete playlist</DropdownMenu.ItemTitle>
+          <DropdownMenu.ItemIcon ios={{ name: "trash" }} />
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu.Root>
   );
 };
 

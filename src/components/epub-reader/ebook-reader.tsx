@@ -268,6 +268,7 @@ const EBookReader = ({
         ]}
         onCustomMenuSelection={onCustomMenuSelection}
       />
+      {/* TODO stop rerenders : render menu into a modal  */}
       <Menu
         hide={hide}
         title={book.media.metadata.title || ""}

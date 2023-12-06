@@ -12,6 +12,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { Image, Spinner, Text, useTheme } from "tamagui";
 
 import { VirtualizedList } from "../../../components/custom-components/virtual-scroll-view";
+import ItemProgress from "../../../components/item-progress";
 import BackHeader from "../../../components/layout/back-header";
 import { Flex } from "../../../components/layout/flex";
 import { Screen } from "../../../components/layout/screen";
@@ -148,7 +149,7 @@ function EpisodePage() {
               {episodeType ? <PodcastLabel label={`${episodeType}`} /> : null}
               {duration ? <PodcastLabel label={`${duration}`} /> : null}
             </Flex>
-            <Flex row alignItems="center">
+            <Flex row alignItems="center" gap="$2">
               {data?.libraryItem.id ? (
                 <PodcastEpisodePlayButton
                   itemId={data?.libraryItem.id}
@@ -156,6 +157,19 @@ function EpisodePage() {
                 />
               ) : null}
               <Flex grow />
+              {data ? (
+                <ItemProgress
+                  id={data.libraryItem.id}
+                  episodeId={data.episode?.id}
+                  radius={20}
+                  activeStrokeWidth={5}
+                  inActiveStrokeWidth={6}
+                  progressValueFontSize={14}
+                  inActiveStrokeOpacity={0.4}
+                  circleBackgroundColor={colors.backgroundPress.get()}
+                  activeStrokeColor={colors.color.get()}
+                />
+              ) : null}
               {data?.libraryItem.id ? (
                 <BookMoreMenu
                   itemId={data?.libraryItem.id}

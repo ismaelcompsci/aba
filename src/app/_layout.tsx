@@ -134,7 +134,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
 
   return (
     <Flex bg="$background" h={headerHeight}>
-      <Flex row flex={1} alignItems="center" paddingHorizontal={"$4"} pt={top}>
+      <Flex row flex={1} alignItems="center" paddingHorizontal={16} pt={top}>
         <Flex row flex={1} gap="$4" ai={"center"}>
           {showLogo ? (
             <TouchableArea>
