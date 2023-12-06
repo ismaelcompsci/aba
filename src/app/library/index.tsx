@@ -140,6 +140,10 @@ const HomePage = () => {
     userPlaylist();
   }, [currentLibraryId]);
 
+  useEffect(() => {
+    setIndex(0);
+  }, [currentLibraryId]);
+
   const renderScene = ({
     route,
   }: SceneRendererProps & {
