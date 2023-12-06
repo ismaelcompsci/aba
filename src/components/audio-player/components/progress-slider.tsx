@@ -118,7 +118,7 @@ export const ProgressSlider = ({
   };
 
   return (
-    <>
+    <Flex>
       <Flex gap="$1" alignItems="center" justifyContent="space-between" mt={4}>
         {!!overallCurrentTime && !!totalDuration ? (
           <Slider
@@ -160,14 +160,13 @@ export const ProgressSlider = ({
             {formatSeconds(isSeeking ? seek : overallCurrentTime)}
           </Text>
           <Text fontSize={"$1"} color={"$gray10"}>
-            -
             {formatSeconds(
               totalDuration - (isSeeking ? seek : overallCurrentTime)
             )}
           </Text>
         </Flex>
       ) : null}
-    </>
+    </Flex>
   );
 };
 

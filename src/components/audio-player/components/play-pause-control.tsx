@@ -2,7 +2,7 @@ import Animated, { Keyframe } from "react-native-reanimated";
 import TrackPlayer, { useIsPlaying } from "react-native-track-player";
 import { Pause, Play } from "@tamagui/lucide-icons";
 
-import { CirlceButton } from "./circle-button";
+import { TouchableArea } from "../../touchable/touchable-area";
 
 const ExitActionButton = new Keyframe({
   0: {
@@ -53,29 +53,31 @@ export const PlayPauseControl = ({
           style={{ zIndex: 10000 }}
         >
           {small ? (
-            <CirlceButton
+            <TouchableArea
               onPress={() => TrackPlayer.pause()}
-              onTouchEnd={(ev) => ev.stopPropagation()}
               bg={"transparent"}
               h={"$4"}
               w={"$4"}
-              pressStyle={{
-                bg: "transparent",
-                borderWidth: 0,
-              }}
+              borderRadius={"$12"}
+              padding={"$0"}
+              alignItems={"center"}
+              justifyContent={"center"}
             >
               <Pause size="$3.5" fill={color} />
-            </CirlceButton>
+            </TouchableArea>
           ) : (
-            <CirlceButton
+            <TouchableArea
+              borderRadius={"$12"}
+              padding={"$0"}
+              alignItems={"center"}
+              justifyContent={"center"}
               bg={"$backgroundStrong"}
               h={"$7"}
               w={"$7"}
               onPress={() => TrackPlayer.pause()}
-              onTouchEnd={(ev) => ev.stopPropagation()}
             >
               <Pause size="$3" fill={color} />
-            </CirlceButton>
+            </TouchableArea>
           )}
         </Animated.View>
       ) : (
@@ -85,29 +87,31 @@ export const PlayPauseControl = ({
           exiting={ExitActionButton.duration(150)}
         >
           {small ? (
-            <CirlceButton
-              onTouchEnd={(ev) => ev.stopPropagation()}
+            <TouchableArea
               onPress={() => TrackPlayer.play()}
               bg={"transparent"}
+              borderRadius={"$12"}
+              padding={"$0"}
+              alignItems={"center"}
+              justifyContent={"center"}
               h={"$4"}
               w={"$4"}
-              pressStyle={{
-                bg: "transparent",
-                borderWidth: 0,
-              }}
             >
               <Play size="$3.5" fill={color} />
-            </CirlceButton>
+            </TouchableArea>
           ) : (
-            <CirlceButton
+            <TouchableArea
               bg={"$backgroundStrong"}
+              borderRadius={"$12"}
+              padding={"$0"}
+              alignItems={"center"}
+              justifyContent={"center"}
               h={"$7"}
               w={"$7"}
               onPress={() => TrackPlayer.play()}
-              onTouchEnd={(ev) => ev.stopPropagation()}
             >
               <Play size="$3" fill={color} />
-            </CirlceButton>
+            </TouchableArea>
           )}
         </Animated.View>
       )}

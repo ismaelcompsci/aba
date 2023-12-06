@@ -10,9 +10,9 @@ import { H3, H6, useTheme } from "tamagui";
 import { Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
 import ChaptersModal from "../../modals/chapter-modal";
+import { TouchableArea } from "../../touchable/touchable-area";
 
 import BigAudioPlayerControls from "./big-audio-player-controls";
-import { CirlceButton } from "./circle-button";
 import PlaybackSpeedControls from "./playback-speed-controls";
 import { ProgressSlider } from "./progress-slider";
 import { AudiobookInfo } from "./small-audio-player";
@@ -32,7 +32,6 @@ const BigAudioPlayer = ({
   audiobookInfo: AudiobookInfo;
   setOpen: (open: boolean) => void;
 }) => {
-  const [gradientColors, setColors] = useState(initialState);
   const { width, height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
@@ -41,48 +40,6 @@ const BigAudioPlayer = ({
   const imageWidth = Math.min(width * 0.7, 464);
   const imageHeight = imageWidth;
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const result = await getColors(audiobookInfo.cover || "", {
-          fallback: colors.backgroundPress.get(),
-          cache: true,
-          key: audiobookInfo.cover || "cover",
-        });
-
-        switch (result.platform) {
-          case "android":
-          case "web":
-            setColors({
-              colorOne: { value: result.lightVibrant, name: "lightVibrant" },
-              colorTwo: { value: result.dominant, name: "dominant" },
-              colorThree: { value: result.vibrant, name: "vibrant" },
-              colorFour: { value: result.darkVibrant, name: "darkVibrant" },
-              rawResult: JSON.stringify(result),
-            });
-            break;
-          case "ios":
-            setColors({
-              colorOne: { value: result.background, name: "background" },
-              colorTwo: { value: result.detail, name: "detail" },
-              colorThree: { value: result.primary, name: "primary" },
-              colorFour: { value: result.secondary, name: "secondary" },
-              rawResult: JSON.stringify(result),
-            });
-            break;
-          default:
-            throw new Error("Unexpected platform");
-        }
-      } catch (error) {
-        console.log(
-          "[BIGAUDIOPLAYER] get colors error ",
-          error,
-          audiobookInfo.cover
-        );
-      }
-    })();
-  }, [audiobookInfo]);
-
   return (
     <Flex
       bg={"$backgroundPress"}
@@ -90,12 +47,7 @@ const BigAudioPlayer = ({
       height={height}
       borderRadius={"$7"}
     >
-      <LinearGradient
-        height={height}
-        colors={[gradientColors.colorFour.value, "$backgroundPress"]}
-        locations={[0.1, 0.7]}
-        borderRadius={"$7"}
-      >
+      <BigAudioPlayerBackground cover={audiobookInfo.cover}>
         <Flex
           fill
           px={"$4"}
@@ -104,9 +56,18 @@ const BigAudioPlayer = ({
           space={"$2"}
         >
           <Flex row ai={"center"} width={"100%"} justifyContent="space-between">
-            <CirlceButton onPress={() => setOpen(false)}>
+            <TouchableArea
+              borderRadius={"$12"}
+              padding={"$0"}
+              width={"$4"}
+              height={"$4"}
+              alignItems={"center"}
+              justifyContent={"center"}
+              bg="$background"
+              onPress={() => setOpen(false)}
+            >
               <ChevronDown />
-            </CirlceButton>
+            </TouchableArea>
             <AudioPlayerMore setOpen={setOpen} />
           </Flex>
           {/* IMAGE */}
@@ -155,17 +116,86 @@ const BigAudioPlayer = ({
                 paddingBottom: "$4",
               }}
             >
-              <CirlceButton bg={"$backgroundFocus"}>
+              <TouchableArea
+                borderRadius={"$12"}
+                padding={"$0"}
+                width={"$4"}
+                height={"$4"}
+                alignItems={"center"}
+                justifyContent={"center"}
+              >
                 <Bookmark />
-              </CirlceButton>
+              </TouchableArea>
 
               <PlaybackSpeedControls />
               <ChaptersModal />
             </Flex>
           </Flex>
         </Flex>
-      </LinearGradient>
+      </BigAudioPlayerBackground>
     </Flex>
+  );
+};
+
+const BigAudioPlayerBackground = ({
+  children,
+  cover,
+}: {
+  children: React.ReactNode;
+  cover?: string | null;
+}) => {
+  const { height } = useWindowDimensions();
+  const colors = useTheme();
+
+  const [gradientColors, setColors] = useState(initialState);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const result = await getColors(cover || "", {
+          fallback: colors.backgroundPress.get(),
+          cache: true,
+          key: cover || "cover",
+        });
+
+        switch (result.platform) {
+          case "android":
+          case "web":
+            setColors({
+              colorOne: { value: result.lightVibrant, name: "lightVibrant" },
+              colorTwo: { value: result.dominant, name: "dominant" },
+              colorThree: { value: result.vibrant, name: "vibrant" },
+              colorFour: { value: result.darkVibrant, name: "darkVibrant" },
+              rawResult: JSON.stringify(result),
+            });
+            break;
+          case "ios":
+            setColors({
+              colorOne: { value: result.background, name: "background" },
+              colorTwo: { value: result.detail, name: "detail" },
+              colorThree: { value: result.primary, name: "primary" },
+              colorFour: { value: result.secondary, name: "secondary" },
+              rawResult: JSON.stringify(result),
+            });
+            break;
+          default:
+            throw new Error("Unexpected platform");
+        }
+      } catch (error) {
+        console.log("[BIGAUDIOPLAYER] get colors error ", error, cover);
+      }
+    })();
+  }, [cover]);
+
+  return (
+    <LinearGradient
+      height={height}
+      colors={[gradientColors.colorFour.value, "$backgroundPress"]}
+      locations={[0.1, 0.7]}
+      borderRadius={"$7"}
+    >
+      {children}
+    </LinearGradient>
   );
 };
 

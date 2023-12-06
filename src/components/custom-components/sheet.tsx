@@ -17,6 +17,7 @@ import { PanGestureHandler } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
   useAnimatedGestureHandler,
+  useAnimatedReaction,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -60,6 +61,8 @@ const Sheet = ({
   controlled,
 }: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
+  const [mountHeader, setMountHeader] = useState(true);
+  const [mountChildren, setMountChildren] = useState(false);
 
   useEffect(() => {
     const listener = Dimensions.addEventListener(
@@ -126,7 +129,7 @@ const Sheet = ({
     },
     // Snap the sheet to the correct position once the gesture ends
     onEnd: () => {
-      ("worklet");
+      "worklet";
       // Snap to minimised position if the sheet is dragged down from expanded position
       const shouldMinimize =
         position.value === "maximised" &&
@@ -164,19 +167,32 @@ const Sheet = ({
     },
   });
 
+  useAnimatedReaction(
+    () => sheetHeight.value,
+    (value) => {
+      const height = -value;
+
+      if (height <= dimensions.window.height / 2 && !mountHeader) {
+        runOnJS(setMountHeader)(true);
+      }
+
+      if (height >= dimensions.window.height / 2 && mountHeader) {
+        runOnJS(setMountHeader)(false);
+      }
+
+      if (height <= _minHeight && mountChildren) {
+        runOnJS(setMountChildren)(false);
+      }
+
+      if (height > _minHeight && !mountChildren) {
+        runOnJS(setMountChildren)(true);
+      }
+    }
+  );
+
   const sheetHeightAnimatedStyle = useAnimatedStyle(() => ({
     height: -sheetHeight.value,
   }));
-
-  const sheetContentAnimatedStyle = useAnimatedStyle(() => ({
-    // paddingBottom: position.value === "maximised" ? 180 : 0,
-    // paddingTop: position.value === "maximised" ? 40 : 20,
-  }));
-
-  // const sheetNavigationAnimatedStyle = useAnimatedStyle(() => ({
-  //   height: navHeight.value,
-  //   overflow: "hidden",
-  // }));
 
   const headerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: headerOpacity.value,
@@ -193,13 +209,14 @@ const Sheet = ({
       navHeight.value = NAV_HEIGHT + 10;
       sheetHeight.value = withSpring(-_maxHeight, springConfig);
       headerOpacity.value = withSpring(0, springConfig);
-
+      // setMountChildren(true);
       position.value = "maximised";
     } else {
       if (position.value === "minimised") return;
       navHeight.value = withSpring(0, springConfig);
       sheetHeight.value = withSpring(-_minHeight, springConfig);
       headerOpacity.value = withSpring(1);
+      // setMountChildren(false);
 
       position.value = "minimised";
     }
@@ -222,7 +239,7 @@ const Sheet = ({
               <View style={styles.handle} />
             </View>
           ) : null}
-          <Animated.View style={[sheetContentAnimatedStyle]}>
+          <Animated.View>
             <Animated.View
               style={[
                 childrenAnimatedStyle,
@@ -237,7 +254,7 @@ const Sheet = ({
                     navHeight.value = withSpring(0, springConfig);
                     sheetHeight.value = withSpring(-_minHeight, springConfig);
                     headerOpacity.value = withSpring(1);
-                    // setMountHeader(true);
+                    // setMountChildren(false);
                     position.value = "minimised";
                   }}
                 >
@@ -247,7 +264,7 @@ const Sheet = ({
             </Animated.View>
             <SafeAreaView>
               <Animated.View style={[headerAnimatedStyle]}>
-                {renderHeader()}
+                {mountHeader ? renderHeader() : null}
               </Animated.View>
               <View
                 style={{
@@ -256,9 +273,11 @@ const Sheet = ({
                   height: dimensions.window.height,
                 }}
               >
-                <Animated.View style={[childrenAnimatedStyle]}>
-                  {children}
-                </Animated.View>
+                {mountChildren ? (
+                  <Animated.View style={[childrenAnimatedStyle]}>
+                    {children}
+                  </Animated.View>
+                ) : null}
               </View>
             </SafeAreaView>
           </Animated.View>

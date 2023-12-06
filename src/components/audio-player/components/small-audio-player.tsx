@@ -1,4 +1,5 @@
-import { Image, styled, Text, XStack, YStack } from "tamagui";
+import FastImage from "react-native-fast-image";
+import { styled, Text, XStack, YStack } from "tamagui";
 
 import { AudioPlayerControls } from "./audio-player-controls";
 
@@ -20,13 +21,16 @@ export const AudioPlayerInfo = ({
   return (
     <XStack flex={1} gap="$3" alignItems="center">
       {audiobookInfo.cover ? (
-        <Image
-          borderRadius={2}
-          width={42}
-          height={42}
+        <FastImage
+          style={{
+            borderRadius: 2,
+            width: 42,
+            height: 42,
+          }}
           resizeMode="contain"
           source={{
             uri: audiobookInfo.cover,
+            priority: "low",
           }}
         />
       ) : null}

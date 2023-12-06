@@ -6,9 +6,9 @@ import { Button, Dialog, ScrollView, Text, Unspaced } from "tamagui";
 
 import { AudioPlayerTrackExtra } from "../../types/types";
 import { formatSeconds } from "../../utils/utils";
-import { CirlceButton } from "../audio-player/components/circle-button";
 import { useTracks } from "../audio-player/hooks/use-tracks";
 import { Flex } from "../layout/flex";
+import { TouchableArea } from "../touchable/touchable-area";
 
 const ChaptersModal = () => {
   const [openSheet, setOpenSheet] = useState(false);
@@ -27,15 +27,17 @@ const ChaptersModal = () => {
       disableRemoveScroll
     >
       <Dialog.Trigger asChild>
-        <CirlceButton
-          bg={"$backgroundFocus"}
+        <TouchableArea
+          borderRadius={"$12"}
+          padding={"$0"}
+          width={"$4"}
+          height={"$4"}
+          alignItems={"center"}
+          justifyContent={"center"}
           zIndex={9999}
-          pressStyle={{
-            opacity: 0.5,
-          }}
         >
           <List />
-        </CirlceButton>
+        </TouchableArea>
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay

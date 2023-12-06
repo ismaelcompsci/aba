@@ -4,7 +4,6 @@ import { useTracks } from "./use-tracks";
 
 export const useAudioPlayerProgress = () => {
   const { audioTracks, currentTrack } = useTracks();
-
   const { position } = useProgress();
 
   const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;

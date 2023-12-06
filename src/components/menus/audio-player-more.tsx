@@ -4,7 +4,7 @@ import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { useNewUser } from "../../hooks/use-new-user";
 import { showPlayerAtom } from "../../state/app-state";
-import { CirlceButton } from "../audio-player/components/circle-button";
+import { TouchableArea } from "../touchable/touchable-area";
 
 //  TODO DEPEND ON SOCKET UPDATINGPROGRESS
 const AudioPlayerMore = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
@@ -20,9 +20,17 @@ const AudioPlayerMore = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <CirlceButton>
+        <TouchableArea
+          borderRadius={"$12"}
+          padding={"$0"}
+          width={"$4"}
+          height={"$4"}
+          alignItems={"center"}
+          justifyContent={"center"}
+          bg="$background"
+        >
           <MoreVertical />
-        </CirlceButton>
+        </TouchableArea>
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content>

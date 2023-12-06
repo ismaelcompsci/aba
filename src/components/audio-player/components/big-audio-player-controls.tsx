@@ -7,17 +7,15 @@ import {
 } from "@tamagui/lucide-icons";
 import { useTheme, XStack } from "tamagui";
 
+import { TouchableArea } from "../../touchable/touchable-area";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
 import { SEEK_INTERVAL } from "./audio-player-controls";
-import { CirlceButton } from "./circle-button";
 import { PlayPauseControl } from "./play-pause-control";
 
 function BigAudioPlayerControls() {
   const colors = useTheme();
   const color = colors.color.get();
-
-  const { jumpForwards, jumpBackwards } = useAudioPlayerProgress();
 
   return (
     <XStack
@@ -26,9 +24,17 @@ function BigAudioPlayerControls() {
       pt={"$4"}
       $gtSm={{ justifyContent: "center" }}
     >
-      <CirlceButton onPress={() => TrackPlayer.skipToPrevious()}>
+      <TouchableArea
+        borderRadius={"$12"}
+        padding={"$0"}
+        width={"$4"}
+        height={"$4"}
+        alignItems={"center"}
+        justifyContent={"center"}
+        onPress={() => TrackPlayer.skipToPrevious()}
+      >
         <SkipBack fill={color} />
-      </CirlceButton>
+      </TouchableArea>
       <XStack
         ai={"center"}
         justifyContent="center"
@@ -36,27 +42,58 @@ function BigAudioPlayerControls() {
         $gtSm={{ flex: 0 }}
         gap={"$3"}
       >
-        <CirlceButton
-          h={"$6"}
-          w={"$6"}
-          onPress={() => jumpBackwards(SEEK_INTERVAL)}
-        >
-          <Rewind size="$3" fill={color} />
-        </CirlceButton>
+        <BackwardButton />
         <PlayPauseControl small={false} color={color} />
-        <CirlceButton
-          h={"$6"}
-          w={"$6"}
-          onPress={() => jumpForwards(SEEK_INTERVAL)}
-        >
-          <FastForward size="$3" fill={color} />
-        </CirlceButton>
+        <ForwardButton />
       </XStack>
-      <CirlceButton onPress={() => TrackPlayer.skipToNext()}>
+      <TouchableArea
+        borderRadius={"$12"}
+        padding={"$0"}
+        alignItems={"center"}
+        justifyContent={"center"}
+        onPress={() => TrackPlayer.skipToNext()}
+      >
         <SkipForward fill={color} />
-      </CirlceButton>
+      </TouchableArea>
     </XStack>
   );
 }
+
+const ForwardButton = () => {
+  const { jumpForwards } = useAudioPlayerProgress();
+  const colors = useTheme();
+
+  return (
+    <TouchableArea
+      borderRadius={"$12"}
+      padding={"$0"}
+      alignItems={"center"}
+      justifyContent={"center"}
+      h={"$6"}
+      w={"$6"}
+      onPress={() => jumpForwards(SEEK_INTERVAL)}
+    >
+      <FastForward size="$3" fill={colors.color.get()} />
+    </TouchableArea>
+  );
+};
+
+const BackwardButton = () => {
+  const { jumpBackwards } = useAudioPlayerProgress();
+  const colors = useTheme();
+  return (
+    <TouchableArea
+      borderRadius={"$12"}
+      padding={"$0"}
+      alignItems={"center"}
+      justifyContent={"center"}
+      h={"$6"}
+      w={"$6"}
+      onPress={() => jumpBackwards(SEEK_INTERVAL)}
+    >
+      <Rewind size="$3" fill={colors.color.get()} />
+    </TouchableArea>
+  );
+};
 
 export default BigAudioPlayerControls;

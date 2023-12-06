@@ -1,10 +1,16 @@
+import { useMemo } from "react";
+import { FlatList } from "react-native";
 import FastImage from "react-native-fast-image";
-import { Play } from "@tamagui/lucide-icons";
+import TrackPlayer, {
+  State,
+  usePlaybackState,
+} from "react-native-track-player";
+import { Pause, Play } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
-import { Button, Spinner, Text } from "tamagui";
+import { Spinner, Text, useTheme } from "tamagui";
 
 import { PlaylistCover } from "../../components/covers/playlist-cover";
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
@@ -83,25 +89,49 @@ const PlaylistPageHeader = ({
   serverAddress: string;
   userToken: string;
 }) => {
+  const playerState = usePlaybackState();
+  const isPlaying = playerState.state === State.Playing;
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const playlistPictureSize = 216;
+
+  const colors = useTheme();
+  const textColor = colors.color.get();
 
   const playItem = () => {
     const firstItem = data.items[0];
 
-    if (firstItem.episode && firstItem.episodeId) {
-      setShowPlayer({
-        playing: true,
-        episodeId: firstItem.episodeId,
-        libraryItemId: firstItem.libraryItemId,
-      });
+    if (isPlaying) {
+      if (showPlayer.playing) {
+        TrackPlayer.pause();
+      } else {
+        setShowPlayer({
+          playing: true,
+          libraryItemId: firstItem.libraryItemId,
+          episodeId: firstItem.episodeId ? firstItem.episodeId : undefined,
+        });
+      }
     } else {
-      setShowPlayer({
-        playing: true,
-        libraryItemId: firstItem.libraryItemId,
-      });
+      if (showPlayer.playing) {
+        TrackPlayer.play();
+      } else {
+        setShowPlayer({
+          playing: true,
+          libraryItemId: firstItem.libraryItemId,
+          episodeId: firstItem.episodeId ? firstItem.episodeId : undefined,
+        });
+      }
     }
   };
+
+  const isPlaylistPlaying = useMemo(
+    () =>
+      data.items.find(
+        (item) =>
+          item.libraryItemId === showPlayer.libraryItemId &&
+          item.episodeId === showPlayer.episodeId
+      ),
+    [showPlayer, data]
+  );
 
   return (
     <Flex space>
@@ -119,10 +149,31 @@ const PlaylistPageHeader = ({
           />
         </Flex>
       </Flex>
-      <Button theme="blue" bg="$blue7" onPress={playItem}>
-        <Play />
-        Play
-      </Button>
+      <TouchableArea
+        theme="blue"
+        bg="$blue7"
+        borderRadius={"$4"}
+        flexDirection="row"
+        alignItems="center"
+        jc={"center"}
+        px={"$9"}
+        flex={1}
+        minHeight={"$4"}
+        gap={"$2"}
+        onPress={playItem}
+      >
+        {isPlaying && isPlaylistPlaying ? (
+          <>
+            <Pause color={textColor} />
+            <Text color={textColor}>Pause</Text>
+          </>
+        ) : (
+          <>
+            <Play size="$1" color={textColor} />
+            <Text color={textColor}>Play</Text>
+          </>
+        )}
+      </TouchableArea>
     </Flex>
   );
 };
@@ -152,21 +203,23 @@ const PlaylistTable = ({
           </Text>
         </Flex>
       </Flex>
-      <Flex bg="$backgroundHover" fill space borderRadius="$4" px="$1">
-        {data.items.map((playlistItem, i) => {
-          const key = playlistItem.episodeId
-            ? playlistItem.episodeId + String(i)
-            : playlistItem.libraryItemId + String(i);
-
-          return (
+      <Flex bg="$backgroundHover" fill borderRadius="$4" px="$1">
+        <FlatList
+          data={data.items}
+          keyExtractor={(playlistItem, i) =>
+            playlistItem.episodeId
+              ? playlistItem.episodeId + String(i)
+              : playlistItem.libraryItemId + String(i)
+          }
+          ItemSeparatorComponent={() => <Flex h={16} />}
+          renderItem={({ item }) => (
             <PlaylistItemRow
-              key={key}
-              playlistItem={playlistItem}
+              playlistItem={item}
               serverAddress={serverAddress}
               userToken={userToken}
             />
-          );
-        })}
+          )}
+        />
       </Flex>
     </Flex>
   );
@@ -256,21 +309,10 @@ const PlaylistItemRow = ({
           </Text>
         </Flex>
         <Flex grow />
-        <TouchableArea
-          borderColor={"$blue7"}
-          borderRadius={"$8"}
-          borderWidth={1}
-          jc={"center"}
-          alignItems="center"
-          p="$2.5"
-          width={"$3.5"}
-          height={"$3.5"}
-          flexDirection="row"
-        >
-          <Flex ai={"center"} jc={"center"} pos={"absolute"} right={"$2"}>
-            <Play size="$1" />
-          </Flex>
-        </TouchableArea>
+        <PlayButton
+          id={playlistItem.libraryItemId}
+          episodeId={playlistItem.episodeId}
+        />
         <BookMoreMenu
           itemId={playlistItem.libraryItemId}
           episodeId={
@@ -278,6 +320,78 @@ const PlaylistItemRow = ({
           }
           vertical
         />
+      </Flex>
+    </TouchableArea>
+  );
+};
+
+const PlayButton = ({
+  id,
+  episodeId,
+}: {
+  id: string;
+  episodeId?: string | null;
+}) => {
+  const playerState = usePlaybackState();
+  const isPlaying = playerState.state === State.Playing;
+  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+
+  const colors = useTheme();
+  const textColor = colors.color.get();
+
+  const episodePlaying = episodeId ? episodeId === showPlayer.episodeId : true;
+
+  const playItem = () => {
+    if (isPlaying) {
+      if (
+        showPlayer.playing &&
+        showPlayer.libraryItemId === id &&
+        showPlayer.episodeId === episodeId
+      ) {
+        TrackPlayer.pause();
+      } else {
+        setShowPlayer({
+          playing: true,
+          libraryItemId: id,
+          episodeId: episodeId ? episodeId : undefined,
+        });
+      }
+    } else {
+      if (
+        showPlayer.playing &&
+        showPlayer.libraryItemId === id &&
+        showPlayer.episodeId === episodeId
+      ) {
+        TrackPlayer.play();
+      } else {
+        setShowPlayer({
+          playing: true,
+          libraryItemId: id,
+          episodeId: episodeId ? episodeId : undefined,
+        });
+      }
+    }
+  };
+
+  return (
+    <TouchableArea
+      borderColor={"$blue7"}
+      borderRadius={"$8"}
+      borderWidth={1}
+      jc={"center"}
+      alignItems="center"
+      p="$2.5"
+      width={"$3.5"}
+      height={"$3.5"}
+      flexDirection="row"
+      onPress={playItem}
+    >
+      <Flex ai={"center"} jc={"center"} pos={"absolute"} right={"$2"}>
+        {isPlaying && showPlayer.libraryItemId === id && episodePlaying ? (
+          <Pause color={textColor} />
+        ) : (
+          <Play size="$1" color={textColor} />
+        )}
       </Flex>
     </TouchableArea>
   );

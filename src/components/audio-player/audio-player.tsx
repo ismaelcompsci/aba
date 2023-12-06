@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { getColors } from "react-native-image-colors";
 import TrackPlayer, { Capability } from "react-native-track-player";
 import axios from "axios";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { selectAtom } from "jotai/utils";
 import { Spinner, useTheme } from "tamagui";
 
 import {
@@ -27,6 +27,11 @@ import {
   SmallAudioPlayerWrapper,
 } from "./components/small-audio-player";
 
+const playbackSessionIdAtom = selectAtom(
+  playbackSessionAtom,
+  (session) => session?.id
+);
+
 const AudioPlayerContainer = () => {
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
@@ -35,7 +40,8 @@ const AudioPlayerContainer = () => {
   const [ready, setReady] = useState(false);
 
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
-  const [playbackSession, setPlaybackSession] = useAtom(playbackSessionAtom);
+  const setPlaybackSession = useSetAtom(playbackSessionAtom);
+  const playbackSessionId = useAtomValue(playbackSessionIdAtom);
 
   const [open, setOpen] = useState(false);
 
@@ -91,7 +97,9 @@ const AudioPlayerContainer = () => {
         duration: session.duration,
       });
 
-      setReady(true);
+      if (!ready) {
+        setReady(true);
+      }
       await TrackPlayer.play();
     } catch (error) {
       console.log("[AUDIOPLAYER] ", error);
@@ -174,13 +182,16 @@ const AudioPlayerContainer = () => {
 
   const stopPlayer = async () => {
     try {
-      const id = playbackSession?.id;
-      if (id) {
-        await axios.post(`${serverAddress}/api/session/${id}/close`, null, {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        });
+      if (playbackSessionId) {
+        await axios.post(
+          `${serverAddress}/api/session/${playbackSessionId}/close`,
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
       }
       showPlayer.playing && setShowPlayer({ playing: false });
       await TrackPlayer.pause();
@@ -194,19 +205,9 @@ const AudioPlayerContainer = () => {
   };
 
   useEffect(() => {
-    if (!audiobookInfo.cover) return;
-
-    getColors(audiobookInfo.cover, {
-      fallback: colors.backgroundPress.get(),
-      cache: true,
-      key: audiobookInfo.cover || "cover",
-    });
-  }, [audiobookInfo]);
-
-  useEffect(() => {
     if (showPlayer.playing) {
       setAudiobookInfo({});
-      setReady(false);
+      ready && setReady(false);
       startSession();
     }
 
@@ -276,7 +277,13 @@ const AudioPlayerContainer = () => {
       {ready ? (
         <BigAudioPlayer audiobookInfo={audiobookInfo} setOpen={setOpen} />
       ) : (
-        <Flex fill borderRadius={"$7"} paddingBottom={0}>
+        <Flex
+          fill
+          centered
+          borderRadius={"$7"}
+          paddingBottom={0}
+          bg={"$background"}
+        >
           <Spinner />
         </Flex>
       )}

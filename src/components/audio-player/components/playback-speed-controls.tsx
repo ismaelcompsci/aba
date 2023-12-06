@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import TrackPlayer from "react-native-track-player";
-import { Text } from "tamagui";
+import { Button, Text } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
-
-import { CirlceButton } from "./circle-button";
 
 const PlaybackSpeedControls = () => {
   const [on, setOn] = useState("1x");
@@ -16,9 +14,20 @@ const PlaybackSpeedControls = () => {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <CirlceButton bg={"$backgroundFocus"}>
+        <Button
+          unstyled
+          borderRadius={"$12"}
+          padding={"$0"}
+          width={"$4"}
+          height={"$4"}
+          alignItems={"center"}
+          justifyContent={"center"}
+          pressStyle={{
+            opacity: 0.8,
+          }}
+        >
           <Text fontSize={"$5"}>{on}</Text>
-        </CirlceButton>
+        </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <DropdownMenu.CheckboxItem
