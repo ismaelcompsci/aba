@@ -38,32 +38,31 @@ export const PlaylistCover = ({
   const width = covers.length === 1 ? bookWidth : bookWidth / 2;
 
   return (
-    <Flex fill>
-      <Flex fill flexWrap="wrap" row>
-        {item.items.length
-          ? covers.map((item, i) => {
-              const coverUrl = getItemCoverSrc(
-                item,
-                null,
-                userToken,
-                serverAddress
-              );
-              return (
-                <BookCover
-                  key={item.id + String(i)}
-                  coverUrl={coverUrl}
-                  bookWidth={width}
-                  bookHeight={width}
-                  fastImageProps={{
-                    style: {
-                      borderRadius: 0,
-                    },
-                  }}
-                />
-              );
-            })
-          : null}
-      </Flex>
+    <Flex fill flexWrap="wrap" row>
+      {item.items.length
+        ? covers.map((item, i) => {
+            const coverUrl = getItemCoverSrc(
+              item,
+              null,
+              userToken,
+              serverAddress
+            );
+            return (
+              <BookCover
+                key={item.id + String(i)}
+                coverUrl={coverUrl}
+                bookWidth={width}
+                bookHeight={width}
+                fastImageProps={{
+                  style: {
+                    borderRadius: 0,
+                  },
+                  resizeMode: "contain",
+                }}
+              />
+            );
+          })
+        : null}
     </Flex>
   );
 };

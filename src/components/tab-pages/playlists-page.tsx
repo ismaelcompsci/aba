@@ -15,7 +15,6 @@ interface PlaylistsPageProps {
   currentLibraryId: string | null;
   serverAddress: string;
   userToken: string;
-  isCoverSquareAspectRatio: boolean;
 }
 
 type LibraryPlaylistsResposne = {
@@ -27,14 +26,13 @@ type LibraryPlaylistsResposne = {
 
 const PlaylistsPage = ({
   currentLibraryId,
-  isCoverSquareAspectRatio,
   serverAddress,
   userToken,
 }: PlaylistsPageProps) => {
   const { width: screenWidth } = useWindowDimensions();
   const { bottom } = useAppSafeAreas();
 
-  const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
+  const bookWidth = 100 * 1.6;
   let columns = Math.floor(screenWidth / bookWidth);
   const canFitTwo = columns === 2;
   columns = columns === 0 ? 1 : canFitTwo ? columns : columns - 1;
@@ -72,7 +70,7 @@ const PlaylistsPage = ({
   });
 
   const flattenData =
-    data?.pages.flatMap((page) => page?.data?.results || []) || [];
+    data?.pages?.flatMap((page) => page?.data?.results || []) || [];
 
   const loadNextPageData = () => {
     if (hasNextPage) {
@@ -87,7 +85,6 @@ const PlaylistsPage = ({
           item={item}
           userToken={userToken}
           serverAddress={serverAddress}
-          isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         />
       </Flex>
     );

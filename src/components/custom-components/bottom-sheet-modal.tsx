@@ -95,13 +95,15 @@ export const AppBottomSheetModal = ({
       ref={bottomSheetRef}
       onClose={onClose}
       backdropComponent={Backdrop}
+      containerHeight={fullScreen ? dimensions.height : undefined}
       backgroundStyle={backgroundStyle}
       handleComponent={renderHandleBar}
       topInset={renderBehindTopInset ? 0 : insets.top}
       enablePanDownToClose
       enableHandlePanningGesture
       enableContentPanningGesture
-      enableDynamicSizing
+      snapPoints={["100%"]}
+      // enableDynamicSizing
     >
       <BottomSheetView style={bottomSheetViewStyles}>
         {children}
@@ -139,7 +141,7 @@ export const HandleBar = ({
     : backgroundColor ?? colors.background.get();
 
   return (
-    <Flex mt={IS_ANDROID ? 4 : "$none"}>
+    <Flex mt={IS_ANDROID ? 4 : "$0"}>
       <Flex
         alignItems="center"
         borderTopLeftRadius={24}

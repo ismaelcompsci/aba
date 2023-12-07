@@ -9,15 +9,13 @@ export const PlaylistsCard = ({
   item,
   userToken,
   serverAddress,
-  isCoverSquareAspectRatio,
 }: {
   item: PlaylistExpanded;
   userToken: string;
   serverAddress: string;
-  isCoverSquareAspectRatio: boolean;
 }) => {
-  const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
-  const bookHeight = isCoverSquareAspectRatio ? bookWidth : 100;
+  const bookWidth = 100 * 1.6;
+  const bookHeight = bookWidth;
 
   const handlePress = () => {
     router.push(`/playlists/${item.id}?name=${item.name}`);

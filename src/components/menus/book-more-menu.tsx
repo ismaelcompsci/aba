@@ -3,7 +3,7 @@ import { Alert } from "react-native";
 import { MoreHorizontal, MoreVertical } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { useNewUser } from "../../hooks/use-new-user";
@@ -19,21 +19,21 @@ function BookMoreMenu({
   episodeId,
   vertical,
   isPodcast,
+  hasTracks,
 }: {
   title?: string | null;
   itemId: string;
   episodeId?: string;
   vertical?: boolean;
   isPodcast?: boolean;
+  hasTracks?: boolean;
 }) {
   const { userProgressPercent, userMediaProgress } = useUserMediaProgress({
     libraryItemId: itemId,
     episodeId,
   });
   const serverConfig = useAtomValue(currentServerConfigAtom);
-  const [addPlaylistsModalController, setAddPlaylistModalController] = useAtom(
-    AddPlaylistsModalAtom
-  );
+  const setAddPlaylistModalController = useSetAtom(AddPlaylistsModalAtom);
   const { user, refreshUser } = useNewUser(true);
 
   const markAsFinshed = async () => {
@@ -91,7 +91,11 @@ function BookMoreMenu({
   };
 
   const addPlaylist = () => {
-    setAddPlaylistModalController({ open: true });
+    setAddPlaylistModalController({
+      open: true,
+      libraryItemId: itemId,
+      episodeId: episodeId,
+    });
   };
 
   return (
@@ -164,7 +168,7 @@ function BookMoreMenu({
             <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
           </DropdownMenu.Item>
         ) : null}
-        {!isPodcast ? (
+        {!isPodcast && hasTracks ? (
           <DropdownMenu.Item key="add_to_playlist" onSelect={addPlaylist}>
             <DropdownMenu.ItemTitle>Add to Playlist</DropdownMenu.ItemTitle>
             <DropdownMenu.ItemIcon ios={{ name: "plus" }} />

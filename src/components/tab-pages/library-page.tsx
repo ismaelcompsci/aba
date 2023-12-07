@@ -53,6 +53,7 @@ const LibraryPage = ({
   }
 
   const bookW = screenWidth / numOfColumns;
+
   const bookWidth = isCoverSquareAspectRatio ? bookW * 1.6 : bookW;
   let columns = Math.floor(screenWidth / bookWidth);
   columns = columns === 0 || columns === 1 ? 2 : columns;

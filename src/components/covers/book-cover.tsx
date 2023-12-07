@@ -32,8 +32,10 @@ export const BookCover = ({
   } else {
     return (
       <FastImage
-        resizeMode="contain"
         {...fastImageProps}
+        resizeMode={
+          fastImageProps.resizeMode ? fastImageProps.resizeMode : "contain"
+        }
         onError={() => setError(true)}
         source={{
           uri: coverUrl + `&format=webp`,

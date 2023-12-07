@@ -53,6 +53,20 @@ const PlaylistsPage = () => {
     },
   });
 
+  const showPlayButon = useMemo(
+    () =>
+      Boolean(
+        data?.items.filter((item) => {
+          const libraryItem = item.libraryItem;
+          if (libraryItem.isMissing || libraryItem.isInvalid) return false;
+          if (item.episode) return item.episode.audioFile;
+          // @ts-ignore
+          return libraryItem.media.tracks.length;
+        }).length
+      ),
+    [id]
+  );
+
   return (
     <Screen edges={["top"]}>
       <BackHeader
@@ -83,6 +97,7 @@ const PlaylistsPage = () => {
                 data={data}
                 serverAddress={serverAddress}
                 userToken={userToken}
+                showPlayButon={showPlayButon}
               />
               <PlaylistTable
                 data={data}
@@ -200,10 +215,12 @@ const PlaylistPageHeader = ({
   data,
   serverAddress,
   userToken,
+  showPlayButon,
 }: {
   data: PlaylistExpanded;
   serverAddress: string;
   userToken: string;
+  showPlayButon: boolean;
 }) => {
   const playerState = usePlaybackState();
   const isPlaying = playerState.state === State.Playing;
@@ -252,11 +269,7 @@ const PlaylistPageHeader = ({
   return (
     <Flex space>
       <Flex centered>
-        <Flex
-          height={playlistPictureSize}
-          width={playlistPictureSize}
-          bg="blue"
-        >
+        <Flex height={playlistPictureSize} width={playlistPictureSize}>
           <PlaylistCover
             item={data}
             bookWidth={playlistPictureSize}
@@ -265,31 +278,33 @@ const PlaylistPageHeader = ({
           />
         </Flex>
       </Flex>
-      <TouchableArea
-        theme="blue"
-        bg="$blue7"
-        borderRadius={"$4"}
-        flexDirection="row"
-        alignItems="center"
-        jc={"center"}
-        px={"$9"}
-        flex={1}
-        minHeight={"$4"}
-        gap={"$2"}
-        onPress={playItem}
-      >
-        {isPlaying && isPlaylistPlaying ? (
-          <>
-            <Pause color={textColor} />
-            <Text color={textColor}>Pause</Text>
-          </>
-        ) : (
-          <>
-            <Play size="$1" color={textColor} />
-            <Text color={textColor}>Play</Text>
-          </>
-        )}
-      </TouchableArea>
+      {showPlayButon ? (
+        <TouchableArea
+          theme="blue"
+          bg="$blue7"
+          borderRadius={"$4"}
+          flexDirection="row"
+          alignItems="center"
+          jc={"center"}
+          px={"$9"}
+          flex={1}
+          minHeight={"$4"}
+          gap={"$2"}
+          onPress={playItem}
+        >
+          {isPlaying && isPlaylistPlaying ? (
+            <>
+              <Pause color={textColor} />
+              <Text color={textColor}>Pause</Text>
+            </>
+          ) : (
+            <>
+              <Play size="$1" color={textColor} />
+              <Text color={textColor}>Play</Text>
+            </>
+          )}
+        </TouchableArea>
+      ) : null}
     </Flex>
   );
 };
@@ -304,7 +319,7 @@ const PlaylistTable = ({
   serverAddress: string;
 }) => {
   return (
-    <Flex bg="$backgroundHover" px="$2" borderRadius={"$4"}>
+    <Flex bg="$backgroundHover" px="$2" borderRadius={"$4"} pb={"$4"}>
       <Flex justifyContent="space-between" row alignItems="center" py="$4">
         <Text fontSize={24} $gtMd={{ fontSize: 34 }}>
           {data.name}
@@ -375,6 +390,16 @@ const PlaylistItemRow = ({
     : // @ts-ignore
       playlistItem.libraryItem.media.duration;
 
+  const tracks = playlistItem.episode
+    ? []
+    : // @ts-ignore
+      playlistItem.libraryItem.media.tracks;
+  const isMissing = playlistItem.libraryItem.isMissing;
+  const isInvalid = playlistItem.libraryItem.isInvalid;
+
+  const showPlayButton =
+    !isMissing && !isInvalid && (tracks.length || playlistItem.episode);
+
   return (
     <TouchableArea
       borderRadius={"$4"}
@@ -420,15 +445,19 @@ const PlaylistItemRow = ({
           <Text fontSize={14} numberOfLines={1}>
             {itemAuthor}
           </Text>
-          <Text fontSize={12} numberOfLines={1} color={"$gray11"}>
-            {elapsedTime(duration)}
-          </Text>
+          {showPlayButton ? (
+            <Text fontSize={12} numberOfLines={1} color={"$gray11"}>
+              {elapsedTime(duration)}
+            </Text>
+          ) : null}
         </Flex>
         <Flex grow />
-        <PlayButton
-          id={playlistItem.libraryItemId}
-          episodeId={playlistItem.episodeId}
-        />
+        {showPlayButton ? (
+          <PlayButton
+            id={playlistItem.libraryItemId}
+            episodeId={playlistItem.episodeId}
+          />
+        ) : null}
         <BookMoreMenu
           itemId={playlistItem.libraryItemId}
           episodeId={

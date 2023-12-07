@@ -57,12 +57,12 @@ type TabPage = {
 };
 
 const HomePage = () => {
-  const currentLibraryId = useAtomValue(currentLibraryIdAtom);
-  const changingLibrary = useAtomValue(changingLibraryAtom);
-  const currentLibraryMediaType = useAtomValue(currentLibraryMediaTypeAtom);
-  const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
   const isAdminOrUp = useAtomValue(isAdminOrUpAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
+  const changingLibrary = useAtomValue(changingLibraryAtom);
+  const currentLibraryId = useAtomValue(currentLibraryIdAtom);
+  const currentLibraryMediaType = useAtomValue(currentLibraryMediaTypeAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
   const [userHasPlaylists, setUserHasPlaylists] = useState(false);
@@ -197,7 +197,6 @@ const HomePage = () => {
             currentLibraryId={currentLibraryId}
             serverAddress={serverAddress}
             userToken={userToken}
-            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           />
         );
       default:

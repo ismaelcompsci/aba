@@ -265,6 +265,7 @@ const BookPage = () => {
                         title={bookItem.media.metadata.title}
                         itemId={bookItem.id}
                         isPodcast={isPodcast}
+                        hasTracks={Boolean(numTracks)}
                       />
                     ) : null}
                   </Flex>
