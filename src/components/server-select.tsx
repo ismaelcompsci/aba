@@ -42,7 +42,6 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
     setLastLibraryId(updatedLib.id);
     await awaitTimeout(30);
     setChangingLibrary(false);
-    setOpen(false);
   };
 
   return (

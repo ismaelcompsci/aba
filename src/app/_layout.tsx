@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Appearance, UIManager } from "react-native";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import {
   ChevronLeft,
@@ -17,6 +18,7 @@ import { TamaguiProvider, Theme, useTheme } from "tamagui";
 import appConfig from "../../tamagui.config";
 import AudioPlayerContainer from "../components/audio-player/audio-player";
 import { Flex } from "../components/layout/flex";
+import { AppModals } from "../components/modals/app-modals";
 import ServerSelect from "../components/server-select";
 import { TouchableArea } from "../components/touchable/touchable-area";
 import { IS_ANDROID, IS_IOS } from "../constants/consts";
@@ -25,6 +27,7 @@ import { librariesAtom, userAtom } from "../state/app-state";
 import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
 
 SplashScreen.preventAutoHideAsync();
+
 if (IS_ANDROID && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
@@ -79,20 +82,23 @@ export default function Layout() {
   const animation = IS_IOS ? "fade" : "default";
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TamaguiProvider config={appConfig} defaultTheme="system">
-        <Theme name={appTheme.scheme}>
-          <Stack
-            initialRouteName="index"
-            screenOptions={{
-              header: Header,
-              animation: animation,
-            }}
-          />
-          <AudioPlayerContainer />
-        </Theme>
-      </TamaguiProvider>
-    </QueryClientProvider>
+    <BottomSheetModalProvider>
+      <QueryClientProvider client={queryClient}>
+        <TamaguiProvider config={appConfig} defaultTheme="system">
+          <Theme name={appTheme.scheme}>
+            <Stack
+              initialRouteName="index"
+              screenOptions={{
+                header: Header,
+                animation: animation,
+              }}
+            />
+            <AppModals />
+            <AudioPlayerContainer />
+          </Theme>
+        </TamaguiProvider>
+      </QueryClientProvider>
+    </BottomSheetModalProvider>
   );
 }
 

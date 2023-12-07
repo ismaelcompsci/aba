@@ -264,6 +264,7 @@ const BookPage = () => {
                       <BookMoreMenu
                         title={bookItem.media.metadata.title}
                         itemId={bookItem.id}
+                        isPodcast={isPodcast}
                       />
                     ) : null}
                   </Flex>

@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
-import { useMemo } from "react";
 import { Alert } from "react-native";
 import { MoreHorizontal, MoreVertical } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { useNewUser } from "../../hooks/use-new-user";
-import { mediaProgressAtom } from "../../state/app-state";
+import { useUserMediaProgress } from "../../hooks/use-user-media-progress";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { cleanString } from "../../utils/utils";
+import { AddPlaylistsModalAtom } from "../modals/add-playlists-modal";
 import { TouchableArea } from "../touchable/touchable-area";
 
 function BookMoreMenu({
@@ -18,21 +18,22 @@ function BookMoreMenu({
   itemId,
   episodeId,
   vertical,
+  isPodcast,
 }: {
   title?: string | null;
   itemId: string;
   episodeId?: string;
   vertical?: boolean;
+  isPodcast?: boolean;
 }) {
-  const mediaProgress = useAtomValue(mediaProgressAtom);
-  const userMediaProgress = useMemo(
-    () =>
-      mediaProgress?.find((prog) => {
-        return prog.libraryItemId === itemId && prog.episodeId === episodeId;
-      }),
-    [itemId]
-  );
+  const { userProgressPercent, userMediaProgress } = useUserMediaProgress({
+    libraryItemId: itemId,
+    episodeId,
+  });
   const serverConfig = useAtomValue(currentServerConfigAtom);
+  const [addPlaylistsModalController, setAddPlaylistModalController] = useAtom(
+    AddPlaylistsModalAtom
+  );
   const { user, refreshUser } = useNewUser(true);
 
   const markAsFinshed = async () => {
@@ -89,6 +90,10 @@ function BookMoreMenu({
     }
   };
 
+  const addPlaylist = () => {
+    setAddPlaylistModalController({ open: true });
+  };
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -98,37 +103,39 @@ function BookMoreMenu({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <DropdownMenu.Label>Book Actions</DropdownMenu.Label>
-        <DropdownMenu.Item
-          key="mark_as_finshed"
-          onSelect={() =>
-            Alert.alert(
-              "Mark as Finshed",
-              `Are you sure you want to mark ${cleanString(
-                title ? title : "this book",
-                35
-              )} as finshed`,
+        {!userMediaProgress?.isFinished ? (
+          <DropdownMenu.Item
+            key="mark_as_finshed"
+            onSelect={() =>
+              Alert.alert(
+                "Mark as Finshed",
+                `Are you sure you want to mark ${cleanString(
+                  title ? title : "this book",
+                  35
+                )} as finshed`,
 
-              [
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Okay",
+                    style: "destructive",
+                    onPress: async () => await markAsFinshed(),
+                  },
+                ],
                 {
-                  text: "Cancel",
-                  style: "cancel",
-                },
-                {
-                  text: "Okay",
-                  style: "destructive",
-                  onPress: async () => await markAsFinshed(),
-                },
-              ],
-              {
-                cancelable: true,
-              }
-            )
-          }
-        >
-          <DropdownMenu.ItemTitle>Mark as Finished</DropdownMenu.ItemTitle>
-          <DropdownMenu.ItemIcon ios={{ name: "checkmark.seal.fill" }} />
-        </DropdownMenu.Item>
-        {userMediaProgress ? (
+                  cancelable: true,
+                }
+              )
+            }
+          >
+            <DropdownMenu.ItemTitle>Mark as Finished</DropdownMenu.ItemTitle>
+            <DropdownMenu.ItemIcon ios={{ name: "checkmark.seal.fill" }} />
+          </DropdownMenu.Item>
+        ) : null}
+        {userProgressPercent > 0 ? (
           <DropdownMenu.Item
             key="discard_progress"
             destructive
@@ -155,6 +162,12 @@ function BookMoreMenu({
           >
             <DropdownMenu.ItemTitle>Discard Progress</DropdownMenu.ItemTitle>
             <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
+          </DropdownMenu.Item>
+        ) : null}
+        {!isPodcast ? (
+          <DropdownMenu.Item key="add_to_playlist" onSelect={addPlaylist}>
+            <DropdownMenu.ItemTitle>Add to Playlist</DropdownMenu.ItemTitle>
+            <DropdownMenu.ItemIcon ios={{ name: "plus" }} />
           </DropdownMenu.Item>
         ) : null}
       </DropdownMenu.Content>

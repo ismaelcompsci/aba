@@ -175,6 +175,7 @@ function EpisodePage() {
                   itemId={data?.libraryItem.id}
                   episodeId={data?.episode?.id}
                   title={data?.episode?.title}
+                  isPodcast={false}
                 />
               ) : null}
             </Flex>
