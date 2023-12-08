@@ -13,5 +13,10 @@
 - [ ] better audioplayer fix jumping
 - [ ] better tts
 - [ ] fix performance when change epub reader settings ex. (changing font size)
+- [ ] better playlist implementation
+    - [ ] show playlist in the audioplayer
+    - [ ] play one after the other
+    - [ ] movable playlist rows
+
 
 
