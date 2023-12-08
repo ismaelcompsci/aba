@@ -27,7 +27,7 @@ const SettingsMenu = () => {
   const setDescOrder = useSetAtom(descOrderAtom);
   const setSort = useSetAtom(sortAtom);
 
-  const isDark = appTheme.scheme === "dark";
+  const isDark = appTheme.scheme === "dark" || appTheme.scheme === "oled";
 
   const disconnect = () => {
     setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });

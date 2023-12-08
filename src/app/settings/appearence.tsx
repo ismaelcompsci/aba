@@ -1,5 +1,5 @@
 import type { IconProps } from "@tamagui/helpers-icon";
-import { Check, Moon, Sun } from "@tamagui/lucide-icons";
+import { Check, Moon, Sun, ZapOff } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
 import { Text } from "tamagui";
 
@@ -30,6 +30,13 @@ const Appearance = () => {
           active={appTheme.scheme === "dark"}
           Icon={() => <Moon color="$gray11" />}
         />
+        <AppearanceOption
+          setTheme={() => setAppTheme({ scheme: "oled" })}
+          title="Oled Mode"
+          active={appTheme.scheme === "oled"}
+          subtitle="consume significantly less power."
+          Icon={() => <ZapOff color="$gray11" />}
+        />
       </Flex>
     </Screen>
   );
@@ -39,6 +46,7 @@ type AppearanceProps = {
   active?: boolean;
   title: string;
   Icon: React.FC<IconProps>;
+  subtitle?: string;
   setTheme: () => void;
 };
 
@@ -46,6 +54,7 @@ const AppearanceOption = ({
   active,
   title,
   setTheme,
+  subtitle,
   Icon,
 }: AppearanceProps) => {
   const isActive = active ? 1 : 0;
@@ -62,6 +71,9 @@ const AppearanceOption = ({
         <Flex shrink ml={16}>
           <Text fontSize={18} lineHeight={24} fontWeight={"400"}>
             {title}
+          </Text>
+          <Text color={"$gray10"} pr={12} fontSize={12}>
+            {subtitle}
           </Text>
         </Flex>
         <Flex

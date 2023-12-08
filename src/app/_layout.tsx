@@ -74,8 +74,18 @@ export default function Layout() {
   }, [user, serverConfig]);
 
   useEffect(() => {
-    Appearance.setColorScheme(appTheme.scheme);
-    TrackPlayer.setupPlayer();
+    Appearance.setColorScheme(
+      appTheme.scheme === "oled" || appTheme.scheme === "dark"
+        ? "dark"
+        : "light"
+    );
+    (async () => {
+      try {
+        await TrackPlayer.setupPlayer();
+      } catch (error) {
+        console.log("[TRACKPLAYER] player already setup");
+      }
+    })();
   }, []);
 
   if (!loaded) return null;

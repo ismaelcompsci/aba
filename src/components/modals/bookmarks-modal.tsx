@@ -39,6 +39,9 @@ export const BookmarksModal = () => {
     [currentPlayingLibraryId, bookmarks]
   );
 
+  const removeBookmark = (b: AudioBookmark) => {};
+  const bookmarkClick = (b: AudioBookmark) => {};
+
   if (!bookmarksModal.open) return null;
 
   return (
@@ -54,13 +57,26 @@ export const BookmarksModal = () => {
       <Flex width={width * 0.8} maxHeight={height * 0.5} space>
         <ScrollView space="$2">
           {bookmarksForItem.map((bk) => {
-            return <Bookmark key={bk.title} bookmark={bk} color={iconColor} />;
+            return (
+              <Bookmark
+                key={bk.title}
+                bookmark={bk}
+                color={iconColor}
+                bookmarkClick={bookmarkClick}
+                removeBookmark={removeBookmark}
+              />
+            );
           })}
         </ScrollView>
-        <Button size={"$2.5"} icon={Plus} jc={"space-between"}>
-          Create bookmark
+        <TouchableArea
+          jc={"space-between"}
+          alignItems="center"
+          flexDirection="row"
+        >
+          <Plus size={16} />
+          <Text>Create bookmark</Text>
           <Time />
-        </Button>
+        </TouchableArea>
       </Flex>
     </Modal>
   );
@@ -69,7 +85,7 @@ export const BookmarksModal = () => {
 const Time = () => {
   const { currentPosition } = useAudioPlayerProgress();
   return (
-    <Text color={"$gray11"} fontSize={12}>
+    <Text minWidth={"$5"} color={"$gray11"} fontSize={12}>
       {formatSeconds(currentPosition)}
     </Text>
   );
@@ -78,17 +94,22 @@ const Time = () => {
 const Bookmark = ({
   bookmark,
   color,
+  removeBookmark,
+  bookmarkClick,
 }: {
   bookmark: AudioBookmark;
+  removeBookmark: (bookmark: AudioBookmark) => void;
+  bookmarkClick: (bookmark: AudioBookmark) => void;
   color: string;
 }) => {
   return (
-    <Flex
+    <TouchableArea
       key={bookmark.title}
-      row
+      flexDirection="row"
       jc={"space-between"}
-      fill
+      flex={1}
       alignItems="center"
+      onPress={() => bookmarkClick(bookmark)}
     >
       <Flex grow maxWidth={"70%"}>
         <Flex row fill>
@@ -104,10 +125,10 @@ const Bookmark = ({
         <TouchableArea>
           <Edit3 size={"$1"} />
         </TouchableArea>
-        <TouchableArea>
+        <TouchableArea onPress={() => removeBookmark(bookmark)}>
           <Trash2 size={"$1"} />
         </TouchableArea>
       </Flex>
-    </Flex>
+    </TouchableArea>
   );
 };

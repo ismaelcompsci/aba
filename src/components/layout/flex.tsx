@@ -3,6 +3,7 @@
  */
 
 import { Stack, StackProps, styled } from "tamagui";
+
 import { withAnimated } from "../touchable/with-animated";
 
 export type FlexProps = StackProps & {
@@ -15,7 +16,6 @@ export type FlexProps = StackProps & {
 
 export const Flex = styled(Stack, {
   flexDirection: "column",
-
   variants: {
     row: {
       true: {

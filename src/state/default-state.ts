@@ -8,7 +8,7 @@ export type ThemeNames = ThemeName | "no color";
 
 export type DefaultSettingsType = {
   theme: {
-    scheme: "dark" | "light";
+    scheme: "dark" | "light" | "oled";
     color?: ThemeNames | null | undefined;
     full?: string | null;
   };
