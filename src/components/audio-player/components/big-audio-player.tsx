@@ -4,12 +4,13 @@ import FastImage from "react-native-fast-image";
 import { getColors } from "react-native-image-colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "@tamagui/linear-gradient";
-import { Bookmark, ChevronDown } from "@tamagui/lucide-icons";
+import { Bookmark, ChevronDown, List } from "@tamagui/lucide-icons";
+import { useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
 import { Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
-import ChaptersModal from "../../modals/chapter-modal";
+import { chaptersModalAtom } from "../../modals/chapter-modal";
 import { TouchableArea } from "../../touchable/touchable-area";
 
 import BigAudioPlayerControls from "./big-audio-player-controls";
@@ -32,6 +33,8 @@ const BigAudioPlayer = ({
   audiobookInfo: AudiobookInfo;
   setOpen: (open: boolean) => void;
 }) => {
+  const setChaptersModal = useSetAtom(chaptersModalAtom);
+
   const { width, height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
@@ -128,7 +131,18 @@ const BigAudioPlayer = ({
               </TouchableArea>
 
               <PlaybackSpeedControls />
-              <ChaptersModal />
+
+              <TouchableArea
+                borderRadius={"$12"}
+                padding={"$0"}
+                width={"$4"}
+                height={"$4"}
+                alignItems={"center"}
+                justifyContent={"center"}
+                onPress={() => setChaptersModal({ open: true })}
+              >
+                <List />
+              </TouchableArea>
             </Flex>
           </Flex>
         </Flex>

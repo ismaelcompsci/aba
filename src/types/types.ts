@@ -114,6 +114,7 @@ export type AudioPlayerTrack = {
 export interface AudioPlayerTrackExtra extends Track, AudioPlayerTrack {}
 
 export type PlayingState = {
+  open: boolean;
   playing: boolean;
   libraryItemId?: string;
   startTime?: number;

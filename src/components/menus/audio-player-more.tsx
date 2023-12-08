@@ -14,7 +14,7 @@ const AudioPlayerMore = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
   const closePlayer = async () => {
     setOpen(false);
     await refreshUser();
-    setShowPlayer({ playing: false });
+    setShowPlayer({ open: false, playing: false });
   };
 
   return (

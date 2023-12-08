@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Appearance, UIManager } from "react-native";
+import TrackPlayer from "react-native-track-player";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import {
@@ -16,7 +17,6 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { TamaguiProvider, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
-import AudioPlayerContainer from "../components/audio-player/audio-player";
 import { Flex } from "../components/layout/flex";
 import { AppModals } from "../components/modals/app-modals";
 import ServerSelect from "../components/server-select";
@@ -75,6 +75,7 @@ export default function Layout() {
 
   useEffect(() => {
     Appearance.setColorScheme(appTheme.scheme);
+    TrackPlayer.setupPlayer();
   }, []);
 
   if (!loaded) return null;
@@ -94,7 +95,6 @@ export default function Layout() {
               }}
             />
             <AppModals />
-            <AudioPlayerContainer />
           </Theme>
         </TamaguiProvider>
       </QueryClientProvider>

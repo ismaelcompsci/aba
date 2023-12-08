@@ -18,5 +18,9 @@
     - [ ] play one after the other
     - [ ] movable playlist rows
 
+- [ ] add server info
+- [ ] lazy render audio player
+
+
 
 

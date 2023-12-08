@@ -175,7 +175,7 @@ const ServerConnectPage = () => {
         style={{
           justifyContent: "center",
           width: "100%",
-          paddingHorizontal: "10%",
+          paddingHorizontal: 12,
         }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >

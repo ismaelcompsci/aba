@@ -70,6 +70,7 @@ const EpisodeTableRow = ({
     }
 
     setShowPlayer({
+      open: true,
       playing: true,
       libraryItemId: podcastId,
       episodeId: episodeId,

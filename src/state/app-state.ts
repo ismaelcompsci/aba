@@ -24,8 +24,11 @@ export const librariesAtom = atom<Library[]>([]);
 export const openModalAtom = atom(false);
 export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
-export const showPlayerAtom = atom<PlayingState>({ playing: false });
 export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
+export const showPlayerAtom = atom<PlayingState>({
+  open: false,
+  playing: false,
+});
 export const createPlaylistModalAtom = atom<CreatePlaylistModalAtom>({
   open: false,
 });

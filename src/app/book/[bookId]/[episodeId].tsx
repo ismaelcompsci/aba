@@ -215,6 +215,7 @@ const PodcastEpisodePlayButton = ({
         TrackPlayer.pause();
       } else {
         setShowPlayer({
+          open: true,
           playing: true,
           libraryItemId: itemId,
           episodeId,
@@ -228,7 +229,12 @@ const PodcastEpisodePlayButton = ({
       ) {
         TrackPlayer.play();
       } else {
-        setShowPlayer({ playing: true, libraryItemId: itemId, episodeId });
+        setShowPlayer({
+          open: true,
+          playing: true,
+          libraryItemId: itemId,
+          episodeId,
+        });
       }
     }
   };

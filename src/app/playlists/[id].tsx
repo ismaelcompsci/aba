@@ -227,6 +227,7 @@ const PlaylistPageHeader = ({
         TrackPlayer.pause();
       } else {
         setShowPlayer({
+          open: true,
           playing: true,
           libraryItemId: firstItem.libraryItemId,
           episodeId: firstItem.episodeId ? firstItem.episodeId : undefined,
@@ -237,6 +238,7 @@ const PlaylistPageHeader = ({
         TrackPlayer.play();
       } else {
         setShowPlayer({
+          open: true,
           playing: true,
           libraryItemId: firstItem.libraryItemId,
           episodeId: firstItem.episodeId ? firstItem.episodeId : undefined,
@@ -486,6 +488,7 @@ const PlayButton = ({
         TrackPlayer.pause();
       } else {
         setShowPlayer({
+          open: true,
           playing: true,
           libraryItemId: id,
           episodeId: episodeId ? episodeId : undefined,
@@ -500,6 +503,7 @@ const PlayButton = ({
         TrackPlayer.play();
       } else {
         setShowPlayer({
+          open: true,
           playing: true,
           libraryItemId: id,
           episodeId: episodeId ? episodeId : undefined,

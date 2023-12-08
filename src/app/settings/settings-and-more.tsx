@@ -39,11 +39,13 @@ const SettingsAndMore = () => {
   const queryClient = useQueryClient();
   const [deviceData, setDeviceData] = useAtom(deviceDataAtom);
   const appTheme = useAtomValue(appThemeAtom);
-  const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
-  const setServerSettings = useSetAtom(serverSettingsAtom);
   const setEbookSettings = useSetAtom(ebookSettignsAtom);
   const setDescOrder = useSetAtom(descOrderAtom);
   const setSort = useSetAtom(sortAtom);
+  const [serverSettings, setServerSettings] = useAtom(serverSettingsAtom);
+  const [currentServerConfig, setCurrentServerConfig] = useAtom(
+    currentServerConfigAtom
+  );
 
   const disconnect = () => {
     setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });
@@ -108,6 +110,14 @@ const SettingsAndMore = () => {
           </Button>
         </Flex>
       </VirtualizedList>
+      {currentServerConfig ? (
+        <Flex pos={"absolute"} bottom={22} width={"100%"} px="$4">
+          <Flex row fill jc={"space-between"}>
+            <Text color="$gray10">{currentServerConfig.serverAddress}</Text>
+            <Text color="$gray10">(v{serverSettings.version})</Text>
+          </Flex>
+        </Flex>
+      ) : null}
     </Screen>
   );
 };

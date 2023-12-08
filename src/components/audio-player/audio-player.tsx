@@ -97,9 +97,7 @@ const AudioPlayerContainer = () => {
         duration: session.duration,
       });
 
-      if (!ready) {
-        setReady(true);
-      }
+      setReady(true);
       await TrackPlayer.play();
     } catch (error) {
       console.log("[AUDIOPLAYER] ", error);
@@ -193,7 +191,7 @@ const AudioPlayerContainer = () => {
           }
         );
       }
-      showPlayer.playing && setShowPlayer({ playing: false });
+      showPlayer.playing && setShowPlayer({ open: false, playing: false });
       await TrackPlayer.pause();
       await TrackPlayer.reset();
     } catch (error) {
@@ -207,7 +205,7 @@ const AudioPlayerContainer = () => {
   useEffect(() => {
     if (showPlayer.playing) {
       setAudiobookInfo({});
-      ready && setReady(false);
+      setReady(false);
       startSession();
     }
 
@@ -219,7 +217,7 @@ const AudioPlayerContainer = () => {
   useEffect(() => {
     (async () => {
       try {
-        await TrackPlayer.setupPlayer();
+        // await TrackPlayer.setupPlayer();
 
         await TrackPlayer.updateOptions({
           capabilities: [
@@ -245,7 +243,7 @@ const AudioPlayerContainer = () => {
     };
   }, []);
 
-  if (!showPlayer.playing) return null;
+  // if (!showPlayer.playing) return null;
 
   const renderHeader = () => {
     return (

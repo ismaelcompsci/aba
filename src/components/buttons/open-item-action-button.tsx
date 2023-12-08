@@ -30,13 +30,13 @@ const PlayButton = ({
       if (showPlayer.libraryItemId === id) {
         TrackPlayer.pause();
       } else {
-        setShowPlayer({ playing: true, libraryItemId: bookItemId });
+        setShowPlayer({ open: true, playing: true, libraryItemId: bookItemId });
       }
     } else {
       if (showPlayer.playing && showPlayer.libraryItemId === id) {
         TrackPlayer.play();
       } else {
-        setShowPlayer({ playing: true, libraryItemId: bookItemId });
+        setShowPlayer({ open: true, playing: true, libraryItemId: bookItemId });
       }
     }
   };
