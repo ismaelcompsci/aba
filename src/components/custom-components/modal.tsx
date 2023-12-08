@@ -48,6 +48,7 @@ export const Modal = ({
           backgroundColor="$background"
           style={width === "100%" ? style.modalBoxFullWidth : style.modalBox}
           width={width}
+          onPress={() => {}}
         >
           {title && (
             <Text mb={12} px={16} fontSize={24}>
