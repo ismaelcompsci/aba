@@ -6,7 +6,6 @@ import { useNewUser } from "../../hooks/use-new-user";
 import { showPlayerAtom } from "../../state/app-state";
 import { TouchableArea } from "../touchable/touchable-area";
 
-//  TODO DEPEND ON SOCKET UPDATINGPROGRESS
 const AudioPlayerMore = ({
   setOpen,
 }: {

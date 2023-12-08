@@ -174,3 +174,11 @@ export type CreatePlaylistModalAtom = {
   episodeId?: string;
   libraryId?: string;
 };
+
+export type BaseModalAtom = {
+  open: boolean;
+};
+
+export type BookmarksModalAtom = BaseModalAtom & {
+  libraryItemId?: string;
+};

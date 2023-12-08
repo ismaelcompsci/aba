@@ -10,6 +10,8 @@ import {
   User,
 } from "../types/aba";
 import {
+  BaseModalAtom,
+  BookmarksModalAtom,
   CreatePlaylistModalAtom,
   EpubReaderLoading,
   PlayingState,
@@ -30,6 +32,9 @@ export const showPlayerAtom = atom<PlayingState>({
   playing: false,
 });
 export const createPlaylistModalAtom = atom<CreatePlaylistModalAtom>({
+  open: false,
+});
+export const bookmarksModalAtom = atom<BookmarksModalAtom>({
   open: false,
 });
 
@@ -87,12 +92,17 @@ export const setMediaProgressAtom = atom(null, (get, set, update) => {
   }
 });
 
-export const currentLibraryMediaTypeAtom = selectAtom(
-  currentLibraryAtom,
-  (library) => library?.mediaType
+export const currentLibraryMediaTypeAtom = atom(
+  (get) => get(currentLibraryAtom)?.mediaType
 );
 
-export const isAdminOrUpAtom = selectAtom(
-  userAtom,
-  (user) => user && (user.type === "admin" || user?.type === "root")
+export const isAdminOrUpAtom = atom((get) => {
+  const user = get(userAtom);
+  return user && (user.type === "admin" || user?.type === "root");
+});
+
+export const bookmarksAtom = atom((get) => get(userAtom)?.bookmarks ?? []);
+
+export const currentPlayingLibraryIdAtom = atom(
+  (get) => get(playbackSessionAtom)?.libraryItemId
 );

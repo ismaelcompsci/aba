@@ -8,6 +8,7 @@ import { Bookmark, ChevronDown, List } from "@tamagui/lucide-icons";
 import { useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
+import { bookmarksModalAtom } from "../../../state/app-state";
 import { Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
 import { chaptersModalAtom } from "../../modals/chapter-modal";
@@ -65,7 +66,7 @@ const BigAudioPlayer = ({
               alignItems={"center"}
               justifyContent={"center"}
               bg="$background"
-              // onPress={() => setOpen && setOpen(false)}
+              onPress={() => setOpen && setOpen(false)}
             >
               <ChevronDown />
             </TouchableArea>
@@ -129,6 +130,8 @@ const BigAudioPlayer = ({
 };
 
 const ShowBookmarksButton = () => {
+  const setBookmarksModalAtom = useSetAtom(bookmarksModalAtom);
+
   return (
     <TouchableArea
       borderRadius={"$12"}
@@ -137,6 +140,7 @@ const ShowBookmarksButton = () => {
       height={"$4"}
       alignItems={"center"}
       justifyContent={"center"}
+      onPress={() => setBookmarksModalAtom({ open: true })}
     >
       <Bookmark />
     </TouchableArea>

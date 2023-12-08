@@ -97,8 +97,6 @@ const Sheet = ({
 
   const DRAG_BUFFER = 40;
 
-  console.log("RERENDER");
-
   const onGestureEvent = useAnimatedGestureHandler({
     // Set the context value to the sheet's current height value
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
