@@ -36,7 +36,7 @@ interface SheetProps {
   renderHeader: () => React.ReactNode;
   open?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
-  controlled: boolean;
+  controlled?: boolean;
 }
 
 type SheetPositions = "minimised" | "maximised" | "expanded";
@@ -62,7 +62,7 @@ const Sheet = ({
 }: SheetProps) => {
   const [dimensions, setDimensions] = useState({ window, screen });
   const [mountHeader, setMountHeader] = useState(true);
-  const [mountChildren, setMountChildren] = useState(false);
+  // const [mountChildren, setMountChildren] = useState(false);
 
   useEffect(() => {
     const listener = Dimensions.addEventListener(
@@ -96,6 +96,8 @@ const Sheet = ({
   const headerOpacity = useSharedValue(1);
 
   const DRAG_BUFFER = 40;
+
+  console.log("RERENDER");
 
   const onGestureEvent = useAnimatedGestureHandler({
     // Set the context value to the sheet's current height value
@@ -180,13 +182,13 @@ const Sheet = ({
         runOnJS(setMountHeader)(false);
       }
 
-      if (height <= _minHeight && mountChildren) {
-        runOnJS(setMountChildren)(false);
-      }
+      // if (height <= _minHeight && mountChildren) {
+      // runOnJS(setMountChildren)(false);
+      // }
 
-      if (height > _minHeight && !mountChildren) {
-        runOnJS(setMountChildren)(true);
-      }
+      // if (height > _minHeight && !mountChildren) {
+      // runOnJS(setMountChildren)(true);
+      // }
     }
   );
 
@@ -273,11 +275,11 @@ const Sheet = ({
                   height: dimensions.window.height,
                 }}
               >
-                {mountChildren ? (
-                  <Animated.View style={[childrenAnimatedStyle]}>
-                    {children}
-                  </Animated.View>
-                ) : null}
+                {/* {mountChildren ? ( */}
+                <Animated.View style={[childrenAnimatedStyle]}>
+                  {children}
+                </Animated.View>
+                {/* ) : null} */}
               </View>
             </SafeAreaView>
           </Animated.View>

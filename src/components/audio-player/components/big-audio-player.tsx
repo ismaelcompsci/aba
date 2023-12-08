@@ -31,10 +31,8 @@ const BigAudioPlayer = ({
   setOpen,
 }: {
   audiobookInfo: AudiobookInfo;
-  setOpen: (open: boolean) => void;
+  setOpen?: (open: boolean) => void;
 }) => {
-  const setChaptersModal = useSetAtom(chaptersModalAtom);
-
   const { width, height } = useWindowDimensions();
   const { bottom } = useSafeAreaInsets();
 
@@ -67,7 +65,7 @@ const BigAudioPlayer = ({
               alignItems={"center"}
               justifyContent={"center"}
               bg="$background"
-              onPress={() => setOpen(false)}
+              // onPress={() => setOpen && setOpen(false)}
             >
               <ChevronDown />
             </TouchableArea>
@@ -119,35 +117,46 @@ const BigAudioPlayer = ({
                 paddingBottom: "$4",
               }}
             >
-              <TouchableArea
-                borderRadius={"$12"}
-                padding={"$0"}
-                width={"$4"}
-                height={"$4"}
-                alignItems={"center"}
-                justifyContent={"center"}
-              >
-                <Bookmark />
-              </TouchableArea>
-
+              <ShowBookmarksButton />
               <PlaybackSpeedControls />
-
-              <TouchableArea
-                borderRadius={"$12"}
-                padding={"$0"}
-                width={"$4"}
-                height={"$4"}
-                alignItems={"center"}
-                justifyContent={"center"}
-                onPress={() => setChaptersModal({ open: true })}
-              >
-                <List />
-              </TouchableArea>
+              <ShowChaptersButton />
             </Flex>
           </Flex>
         </Flex>
       </BigAudioPlayerBackground>
     </Flex>
+  );
+};
+
+const ShowBookmarksButton = () => {
+  return (
+    <TouchableArea
+      borderRadius={"$12"}
+      padding={"$0"}
+      width={"$4"}
+      height={"$4"}
+      alignItems={"center"}
+      justifyContent={"center"}
+    >
+      <Bookmark />
+    </TouchableArea>
+  );
+};
+
+const ShowChaptersButton = () => {
+  const setChaptersModal = useSetAtom(chaptersModalAtom);
+
+  return (
+    <TouchableArea
+      borderRadius={"$12"}
+      width={"$4"}
+      height={"$4"}
+      alignItems={"center"}
+      justifyContent={"center"}
+      onPress={() => setChaptersModal({ open: true })}
+    >
+      <List />
+    </TouchableArea>
   );
 };
 

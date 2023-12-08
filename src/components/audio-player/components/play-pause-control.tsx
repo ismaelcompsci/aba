@@ -55,7 +55,6 @@ export const PlayPauseControl = ({
           {small ? (
             <TouchableArea
               onPress={() => TrackPlayer.pause()}
-              bg={"transparent"}
               h={"$4"}
               w={"$4"}
               borderRadius={"$12"}
@@ -71,7 +70,6 @@ export const PlayPauseControl = ({
               padding={"$0"}
               alignItems={"center"}
               justifyContent={"center"}
-              bg={"$backgroundStrong"}
               h={"$7"}
               w={"$7"}
               onPress={() => TrackPlayer.pause()}
@@ -89,7 +87,6 @@ export const PlayPauseControl = ({
           {small ? (
             <TouchableArea
               onPress={() => TrackPlayer.play()}
-              bg={"transparent"}
               borderRadius={"$12"}
               padding={"$0"}
               alignItems={"center"}
@@ -101,7 +98,6 @@ export const PlayPauseControl = ({
             </TouchableArea>
           ) : (
             <TouchableArea
-              bg={"$backgroundStrong"}
               borderRadius={"$12"}
               padding={"$0"}
               alignItems={"center"}

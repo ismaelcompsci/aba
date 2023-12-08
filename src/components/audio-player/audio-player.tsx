@@ -191,14 +191,15 @@ const AudioPlayerContainer = () => {
           }
         );
       }
-      showPlayer.playing && setShowPlayer({ open: false, playing: false });
-      await TrackPlayer.pause();
-      await TrackPlayer.reset();
     } catch (error) {
       console.log("[AUDIOPLAYER] stopPlayer error ", error);
       if (axios.isAxiosError(error)) {
         console.log("[AUDIOPLAYER] could not close session ", error);
       }
+    } finally {
+      await TrackPlayer.pause();
+      await TrackPlayer.reset();
+      setShowPlayer({ open: false, playing: false });
     }
   };
 
@@ -210,6 +211,7 @@ const AudioPlayerContainer = () => {
     }
 
     if (showPlayer.playing === false && ready) {
+      console.log("CLOSING PLAYER");
       stopPlayer();
     }
   }, [showPlayer]);
@@ -217,8 +219,6 @@ const AudioPlayerContainer = () => {
   useEffect(() => {
     (async () => {
       try {
-        // await TrackPlayer.setupPlayer();
-
         await TrackPlayer.updateOptions({
           capabilities: [
             Capability.Play,
@@ -239,11 +239,11 @@ const AudioPlayerContainer = () => {
     })();
 
     return () => {
+      TrackPlayer.pause();
+      TrackPlayer.reset();
       console.log("[AUDIOPLAYER] UNMOUNTED");
     };
   }, []);
-
-  // if (!showPlayer.playing) return null;
 
   const renderHeader = () => {
     return (

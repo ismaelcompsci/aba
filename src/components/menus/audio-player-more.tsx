@@ -7,14 +7,18 @@ import { showPlayerAtom } from "../../state/app-state";
 import { TouchableArea } from "../touchable/touchable-area";
 
 //  TODO DEPEND ON SOCKET UPDATINGPROGRESS
-const AudioPlayerMore = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AudioPlayerMore = ({
+  setOpen,
+}: {
+  setOpen?: (open: boolean) => void;
+}) => {
   const setShowPlayer = useSetAtom(showPlayerAtom);
   const { refreshUser } = useNewUser(true);
 
   const closePlayer = async () => {
-    setOpen(false);
+    setOpen && setOpen(false);
     await refreshUser();
-    setShowPlayer({ open: false, playing: false });
+    setShowPlayer({ open: true, playing: false });
   };
 
   return (

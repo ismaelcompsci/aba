@@ -10,15 +10,21 @@
 
 ### Todo's
 - [ ] fix in book reader when switching to previous chapter and then switching scroll view it goes to start of chapter
-- [ ] better audioplayer fix jumping
+
+- [ ] better audioplayer
+    - [ ] better seeking
+    - [ ] better fast forwarding
+
 - [ ] better tts
+
 - [ ] fix performance when change epub reader settings ex. (changing font size)
+
 - [ ] better playlist implementation
     - [ ] show playlist in the audioplayer
     - [ ] play one after the other
     - [ ] movable playlist rows
 
-- [ ] add server info
+- [x] add server info
 - [ ] lazy render audio player
 
 
