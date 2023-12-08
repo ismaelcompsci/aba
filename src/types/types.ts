@@ -166,3 +166,10 @@ export type PodcastSearch = {
   pageUrl: string;
   explicit: boolean;
 };
+
+export type CreatePlaylistModalAtom = {
+  open: boolean;
+  libraryItemId?: string;
+  episodeId?: string;
+  libraryId?: string;
+};

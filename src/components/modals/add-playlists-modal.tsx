@@ -1,12 +1,13 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { ListRenderItem } from "react-native";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { atom, useAtom, useAtomValue } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, Spinner, Text } from "tamagui";
 
 import {
+  createPlaylistModalAtom,
   currentLibraryIdAtom,
   serverAddressAtom,
   userTokenAtom,
@@ -39,6 +40,7 @@ const AddPlaylistsModal = () => {
   const [addPlaylistsModalController, setAddPlaylistModalController] = useAtom(
     AddPlaylistsModalAtom
   );
+  const setCreatePlaylist = useSetAtom(createPlaylistModalAtom);
 
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
@@ -70,7 +72,38 @@ const AddPlaylistsModal = () => {
     setAddPlaylistModalController({ open: false });
   };
 
-  const removeFromPlaylist = async () => {};
+  const removeFromPlaylist = async (id: string) => {
+    try {
+      const fullUrl = addPlaylistsModalController.episodeId
+        ? `/${addPlaylistsModalController.libraryItemId}/${addPlaylistsModalController.episodeId}`
+        : `/${addPlaylistsModalController.libraryItemId}`;
+
+      const response = await axios.delete(
+        `${serverAddress}/api/playlists/${id}/item${fullUrl}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      const newPlaylistLength = response.data.items.length;
+
+      queryClient.setQueryData(
+        ["playlists-modal", currentLibraryId],
+        (oldData: PlaylistExpanded[] | undefined) => {
+          if (oldData) {
+            const newData = newPlaylistLength
+              ? [...oldData.filter((pl) => pl.id !== id), response.data]
+              : [...oldData.filter((pl) => pl.id !== id)];
+            return newData;
+          } else return oldData;
+        }
+      );
+    } catch (error) {
+      console.log("[ADD_PLAYLISTS_MODAL] addToPlaylist error", error);
+    }
+  };
   const addToPlaylist = async (id: string) => {
     try {
       const response = await axios.post(
@@ -130,16 +163,17 @@ const AddPlaylistsModal = () => {
           ...playlist,
         };
       })
-      .sort((a, b) => (a.includesItem ? -1 : 1));
+      .sort((a) => (a.includesItem ? -1 : 1));
   }, [playlists, addPlaylistsModalController]);
 
-  const renderItem: ListRenderItem<SortedPlaylist> = ({ item, index }) => {
+  const renderItem: ListRenderItem<SortedPlaylist> = ({ item }) => {
     return (
       <PlaylistItem
         item={item}
         serverAddress={serverAddress}
         userToken={userToken ?? ""}
         addToPlaylist={addToPlaylist}
+        removeFromPlaylist={removeFromPlaylist}
       />
     );
   };
@@ -159,11 +193,29 @@ const AddPlaylistsModal = () => {
           contentContainerStyle={{
             paddingBottom: 44,
             paddingTop: 10,
+            flexGrow: 1,
           }}
+          ListFooterComponentStyle={{ flex: 1, justifyContent: "flex-end" }}
           ItemSeparatorComponent={() => <Flex h={10} />}
           ListEmptyComponent={
             <Flex fill mx={24} my={12} centered>
-              <Spinner />
+              {isLoading ? <Spinner /> : <Text>Empty :/</Text>}
+            </Flex>
+          }
+          ListFooterComponent={
+            <Flex px="$4">
+              <Button
+                onPress={() =>
+                  setCreatePlaylist({
+                    open: true,
+                    libraryItemId: addPlaylistsModalController.libraryItemId,
+                    episodeId: addPlaylistsModalController.episodeId,
+                    libraryId: currentLibraryId ?? "",
+                  })
+                }
+              >
+                Create Playlist
+              </Button>
             </Flex>
           }
           keyExtractor={(item) => item.id}
@@ -179,63 +231,81 @@ const PlaylistItem = ({
   userToken,
   serverAddress,
   addToPlaylist,
+  removeFromPlaylist,
 }: {
   item: SortedPlaylist;
   userToken: string;
   serverAddress: string;
-  addToPlaylist: (id: string) => void;
+  addToPlaylist: (id: string) => Promise<void>;
+  removeFromPlaylist: (id: string) => Promise<void>;
 }) => {
   const coverWidth = 72;
+  const [loading, setLoading] = useState(false);
+
+  const addOrRemove = async () => {
+    setLoading(true);
+    if (item.includesItem) {
+      await removeFromPlaylist(item.id);
+    } else {
+      await addToPlaylist(item.id);
+    }
+    setLoading(false);
+  };
 
   return (
-    <Flex
-      row
-      mx={"$2"}
-      bg={item.includesItem ? "$backgroundFocus" : "$backgroundHover"}
-      px="$2"
-      space="$2"
-    >
-      <Flex w={coverWidth} py="$2" overflow="hidden">
-        <PlaylistCover
-          item={item}
-          serverAddress={serverAddress}
-          userToken={userToken ?? ""}
-          bookWidth={coverWidth}
-        />
-      </Flex>
-      <Flex row alignItems="center" jc="space-between" fill>
-        <Text>{item.name}</Text>
-        <TouchableArea
-          borderWidth={1}
-          borderColor="$color"
-          px="$2"
-          py="$1"
-          borderRadius="$3"
-          hapticFeedback
-          bg={"$background"}
-          onPress={() => {
-            if (item.includesItem) return;
-            else addToPlaylist(item.id);
-          }}
-        >
-          <Text fontSize={14} color={"$gray12"}>
-            {item.includesItem ? "remove" : "add"}
-          </Text>
-        </TouchableArea>
-      </Flex>
-      {item.includesItem ? (
-        <Flex
-          bg={"$color"}
-          br={"$8"}
-          t={0}
-          l={0}
-          b={0}
-          r={0}
-          w={"$0.25"}
-          pos={"absolute"}
-        />
+    <>
+      {loading ? (
+        <Flex pos={"absolute"} width={"100%"} height={"100%"} centered>
+          <Spinner />
+        </Flex>
       ) : null}
-    </Flex>
+      <Flex
+        row
+        mx={"$2"}
+        bg={item.includesItem ? "$backgroundFocus" : "$backgroundHover"}
+        px="$2"
+        space="$2"
+        opacity={loading ? 0.5 : undefined}
+      >
+        <Flex w={coverWidth} py="$2" overflow="hidden">
+          <PlaylistCover
+            item={item}
+            serverAddress={serverAddress}
+            userToken={userToken ?? ""}
+            bookWidth={coverWidth}
+          />
+        </Flex>
+        <Flex row alignItems="center" jc="space-between" fill>
+          <Text>{item.name}</Text>
+          <TouchableArea
+            borderWidth={1}
+            borderColor="$color"
+            px="$2"
+            py="$1"
+            borderRadius="$3"
+            hapticFeedback
+            bg={"$background"}
+            onPress={addOrRemove}
+          >
+            <Text fontSize={14} color={"$gray12"}>
+              {item.includesItem ? "remove" : "add"}
+            </Text>
+          </TouchableArea>
+        </Flex>
+        {item.includesItem ? (
+          <Flex
+            bg={"$color"}
+            br={"$8"}
+            t={0}
+            l={0}
+            b={0}
+            r={0}
+            w={"$0.25"}
+            pos={"absolute"}
+          />
+        ) : null}
+      </Flex>
+    </>
   );
 };
 

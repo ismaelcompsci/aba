@@ -17,6 +17,7 @@ import {
   Library,
   Search,
 } from "@tamagui/lucide-icons";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
@@ -67,6 +68,34 @@ const HomePage = () => {
 
   const [userHasPlaylists, setUserHasPlaylists] = useState(false);
 
+  useQuery({
+    queryKey: ["has-playlists", currentLibraryId],
+    queryFn: async () => {
+      try {
+        const response = await axios.get(
+          `${serverAddress}/api/libraries/${currentLibraryId}`,
+          {
+            params: {
+              include: "filterdata",
+            },
+            headers: {
+              Authorization: `Bearer ${userToken}`,
+            },
+          }
+        );
+
+        const { numUserPlaylists } = response.data;
+
+        const userHasPlaylists = Boolean(numUserPlaylists);
+
+        setUserHasPlaylists(userHasPlaylists);
+        return userHasPlaylists;
+      } catch (error) {
+        console.log("[HOMEPAGE] userPlaylists error ", error);
+      }
+    },
+  });
+
   useEffect(() => {
     let tabs = [];
 
@@ -113,32 +142,6 @@ const HomePage = () => {
   if (!userToken) {
     return router.push("/server-connect/");
   }
-
-  useEffect(() => {
-    const userPlaylist = async () => {
-      try {
-        const response = await axios.get(
-          `${serverAddress}/api/libraries/${currentLibraryId}`,
-          {
-            params: {
-              include: "filterdata",
-            },
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
-        );
-
-        const { numUserPlaylists } = response.data;
-
-        setUserHasPlaylists(Boolean(numUserPlaylists));
-      } catch (error) {
-        console.log("[HOMEPAGE] userPlaylists error ", error);
-      }
-    };
-
-    userPlaylist();
-  }, [currentLibraryId]);
 
   useEffect(() => {
     setIndex(0);

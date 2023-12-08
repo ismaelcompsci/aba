@@ -1,7 +1,6 @@
 import { useMemo } from "react";
-import { Alert, FlatList, Modal } from "react-native";
+import { Alert, FlatList } from "react-native";
 import FastImage from "react-native-fast-image";
-import { BounceIn } from "react-native-reanimated";
 import TrackPlayer, {
   State,
   usePlaybackState,
@@ -15,10 +14,11 @@ import { Spinner, Text, useTheme } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { PlaylistCover } from "../../components/covers/playlist-cover";
+import { Modal } from "../../components/custom-components/modal";
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import ItemProgress from "../../components/item-progress";
 import BackHeader from "../../components/layout/back-header";
-import { AnimatedFlex, Flex } from "../../components/layout/flex";
+import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import { TouchableArea } from "../../components/touchable/touchable-area";
@@ -120,24 +120,13 @@ const PageLoading = () => {
     <Modal
       visible={Boolean(isFetchingPlaylists)}
       transparent={true}
-      animationType="fade"
+      dimBackground
     >
-      <Flex fill centered>
-        <AnimatedFlex
-          bg="$background"
-          h={100}
-          w={180}
-          borderRadius={"$5"}
-          entering={BounceIn}
-          borderWidth={1}
-          borderColor={"$borderColor"}
-          centered
-        >
-          <Flex space>
-            <Spinner />
-            <Text>Deleting playlists...</Text>
-          </Flex>
-        </AnimatedFlex>
+      <Flex padding="$4" centered>
+        <Flex space>
+          <Spinner />
+          <Text>Deleting playlists...</Text>
+        </Flex>
       </Flex>
     </Modal>
   );
@@ -463,6 +452,7 @@ const PlaylistItemRow = ({
           episodeId={
             playlistItem.episodeId ? playlistItem.episodeId : undefined
           }
+          hasTracks={Boolean(tracks.length)}
           vertical
         />
       </Flex>

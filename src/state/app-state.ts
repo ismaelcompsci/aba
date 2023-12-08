@@ -9,7 +9,11 @@ import {
   PlaybackSessionExpanded,
   User,
 } from "../types/aba";
-import { EpubReaderLoading, PlayingState } from "../types/types";
+import {
+  CreatePlaylistModalAtom,
+  EpubReaderLoading,
+  PlayingState,
+} from "../types/types";
 
 import { currentServerConfigAtom } from "./local-state";
 
@@ -22,6 +26,9 @@ export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
 export const showPlayerAtom = atom<PlayingState>({ playing: false });
 export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
+export const createPlaylistModalAtom = atom<CreatePlaylistModalAtom>({
+  open: false,
+});
 
 /* epub reader atoms */
 export const epubReaderOverviewModalAtom = atom(false);
