@@ -10,7 +10,6 @@ import {
   User,
 } from "../types/aba";
 import {
-  BaseModalAtom,
   BookmarksModalAtom,
   CreatePlaylistModalAtom,
   EpubReaderLoading,
@@ -101,7 +100,14 @@ export const isAdminOrUpAtom = atom((get) => {
   return user && (user.type === "admin" || user?.type === "root");
 });
 
-export const bookmarksAtom = atom((get) => get(userAtom)?.bookmarks ?? []);
+export const bookmarksAtom = atom(
+  (get) => get(userAtom)?.bookmarks ?? [],
+  (get, set, newBookmarks) => {
+    const user = get(userAtom);
+    // @ts-ignore
+    set(userAtom, { ...user, bookmarks: newBookmarks });
+  }
+);
 
 export const currentPlayingLibraryIdAtom = atom(
   (get) => get(playbackSessionAtom)?.libraryItemId

@@ -30,7 +30,9 @@ const initialState = {
 const BigAudioPlayer = ({
   audiobookInfo,
   setOpen,
+  libraryItemId,
 }: {
+  libraryItemId: string;
   audiobookInfo: AudiobookInfo;
   setOpen?: (open: boolean) => void;
 }) => {
@@ -118,7 +120,7 @@ const BigAudioPlayer = ({
                 paddingBottom: "$4",
               }}
             >
-              <ShowBookmarksButton />
+              <ShowBookmarksButton libraryItemId={libraryItemId} />
               <PlaybackSpeedControls />
               <ShowChaptersButton />
             </Flex>
@@ -129,7 +131,7 @@ const BigAudioPlayer = ({
   );
 };
 
-const ShowBookmarksButton = () => {
+const ShowBookmarksButton = ({ libraryItemId }: { libraryItemId: string }) => {
   const setBookmarksModalAtom = useSetAtom(bookmarksModalAtom);
 
   return (
@@ -140,7 +142,9 @@ const ShowBookmarksButton = () => {
       height={"$4"}
       alignItems={"center"}
       justifyContent={"center"}
-      onPress={() => setBookmarksModalAtom({ open: true })}
+      onPress={() =>
+        setBookmarksModalAtom({ open: true, libraryItemId: libraryItemId })
+      }
     >
       <Bookmark />
     </TouchableArea>

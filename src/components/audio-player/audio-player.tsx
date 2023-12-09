@@ -273,7 +273,11 @@ const AudioPlayerContainer = () => {
       controlled
     >
       {ready ? (
-        <BigAudioPlayer audiobookInfo={audiobookInfo} setOpen={setOpen} />
+        <BigAudioPlayer
+          audiobookInfo={audiobookInfo}
+          setOpen={setOpen}
+          libraryItemId={showPlayer.libraryItemId ?? ""}
+        />
       ) : (
         <Flex
           fill
