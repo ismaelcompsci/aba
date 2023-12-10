@@ -87,7 +87,7 @@ function EpisodePage() {
     data?.episode?.episodeType === "full" ? null : data?.episode?.episodeType;
 
   return (
-    <Screen edges={["bottom"]}>
+    <Screen edges={["bottom", "left", "right"]}>
       <BackHeader alignment="center" mx={16} pt={top + 16} pb={16}>
         {!isLoading && (episodeNumber || season || episodeType) ? (
           <Text numberOfLines={1}>

@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import { Platform, StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import { Settings } from "@tamagui/lucide-icons";
@@ -10,7 +10,7 @@ import { Button } from "tamagui";
 
 import {
   epubReaderLoadingAtom,
-  epubReaderOverviewModalAtom,
+  epubReaderShowMenuAtom,
   epubReaderTocAtom,
 } from "../../state/app-state";
 import {
@@ -22,8 +22,6 @@ import { awaitTimeout } from "../../utils/utils";
 import { Screen } from "../layout/screen";
 
 import { BookChapterModal } from "./components/book-modal";
-import Menu from "./components/menu";
-import ScrollLabels from "./components/scroll-labels";
 import {
   Annotation,
   BookAnnotations,
@@ -59,14 +57,14 @@ const EBookReader = ({
   const { width, height } = useWindowDimensions();
 
   const [bookAnnotations, setBookAnnotations] = useAtom(bookAnnotationsAtom);
-  const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
   const setEpubReaderLoading = useSetAtom(epubReaderLoadingAtom);
   const setEpubReaderToc = useSetAtom(epubReaderTocAtom);
   const ebookSettings = useAtomValue(ebookSettignsAtom);
-  const [hide, setHide] = useState(false);
-  const [showingNext, setShowingNext] = useState(false);
-  const [showingPrev, setShowingPrev] = useState(false);
-  const [currentLabel, setCurrentLabel] = useState("");
+  // const [hide, setHide] = useState(false);
+  // const [showingNext, setShowingNext] = useState(false);
+  // const [showingPrev, setShowingPrev] = useState(false);
+  // const [currentLabel, setCurrentLabel] = useState("");
+  const setEpubReaderShowMenu = useSetAtom(epubReaderShowMenuAtom);
 
   const op = useRef(false);
   const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
@@ -75,6 +73,8 @@ const EBookReader = ({
   const enableSwipe = isPdf;
 
   const annotationKey = `${book.id}-${user.id}`;
+
+  const defaultTheme = useMemo(() => ebookSettings, []);
 
   const onReady = async (readyBook: ReaderBook) => {
     const annotations = bookAnnotations[annotationKey];
@@ -91,19 +91,20 @@ const EBookReader = ({
     setEpubReaderLoading({ loading: false });
   };
 
-  const onShowPrevious = (show: boolean, label: string) => {
-    setCurrentLabel((prev) => (label ? label : prev));
-    setShowingPrev(show);
-  };
+  // const onShowPrevious = (show: boolean, label: string) => {
+  //   setCurrentLabel((prev) => (label ? label : prev));
+  //   setShowingPrev(show);
+  // };
 
-  const onShowNext = (show: boolean, label: string) => {
-    setCurrentLabel((prev) => (label ? label : prev));
-    setShowingNext(show);
-  };
+  // const onShowNext = (show: boolean, label: string) => {
+  //   setCurrentLabel((prev) => (label ? label : prev));
+  //   setShowingNext(show);
+  // };
 
   const onPress = () => {
-    if (op.current) return;
-    setHide((p) => !p);
+    // if (op.current) return;
+    // setHide((p) => !p);
+    setEpubReaderShowMenu((p) => !p);
   };
 
   const onDisplayError = (reason: string) => {
@@ -183,6 +184,7 @@ const EBookReader = ({
 
   const onAnnotationClick = ({ pos }: ShowAnnotation) => {
     op.current = true;
+    console.log({ pos });
     openMenu({ x: pos.point.x, y: pos.point.y });
   };
 
@@ -217,9 +219,9 @@ const EBookReader = ({
   };
 
   useEffect(() => {
-    StatusBar.setHidden(!hide);
+    // StatusBar.setHidden(!hide);
     return () => StatusBar.setHidden(false);
-  }, [hide]);
+  }, []);
 
   useEffect(() => {
     setIsPdf(bookPath.endsWith(".pdf"));
@@ -233,23 +235,23 @@ const EBookReader = ({
     <ReaderFullscreen
       onPress={Platform.OS === "ios" ? ReaderFullScreenPress : undefined}
     >
-      <ScrollLabels
+      {/* <ScrollLabels
         showingNext={showingNext}
         showingPrev={showingPrev}
         label={currentLabel}
-        menuHidden={hide}
-      />
+        menuHidden={false}
+      /> */}
       <Reader
         height={height}
         width={width}
         src={bookPath}
         enableSwipe={enableSwipe}
-        defaultTheme={ebookSettings}
         fileSystem={useFileSystem}
         onPress={onPress}
         initialLocation={initialLocation}
-        onShowNext={onShowNext}
-        onShowPrevious={onShowPrevious}
+        defaultTheme={defaultTheme}
+        // onShowNext={onShowNext}
+        // onShowPrevious={onShowPrevious}
         onLocationChange={onLocationChange}
         onStarted={() =>
           setEpubReaderLoading({ loading: true, part: "Opening Book..." })
@@ -268,12 +270,6 @@ const EBookReader = ({
         ]}
         onCustomMenuSelection={onCustomMenuSelection}
       />
-      {/* TODO stop rerenders : render menu into a modal  */}
-      <Menu
-        hide={hide}
-        title={book.media.metadata.title || ""}
-        setEpubReaderOverviewModal={setEpubReaderOverviewModal}
-      />
       <BookChapterModal />
       {Platform.OS === "android" ? (
         <Button
@@ -284,7 +280,7 @@ const EBookReader = ({
           zIndex={9999}
           ai={"center"}
           jc={"center"}
-          onPress={() => setHide((prev) => !prev)}
+          onPress={() => onPress()}
           icon={() => <Settings />}
         />
       ) : null}

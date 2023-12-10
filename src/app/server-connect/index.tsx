@@ -170,54 +170,48 @@ const ServerConnectPage = () => {
   }, [deviceData.serverConnectionConfigs]);
 
   return (
-    <Screen header centered>
-      <KeyboardAvoidingView
-        style={{
-          justifyContent: "center",
-          width: "100%",
-          paddingHorizontal: 12,
-        }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView
-          bounces={false}
-          contentContainerStyle={{
-            flexGrow: 1,
-          }}
-        >
-          <Card width="100%" bordered space="$4" p="$2">
-            {showAddServerForm ? (
-              <AnimatedFlex entering={FadeIn}>
-                <AddServerForm
-                  serverConnections={serverConnections}
-                  makeConnection={makeConnection}
-                  setShowAddServerForm={setShowAddServerForm}
-                />
-              </AnimatedFlex>
-            ) : serverConnections?.length ? (
-              serverConnections.map((server) => (
-                <Button
-                  key={server.id}
-                  disabled={loading}
-                  onPress={() => {
-                    setPressedServer(server);
-                    connectToServer(server);
-                  }}
-                  $gtSm={{ jc: "space-between" }}
-                >
-                  {server.name}
-                  {pressedServer?.id === server.id && loading ? (
-                    <Spinner />
-                  ) : null}
-                  <ServerConfigMenu config={server} />
-                </Button>
-              ))
-            ) : (
-              <Flex centered>
-                <Text>Empty :/</Text>
-              </Flex>
-            )}
-
+    <KeyboardAvoidingView
+      style={{
+        flex: 1,
+      }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <Screen header edges={["left", "right"]}>
+        <Flex fill px="$6" centered>
+          <Card maxHeight="90%" width="100%" bordered space="$4" p="$2">
+            <ScrollView space>
+              {showAddServerForm ? (
+                <AnimatedFlex entering={FadeIn}>
+                  <AddServerForm
+                    serverConnections={serverConnections}
+                    makeConnection={makeConnection}
+                    setShowAddServerForm={setShowAddServerForm}
+                  />
+                </AnimatedFlex>
+              ) : serverConnections?.length ? (
+                serverConnections.map((server) => (
+                  <Button
+                    key={server.id}
+                    disabled={loading}
+                    onPress={() => {
+                      setPressedServer(server);
+                      connectToServer(server);
+                    }}
+                    jc={"space-between"}
+                  >
+                    {server.name}
+                    {pressedServer?.id === server.id && loading ? (
+                      <Spinner />
+                    ) : null}
+                    <ServerConfigMenu config={server} />
+                  </Button>
+                ))
+              ) : (
+                <Flex centered>
+                  <Text>Empty :/</Text>
+                </Flex>
+              )}
+            </ScrollView>
             <Card.Footer>
               {!showAddServerForm && (
                 <Button w={"100%"} onPress={() => setShowAddServerForm(true)}>
@@ -226,9 +220,9 @@ const ServerConnectPage = () => {
               )}
             </Card.Footer>
           </Card>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Screen>
+        </Flex>
+      </Screen>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 
 import EBookReader from "../../components/epub-reader/ebook-reader";
-import { ReaderProvider } from "../../components/epub-reader/rn-epub-reader";
 import { Screen } from "../../components/layout/screen";
 import LoadingBook from "../../components/loading-book";
 import { useNewUser } from "../../hooks/use-new-user";
@@ -55,26 +54,24 @@ const ReaderPage = () => {
   }, []);
 
   return (
-    <ReaderProvider>
-      <Screen centered>
-        <LoadingBook
-          url={url}
+    <Screen centered>
+      <LoadingBook
+        url={url}
+        user={user}
+        ebookFile={ebookFile}
+        book={currentItem}
+        setBookPath={(path) => setBookPath(path)}
+      />
+      {user && bookPath !== "" ? (
+        <EBookReader
+          book={currentItem!}
           user={user}
-          ebookFile={ebookFile}
-          book={currentItem}
-          setBookPath={(path) => setBookPath(path)}
+          bookPath={bookPath}
+          serverAddress={serverAddress}
+          initialLocation={initialLocation}
         />
-        {user && bookPath !== "" ? (
-          <EBookReader
-            book={currentItem!}
-            user={user}
-            bookPath={bookPath}
-            serverAddress={serverAddress}
-            initialLocation={initialLocation}
-          />
-        ) : null}
-      </Screen>
-    </ReaderProvider>
+      ) : null}
+    </Screen>
   );
 };
 

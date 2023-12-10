@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
-import { Separator, Spinner, Text, useWindowDimensions } from "tamagui";
+import { Separator, Spinner, Text } from "tamagui";
 
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
@@ -22,7 +22,6 @@ const GenresPage = () => {
   const [serverConfig] = useAtom(currentServerConfigAtom);
 
   const { bottom } = useAppSafeAreas();
-  const { width } = useWindowDimensions();
 
   const { data: filterData, isLoading } = useQuery({
     queryKey: ["filter-data", currentLibraryId, user?.id, serverConfig?.id],
@@ -56,7 +55,7 @@ const GenresPage = () => {
     () => (
       <VirtualizedList
         showsVerticalScrollIndicator={false}
-        style={{ paddingBottom: bottom, width, paddingHorizontal: 24 }}
+        style={{ paddingBottom: bottom, paddingHorizontal: 24 }}
       >
         {progressFilters.length ? (
           <GenreList
@@ -103,7 +102,7 @@ const GenresPage = () => {
   );
 
   return (
-    <Screen edges={["top"]}>
+    <Screen edges={["top", "left", "right"]}>
       <BackHeader alignment="center" mx={16} py={16}>
         <Text fontSize="$6">Genres</Text>
       </BackHeader>

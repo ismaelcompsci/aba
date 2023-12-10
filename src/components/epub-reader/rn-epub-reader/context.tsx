@@ -79,14 +79,11 @@ type InitialState = {
   atStart: boolean;
   atEnd: boolean;
   key: string;
-  totalLocations: number;
   currentLocation: LocationChange | null;
   meta: ReaderBookMetadata;
   progress: number;
-  locations: ePubCfi[];
   isLoading: boolean;
   isRendering: boolean;
-  searchResults: SearchResult[];
   isPdf: boolean;
   cover: string;
 };
@@ -113,7 +110,6 @@ const initialState: InitialState = {
   atStart: false,
   atEnd: false,
   key: "",
-  totalLocations: 0,
   currentLocation: null,
   meta: {
     author: "",
@@ -123,10 +119,8 @@ const initialState: InitialState = {
     publisher: "",
   },
   progress: 0,
-  locations: [],
   isLoading: true,
   isRendering: true,
-  searchResults: [],
   isPdf: false,
   cover: "",
 };
@@ -163,11 +157,6 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
         ...state,
         key: action.payload,
       };
-    case Types.SET_TOTAL_LOCATIONS:
-      return {
-        ...state,
-        totalLocations: action.payload,
-      };
     case Types.SET_CURRENT_LOCATION:
       return {
         ...state,
@@ -183,11 +172,6 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
         ...state,
         progress: action.payload,
       };
-    case Types.SET_LOCATIONS:
-      return {
-        ...state,
-        locations: action.payload,
-      };
     case Types.SET_IS_LOADING:
       return {
         ...state,
@@ -197,11 +181,6 @@ function bookReducer(state: InitialState, action: BookActions): InitialState {
       return {
         ...state,
         isRendering: action.payload,
-      };
-    case Types.SET_SEARCH_RESULTS:
-      return {
-        ...state,
-        searchResults: action.payload,
       };
     case Types.SET_IS_PDF:
       return {
@@ -263,11 +242,11 @@ export interface ReaderContextProps {
   //  */
   // getLocations: () => ePubCfi[];
 
-  /**
-   * Returns the current location of the book
-   * @returns {LocationChange} {@link LocationChange}
-   */
-  getCurrentLocation: () => LocationChange | null;
+  // /**
+  //  * Returns the current location of the book
+  //  * @returns {LocationChange} {@link LocationChange}
+  //  */
+  // getCurrentLocation: () => LocationChange | null;
 
   /**
    * Returns an object containing the book's metadata
@@ -421,7 +400,7 @@ const ReaderContext = createContext<ReaderContextProps>({
   goPrevious: () => {},
   goNext: () => {},
   // getLocations: () => [],
-  getCurrentLocation: () => null,
+  // getCurrentLocation: () => null,
   getMeta: () => ({
     author: "",
     title: "",
@@ -542,7 +521,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     if (state.isPdf) {
       return;
       const newLocation = JSON.parse(target);
-      console.log({ newLocation, currentLocation: state.currentLocation });
       book.current?.injectJavaScript(
         `reader.view.goTo(Number(${Math.max(0, newLocation[0].num)})); true`
       );
@@ -559,11 +537,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     book.current?.injectJavaScript(`reader.view.next(); true`);
     return true;
   }, []);
-
-  const getCurrentLocation = useCallback(
-    () => state.currentLocation,
-    [state.currentLocation]
-  );
 
   const setCover = useCallback((cover: string) => {
     dispatch({ type: Types.SET_COVER, payload: cover });
@@ -695,7 +668,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       goPrevious,
       goNext,
       // getLocations,
-      getCurrentLocation,
       getMeta,
       // search,
 
@@ -711,14 +683,11 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
       atStart: state.atStart,
       atEnd: state.atEnd,
-      totalLocations: state.totalLocations,
       currentLocation: state.currentLocation,
       meta: state.meta,
       progress: state.progress,
-      locations: state.locations,
       isLoading: state.isLoading,
       isRendering: state.isRendering,
-      searchResults: state.searchResults,
       isPdf: state.isPdf,
       cover: state.cover,
       // setSearchResults,
@@ -738,7 +707,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       // changeFontFamily,
       // changeFontSize,
       changeTheme,
-      getCurrentLocation,
       getMeta,
       // getLocations,
       goNext,
@@ -767,11 +735,8 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       state.isLoading,
       state.isRendering,
       state.key,
-      state.locations,
       state.progress,
-      state.searchResults,
       state.theme,
-      state.totalLocations,
       state.isPdf,
       state.cover,
     ]

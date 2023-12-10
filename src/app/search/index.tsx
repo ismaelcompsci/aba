@@ -100,10 +100,8 @@ const SearchPage = () => {
     setNarratorResults([]);
   };
 
-  console.log({ isLoading, isFetching });
-
   return (
-    <Screen edges={["top", "bottom"]}>
+    <Screen edges={["top", "left", "right"]}>
       <BackHeader alignment="center" mx={16} pt={16}>
         <Text fontSize="$6">Search</Text>
       </BackHeader>
@@ -116,92 +114,90 @@ const SearchPage = () => {
         />
       </Flex>
       {/* results */}
-      <Flex fill>
-        <ScrollView space="$4" showsVerticalScrollIndicator={false}>
-          {isLoading || isFetching ? (
-            <Flex fill centered>
-              <Spinner />
-            </Flex>
-          ) : !resultsLength && !isLoading && debouncedSearchInput ? (
-            <Flex fill centered>
-              <Text>Not found :/</Text>
-            </Flex>
-          ) : null}
+      <ScrollView space="$4" showsVerticalScrollIndicator={false}>
+        {isLoading || isFetching ? (
+          <Flex fill centered>
+            <Spinner />
+          </Flex>
+        ) : !resultsLength && !isLoading && debouncedSearchInput ? (
+          <Flex fill centered>
+            <Text>Not found :/</Text>
+          </Flex>
+        ) : null}
 
-          {bookResults.length ? (
-            <ResultSection>
-              <Text>Books</Text>
-              {bookResults.map(({ libraryItem }) => {
-                return (
-                  <ItemSearchCard
-                    key={libraryItem.id}
-                    item={libraryItem}
-                    serverAddress={serverAddress}
-                    token={userToken}
-                    isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-                  />
-                );
-              })}
-            </ResultSection>
-          ) : null}
-          {seriesResults.length ? (
-            <ResultSection>
-              <Text>Series</Text>
-              {seriesResults.map(({ books, series }) => {
-                return (
-                  <SeriesSearchCard
-                    key={series.id}
-                    series={series}
-                    books={books}
-                    serverAddress={serverAddress}
-                    token={userToken}
-                    isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-                  />
-                );
-              })}
-            </ResultSection>
-          ) : null}
-          {podcastResults.length ? (
-            <ResultSection>
-              <Text>Podcasts</Text>
-              {podcastResults.map(({ libraryItem }, i) => {
-                return (
-                  <ItemSearchCard
-                    key={libraryItem.id}
-                    item={libraryItem}
-                    serverAddress={serverAddress}
-                    token={userToken}
-                    isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-                  />
-                );
-              })}
-            </ResultSection>
-          ) : null}
-          {authorResults.length ? (
-            <ResultSection>
-              <Text>Authors</Text>
-              {authorResults.map((author, i) => {
-                return (
-                  <AuthorSearchCard
-                    key={i}
-                    author={author}
-                    serverAddress={serverAddress}
-                    token={userToken}
-                  />
-                );
-              })}
-            </ResultSection>
-          ) : null}
-          {narratorResults.length ? (
-            <ResultSection>
-              <Text>Narrators</Text>
-              {narratorResults.map((narrator, i) => {
-                return <NarratorSearchCard key={i} narrator={narrator} />;
-              })}
-            </ResultSection>
-          ) : null}
-        </ScrollView>
-      </Flex>
+        {bookResults.length ? (
+          <ResultSection>
+            <Text>Books</Text>
+            {bookResults.map(({ libraryItem }) => {
+              return (
+                <ItemSearchCard
+                  key={libraryItem.id}
+                  item={libraryItem}
+                  serverAddress={serverAddress}
+                  token={userToken}
+                  isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+                />
+              );
+            })}
+          </ResultSection>
+        ) : null}
+        {seriesResults.length ? (
+          <ResultSection>
+            <Text>Series</Text>
+            {seriesResults.map(({ books, series }) => {
+              return (
+                <SeriesSearchCard
+                  key={series.id}
+                  series={series}
+                  books={books}
+                  serverAddress={serverAddress}
+                  token={userToken}
+                  isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+                />
+              );
+            })}
+          </ResultSection>
+        ) : null}
+        {podcastResults.length ? (
+          <ResultSection>
+            <Text>Podcasts</Text>
+            {podcastResults.map(({ libraryItem }) => {
+              return (
+                <ItemSearchCard
+                  key={libraryItem.id}
+                  item={libraryItem}
+                  serverAddress={serverAddress}
+                  token={userToken}
+                  isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+                />
+              );
+            })}
+          </ResultSection>
+        ) : null}
+        {authorResults.length ? (
+          <ResultSection>
+            <Text>Authors</Text>
+            {authorResults.map((author, i) => {
+              return (
+                <AuthorSearchCard
+                  key={i}
+                  author={author}
+                  serverAddress={serverAddress}
+                  token={userToken}
+                />
+              );
+            })}
+          </ResultSection>
+        ) : null}
+        {narratorResults.length ? (
+          <ResultSection>
+            <Text>Narrators</Text>
+            {narratorResults.map((narrator, i) => {
+              return <NarratorSearchCard key={i} narrator={narrator} />;
+            })}
+          </ResultSection>
+        ) : null}
+      </ScrollView>
     </Screen>
   );
 };

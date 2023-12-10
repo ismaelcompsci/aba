@@ -5,6 +5,7 @@ import { Text } from "tamagui";
 import BackHeader from "../../../components/layout/back-header";
 import { Screen } from "../../../components/layout/screen";
 import LibraryPage from "../../../components/tab-pages/library-page";
+import { useAppSafeAreas } from "../../../hooks/use-app-safe-areas";
 import {
   currentLibraryIdAtom,
   isCoverSquareAspectRatioAtom,
@@ -21,13 +22,15 @@ const FilterPage = () => {
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
 
+  const { left, right } = useAppSafeAreas();
+
   if (!userToken) {
     return null;
   }
 
   return (
     <Screen edges={["top"]}>
-      <BackHeader alignment="center" mx={16} py={16}>
+      <BackHeader alignment="center" mx={16} pl={left} pr={right} py={16}>
         <Text numberOfLines={1} fontSize="$6">
           {name || decode(id as string)}
         </Text>

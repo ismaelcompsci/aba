@@ -39,6 +39,7 @@ export const bookmarksModalAtom = atom<BookmarksModalAtom>({
 
 /* epub reader atoms */
 export const epubReaderOverviewModalAtom = atom(false);
+export const epubReaderShowMenuAtom = atom(false);
 export const epubReaderTocAtom = atom<TocItem[] | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,

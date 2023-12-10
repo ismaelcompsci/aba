@@ -68,7 +68,7 @@ const PlaylistsPage = () => {
   );
 
   return (
-    <Screen edges={["top"]}>
+    <Screen edges={["top", "left", "right"]}>
       <BackHeader
         endAdornment={
           userToken ? (

@@ -1,6 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
 import {
-  DeviceEventEmitter,
   I18nManager,
   Platform,
   useWindowDimensions,
@@ -148,10 +147,10 @@ export function View({
       onAnnotationClick({ index, value, pos });
     }
 
-    if (type === "tts") {
-      const { ssml, action } = parsedEvent;
-      DeviceEventEmitter.emit("TTS.ssml", { ssml, action });
-    }
+    // if (type === "tts") {
+    //   const { ssml, action } = parsedEvent;
+    //   DeviceEventEmitter.emit("TTS.ssml", { ssml, action });
+    // }
   };
 
   useEffect(() => {
@@ -275,7 +274,6 @@ const GesturePerPlatform = ({
       </GestureDetector>
     );
   } else {
-    console.log(isPdf);
     if (isPdf) {
       return (
         <GestureDetector gesture={Gesture.Race(...gestures)}>

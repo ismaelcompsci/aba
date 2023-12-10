@@ -27,6 +27,8 @@
 - [x] add server info
 - [ ] lazy render audio player
 
+- [ ] Implement socket updates
+
 
 
 

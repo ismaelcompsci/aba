@@ -32,6 +32,8 @@ export const BookChapterModal = () => {
     { key: "annotations", title: "Annotations" },
   ]);
 
+  if (!epubReaderOverviewModal) return null;
+
   return (
     <Modal
       presentationStyle="pageSheet"

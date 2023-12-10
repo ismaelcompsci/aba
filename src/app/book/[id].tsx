@@ -47,6 +47,7 @@ const BookPage = () => {
   const userToken = useAtomValue(userTokenAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const setCurrentItem = useSetAtom(currentItemAtom);
+  const safeAreas = useAppSafeAreas();
 
   const colors = useTheme();
 
@@ -96,6 +97,7 @@ const BookPage = () => {
           alignment="center"
           mx={16}
           pt={top + 16}
+          pl={safeAreas.left}
           pb={16}
           showButtonLabel
         />
@@ -210,7 +212,7 @@ const BookPage = () => {
           fixedHeader={renderFixedHeader}
           showsVerticalScrollIndicator={false}
         >
-          <Screen edges={["bottom"]}>
+          <Screen edges={["bottom", "left", "right"]}>
             <LinearGradient
               colors={getGradient(colors.background.get())}
               start={{ x: 0, y: 1 }}
@@ -345,7 +347,7 @@ const BookParallaxHeader = ({
           bottom: 0,
           right: 0,
         }}
-        blurType={appScheme.scheme}
+        blurType={appScheme.scheme === "oled" ? "dark" : appScheme.scheme}
         blurAmount={3}
         reducedTransparencyFallbackColor="black"
       />

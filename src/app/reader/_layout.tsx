@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import {
   FadeInDown,
@@ -15,122 +15,127 @@ import {
   List,
   Settings2,
 } from "@tamagui/lucide-icons";
-import { useAtom } from "jotai";
+import { Stack } from "expo-router";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, H6, Label, Separator, Switch, Text } from "tamagui";
 
-import { useAppSafeAreas } from "../../../hooks/use-app-safe-areas";
-import { ebookSettignsAtom } from "../../../state/local-state";
-import { BackButton } from "../../layout/back-header";
-import { AnimatedFlex, Flex } from "../../layout/flex";
-import { TouchableArea } from "../../touchable/touchable-area";
-import { Theme, useReader } from "../rn-epub-reader";
+import { themes } from "../../components/epub-reader/components/themes";
+import {
+  ReaderProvider,
+  Theme,
+  useReader,
+} from "../../components/epub-reader/rn-epub-reader";
+import { BackButton } from "../../components/layout/back-header";
+import { AnimatedFlex, Flex } from "../../components/layout/flex";
+import { TouchableArea } from "../../components/touchable/touchable-area";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
+import {
+  epubReaderOverviewModalAtom,
+  epubReaderShowMenuAtom,
+} from "../../state/app-state";
+import { ebookSettignsAtom } from "../../state/local-state";
 
-import { themes } from "./themes";
+const layout = () => {
+  return (
+    <ReaderProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+      <Menu />
+    </ReaderProvider>
+  );
+};
+
+const Menu = () => {
+  const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
+  const show = useAtomValue(epubReaderShowMenuAtom);
+  const [openSettings, setOpenSettings] = useState(false);
+
+  const { left, right, top } = useAppSafeAreas();
+  const { width } = useWindowDimensions();
+
+  if (!show) return null;
+
+  return (
+    <>
+      <AnimatedFlex
+        w={width}
+        height={104}
+        paddingLeft={left}
+        paddingRight={right}
+        bg={"$background"}
+        pos={"absolute"}
+        top={0}
+        left={0}
+        right={0}
+        zIndex={9999}
+        entering={FadeInUp}
+        exiting={FadeOutUp}
+        alignItems="center"
+        pt={top}
+      >
+        <Flex
+          row
+          flex={1}
+          alignItems="center"
+          paddingHorizontal={"$4"}
+          pos={"relative"}
+        >
+          <Flex row flex={1} gap="$4" ai={"center"}>
+            <BackButton />
+            <H6
+              numberOfLines={1}
+              $sm={{ maxWidth: "$15" }}
+              $md={{ maxWidth: "$20" }}
+            >
+              {/* {title} */}
+            </H6>
+          </Flex>
+          <Flex row alignItems="center" gap={16}>
+            <TouchableArea
+              hapticFeedback
+              onPress={() => setEpubReaderOverviewModal(true)}
+            >
+              <List />
+            </TouchableArea>
+            <TouchableArea
+              hapticFeedback
+              onPress={() => setOpenSettings((p) => !p)}
+            >
+              <Settings2 />
+            </TouchableArea>
+          </Flex>
+        </Flex>
+        <EbookSettingsMenu
+          openSettings={openSettings}
+          hide={show}
+          setOpenSettings={setOpenSettings}
+        />
+      </AnimatedFlex>
+
+      <AnimatedFlex
+        w={width}
+        height={104}
+        bg={"$background"}
+        pos={"absolute"}
+        bottom={0}
+        left={0}
+        right={0}
+        entering={FadeInDown}
+        exiting={FadeOutDown}
+        paddingHorizontal="$4"
+      ></AnimatedFlex>
+    </>
+  );
+};
 
 const FONT_STEP = 5;
 const GAPSTEP = 0.01;
 const LINESTEP = 0.1;
 
 const SCROLL_ENABLED = false;
-
-// const def = {
-//   tts: false,
-//   voice: "",
-// };
-// type GeneralEpubReaderSettings = {
-//   tts: boolean;
-//   voice: string;
-// };
-// const generalEpubReaderSettingsAtom = atom<GeneralEpubReaderSettings>(def);
-
-const Menu = ({
-  hide,
-  title,
-  setEpubReaderOverviewModal,
-}: {
-  hide: boolean;
-  title: string;
-  setEpubReaderOverviewModal: (open: boolean) => void;
-}) => {
-  const { width } = useWindowDimensions();
-  const { top, bottom, left, right } = useAppSafeAreas();
-
-  const [openSettings, setOpenSettings] = useState(false);
-
-  return (
-    <>
-      {hide && (
-        <AnimatedFlex
-          w={width}
-          paddingLeft={left}
-          paddingRight={right}
-          bg={"$background"}
-          pos={"absolute"}
-          top={0}
-          left={0}
-          right={0}
-          zIndex={9999}
-          entering={FadeInUp}
-          exiting={FadeOutUp}
-          pt={top}
-        >
-          <Flex
-            row
-            flex={1}
-            alignItems="center"
-            paddingHorizontal={"$4"}
-            pos={"relative"}
-          >
-            <Flex row flex={1} gap="$4" ai={"center"}>
-              <BackButton />
-              <H6
-                numberOfLines={1}
-                $sm={{ maxWidth: "$15" }}
-                $md={{ maxWidth: "$20" }}
-              >
-                {title}
-              </H6>
-            </Flex>
-            <Flex row alignItems="center" gap={16}>
-              <TouchableArea
-                hapticFeedback
-                onPress={() => setEpubReaderOverviewModal(true)}
-              >
-                <List />
-              </TouchableArea>
-              <TouchableArea
-                hapticFeedback
-                onPress={() => setOpenSettings((p) => !p)}
-              >
-                <Settings2 />
-              </TouchableArea>
-            </Flex>
-          </Flex>
-          <EbookSettingsMenu
-            openSettings={openSettings}
-            hide={hide}
-            setOpenSettings={setOpenSettings}
-          />
-        </AnimatedFlex>
-      )}
-
-      {hide && (
-        <AnimatedFlex
-          w={width}
-          bg={"$background"}
-          pos={"absolute"}
-          bottom={0}
-          left={0}
-          right={0}
-          entering={FadeInDown}
-          exiting={FadeOutDown}
-          paddingHorizontal="$4"
-          paddingBottom={bottom}
-        ></AnimatedFlex>
-      )}
-    </>
-  );
-};
 
 const EbookSettingsMenu = ({
   openSettings,
@@ -222,13 +227,14 @@ const EbookSettingsMenu = ({
 
   return (
     <AnimatedFlex
-      zIndex={99999}
       h={300}
       w={width}
       px={"$5"}
-      py={"$4"}
-      bg={"$background"}
       space={"$2"}
+      bg={"$background"}
+      pos="absolute"
+      top={104}
+      pt="$4"
       entering={FadeInUp}
       exiting={FadeOutUp}
     >
@@ -337,4 +343,4 @@ const EbookSettingsMenu = ({
   );
 };
 
-export default memo(Menu);
+export default layout;

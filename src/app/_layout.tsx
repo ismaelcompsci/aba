@@ -143,7 +143,9 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "library/[filter]/[id]" ||
     name === "search/index" ||
     name === "playlists/[id]" ||
-    name === "book/[bookId]/[episodeId]"
+    name === "book/[bookId]/[episodeId]" ||
+    name === "collection/[id]" ||
+    name === "reader"
   ) {
     return null;
   }

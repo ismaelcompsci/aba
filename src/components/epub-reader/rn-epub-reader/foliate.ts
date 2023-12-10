@@ -9799,6 +9799,7 @@ class Reader {
   style = {};
   isPdf;
   highlight_color = "yellow";
+  #prevLocation
   constructor(bookPath, initLocation) {
     this.initLocation = initLocation;
     if (bookPath) {
@@ -9858,6 +9859,7 @@ class Reader {
   };
   #handleEvents = () => {
     this.view.addEventListener("relocate", e => {
+      if (this.#prevLocation === e.detail.fraction) return;    
       const {
         heads,
         feet
@@ -9897,6 +9899,7 @@ class Reader {
         type: "onLocationChange",
         ...e.detail
       });
+      this.#prevLocation = e.detail.fraction;
     });
     this.view.addEventListener("create-overlay", e => {
       const {
