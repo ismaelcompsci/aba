@@ -49,7 +49,7 @@ const AddPage = ({ serverAddress, userToken }: AddPageProps) => {
     queryKey: ["podcast-search", term],
     queryFn: async () => {
       try {
-        if (!term) return;
+        if (!term) return [];
 
         const response: { data: PodcastSearch[] } = await axios.get(
           `${serverAddress}/api/search/podcast`,

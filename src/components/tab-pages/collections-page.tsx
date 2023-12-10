@@ -2,12 +2,14 @@ import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useAtomValue } from "jotai";
 import { Separator, Spinner, Text } from "tamagui";
 
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
+import { isCoverSquareAspectRatioAtom } from "../../state/app-state";
 import { CollectionMinified } from "../../types/aba";
 import { LibraryCollections } from "../../types/types";
-import SeriesCard from "../cards/series-card";
+import CollectionsCard from "../cards/collections-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 
@@ -22,6 +24,8 @@ const CollectionsPage = ({
   serverAddress,
   userToken,
 }: CollectionsPageProps) => {
+  const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
+
   const { headerHeight } = useAppSafeAreas();
   const { width: screenWidth } = useWindowDimensions();
 
@@ -57,12 +61,11 @@ const CollectionsPage = ({
   const handleRenderItem = ({ item }: { item: CollectionMinified }) => {
     return (
       <Flex grow centered>
-        <SeriesCard
+        <CollectionsCard
           item={item}
-          isCoverSquareAspectRatio={false}
+          isCoverSquareAspectRatio={isCoverSquareAspectRatio}
           serverAddress={serverAddress}
           userToken={userToken}
-          isCollection
         />
       </Flex>
     );

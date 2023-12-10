@@ -184,7 +184,6 @@ const EBookReader = ({
 
   const onAnnotationClick = ({ pos }: ShowAnnotation) => {
     op.current = true;
-    console.log({ pos });
     openMenu({ x: pos.point.x, y: pos.point.y });
   };
 

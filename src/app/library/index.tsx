@@ -269,7 +269,7 @@ const HomePage = () => {
           if (scene.route.key !== currentRoute?.key) return null;
           return (
             <AnimatedFlex entering={ZoomIn}>
-              <Text>{scene.route.title}</Text>
+              <Text numberOfLines={1}>{scene.route.title}</Text>
             </AnimatedFlex>
           );
         }}

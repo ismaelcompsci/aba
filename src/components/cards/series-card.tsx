@@ -1,20 +1,19 @@
 import { useMemo } from "react";
+import { Image } from "react-native";
 import FastImage from "react-native-fast-image";
-import { BlurView } from "@react-native-community/blur";
 import { router } from "expo-router";
 import { Text, XStack, YStack, ZStack } from "tamagui";
 
-import { IS_ANDROID, IS_IOS } from "../../constants/consts";
-import { CollectionMinified, SeriesBooksMinified } from "../../types/aba";
+import { IS_ANDROID } from "../../constants/consts";
+import { SeriesBooksMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode } from "../../utils/utils";
 
 interface SeriesCardProps {
-  item: SeriesBooksMinified | CollectionMinified;
+  item: SeriesBooksMinified;
   isCoverSquareAspectRatio: boolean;
   serverAddress: string;
   userToken: string;
-  isCollection?: boolean;
 }
 
 const SeriesCard = ({
@@ -22,7 +21,6 @@ const SeriesCard = ({
   isCoverSquareAspectRatio,
   serverAddress,
   userToken,
-  isCollection,
 }: SeriesCardProps) => {
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
@@ -33,11 +31,7 @@ const SeriesCard = ({
   const bgImg = getItemCoverSrc(item.books[0], null, userToken, serverAddress);
 
   const handlePress = () => {
-    if (isCollection) {
-      router.push(`/collection/${item.id}`);
-    } else {
-      router.push(`/library/series/${encode(item.id)}?name=${item.name}`);
-    }
+    router.push(`/library/series/${encode(item.id)}?name=${item.name}`);
   };
 
   const bookPhotos = useMemo(() => {
@@ -95,8 +89,8 @@ const SeriesCard = ({
       elevation={"$0.75"}
       bg={"$background"}
     >
-      {bgImg && IS_IOS ? (
-        <FastImage
+      {bgImg ? (
+        <Image
           style={{
             position: "absolute",
             top: 0,
@@ -104,27 +98,11 @@ const SeriesCard = ({
             bottom: 0,
             right: 0,
           }}
+          blurRadius={15}
           resizeMode="cover"
           source={{
             uri: bgImg || "",
-            priority: "low",
           }}
-        />
-      ) : null}
-      {IS_IOS ? (
-        <BlurView
-          style={{
-            height: bookHeight,
-            position: "absolute",
-            width: seriesCardWidth,
-            top: 0,
-            left: 0,
-            bottom: 0,
-            right: 0,
-          }}
-          blurType={"dark"}
-          blurAmount={3}
-          reducedTransparencyFallbackColor="black"
         />
       ) : null}
       {/* book images */}
