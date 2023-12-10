@@ -4,7 +4,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
-import { Spinner, Text } from "tamagui";
+import { Button, Spinner, Text } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
@@ -106,9 +106,13 @@ const LibraryPage = ({
       return {};
     },
     getNextPageParam: (lastPage) => {
+      const page = Math.ceil(
+        (lastPage.data?.total ?? -1) / LIBRARY_INFINITE_LIMIT
+      );
+
       if (!lastPage?.data) return;
-      if (lastPage?.data.page >= lastPage?.data.total) {
-        return undefined;
+      if (lastPage?.data.page >= page) {
+        return false;
       }
 
       return lastPage?.nextPage;
@@ -198,6 +202,13 @@ const LibraryPage = ({
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
             estimatedItemSize={bookWidth}
+            ListFooterComponent={
+              hasNextPage ? (
+                <Button mt="$3">
+                  <Spinner />
+                </Button>
+              ) : null
+            }
             contentContainerStyle={{ paddingBottom: bottom }}
           />
         </Flex>

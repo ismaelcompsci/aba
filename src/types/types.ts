@@ -3,6 +3,7 @@ import { Track } from "react-native-track-player";
 
 import {
   BookMetadata,
+  CollectionMinified,
   LibraryItem,
   LibraryItemExpanded,
   LibraryItemMinified,
@@ -76,12 +77,25 @@ export interface LibrarySeries {
   include: string;
 }
 
+export interface LibraryCollections {
+  results: CollectionMinified[];
+  total: number;
+  limit: number;
+  page: number;
+  sortBy: string;
+  sortDesc: boolean;
+  filterBy: string;
+  minified: boolean;
+  include: string;
+}
+
 export type TabName =
   | "Home"
   | "Library"
   | "Series"
   | "Latest"
   | "Add"
+  | "Collections"
   | "Playlists";
 
 export type Tabs<T> = {

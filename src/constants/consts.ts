@@ -4,7 +4,7 @@ import RNFetchBlob from "rn-fetch-blob";
 export const IS_ANDROID = Platform.OS === "android";
 export const IS_IOS = Platform.OS === "ios";
 
-export const LIBRARY_INFINITE_LIMIT = 30;
+export const LIBRARY_INFINITE_LIMIT = 100;
 export const SERIES_INFINITE_LIMIT = 30;
 
 export const epubDir = RNFetchBlob.fs.dirs.DocumentDir + "/epub";

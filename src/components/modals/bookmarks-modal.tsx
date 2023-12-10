@@ -1,9 +1,15 @@
 import { useMemo, useState } from "react";
 import { Alert, useWindowDimensions } from "react-native";
+import TrackPlayer, {
+  State,
+  usePlaybackState,
+} from "react-native-track-player";
 import {
   ArrowLeft,
   BookmarkCheck,
   Edit3,
+  Pause,
+  Play,
   Plus,
   Timer,
   Trash2,
@@ -207,14 +213,37 @@ const CreateBookmarkFrom = ({
     showForm.edit ? showForm.edit.title : defaultValue
   );
   const { currentPosition } = useAudioPlayerProgress();
+  const playerState = usePlaybackState();
+  const isPlaying = playerState.state === State.Playing;
+  const colors = useTheme();
 
   return (
-    <Flex width={width * 0.8} maxHeight={height * 0.5} space>
+    <Flex width={width * 0.8} maxHeight={height * 0.5}>
       <Flex row jc={"space-between"} alignItems="center">
-        <TouchableArea onPress={() => setShowForm({ open: false })}>
+        <TouchableArea
+          flexGrow={1}
+          onPress={() => setShowForm({ open: false })}
+        >
           <ArrowLeft />
         </TouchableArea>
         {showForm.edit ? <Time big value={showForm.edit.time} /> : <Time big />}
+      </Flex>
+      <Flex row centered>
+        <TouchableArea
+          onPress={() => {
+            if (isPlaying) {
+              TrackPlayer.pause();
+            } else {
+              TrackPlayer.play();
+            }
+          }}
+        >
+          {isPlaying ? (
+            <Pause fill={colors.color.get()} />
+          ) : (
+            <Play fill={colors.color.get()} />
+          )}
+        </TouchableArea>
       </Flex>
       <Flex>
         <Label>Note</Label>
@@ -235,6 +264,7 @@ const CreateBookmarkFrom = ({
         borderWidth="$1"
         borderRadius={"$4"}
         padding="$3"
+        mt="$3"
       >
         <Text>{showForm.edit ? "Update" : "Create"}</Text>
       </TouchableArea>

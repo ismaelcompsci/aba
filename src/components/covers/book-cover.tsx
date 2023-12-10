@@ -38,7 +38,7 @@ export const BookCover = ({
         }
         onError={() => setError(true)}
         source={{
-          uri: coverUrl + `&format=webp`,
+          uri: coverUrl,
           priority: "low",
         }}
         style={[

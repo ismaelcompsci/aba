@@ -5,15 +5,16 @@ import { router } from "expo-router";
 import { Text, XStack, YStack, ZStack } from "tamagui";
 
 import { IS_ANDROID, IS_IOS } from "../../constants/consts";
-import { SeriesBooksMinified } from "../../types/aba";
+import { CollectionMinified, SeriesBooksMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode } from "../../utils/utils";
 
 interface SeriesCardProps {
-  item: SeriesBooksMinified;
+  item: SeriesBooksMinified | CollectionMinified;
   isCoverSquareAspectRatio: boolean;
   serverAddress: string;
   userToken: string;
+  isCollection?: boolean;
 }
 
 const SeriesCard = ({
@@ -21,6 +22,7 @@ const SeriesCard = ({
   isCoverSquareAspectRatio,
   serverAddress,
   userToken,
+  isCollection,
 }: SeriesCardProps) => {
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
@@ -31,7 +33,11 @@ const SeriesCard = ({
   const bgImg = getItemCoverSrc(item.books[0], null, userToken, serverAddress);
 
   const handlePress = () => {
-    router.push(`/library/series/${encode(item.id)}?name=${item.name}`);
+    if (isCollection) {
+      router.push(`/collection/${item.id}`);
+    } else {
+      router.push(`/library/series/${encode(item.id)}?name=${item.name}`);
+    }
   };
 
   const bookPhotos = useMemo(() => {

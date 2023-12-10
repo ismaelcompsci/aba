@@ -12,6 +12,7 @@ import type { IconProps } from "@tamagui/helpers-icon";
 import {
   Activity,
   Backpack,
+  BookCopy,
   HardDrive,
   Home,
   Library,
@@ -27,6 +28,7 @@ import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
 import AddPage from "../../components/tab-pages/add-page";
+import CollectionsPage from "../../components/tab-pages/collections-page";
 import LatestPage from "../../components/tab-pages/latest-page";
 import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
@@ -50,6 +52,7 @@ const tabs: Tabs<IconProps> = {
   Latest: Activity,
   Add: Search,
   Playlists: HardDrive,
+  Collections: BookCopy,
 };
 
 type TabPage = {
@@ -114,6 +117,7 @@ const HomePage = () => {
         { key: "_personalPage", title: "Home" },
         { key: "_libraryPage", title: "Library" },
         { key: "_seriesPage", title: "Series" },
+        { key: "_collectionsPage", title: "Collections" },
       ];
     }
 
@@ -197,6 +201,14 @@ const HomePage = () => {
       case "_playlistsPage":
         return (
           <PlaylistsPage
+            currentLibraryId={currentLibraryId}
+            serverAddress={serverAddress}
+            userToken={userToken}
+          />
+        );
+      case "_collectionsPage":
+        return (
+          <CollectionsPage
             currentLibraryId={currentLibraryId}
             serverAddress={serverAddress}
             userToken={userToken}

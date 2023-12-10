@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { SectionList } from "react-native";
 import { ChevronRight, Contrast, User } from "@tamagui/lucide-icons";
 import { useQueryClient } from "@tanstack/react-query";
@@ -60,6 +61,16 @@ const SettingsAndMore = () => {
     router.push("/server-connect/");
   };
 
+  const appearanceCurrentSetting = useMemo(() => {
+    if (appTheme.scheme === "dark") {
+      return "Dark mode";
+    } else if (appTheme.scheme === "light") {
+      return "Light mode";
+    } else {
+      return "OLED mode";
+    }
+  }, [appTheme]);
+
   const sections: SettingSection[] = [
     {
       subTitle: "App Settings",
@@ -67,8 +78,7 @@ const SettingsAndMore = () => {
         {
           route: "/settings/appearence",
           text: "Appearance",
-          currentSetting:
-            appTheme.scheme === "dark" ? "Dark mode" : "Light Mode",
+          currentSetting: appearanceCurrentSetting,
           icon: <Contrast color="$gray11" />,
         },
       ],

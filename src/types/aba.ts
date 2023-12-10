@@ -430,6 +430,10 @@ export type Collection = {
   createdAt: number;
 };
 
+export type CollectionMinified = Omit<Collection, "books"> & {
+  books: LibraryItemMinified[];
+};
+
 export type CollectionExpanded = Omit<Collection, "books"> & {
   books: LibraryItemExpanded[];
 };
