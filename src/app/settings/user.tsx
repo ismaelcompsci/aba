@@ -30,7 +30,7 @@ import { dateDistanceFromNow, elapsedTime } from "../../utils/utils";
 const UserPage = () => {
   const { bottom } = useAppSafeAreas();
   return (
-    <Screen edges={["top"]}>
+    <Screen edges={["top", "left", "right"]}>
       <BackHeader alignment="center" mx={16} py={16}>
         <Text fontSize={18}>User</Text>
       </BackHeader>

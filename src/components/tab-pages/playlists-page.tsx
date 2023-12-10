@@ -91,7 +91,7 @@ const PlaylistsPage = ({
   };
 
   return (
-    <Screen>
+    <Screen edges={["left", "right"]}>
       {isLoading ? (
         <Flex fill centered>
           <Spinner />

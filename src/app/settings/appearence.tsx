@@ -13,7 +13,7 @@ const Appearance = () => {
   const [appTheme, setAppTheme] = useAtom(appThemeAtom);
 
   return (
-    <Screen edges={["top"]}>
+    <Screen edges={["top", "left", "right"]}>
       <BackHeader alignment="center" mx={16} pt={16}>
         <Text fontSize={"$6"}>Appearance</Text>
       </BackHeader>

@@ -69,7 +69,7 @@ const CollectionsPage = ({
   };
 
   return (
-    <Screen>
+    <Screen edges={["left", "right"]}>
       {isLoading ? (
         <Flex fill centered pb={headerHeight}>
           <Spinner />

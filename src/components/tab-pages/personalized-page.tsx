@@ -18,6 +18,7 @@ import { VirtualizedList } from "../custom-components/virtual-scroll-view";
 import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { TouchableArea } from "../touchable/touchable-area";
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 
 interface PersonalizedPageProps {
   currentLibraryId: string | null;
@@ -64,6 +65,7 @@ const PersonalizedPage = ({
 
   return (
     <Screen
+      edges={["left", "right"]}
       headerAndTabBar={
         isInitialLoading || isLoading || changingLibrary || isEmpty
           ? true

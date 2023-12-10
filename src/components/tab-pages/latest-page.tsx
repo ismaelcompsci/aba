@@ -94,7 +94,7 @@ const LatestPage = ({
   };
 
   return (
-    <Screen>
+    <Screen edges={["left", "right"]}>
       <Flex fill px="$4" pt="$2">
         {isInitialLoading ? (
           <Flex width="100%">

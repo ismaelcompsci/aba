@@ -113,7 +113,7 @@ export default function Layout() {
 }
 
 const Header = ({ navigation, route }: NativeStackHeaderProps) => {
-  const { headerHeight, top } = useAppSafeAreas();
+  const { headerHeight, top, left } = useAppSafeAreas();
   const color = useTheme();
   const { name } = route;
 
@@ -149,8 +149,14 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   }
 
   return (
-    <Flex bg="$background" h={headerHeight}>
-      <Flex row flex={1} alignItems="center" paddingHorizontal={16} pt={top}>
+    <Flex bg="$background" row pt={headerHeight}>
+      <Flex
+        row
+        flex={1}
+        alignItems="center"
+        paddingHorizontal={16 + left / 2}
+        pt={top}
+      >
         <Flex row flex={1} gap="$4" ai={"center"}>
           {showLogo ? (
             <TouchableArea>
@@ -166,7 +172,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <ChevronLeft />
             </TouchableArea>
           )}
-          {showServerSwitch && <ServerSelect placement="bottom-end" />}
+          {showServerSwitch && <ServerSelect placement="bottom" />}
         </Flex>
         <Flex row alignItems="center" gap={16}>
           {showSearch ? (

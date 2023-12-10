@@ -166,7 +166,7 @@ const LibraryPage = ({
       : null;
 
   return (
-    <Screen>
+    <Screen edges={["left", "right"]}>
       <Flex
         row
         centered

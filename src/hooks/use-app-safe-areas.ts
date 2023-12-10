@@ -1,6 +1,6 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export const HEADER_HEIGHT = 98;
+export const HEADER_HEIGHT = 16;
 export const HEADER_HEIGHT_TAB_BAR = 98;
 
 export const useAppSafeAreas = () => {

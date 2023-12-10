@@ -26,6 +26,7 @@ function ScreenSafeAreas({
   const safeAreasStyles = useMemo(() => {
     const styles: { [key: string]: number } = {};
     const headerStyles: { [key: string]: number } = {};
+
     if (header) {
       headerStyles.paddingBottom = safeAreas.headerHeight;
     }

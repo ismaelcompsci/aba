@@ -115,7 +115,10 @@ const SeriesPage = ({
   const showLoadingOrEmpty = isInitialLoading || isLoading || isEmpty;
 
   return (
-    <Screen headerAndTabBar={showLoadingOrEmpty ? true : false}>
+    <Screen
+      headerAndTabBar={showLoadingOrEmpty ? true : false}
+      edges={["left", "right"]}
+    >
       {showLoadingOrEmpty ? (
         <Flex fill centered pb={headerHeight}>
           {isEmpty ? <Text>EMPTY</Text> : <Spinner />}

@@ -20,11 +20,10 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
   const libraries = useAtomValue(librariesAtom);
   const library = useAtomValue(currentLibraryAtom);
   const setLastLibraryId = useSetAtom(lastLibraryIdAtom);
-  const [currentLibraryId, setCurrentLibraryId] = useAtom(currentLibraryIdAtom);
   const setChangingLibrary = useSetAtom(changingLibraryAtom);
+  const [currentLibraryId, setCurrentLibraryId] = useAtom(currentLibraryIdAtom);
 
   const [open, setOpen] = useState(false);
-
   const colors = useTheme();
   const Icon = library?.icon ? iconMap[library.icon] : iconMap["database"];
 

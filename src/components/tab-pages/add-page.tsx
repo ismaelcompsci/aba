@@ -127,7 +127,7 @@ const AddPage = ({ serverAddress, userToken }: AddPageProps) => {
   );
 
   return (
-    <Screen>
+    <Screen edges={["left", "right"]}>
       <AnimatedFlex
         px={"$4"}
         fill
