@@ -28,6 +28,7 @@
 - [ ] lazy render audio player
 
 - [ ] Implement socket updates
+    - [ ]  change the refresh user hook to a socket update
 
 
 
