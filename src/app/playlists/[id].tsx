@@ -64,7 +64,7 @@ const PlaylistsPage = () => {
           return libraryItem.media.tracks.length;
         }).length
       ),
-    [id]
+    [id, data]
   );
 
   return (

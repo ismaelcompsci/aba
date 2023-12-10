@@ -1,6 +1,6 @@
 import { Image } from "react-native";
 
-import { LibraryItemMinified } from "../../types/aba";
+import { LibraryItemExpanded, LibraryItemMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { Flex } from "../layout/flex";
 
@@ -13,7 +13,7 @@ export const CollectionCover = ({
   userToken,
   serverAddress,
 }: {
-  items: LibraryItemMinified[];
+  items: LibraryItemMinified[] | LibraryItemExpanded[];
   width: number;
   height: number;
   userToken: string;
@@ -23,7 +23,7 @@ export const CollectionCover = ({
   const secondCover = getItemCoverSrc(items[1], null, userToken, serverAddress);
 
   return (
-    <Flex width={width} height={height} row overflow="hidden">
+    <Flex width={width} height={height} row overflow="hidden" jc={"center"}>
       {firstCover ? (
         <Image
           style={{

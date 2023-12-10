@@ -70,6 +70,16 @@ export const serverAddressAtom = selectAtom(
   (server) => server.serverAddress
 );
 
+export const requestInfoAtom = atom((get) => {
+  const token = get(userAtom)?.token;
+  const serverAddress = get(currentServerConfigAtom).serverAddress;
+
+  return {
+    token: token || "",
+    serverAddress: serverAddress,
+  };
+});
+
 export const mediaProgressAtom = atom((get: Getter) => {
   const user = get(userAtom);
   const userMediaProgress = user?.mediaProgress;

@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Text } from "tamagui";
 
 import { CollectionMinified } from "../../types/aba";
@@ -20,6 +21,10 @@ const CollectionCard = ({
   const bookWidth = isCoverSquareAspectRatio ? 1.6 * 100 : 100;
   const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
 
+  const handlePress = () => {
+    router.push(`/collection/${item.id}`);
+  };
+
   return (
     <Flex
       w={bookWidth * 2}
@@ -29,6 +34,9 @@ const CollectionCard = ({
       borderColor={"$backgroundFocus"}
       borderWidth={1}
       mt={24}
+      pressStyle={{ scale: 0.875 }}
+      animation="bouncy"
+      onPress={handlePress}
     >
       <Flex w="100%" h="100%" overflow="hidden">
         <CollectionCover
