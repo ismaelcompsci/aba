@@ -96,7 +96,8 @@ export type TabName =
   | "Latest"
   | "Add"
   | "Collections"
-  | "Playlists";
+  | "Playlists"
+  | "Authors";
 
 export type Tabs<T> = {
   [key in TabName]: React.ComponentType<T>; // Assuming Home and Library are React components

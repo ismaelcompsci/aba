@@ -8,6 +8,7 @@ import { Bookmark, ChevronDown, List } from "@tamagui/lucide-icons";
 import { useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
+import { useOrientation } from "../../../hooks/use-orientation";
 import { bookmarksModalAtom } from "../../../state/app-state";
 import { Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
@@ -40,8 +41,12 @@ const BigAudioPlayer = ({
   const { bottom } = useSafeAreaInsets();
 
   const colors = useTheme();
+  const orientation = useOrientation();
 
-  const imageWidth = Math.min(width * 0.7, 464);
+  const imageWidth = Math.min(
+    width * 0.7,
+    orientation === "PORTRAIT" ? 464 : 200
+  );
   const imageHeight = imageWidth;
 
   return (
@@ -112,7 +117,6 @@ const BigAudioPlayer = ({
           <Flex row ai="flex-end" flex={1}>
             <Flex
               row
-              p={"$4"}
               pb={bottom}
               justifyContent="space-between"
               w={"100%"}

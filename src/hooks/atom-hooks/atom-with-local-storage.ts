@@ -38,9 +38,11 @@ export const atomWithLocalStorage = <Value>(
   const baseAtom = atom(getInitialValue());
   const derivedAtom = atom(
     (get) => get(baseAtom) as Value,
-    (get, set, update) => {
+    (get, set, update: Value | ((prevValue: Value) => Value)) => {
       const nextValue: Value =
-        typeof update === "function" ? update(get(baseAtom)) : update;
+        typeof update === "function"
+          ? (update as (prevValue: Value) => Value)(get(baseAtom) as Value)
+          : (update as Value);
       set(baseAtom, nextValue);
       setItem(key, JSON.stringify(nextValue));
     }

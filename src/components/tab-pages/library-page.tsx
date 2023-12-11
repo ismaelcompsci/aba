@@ -177,6 +177,7 @@ const LibraryPage = ({
         shadowOffset={{ height: 2, width: 0 }}
         shadowOpacity={0.25}
         shadowRadius={6}
+        width={"100%"}
       >
         <Text fontWeight="$8">{libraryItems?.pages[0]?.data?.total} Books</Text>
         {filter && seriesName ? (

@@ -1,7 +1,8 @@
-import Animated, { Keyframe } from "react-native-reanimated";
+import { Keyframe } from "react-native-reanimated";
 import TrackPlayer, { useIsPlaying } from "react-native-track-player";
 import { Pause, Play } from "@tamagui/lucide-icons";
 
+import { AnimatedFlex } from "../../layout/flex";
 import { TouchableArea } from "../../touchable/touchable-area";
 
 const ExitActionButton = new Keyframe({
@@ -46,7 +47,7 @@ export const PlayPauseControl = ({
   return (
     <>
       {playing ? (
-        <Animated.View
+        <AnimatedFlex
           key="pause"
           entering={EnterActionButton.duration(150)}
           exiting={ExitActionButton.duration(150)}
@@ -55,10 +56,6 @@ export const PlayPauseControl = ({
           {small ? (
             <TouchableArea
               onPress={() => TrackPlayer.pause()}
-              h={"$4"}
-              w={"$4"}
-              borderRadius={"$12"}
-              padding={"$0"}
               alignItems={"center"}
               justifyContent={"center"}
             >
@@ -66,20 +63,16 @@ export const PlayPauseControl = ({
             </TouchableArea>
           ) : (
             <TouchableArea
-              borderRadius={"$12"}
-              padding={"$0"}
               alignItems={"center"}
               justifyContent={"center"}
-              h={"$7"}
-              w={"$7"}
               onPress={() => TrackPlayer.pause()}
             >
-              <Pause size="$3" fill={color} />
+              <Pause size="$4" fill={color} />
             </TouchableArea>
           )}
-        </Animated.View>
+        </AnimatedFlex>
       ) : (
-        <Animated.View
+        <AnimatedFlex
           key="play"
           entering={EnterActionButton.duration(150)}
           exiting={ExitActionButton.duration(150)}
@@ -87,29 +80,21 @@ export const PlayPauseControl = ({
           {small ? (
             <TouchableArea
               onPress={() => TrackPlayer.play()}
-              borderRadius={"$12"}
-              padding={"$0"}
               alignItems={"center"}
               justifyContent={"center"}
-              h={"$4"}
-              w={"$4"}
             >
               <Play size="$3.5" fill={color} />
             </TouchableArea>
           ) : (
             <TouchableArea
-              borderRadius={"$12"}
-              padding={"$0"}
               alignItems={"center"}
               justifyContent={"center"}
-              h={"$7"}
-              w={"$7"}
               onPress={() => TrackPlayer.play()}
             >
-              <Play size="$3" fill={color} />
+              <Play size="$4" fill={color} />
             </TouchableArea>
           )}
-        </Animated.View>
+        </AnimatedFlex>
       )}
     </>
   );

@@ -25,10 +25,7 @@ function BigAudioPlayerControls() {
       $gtSm={{ justifyContent: "center" }}
     >
       <TouchableArea
-        borderRadius={"$12"}
         padding={"$0"}
-        width={"$4"}
-        height={"$4"}
         alignItems={"center"}
         justifyContent={"center"}
         onPress={() => TrackPlayer.skipToPrevious()}
@@ -47,8 +44,6 @@ function BigAudioPlayerControls() {
         <ForwardButton />
       </XStack>
       <TouchableArea
-        borderRadius={"$12"}
-        padding={"$0"}
         alignItems={"center"}
         justifyContent={"center"}
         onPress={() => TrackPlayer.skipToNext()}

@@ -69,8 +69,7 @@ const EBookReader = ({
   const op = useRef(false);
   const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
 
-  const isPdf = bookPath.endsWith(".pdf");
-  const enableSwipe = isPdf;
+  const isPdf = useMemo(() => bookPath.endsWith(".pdf"), [bookPath]);
 
   const annotationKey = `${book.id}-${user.id}`;
 
@@ -244,7 +243,7 @@ const EBookReader = ({
         height={height}
         width={width}
         src={bookPath}
-        enableSwipe={enableSwipe}
+        enableSwipe={isPdf}
         fileSystem={useFileSystem}
         onPress={onPress}
         initialLocation={initialLocation}
@@ -265,7 +264,7 @@ const EBookReader = ({
           { label: "Underline", key: "underline" },
           { label: "Squiggly", key: "squiggly" },
           { label: "Strikethrough", key: "strikethrough" },
-          { label: "Speak from here", key: "speak_from_here" },
+          // { label: "Speak from here", key: "speak_from_here" },
         ]}
         onCustomMenuSelection={onCustomMenuSelection}
       />

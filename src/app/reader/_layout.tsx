@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Platform, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import {
   FadeInDown,
   FadeInUp,
@@ -17,7 +17,8 @@ import {
 } from "@tamagui/lucide-icons";
 import { Stack } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Button, H6, Label, Separator, Switch, Text } from "tamagui";
+import { focusAtom } from "jotai-optics";
+import { Button, H6, Text } from "tamagui";
 
 import { themes } from "../../components/epub-reader/components/themes";
 import {
@@ -137,6 +138,49 @@ const LINESTEP = 0.1;
 
 const SCROLL_ENABLED = false;
 
+export const epubReaderMenuThemeAtom = focusAtom(ebookSettignsAtom, (optic) =>
+  optic.prop("theme")
+);
+
+export const epubReaderMenuScrolledAtom = focusAtom(
+  ebookSettignsAtom,
+  (optic) => optic.prop("scrolled")
+);
+
+export const epubReaderMenuFontSizeAtom = focusAtom(
+  ebookSettignsAtom,
+  (optic) => optic.prop("fontSize")
+);
+
+export const epubReaderMenuGapAtom = focusAtom(ebookSettignsAtom, (optic) =>
+  optic.prop("gap")
+);
+
+export const epubReaderMenuLineHeightAtom = focusAtom(
+  ebookSettignsAtom,
+  (optic) => optic.prop("lineHeight")
+);
+
+export const epubReaderMenuBlockSizeAtom = focusAtom(
+  ebookSettignsAtom,
+  (optic) => optic.prop("maxBlockSize")
+);
+
+export const epubReaderMenuInlineSizeAtom = focusAtom(
+  ebookSettignsAtom,
+  (optic) => optic.prop("maxInlineSize")
+);
+
+const Updater = () => {
+  const settings = useAtomValue(ebookSettignsAtom);
+  const { changeTheme } = useReader();
+
+  useEffect(() => {
+    changeTheme(settings);
+  }, [settings]);
+  return <></>;
+};
+
 const EbookSettingsMenu = ({
   openSettings,
   hide,
@@ -146,72 +190,21 @@ const EbookSettingsMenu = ({
   hide: boolean;
   setOpenSettings: (open: boolean) => void;
 }) => {
-  const { height, width } = useWindowDimensions();
-  const { changeTheme, isPdf } = useReader();
+  const { width } = useWindowDimensions();
+  const { isPdf } = useReader();
 
-  const [readerSettings, setReaderSettigns] = useAtom(ebookSettignsAtom);
+  const setReaderSettigns = useSetAtom(ebookSettignsAtom);
 
   // const [voicesModalOpen, setVoicesModalOpen] = useState(false);
-  const [audioplayerMode, setAudioplayerMode] = useState(
-    readerSettings.maxBlockSize !== height
-  );
-
-  const onThemeChange = (theme: { name: string; bg: string; fg: string }) => {
-    if (theme.name === readerSettings.theme) return;
-    setReaderSettigns({ ...readerSettings, theme: theme.name });
-  };
 
   const onScrollViewChange = (checked: boolean) => {
-    if (checked === readerSettings.scrolled) return;
+    // if (checked === readerSettings.scrolled) return;
 
-    setReaderSettigns({ ...readerSettings, scrolled: checked });
-  };
-
-  const onFontSizeChange = (step: number) => {
-    setReaderSettigns({
+    setReaderSettigns((readerSettings) => ({
       ...readerSettings,
-      fontSize: Math.max(20, readerSettings.fontSize + step),
-    });
+      scrolled: checked,
+    }));
   };
-
-  const onGapChange = (step: number) => {
-    setReaderSettigns({
-      ...readerSettings,
-      gap: Math.max(0, readerSettings.gap + step),
-    });
-  };
-
-  const onLineSpaceChange = (step: number) => {
-    setReaderSettigns({
-      ...readerSettings,
-      lineHeight: Math.max(0, readerSettings.lineHeight + step),
-    });
-  };
-
-  const onBlockSizeChange = () => {
-    const size = height - 120 * 2 - 30;
-    if (readerSettings.maxBlockSize === size) {
-      setReaderSettigns({
-        ...readerSettings,
-        maxBlockSize: height,
-      });
-      setAudioplayerMode(false);
-    } else {
-      setReaderSettigns({
-        ...readerSettings,
-        maxBlockSize: size,
-      });
-      setAudioplayerMode(true);
-    }
-  };
-
-  const updateTheme = () => {
-    changeTheme(readerSettings);
-  };
-
-  useEffect(() => {
-    updateTheme();
-  }, [readerSettings]);
 
   useEffect(() => {
     setReaderSettigns((prev: Theme) => ({ ...prev, maxInlineSize: width }));
@@ -238,51 +231,16 @@ const EbookSettingsMenu = ({
       entering={FadeInUp}
       exiting={FadeOutUp}
     >
+      <Updater />
       {/* theme & font size */}
       <Flex row justifyContent="space-between">
-        <Flex row gap="$4">
-          {themes.map((theme) => (
-            <Flex
-              onPress={() => onThemeChange(theme)}
-              key={theme.name}
-              bg={theme.bg}
-              borderColor={
-                readerSettings.theme === theme.name ? "$blue10" : "$gray11"
-              }
-              borderWidth={1}
-              br={100}
-              px={10}
-              py={0}
-              ai={"center"}
-              jc={"center"}
-            >
-              <Text color={theme.fg}>Aa</Text>
-            </Flex>
-          ))}
-        </Flex>
-        {!isPdf ? (
-          <Flex row centered space={"$7"}>
-            <TouchableArea
-              hapticFeedback
-              hitSlop={20}
-              onPress={() => onFontSizeChange(-FONT_STEP)}
-            >
-              <Text fontSize={"$4"}>A</Text>
-            </TouchableArea>
-            <TouchableArea
-              hapticFeedback
-              hitSlop={20}
-              onPress={() => onFontSizeChange(FONT_STEP)}
-            >
-              <Text fontSize={"$8"}>A</Text>
-            </TouchableArea>
-          </Flex>
-        ) : null}
+        <ThemeButtons />
+        {!isPdf ? <FontSizeButtons /> : null}
       </Flex>
       {/* Scroll & gap  */}
       <Flex row justifyContent="space-between">
         <Flex row alignItems="center" space="$2">
-          {Platform.OS === "ios" && SCROLL_ENABLED ? (
+          {/* {Platform.OS === "ios" && SCROLL_ENABLED ? (
             <>
               <Label paddingRight="$0" minWidth={90} justifyContent="flex-end">
                 Scrolling View
@@ -290,56 +248,191 @@ const EbookSettingsMenu = ({
               <Text fontSize={8}>(beta)</Text>
               <Separator minHeight={20} vertical pl={"$4"} />
               <Switch
-                defaultChecked={readerSettings.scrolled}
+                // defaultChecked={readerSettings.scrolled}
                 onCheckedChange={onScrollViewChange}
               >
                 <Switch.Thumb animation="quick" />
               </Switch>
             </>
-          ) : null}
+          ) : null} */}
         </Flex>
-        {!isPdf ? (
-          <Flex row centered space={"$6"}>
-            <TouchableArea hapticFeedback onPress={() => onGapChange(GAPSTEP)}>
-              <ChevronsRightLeft size={"$1"} />
-            </TouchableArea>
-            <TouchableArea hapticFeedback onPress={() => onGapChange(-GAPSTEP)}>
-              <ChevronsLeftRight size={"$1"} />
-            </TouchableArea>
-          </Flex>
-        ) : null}
+        {!isPdf ? <GapButtons /> : null}
       </Flex>
       {/* line space */}
       {!isPdf ? (
         <Flex row justifyContent="space-between">
-          <Flex row ai="center" space="$4">
-            <Text>AudioPlayer mode</Text>
-            <Button
-              onPress={onBlockSizeChange}
-              borderColor={audioplayerMode ? "$blue10" : undefined}
-            >
-              <Fullscreen />
-            </Button>
-          </Flex>
-          <Flex row centered space={"$6"}>
-            <TouchableArea
-              hapticFeedback
-              onPress={() => onLineSpaceChange(-LINESTEP)}
-            >
-              <ChevronsDownUp size={"$1"} />
-            </TouchableArea>
-            <TouchableArea
-              hapticFeedback
-              onPress={() => onLineSpaceChange(LINESTEP)}
-            >
-              <ChevronsUpDown size={"$1"} />
-            </TouchableArea>
-          </Flex>
+          <AudioPlayerModeButton />
+          <LineHeightButtons />
         </Flex>
       ) : null}
 
       <Flex space></Flex>
     </AnimatedFlex>
+  );
+};
+
+const LineHeightButtons = () => {
+  const setLineHeight = useSetAtom(epubReaderMenuLineHeightAtom);
+
+  const onLineSpaceChange = (step: number) => {
+    // setReaderSettigns((readerSettings) => ({
+    //   ...readerSettings,
+    //   lineHeight: Math.max(0, readerSettings.lineHeight + step),
+    // }));
+
+    setLineHeight((p) => Math.max(0, p + step));
+  };
+
+  return (
+    <Flex row centered space={"$6"}>
+      <TouchableArea
+        hapticFeedback
+        onPress={() => onLineSpaceChange(-LINESTEP)}
+      >
+        <ChevronsDownUp size={"$1"} />
+      </TouchableArea>
+      <TouchableArea hapticFeedback onPress={() => onLineSpaceChange(LINESTEP)}>
+        <ChevronsUpDown size={"$1"} />
+      </TouchableArea>
+    </Flex>
+  );
+};
+
+const AudioPlayerModeButton = () => {
+  const { height } = useWindowDimensions();
+  const [blockSize, setBlockSize] = useAtom(epubReaderMenuBlockSizeAtom);
+
+  const size = height - 120 * 2 - 30;
+
+  const onBlockSizeChange = () => {
+    // setReaderSettigns((readerSettings) => {
+    //   if (readerSettings.maxBlockSize === size) {
+    //     setAudioplayerMode(false);
+    //     return {
+    //       ...readerSettings,
+    //       maxBlockSize: height,
+    //     };
+    //   } else {
+    //     setAudioplayerMode(true);
+    //     return {
+    //       ...readerSettings,
+    //       maxBlockSize: size,
+    //     };
+    //   }
+    // });
+
+    if (blockSize === size) {
+      setBlockSize(height);
+    } else {
+      setBlockSize(size);
+    }
+  };
+
+  const audioplayerMode = blockSize === size;
+  return (
+    <Flex row ai="center" space="$4">
+      <Text>AudioPlayer mode</Text>
+      <Button
+        onPress={onBlockSizeChange}
+        borderColor={audioplayerMode ? "$blue10" : undefined}
+      >
+        <Fullscreen />
+      </Button>
+    </Flex>
+  );
+};
+
+const GapButtons = () => {
+  const setGap = useSetAtom(epubReaderMenuGapAtom);
+
+  const onGapChange = (step: number) => {
+    // setReaderSettigns((readerSettings) => ({
+    //   ...readerSettings,
+    //   gap: Math.max(0, readerSettings.gap + step),
+    // }));
+
+    setGap((p) => p + step);
+  };
+
+  return (
+    <Flex row centered space={"$6"}>
+      <TouchableArea hapticFeedback onPress={() => onGapChange(GAPSTEP)}>
+        <ChevronsRightLeft size={"$1"} />
+      </TouchableArea>
+      <TouchableArea hapticFeedback onPress={() => onGapChange(-GAPSTEP)}>
+        <ChevronsLeftRight size={"$1"} />
+      </TouchableArea>
+    </Flex>
+  );
+};
+
+const ThemeButtons = () => {
+  const [readerTheme, setReaderTheme] = useAtom(epubReaderMenuThemeAtom);
+
+  const onThemeChange = (theme: { name: string; bg: string; fg: string }) => {
+    // if (theme.name === readerSettings.theme) return;
+    // @ts-ignore
+    // setReaderSettigns((readerSettings) => {
+    //   return {
+    //     ...readerSettings,
+    //     theme: theme.name,
+    //   };
+    // });
+
+    setReaderTheme(theme.name);
+  };
+
+  return (
+    <Flex row gap="$4">
+      {themes.map((theme) => (
+        <Flex
+          onPress={() => onThemeChange(theme)}
+          key={theme.name}
+          bg={theme.bg}
+          borderColor={readerTheme === theme.name ? "$blue10" : "$gray11"}
+          borderWidth={1}
+          br={100}
+          px={10}
+          py={0}
+          ai={"center"}
+          jc={"center"}
+        >
+          <Text color={theme.fg}>Aa</Text>
+        </Flex>
+      ))}
+    </Flex>
+  );
+};
+
+const FontSizeButtons = () => {
+  const setFontSize = useSetAtom(epubReaderMenuFontSizeAtom);
+
+  const onFontSizeChange = (step: number) => {
+    // setReaderSettigns((readerSettings) => ({
+    //   ...readerSettings,
+    //   fontSize: Math.max(20, readerSettings.fontSize + step),
+    // }));
+
+    setFontSize((f) => Math.max(20, f + step));
+  };
+
+  return (
+    <Flex row centered space={"$7"}>
+      <TouchableArea
+        hapticFeedback
+        hitSlop={20}
+        onPress={() => onFontSizeChange(-FONT_STEP)}
+      >
+        <Text fontSize={"$4"}>A</Text>
+      </TouchableArea>
+      <TouchableArea
+        hapticFeedback
+        hitSlop={20}
+        onPress={() => onFontSizeChange(FONT_STEP)}
+      >
+        <Text fontSize={"$8"}>A</Text>
+      </TouchableArea>
+    </Flex>
   );
 };
 

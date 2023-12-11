@@ -17,6 +17,7 @@ import {
   Home,
   Library,
   Search,
+  User,
 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -28,6 +29,7 @@ import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import NoServer from "../../components/no-server";
 import AddPage from "../../components/tab-pages/add-page";
+import AuthorsPage from "../../components/tab-pages/authors-page";
 import CollectionsPage from "../../components/tab-pages/collections-page";
 import LatestPage from "../../components/tab-pages/latest-page";
 import LibraryPage from "../../components/tab-pages/library-page";
@@ -53,6 +55,7 @@ const tabs: Tabs<IconProps> = {
   Add: Search,
   Playlists: HardDrive,
   Collections: BookCopy,
+  Authors: User,
 };
 
 type TabPage = {
@@ -118,6 +121,7 @@ const HomePage = () => {
         { key: "_libraryPage", title: "Library" },
         { key: "_seriesPage", title: "Series" },
         { key: "_collectionsPage", title: "Collections" },
+        { key: "_authorsPage", title: "Authors" },
       ];
     }
 
@@ -209,6 +213,14 @@ const HomePage = () => {
       case "_collectionsPage":
         return (
           <CollectionsPage
+            currentLibraryId={currentLibraryId}
+            serverAddress={serverAddress}
+            userToken={userToken}
+          />
+        );
+      case "_authorsPage":
+        return (
+          <AuthorsPage
             currentLibraryId={currentLibraryId}
             serverAddress={serverAddress}
             userToken={userToken}

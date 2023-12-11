@@ -479,7 +479,7 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
         reader.setTheme(${JSON.stringify(_newTheme)});
         true
     `);
-    dispatch({ type: Types.CHANGE_THEME, payload: newTheme });
+    // dispatch({ type: Types.CHANGE_THEME, payload: newTheme });
   }, []);
 
   // const changeFontFamily = useCallback((fontFamily: string) => {

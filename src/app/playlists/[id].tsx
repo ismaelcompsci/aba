@@ -82,7 +82,7 @@ const PlaylistsPage = () => {
         }
         alignment="center"
         mx={16}
-        py={8}
+        py={18}
       >
         <Text fontSize={18}>{name}</Text>
       </BackHeader>
