@@ -1,25 +1,30 @@
-import { useEffect, useState } from "react";
+/* eslint-disable react/prop-types */
+import { useMemo, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue } from "jotai";
 
 import EBookReader from "../../components/epub-reader/ebook-reader";
 import { Screen } from "../../components/layout/screen";
 import LoadingBook from "../../components/loading-book";
-import { useNewUser } from "../../hooks/use-new-user";
-import { currentItemAtom, serverAddressAtom } from "../../state/app-state";
+import {
+  currentItemAtom,
+  serverAddressAtom,
+  userAtom,
+} from "../../state/app-state";
 import { getUserMediaProgress } from "../../utils/utils";
 
 const ReaderPage = () => {
   const serverAddress = useAtomValue(serverAddressAtom);
   const { id, ino } = useLocalSearchParams();
   const currentItem = useAtomValue(currentItemAtom);
-  const { user, refreshUser } = useNewUser(true);
+  const user = useAtomValue(userAtom);
 
   const [bookPath, setBookPath] = useState("");
 
   if (!currentItem || id !== currentItem?.id || !user) {
     return router.back();
   }
+
   const ebookFile =
     "ebookFile" in currentItem.media
       ? ino
@@ -45,13 +50,14 @@ const ReaderPage = () => {
 
   const url = ebookUrl();
 
-  const initialLocation = getInitialLocation();
-
-  useEffect(() => {
-    return () => {
-      refreshUser();
-    };
-  }, []);
+  const props = useMemo(
+    () => ({
+      userId: user.id,
+      userToken: user.token,
+      initialLocation: getInitialLocation(),
+    }),
+    []
+  );
 
   return (
     <Screen centered>
@@ -65,10 +71,11 @@ const ReaderPage = () => {
       {user && bookPath !== "" ? (
         <EBookReader
           book={currentItem!}
-          user={user}
+          userId={props.userId}
+          userToken={props.userToken}
           bookPath={bookPath}
           serverAddress={serverAddress}
-          initialLocation={initialLocation}
+          initialLocation={props.initialLocation}
         />
       ) : null}
     </Screen>

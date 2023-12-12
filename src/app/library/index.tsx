@@ -23,7 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Spinner, Text, useTheme } from "tamagui";
+import { Button, Spinner, Text, useTheme } from "tamagui";
 
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
@@ -296,7 +296,9 @@ const HomePage = () => {
         <NoServer />
       ) : changingLibrary ? (
         <Flex fill centered pb={44}>
-          <Spinner />
+          <Button>
+            <Spinner />
+          </Button>
         </Flex>
       ) : (
         <TabView

@@ -22,10 +22,10 @@ import { AppModals } from "../components/modals/app-modals";
 import ServerSelect from "../components/server-select";
 import { TouchableArea } from "../components/touchable/touchable-area";
 import { IS_ANDROID, IS_IOS } from "../constants/consts";
+import { SocketProvider } from "../context/socket-context";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
-import { librariesAtom, userAtom } from "../state/app-state";
-import { appThemeAtom, currentServerConfigAtom } from "../state/local-state";
-
+import { librariesAtom, requestInfoAtom } from "../state/app-state";
+import { appThemeAtom } from "../state/local-state";
 SplashScreen.preventAutoHideAsync();
 
 if (IS_ANDROID && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -35,10 +35,7 @@ if (IS_ANDROID && UIManager.setLayoutAnimationEnabledExperimental) {
 const queryClient = new QueryClient();
 
 export default function Layout() {
-  const serverConfig = useAtomValue(currentServerConfigAtom);
-  const user = useAtomValue(userAtom);
   const appTheme = useAtomValue(appThemeAtom);
-  const setLibraries = useSetAtom(librariesAtom);
 
   const [loaded, error] = useFonts({
     Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
@@ -55,23 +52,6 @@ export default function Layout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-
-  useEffect(() => {
-    // TODO ADD LOADING STATE FOR SERVER LIST COMPONENT
-    // CHANGE THIS TO TANSTACK QUERY?
-    // TODO! ADD ERROR HANDLING
-    const getLibraries = async () => {
-      const response = await axios.get(
-        `${serverConfig.serverAddress}/api/libraries`,
-        { headers: { Authorization: `Bearer ${user?.token}` }, timeout: 3000 }
-      );
-      setLibraries(response.data.libraries);
-    };
-
-    if (user?.id && serverConfig.serverAddress) {
-      getLibraries();
-    }
-  }, [user, serverConfig]);
 
   useEffect(() => {
     Appearance.setColorScheme(
@@ -95,22 +75,46 @@ export default function Layout() {
   return (
     <BottomSheetModalProvider>
       <QueryClientProvider client={queryClient}>
+        <DataUpdaters />
         <TamaguiProvider config={appConfig} defaultTheme="system">
           <Theme name={appTheme.scheme}>
-            <Stack
-              initialRouteName="index"
-              screenOptions={{
-                header: Header,
-                animation: animation,
-              }}
-            />
-            <AppModals />
+            <SocketProvider>
+              <Stack
+                initialRouteName="index"
+                screenOptions={{
+                  header: Header,
+                  animation: animation,
+                }}
+              />
+              <AppModals />
+            </SocketProvider>
           </Theme>
         </TamaguiProvider>
       </QueryClientProvider>
     </BottomSheetModalProvider>
   );
 }
+
+const DataUpdaters = () => {
+  const { serverAddress, token } = useAtomValue(requestInfoAtom);
+  const setLibraries = useSetAtom(librariesAtom);
+
+  useEffect(() => {
+    const getLibraries = async () => {
+      const response = await axios.get(`${serverAddress}/api/libraries`, {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 3000,
+      });
+      setLibraries(response.data.libraries);
+    };
+
+    if (token && serverAddress) {
+      getLibraries();
+    }
+  }, [token, serverAddress]);
+
+  return null;
+};
 
 const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   const { headerHeight, top, left } = useAppSafeAreas();

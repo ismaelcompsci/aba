@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import { Settings } from "@tamagui/lucide-icons";
@@ -9,6 +9,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button } from "tamagui";
 
 import {
+  epubReaderCurrentLocationAtom,
   epubReaderLoadingAtom,
   epubReaderShowMenuAtom,
   epubReaderTocAtom,
@@ -17,7 +18,7 @@ import {
   bookAnnotationsAtom,
   ebookSettignsAtom,
 } from "../../state/local-state";
-import { LibraryItemExpanded, User } from "../../types/aba";
+import { LibraryItemExpanded } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
 import { Screen } from "../layout/screen";
 
@@ -35,9 +36,10 @@ import {
 
 interface EBookReaderProps {
   book: LibraryItemExpanded;
-  user: User;
   serverAddress: string;
   bookPath: string;
+  userToken: string;
+  userId: string;
   initialLocation: string | undefined;
 }
 /**
@@ -49,10 +51,11 @@ interface EBookReaderProps {
 
 const EBookReader = ({
   book,
-  user,
   serverAddress,
   bookPath,
   initialLocation,
+  userId,
+  userToken,
 }: EBookReaderProps) => {
   const { width, height } = useWindowDimensions();
 
@@ -65,13 +68,15 @@ const EBookReader = ({
   // const [showingPrev, setShowingPrev] = useState(false);
   // const [currentLabel, setCurrentLabel] = useState("");
   const setEpubReaderShowMenu = useSetAtom(epubReaderShowMenuAtom);
+  const setCurrentLocation = useSetAtom(epubReaderCurrentLocationAtom);
+  const [ready, setReady] = useState(false);
 
   const op = useRef(false);
   const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
 
   const isPdf = useMemo(() => bookPath.endsWith(".pdf"), [bookPath]);
 
-  const annotationKey = `${book.id}-${user.id}`;
+  const annotationKey = `${book.id}-${userId}`;
 
   const defaultTheme = useMemo(() => ebookSettings, []);
 
@@ -88,6 +93,7 @@ const EBookReader = ({
     });
     await awaitTimeout(100);
     setEpubReaderLoading({ loading: false });
+    setReady(true);
   };
 
   // const onShowPrevious = (show: boolean, label: string) => {
@@ -115,17 +121,19 @@ const EBookReader = ({
     router.back();
   };
 
-  const onLocationChange = ({ cfi, fraction, section }: LocationChange) => {
+  const onLocationChange = (location: LocationChange) => {
+    if (!ready) return;
+    setCurrentLocation(location);
     let payload;
     if (!isPdf) {
       payload = {
-        ebookLocation: cfi,
-        ebookProgress: fraction,
+        ebookLocation: location.cfi,
+        ebookProgress: location.fraction,
       };
     } else {
       payload = {
-        ebookLocation: section.current,
-        ebookProgress: fraction,
+        ebookLocation: location.section.current,
+        ebookProgress: location.fraction,
       };
     }
     updateProgress(payload);
@@ -208,7 +216,7 @@ const EBookReader = ({
 
       axios.patch(`${serverAddress}/api/me/progress/${book.id}`, payload, {
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       });
     } catch (error) {

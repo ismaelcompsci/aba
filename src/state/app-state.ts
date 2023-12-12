@@ -1,7 +1,10 @@
-import { atom, Getter } from "jotai";
+import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
 
-import { TocItem } from "../components/epub-reader/rn-epub-reader";
+import {
+  LocationChange,
+  TocItem,
+} from "../components/epub-reader/rn-epub-reader";
 import {
   Library,
   LibraryItemExpanded,
@@ -26,6 +29,7 @@ export const openModalAtom = atom(false);
 export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
 export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
+export const socketConnectedAtom = atom(false);
 export const showPlayerAtom = atom<PlayingState>({
   open: false,
   playing: false,
@@ -41,6 +45,7 @@ export const bookmarksModalAtom = atom<BookmarksModalAtom>({
 export const epubReaderOverviewModalAtom = atom(false);
 export const epubReaderShowMenuAtom = atom(false);
 export const epubReaderTocAtom = atom<TocItem[] | null>(null);
+export const epubReaderCurrentLocationAtom = atom<LocationChange | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,
   part: "",
@@ -80,27 +85,7 @@ export const requestInfoAtom = atom((get) => {
   };
 });
 
-export const mediaProgressAtom = atom((get: Getter) => {
-  const user = get(userAtom);
-  const userMediaProgress = user?.mediaProgress;
-
-  return userMediaProgress;
-});
-
-export const setMediaProgressAtom = atom(null, (get, set, update) => {
-  const user = get(userAtom);
-
-  const nextValue =
-    typeof update === "function"
-      ? (update as (prev: MediaProgress[]) => MediaProgress[])(
-          get(mediaProgressAtom) || []
-        )
-      : (update as MediaProgress[]);
-
-  if (user) {
-    set(userAtom, { ...user, mediaProgress: nextValue });
-  }
-});
+export const mediaProgressAtom = atom<MediaProgress[] | undefined>(undefined);
 
 export const currentLibraryMediaTypeAtom = atom(
   (get) => get(currentLibraryAtom)?.mediaType

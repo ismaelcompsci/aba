@@ -6,6 +6,7 @@ import { Separator, styled, Text } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
 import {
+  epubReaderCurrentLocationAtom,
   epubReaderOverviewModalAtom,
   epubReaderTocAtom,
 } from "../../../../state/app-state";
@@ -32,7 +33,7 @@ const TocItemView = ({
   item: NewTocItem;
   handleTocItemPress: (item: NewTocItem) => void;
 }) => {
-  const { currentLocation } = useReader();
+  const currentLocation = useAtomValue(epubReaderCurrentLocationAtom);
 
   return (
     <Flex>

@@ -120,7 +120,7 @@ const CollectionPageHeader = ({
   const isPlaying = playerState.state === State.Playing;
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const width = 240;
-  const height = isCoverSquareAspectRatio ? width : width * 1.6;
+  const height = isCoverSquareAspectRatio ? width : 120 * 1.6;
 
   const colors = useTheme();
   const textColor = colors.color.get();

@@ -9,6 +9,7 @@ import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import {
   attemptingConnectionAtom,
   currentLibraryIdAtom,
+  mediaProgressAtom,
   userAtom,
 } from "../state/app-state";
 import {
@@ -22,9 +23,9 @@ import { authenticateToken, pingServer } from "../utils/api";
 import { stringToBase64 } from "../utils/utils";
 
 export default function IndexPage() {
-  const [isMounted, setIsMounted] = useState(false);
+  // const [isMounted, setIsMounted] = useState(false);
 
-  const [user, setUser] = useAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
   const [attemptingConnection, setAttemptingConnection] = useAtom(
     attemptingConnectionAtom
   );
@@ -32,6 +33,7 @@ export default function IndexPage() {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
+  const setMediaProgress = useSetAtom(mediaProgressAtom);
   const lastLibraryId = useAtomValue(lastLibraryIdAtom);
 
   const { headerHeight } = useAppSafeAreas();
@@ -53,6 +55,7 @@ export default function IndexPage() {
       setCurrentLibraryId(lastLibraryId);
     } else setCurrentLibraryId(userDefaultLibraryId);
 
+    setMediaProgress(user.mediaProgress);
     setServerSettings(serverSettings);
     setUser(user);
 
@@ -172,7 +175,7 @@ export default function IndexPage() {
   };
 
   useEffect(() => {
-    setIsMounted(true);
+    // setIsMounted(true);
     if (!deviceData.lastServerConnectionConfigId) {
       setAttemptingConnection(false);
       return;
@@ -187,6 +190,36 @@ export default function IndexPage() {
     connectToServer(config);
   }, []);
 
+  // useEffect(() => {
+  //   if (
+  //     (!user && isMounted && !attemptingConnection) ||
+  //     (isMounted &&
+  //       !deviceData.lastServerConnectionConfigId &&
+  //       !deviceData.serverConnectionConfigs.length)
+  //   ) {
+  //     router.replace("/server-connect/");
+  //   }
+  // }, [user, isMounted, attemptingConnection, deviceData]);
+
+  return (
+    <Screen centered pb={headerHeight}>
+      <Connector />
+      {attemptingConnection ? <Spinner /> : <Redirect href={"/library/"} />}
+    </Screen>
+  );
+}
+
+const Connector = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  const [user] = useAtom(userAtom);
+  const [attemptingConnection] = useAtom(attemptingConnectionAtom);
+  const [deviceData] = useAtom(deviceDataAtom);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     if (
       (!user && isMounted && !attemptingConnection) ||
@@ -198,13 +231,5 @@ export default function IndexPage() {
     }
   }, [user, isMounted, attemptingConnection, deviceData]);
 
-  return (
-    <Screen centered pb={headerHeight}>
-      {!user || attemptingConnection ? (
-        <Spinner />
-      ) : (
-        <Redirect href={"/library/"} />
-      )}
-    </Screen>
-  );
-}
+  return null;
+};

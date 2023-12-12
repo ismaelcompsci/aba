@@ -3,7 +3,7 @@ import { Search } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Spinner, styled, Text, YStack } from "tamagui";
+import { ScrollView, Separator, Spinner, styled, Text, YStack } from "tamagui";
 
 import AuthorSearchCard from "../../components/cards/author-search-card";
 import ItemSearchCard from "../../components/cards/item-search-card";
@@ -197,6 +197,7 @@ const SearchPage = () => {
             })}
           </ResultSection>
         ) : null}
+        <Separator w={0} h={44} />
       </ScrollView>
     </Screen>
   );

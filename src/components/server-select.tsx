@@ -109,36 +109,6 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
             );
           })}
         </Flex>
-
-        {/* <ToggleGroup
-          orientation={"vertical"}
-          type={"single"}
-          defaultValue={library?.name}
-          onValueChange={onValueChange}
-          disableDeactivation
-          bordered={false}
-        >
-          {libraries.map((lib) => {
-            const Icon = lib?.icon ? iconMap[lib.icon] : iconMap["database"];
-
-            return (
-              <ToggleGroup.Item value={lib?.name} key={lib?.id}>
-                <Flex
-                  row
-                  $sm={{
-                    width: width * 0.35,
-                  }}
-                  $gtSm={{ width: width * 0.2 }}
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
-                  <Text fontWeight="$7">{lib.name}</Text>
-                  <Icon color={colors.color.get()} size={"$1"} />
-                </Flex>
-              </ToggleGroup.Item>
-            );
-          })}
-        </ToggleGroup> */}
       </Popover.Content>
     </Popover>
   );

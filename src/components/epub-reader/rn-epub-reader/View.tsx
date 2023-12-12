@@ -112,15 +112,15 @@ export function View({
     if (type === "onLocationChange") {
       const { cfi, fraction, location, tocItem, pageItem, section, time } =
         parsedEvent;
-      setCurrentLocation({
-        cfi,
-        fraction,
-        location,
-        tocItem,
-        pageItem,
-        section,
-        time,
-      });
+      // setCurrentLocation({
+      //   cfi,
+      //   fraction,
+      //   location,
+      //   tocItem,
+      //   pageItem,
+      //   section,
+      //   time,
+      // });
       onLocationChange({
         cfi,
         fraction,

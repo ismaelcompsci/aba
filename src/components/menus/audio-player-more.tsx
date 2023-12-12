@@ -2,7 +2,6 @@ import { MoreVertical } from "@tamagui/lucide-icons";
 import { useSetAtom } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
-import { useNewUser } from "../../hooks/use-new-user";
 import { showPlayerAtom } from "../../state/app-state";
 import { TouchableArea } from "../touchable/touchable-area";
 
@@ -12,11 +11,10 @@ const AudioPlayerMore = ({
   setOpen?: (open: boolean) => void;
 }) => {
   const setShowPlayer = useSetAtom(showPlayerAtom);
-  const { refreshUser } = useNewUser(true);
 
   const closePlayer = async () => {
     setOpen && setOpen(false);
-    await refreshUser();
+    // await refreshUser();
     setShowPlayer({ open: true, playing: false });
   };
 

@@ -12,4 +12,5 @@ export enum GeneralSetting {
   DeviceId = "DeviceId",
   BookAnnotations = "BookAnnotations",
   LastLibraryId = "LastLibraryId",
+  CachedBookFilePaths = "CachedBookFilePaths",
 }

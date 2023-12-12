@@ -10,7 +10,11 @@ import AddServerForm from "../../components/forms/connection-form/add-server-for
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import ServerConfigMenu from "../../components/menus/server-config-menu";
-import { currentLibraryIdAtom, userAtom } from "../../state/app-state";
+import {
+  currentLibraryIdAtom,
+  mediaProgressAtom,
+  userAtom,
+} from "../../state/app-state";
 import {
   currentServerConfigAtom,
   deviceDataAtom,
@@ -30,7 +34,7 @@ const ServerConnectPage = () => {
   const setCurrentLibraryId = useSetAtom(currentLibraryIdAtom);
   const setServerSettings = useSetAtom(serverSettingsAtom);
   const setCurrentServerConfig = useSetAtom(currentServerConfigAtom);
-
+  const setMediaProgress = useSetAtom(mediaProgressAtom);
   const setUser = useSetAtom(userAtom);
 
   const serverConnections = deviceData.serverConnectionConfigs;
@@ -46,6 +50,7 @@ const ServerConnectPage = () => {
 
     setCurrentLibraryId(userDefaultLibraryId);
     setServerSettings(serverSettings);
+    setMediaProgress(user.mediaProgress);
     setUser(user);
 
     const c = {

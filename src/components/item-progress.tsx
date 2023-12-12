@@ -31,7 +31,7 @@ const ItemProgress = ({
     episodeId,
   });
 
-  if (userProgressPercent <= 0 || !userProgressPercent) {
+  if (parseFloat(userProgressPercent.toFixed(2)) <= 0 || !userProgressPercent) {
     return null;
   }
 

@@ -46,6 +46,14 @@ export const CollectionCover = ({
             bookHeight={height}
             bookWidth={width / 2}
             coverUrl={firstCover}
+            fastImageProps={{
+              style:
+                items.length === 1
+                  ? {
+                      width: "100%",
+                    }
+                  : undefined,
+            }}
           />
           {items.length > 1 ? (
             <BookCover

@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import { BookOpen, CheckCircle, ChevronDown } from "@tamagui/lucide-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -6,15 +6,17 @@ import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
+import { selectAtom } from "jotai/utils";
 import { Accordion, H4, Paragraph, Square, Text } from "tamagui";
 import * as ContextMenu from "zeego/context-menu";
 
 import {
   currentItemAtom,
   currentLibraryAtom,
+  serverAddressAtom,
   userAtom,
+  userTokenAtom,
 } from "../../state/app-state";
-import { currentServerConfigAtom } from "../../state/local-state";
 import { LibraryFile } from "../../types/aba";
 import { humanFileSize } from "../../utils/utils";
 import { ClearIconButton } from "../buttons/button";
@@ -22,30 +24,38 @@ import { DataTable } from "../custom-components/data-table";
 import { Flex } from "../layout/flex";
 import PressBookFileMenu from "../menus/book-file-menu";
 
+const userCanUpdateAtom = selectAtom(
+  userAtom,
+  (user) => user?.permissions.update
+);
+
 const BookFilesTable = () => {
   const { width } = useWindowDimensions();
   const currentItem = useAtomValue(currentItemAtom);
 
   const queryClient = useQueryClient();
-  const user = useAtomValue(userAtom);
-  const serverConfig = useAtomValue(currentServerConfigAtom);
+  const userCanUpdate = useAtomValue(userCanUpdateAtom);
+  const userToken = useAtomValue(userTokenAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
   const library = useAtomValue(currentLibraryAtom);
   const [opened, setOpened] = useState("");
 
-  const userCanUpdate = user?.permissions.update;
   const isAudiobooksOnly = library?.settings.audiobooksOnly;
 
   const libraryFiles = currentItem?.libraryFiles || [];
-  const ebookFiles = libraryFiles.filter((lf) => lf.fileType === "ebook");
+  const ebookFiles = useMemo(
+    () => libraryFiles.filter((lf) => lf.fileType === "ebook"),
+    [currentItem?.id]
+  );
   const itemId = currentItem?.id;
 
   const { mutate: updatePrimaryFile } = useMutation({
     mutationKey: ["primary-file"],
     mutationFn: async (item: LibraryFile) => {
       const response = await axios.patch(
-        `${serverConfig.serverAddress}/api/items/${itemId}/ebook/${item.ino}/status`,
+        `${serverAddress}/api/items/${itemId}/ebook/${item.ino}/status`,
         null,
-        { headers: { Authorization: `Bearer ${user?.token}` }, timeout: 5000 }
+        { headers: { Authorization: `Bearer ${userToken}` }, timeout: 5000 }
       );
 
       return response.data;
@@ -131,9 +141,9 @@ const BookFilesTable = () => {
     );
   };
 
-  const getPreview = (item: LibraryFile) => {
-    return <Preview item={item} />;
-  };
+  // const getPreview = (item: LibraryFile) => {
+  //   return <Preview item={item} />;
+  // };
 
   const renderItem = ({ item }: { item: LibraryFile }) => {
     return (

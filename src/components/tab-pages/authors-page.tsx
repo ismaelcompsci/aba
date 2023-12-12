@@ -29,7 +29,7 @@ const AuthorsPage = ({
   columns = columns < 1 ? 1 : columns;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["authors-page", [currentLibraryId]],
+    queryKey: ["authors-page", currentLibraryId],
     queryFn: async () => {
       const response: { data: { authors: AuthorExpanded[] } } = await axios.get(
         `${serverAddress}/api/libraries/${currentLibraryId}/authors`,

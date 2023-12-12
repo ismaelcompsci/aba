@@ -6,8 +6,8 @@ import * as Burnt from "burnt";
 import { useAtomValue, useSetAtom } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
-import { useNewUser } from "../../hooks/use-new-user";
 import { useUserMediaProgress } from "../../hooks/use-user-media-progress";
+import { serverAddressAtom, userTokenAtom } from "../../state/app-state";
 import { currentServerConfigAtom } from "../../state/local-state";
 import { cleanString } from "../../utils/utils";
 import { AddPlaylistsModalAtom } from "../modals/add-playlists-modal";
@@ -34,7 +34,8 @@ function BookMoreMenu({
   });
   const serverConfig = useAtomValue(currentServerConfigAtom);
   const setAddPlaylistModalController = useSetAtom(AddPlaylistsModalAtom);
-  const { user, refreshUser } = useNewUser(true);
+  const token = useAtomValue(userTokenAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
 
   const markAsFinshed = async () => {
     try {
@@ -44,18 +45,14 @@ function BookMoreMenu({
       };
 
       const route = episodeId
-        ? `${serverConfig.serverAddress}/api/me/progress/${itemId}/${episodeId}`
-        : `${serverConfig.serverAddress}/api/me/progress/${itemId}`;
+        ? `${serverAddress}/api/me/progress/${itemId}/${episodeId}`
+        : `${serverAddress}/api/me/progress/${itemId}`;
 
-      const response = await axios.patch(route, data, {
+      await axios.patch(route, data, {
         headers: {
-          Authorization: `Bearer ${user?.token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-
-      if (response.data) {
-        await refreshUser();
-      }
     } catch (error) {
       console.log("[APPDIALOG] mark as finshed error", error);
     } finally {
@@ -70,15 +67,13 @@ function BookMoreMenu({
   const clearProgress = async () => {
     try {
       await axios.delete(
-        `${serverConfig.serverAddress}/api/me/progress/${userMediaProgress?.id}`,
+        `${serverAddress}/api/me/progress/${userMediaProgress?.id}`,
         {
           headers: {
             Authorization: `Bearer ${serverConfig?.token}`,
           },
         }
       );
-
-      await refreshUser();
     } catch (error) {
       console.log("[APPDIALOG] clear progress error", error);
     } finally {

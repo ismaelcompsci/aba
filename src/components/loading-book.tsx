@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import RNFetchBlob from "rn-fetch-blob";
-import { Progress, Text } from "tamagui";
+import { Progress, Text, useTheme } from "tamagui";
 
 import { epubDir } from "../constants/consts";
 import { epubReaderLoadingAtom } from "../state/app-state";
+import { cachedBookFilePathsAtom } from "../state/local-state";
 import {
   EbookFile,
   LibraryFile,
@@ -33,6 +34,10 @@ const LoadingBook = ({
     epubReaderLoadingAtom
   );
 
+  const setCachedBookFilePaths = useSetAtom(cachedBookFilePathsAtom);
+
+  const colors = useTheme();
+
   useEffect(() => {
     if (!ebookFile) return;
 
@@ -53,6 +58,7 @@ const LoadingBook = ({
         });
         setBookPath(bookDownloadPath);
       } else {
+        console.log("FETCHING");
         RNFetchBlob.config({
           path: bookDownloadPath,
         })
@@ -71,7 +77,10 @@ const LoadingBook = ({
             const status = res.info().status;
             const path = res.path();
 
-            if (status === 200) setBookPath(path);
+            if (status === 200) {
+              setCachedBookFilePaths((prev) => [...prev, path]);
+              setBookPath(path);
+            }
           })
           .catch((error) => {
             console.log({ error });
@@ -106,7 +115,7 @@ const LoadingBook = ({
               epubReaderLoading.percent ? epubReaderLoading.percent * 100 : 0
             }
           >
-            <Progress.Indicator animation="bouncy" />
+            <Progress.Indicator bg={colors.color.get()} animation="bouncy" />
           </Progress>
         ) : null}
         <Text>

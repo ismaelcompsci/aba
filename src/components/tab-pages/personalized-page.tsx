@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { ScrollView, Separator, Spinner, Stack, Text } from "tamagui";
+import { Button, ScrollView, Separator, Spinner, Stack, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
@@ -18,7 +18,6 @@ import { VirtualizedList } from "../custom-components/virtual-scroll-view";
 import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { TouchableArea } from "../touchable/touchable-area";
-import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 
 interface PersonalizedPageProps {
   currentLibraryId: string | null;
@@ -84,7 +83,9 @@ const PersonalizedPage = ({
               <Text>EMPTY :/</Text>
             ) : (
               <Flex>
-                <Spinner />
+                <Button>
+                  <Spinner />
+                </Button>
               </Flex>
             )}
           </Flex>

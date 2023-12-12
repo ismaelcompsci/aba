@@ -18,6 +18,7 @@
 - [ ] better tts
 
 - [x] fix performance when change epub reader settings ex. (changing font size)
+- [ ] move book annotations to sql database
 
 - [ ] better playlist implementation
     - [ ] show playlist in the audioplayer
@@ -25,7 +26,7 @@
     - [ ] movable playlist rows
 
 - [x] add server info
-- [ ] lazy render audio player
+- [x] lazy render audio player
 
 - [ ] Implement socket updates
     - [ ]  change the refresh user hook to a socket update
