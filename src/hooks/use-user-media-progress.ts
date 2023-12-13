@@ -1,7 +1,11 @@
 import { useMemo } from "react";
-import { useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 
 import { mediaProgressAtom } from "../state/app-state";
+
+/**
+ * https://github.com/pmndrs/jotai/issues/255
+ */
 
 export const useUserMediaProgress = ({
   episodeId,
@@ -10,14 +14,20 @@ export const useUserMediaProgress = ({
   episodeId?: string;
   libraryItemId: string;
 }) => {
-  const mediaProgress = useAtomValue(mediaProgressAtom);
+  const userMediaProgress = useAtomValue(
+    useMemo(
+      () =>
+        atom((get) =>
+          get(mediaProgressAtom).find((val) => {
+            if (episodeId && val?.episodeId !== episodeId) return false;
+            return val?.libraryItemId === libraryItemId;
+          })
+        ),
+      [libraryItemId, episodeId]
+    )
+  );
 
-  const userMediaProgress = useMemo(() => {
-    return mediaProgress?.find((prog) => {
-      if (episodeId && prog.episodeId !== episodeId) return false;
-      return prog.libraryItemId === libraryItemId;
-    });
-  }, [mediaProgress, libraryItemId]);
+  console.log("RERENDER ", libraryItemId, episodeId);
 
   let useEBookProgress;
   if (!userMediaProgress || userMediaProgress.progress)

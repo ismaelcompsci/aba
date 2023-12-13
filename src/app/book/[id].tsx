@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Animated, useWindowDimensions } from "react-native";
 import ViewMoreText from "react-native-view-more-text";
 import { BlurView } from "@react-native-community/blur";
@@ -187,6 +187,12 @@ const BookPage = () => {
       View less
     </Text>
   );
+
+  useEffect(() => {
+    return () => {
+      setCurrentItem(null);
+    };
+  }, []);
 
   return (
     <Screen>

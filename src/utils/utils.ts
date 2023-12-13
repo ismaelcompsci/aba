@@ -266,3 +266,17 @@ export const sanitizeFilename = (input: string, colonReplacement = " - ") => {
 
   return sanitized;
 };
+
+export const debounce = (callback: (args: any) => void, wait: number) => {
+  //@ts-ignore
+  let timeoutId = null;
+  //@ts-ignore
+  return (...args: unknown) => {
+    //@ts-ignore
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      //@ts-ignore
+      callback(...args);
+    }, wait);
+  };
+};

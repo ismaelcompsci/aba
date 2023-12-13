@@ -56,12 +56,19 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
       onOpenChange={setOpen}
     >
       <Popover.Trigger asChild>
-        <IconButton
+        <Flex
           minWidth={80}
-          bordered
-          icon={<Icon size={14} color={colors.color.get()} />}
-          size="$2"
+          flexDirection="row"
+          alignItems="center"
+          gap="$2"
+          borderWidth="$1"
+          borderColor="$borderColor"
+          justifyContent="center"
+          borderRadius="$2"
+          px="$2"
+          py="$1"
         >
+          <Icon size={14} color={colors.color.get()} />
           <Text
             color={"$colorPress"}
             fontWeight={"$7"}
@@ -70,7 +77,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
           >
             {library?.name ?? ""}
           </Text>
-        </IconButton>
+        </Flex>
       </Popover.Trigger>
 
       <Popover.Content

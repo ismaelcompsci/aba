@@ -85,7 +85,11 @@ export const requestInfoAtom = atom((get) => {
   };
 });
 
-export const mediaProgressAtom = atom<MediaProgress[] | undefined>(undefined);
+export const mediaProgressAtom = atom<MediaProgress[]>([]);
+
+/**https://github.com/pmndrs/jotai/issues/255 */
+export const userItemProgress = (id) =>
+  atom((get) => get(mediaProgressAtom).find((v) => v.libraryItemId === id));
 
 export const currentLibraryMediaTypeAtom = atom(
   (get) => get(currentLibraryAtom)?.mediaType

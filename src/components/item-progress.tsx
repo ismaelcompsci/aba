@@ -1,3 +1,4 @@
+import { memo } from "react";
 import CircularProgress, {
   CircularProgressBase,
 } from "react-native-circular-progress-indicator";
@@ -68,4 +69,4 @@ const ItemProgress = ({
     );
 };
 
-export default ItemProgress;
+export default memo(ItemProgress);

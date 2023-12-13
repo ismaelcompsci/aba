@@ -3,11 +3,14 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { io, Socket } from "socket.io-client";
 
 import {
+  currentItemAtom,
+  // mapMediProgressAtom,
   mediaProgressAtom,
   requestInfoAtom,
   socketConnectedAtom,
 } from "../state/app-state";
 import { MediaProgress, User } from "../types/aba";
+import { debounce } from "../utils/utils";
 
 const SocketContext = createContext<Socket | null>(null);
 export default SocketContext;
@@ -16,6 +19,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { serverAddress, token } = useAtomValue(requestInfoAtom);
   const setSocketConnected = useSetAtom(socketConnectedAtom);
   const setMediaProgress = useSetAtom(mediaProgressAtom);
+  // const setMapMediaProgress = useSetAtom(mapMediProgressAtom);
+  const currentItem = useAtomValue(currentItemAtom);
 
   const socket = useRef<Socket | null>(null);
 
@@ -26,7 +31,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     };
 
     console.debug("[SOCKET] connecting socket");
-    socket.current = io(serverAddress, socketOptions);
 
     const onConnect = () => {
       console.debug(`[SOCKET] socket conncted to ${socket.current?.id}`);
@@ -44,7 +48,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.debug("[SOCKET] Initial socket data received");
     };
 
-    const onUserUpdated = (user: User) => {
+    const onUserUpdated = debounce((user: User) => {
       console.debug("[SOCKET] User updated", user.username);
       // setUser((prev) => {
       //   if (prev && prev.id == user.id) {
@@ -52,8 +56,62 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       //   }
       //   return prev;
       // });
-      setMediaProgress(user.mediaProgress);
-    };
+
+      setMediaProgress((prev) => {
+        if (user.mediaProgress.length > prev.length) {
+          return [
+            ...prev.slice(0, user.mediaProgress.length - 1),
+            user.mediaProgress[user.mediaProgress.length - 1],
+          ];
+        }
+
+        if (user.mediaProgress.length === prev.length) {
+          return prev.map((value, i) => {
+            if (value?.ebookLocation !== user.mediaProgress[i]?.ebookLocation) {
+              return user.mediaProgress[i];
+            }
+            return {
+              ...value,
+            };
+          });
+        } else {
+          let i = 0;
+          for (; i < user.mediaProgress.length; i++) {
+            if (user.mediaProgress[i].id !== prev[i].id) {
+              break;
+            }
+          }
+          return [...prev.slice(0, i), ...prev.slice(i + 1)];
+        }
+      });
+
+      // setMediaProgress((prev) => {
+      //   if (!prev) return prev;
+
+      //   if (currentItem) {
+      //     const previousCurrentItemProgress = prev.find(
+      //       (value) => currentItem.id === value.libraryItemId
+      //     );
+
+      //     const mediaProgressIndex = user.mediaProgress.findIndex(
+      //       (mp) => mp.id === previousCurrentItemProgress?.id
+      //     );
+
+      //     const newProg = user.mediaProgress[mediaProgressIndex];
+
+      //     if (mediaProgressIndex >= 0) {
+      //       prev.splice(mediaProgressIndex, 1, newProg);
+      //     } else {
+      //       prev.push(newProg);
+      //     }
+      //     console.log("END");
+      //     const copy = [...prev];
+      //     return copy;
+      //   }
+
+      //   return user.mediaProgress;
+      // });
+    }, 1000);
 
     const onUserItemProgressUpdated = (payload: {
       id: string;
@@ -83,17 +141,23 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       });
     };
 
-    socket.current.on("connect", onConnect);
-    socket.current.on("disconnect", onDisconnect);
-    socket.current.on("init", onInit);
-    socket.current.on("user_updated", onUserUpdated);
-    socket.current.on("user_item_progress_updated", onUserItemProgressUpdated);
+    if (!socket.current?.id) {
+      socket.current = io(serverAddress, socketOptions);
+      socket.current.on("connect", onConnect);
+      socket.current.on("disconnect", onDisconnect);
+      socket.current.on("init", onInit);
+      socket.current.on("user_updated", onUserUpdated);
+      socket.current.on(
+        "user_item_progress_updated",
+        onUserItemProgressUpdated
+      );
+    }
 
     return () => {
       console.log("DISCONNECTING SOCKET");
       socket.current?.disconnect();
     };
-  }, [serverAddress, token]);
+  }, [serverAddress, token, currentItem]);
 
   return (
     <SocketContext.Provider value={socket.current}>
