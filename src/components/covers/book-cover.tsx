@@ -19,10 +19,6 @@ export const BookCover = ({
 
   const { style } = fastImageProps;
 
-  // useEffect(() => {
-  //   setError(false);
-  // }, [isCoverSquareAspectRatio]);
-
   if (!coverUrl || error) {
     return (
       <Flex width={bookWidth} height={bookHeight} centered>

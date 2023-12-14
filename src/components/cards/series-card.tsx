@@ -2,12 +2,13 @@ import { useMemo } from "react";
 import { Image } from "react-native";
 import FastImage from "react-native-fast-image";
 import { router } from "expo-router";
-import { Text, XStack, YStack, ZStack } from "tamagui";
+import { Text, ZStack } from "tamagui";
 
 import { IS_ANDROID } from "../../constants/consts";
 import { SeriesBooksMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode } from "../../utils/utils";
+import { Flex } from "../layout/flex";
 
 interface SeriesCardProps {
   item: SeriesBooksMinified;
@@ -53,7 +54,7 @@ const SeriesCard = ({
           const offsetLeft = widthPer * i;
 
           return (
-            <YStack key={i} x={offsetLeft}>
+            <Flex key={i} x={offsetLeft}>
               <FastImage
                 key={i}
                 style={{
@@ -66,7 +67,7 @@ const SeriesCard = ({
                   priority: IS_ANDROID ? "low" : "normal",
                 }}
               />
-            </YStack>
+            </Flex>
           );
         })}
       </ZStack>
@@ -74,7 +75,7 @@ const SeriesCard = ({
   }, []);
 
   return (
-    <YStack
+    <Flex
       w={bookWidth * 2}
       overflow="hidden"
       justifyContent="center"
@@ -86,7 +87,6 @@ const SeriesCard = ({
       pressStyle={{ scale: 0.875 }}
       animation="bouncy"
       onPress={handlePress}
-      elevation={"$0.75"}
       bg={"$background"}
     >
       {bgImg ? (
@@ -109,7 +109,8 @@ const SeriesCard = ({
       {bookPhotos}
 
       {/* name */}
-      <XStack
+      <Flex
+        row
         w={"100%"}
         justifyContent="center"
         borderColor={"$color"}
@@ -121,8 +122,8 @@ const SeriesCard = ({
         <Text numberOfLines={1} fontSize={"$5"} textAlign="center">
           {item.name}
         </Text>
-      </XStack>
-    </YStack>
+      </Flex>
+    </Flex>
   );
 };
 

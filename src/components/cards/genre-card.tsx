@@ -14,10 +14,10 @@ import {
 } from "react-native-reanimated";
 import { ArrowRight } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { Card, Text, useTheme, XStack, YStack } from "tamagui";
+import { Card, Text, useTheme } from "tamagui";
 
 import { encode } from "../../utils/utils";
-import { AnimatedFlex } from "../layout/flex";
+import { AnimatedFlex, Flex } from "../layout/flex";
 import { TouchableArea } from "../touchable/touchable-area";
 
 const GenreCard = ({ genre }: { genre: string }) => {
@@ -57,8 +57,8 @@ const GenreCard = ({ genre }: { genre: string }) => {
             elevation={"$0.75"}
             bg={"$backgroundPress"}
           >
-            <YStack flex={1}>
-              <YStack
+            <Flex fill>
+              <Flex
                 bg={colors.color.get()}
                 r={0}
                 borderBottomLeftRadius={"$10"}
@@ -67,10 +67,10 @@ const GenreCard = ({ genre }: { genre: string }) => {
                 h={"$3"}
                 w={"$4"}
               >
-                <XStack jc="center" p="$1.5">
+                <Flex row jc="center" p="$1.5">
                   <ArrowRight color={colors.background.get()} size={"$1"} />
-                </XStack>
-              </YStack>
+                </Flex>
+              </Flex>
               <Text
                 pos="absolute"
                 b="$2"
@@ -82,7 +82,7 @@ const GenreCard = ({ genre }: { genre: string }) => {
               >
                 {genre}
               </Text>
-            </YStack>
+            </Flex>
           </Card>
         </AnimatedFlex>
       </TapGestureHandler>

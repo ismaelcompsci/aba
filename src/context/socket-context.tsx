@@ -19,7 +19,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { serverAddress, token } = useAtomValue(requestInfoAtom);
   const setSocketConnected = useSetAtom(socketConnectedAtom);
   const setMediaProgress = useSetAtom(mediaProgressAtom);
-  // const setMapMediaProgress = useSetAtom(mapMediProgressAtom);
   const currentItem = useAtomValue(currentItemAtom);
 
   const socket = useRef<Socket | null>(null);

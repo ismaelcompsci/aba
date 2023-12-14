@@ -11,7 +11,6 @@ import {
 import { lastLibraryIdAtom } from "../state/local-state";
 import { awaitTimeout } from "../utils/utils";
 
-import { IconButton } from "./buttons/button";
 import { Flex } from "./layout/flex";
 import { TouchableArea } from "./touchable/touchable-area";
 import { iconMap } from "./adbs-icons";
@@ -66,7 +65,8 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
           justifyContent="center"
           borderRadius="$2"
           px="$2"
-          py="$1"
+          py="$1.5"
+          opacity={open ? 0.5 : 1}
         >
           <Icon size={14} color={colors.color.get()} />
           <Text

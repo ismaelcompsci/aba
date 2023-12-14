@@ -1,11 +1,11 @@
 import FastImage from "react-native-fast-image";
 import { router } from "expo-router";
-import { Text, YStack } from "tamagui";
+import { Text } from "tamagui";
 
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { cleanString } from "../../utils/utils";
-import { AuthorText } from "../author-text";
+import { Flex } from "../layout/flex";
 
 import { SearchCard } from "./search-card";
 
@@ -41,9 +41,9 @@ const ItemSearchCard = ({
           uri: src + `&format=webp`,
         }}
       />
-      <YStack flex={1}>
+      <Flex fill>
         <Text>{item.media.metadata.title}</Text>
-        <AuthorText numberOfLines={2}>
+        <Text fontSize={"$1"} color={"$gray10"} numberOfLines={1}>
           by{" "}
           {cleanString(
             "authorName" in item.media.metadata
@@ -51,8 +51,8 @@ const ItemSearchCard = ({
               : item.media.metadata.author,
             30
           )}
-        </AuthorText>
-      </YStack>
+        </Text>
+      </Flex>
     </SearchCard>
   );
 };

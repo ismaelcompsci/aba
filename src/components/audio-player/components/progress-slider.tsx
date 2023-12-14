@@ -7,8 +7,11 @@ import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
 import { Slider, SliderTrackProps, Text } from "tamagui";
 
-import { playbackSessionAtom, userAtom } from "../../../state/app-state";
-import { currentServerConfigAtom } from "../../../state/local-state";
+import {
+  playbackSessionAtom,
+  serverAddressAtom,
+  userTokenAtom,
+} from "../../../state/app-state";
 import { formatSeconds } from "../../../utils/utils";
 import { Flex } from "../../layout/flex";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
@@ -28,8 +31,8 @@ export const ProgressSlider = ({
   showThumb: boolean;
   audiobookInfo: AudiobookInfo;
 }) => {
-  const serverConfig = useAtomValue(currentServerConfigAtom);
-  const user = useAtomValue(userAtom);
+  const serverAddress = useAtomValue(serverAddressAtom);
+  const userToken = useAtomValue(userTokenAtom);
   const [seek, setSeek] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
@@ -96,11 +99,11 @@ export const ProgressSlider = ({
 
       try {
         const response = await axios.post(
-          `${serverConfig.serverAddress}/api/session/${playbackSession?.id}/sync`,
+          `${serverAddress}/api/session/${playbackSession?.id}/sync`,
           updatePayload,
           {
             headers: {
-              Authorization: `Bearer ${user?.token}`,
+              Authorization: `Bearer ${userToken}`,
             },
           }
         );

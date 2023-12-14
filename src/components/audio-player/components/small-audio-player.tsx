@@ -1,5 +1,7 @@
 import FastImage from "react-native-fast-image";
-import { styled, Text, XStack, YStack } from "tamagui";
+import { styled, Text } from "tamagui";
+
+import { Flex } from "../../layout/flex";
 
 import { AudioPlayerControls } from "./audio-player-controls";
 
@@ -19,7 +21,7 @@ export const AudioPlayerInfo = ({
   color: string;
 }) => {
   return (
-    <XStack flex={1} gap="$3" alignItems="center">
+    <Flex row fill gap="$3" alignItems="center">
       {audiobookInfo.cover ? (
         <FastImage
           style={{
@@ -34,23 +36,23 @@ export const AudioPlayerInfo = ({
           }}
         />
       ) : null}
-      <XStack alignItems="center" flex={1}>
-        <YStack gap="$1" flex={1}>
+      <Flex row alignItems="center" flex={1}>
+        <Flex gap="$1" flex={1}>
           <Text fontSize={14} fontWeight={"$7"}>
             {audiobookInfo.title}
           </Text>
           <Text fontSize={14} color={"$gray10"} numberOfLines={1}>
             {audiobookInfo.author}
           </Text>
-        </YStack>
+        </Flex>
 
         <AudioPlayerControls color={color} />
-      </XStack>
-    </XStack>
+      </Flex>
+    </Flex>
   );
 };
 
-export const SmallAudioPlayerWrapper = styled(YStack, {
+export const SmallAudioPlayerWrapper = styled(Flex, {
   height: SMALL_PLAYER_HEIGHT,
   borderRadius: "$7",
   padding: "$3",

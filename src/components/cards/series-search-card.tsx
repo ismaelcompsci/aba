@@ -1,11 +1,12 @@
 import FastImage from "react-native-fast-image";
 import { BlurView } from "@react-native-community/blur";
 import { router } from "expo-router";
-import { Image, Text, YStack, ZStack } from "tamagui";
+import { Image, Text, ZStack } from "tamagui";
 
 import { LibraryItem, Series } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode } from "../../utils/utils";
+import { Flex } from "../layout/flex";
 
 import { SearchCard } from "./search-card";
 
@@ -79,7 +80,7 @@ const SeriesSearchCard = ({
           const offsetLeft = widthPer * i;
 
           return (
-            <YStack key={i} x={offsetLeft}>
+            <Flex key={i} x={offsetLeft}>
               <FastImage
                 key={i}
                 style={{
@@ -91,13 +92,13 @@ const SeriesSearchCard = ({
                   uri: src + `&format=webp`,
                 }}
               />
-            </YStack>
+            </Flex>
           );
         })}
       </ZStack>
-      <YStack flex={1}>
+      <Flex fill>
         <Text>{series.name}</Text>
-      </YStack>
+      </Flex>
     </SearchCard>
   );
 };

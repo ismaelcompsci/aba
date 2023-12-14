@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Text, XStack, YStack } from "tamagui";
+import { Text } from "tamagui";
 
 import { PlaylistExpanded } from "../../types/aba";
 import { PlaylistCover } from "../covers/playlist-cover";
@@ -22,7 +22,7 @@ export const PlaylistsCard = ({
   };
 
   return (
-    <YStack
+    <Flex
       overflow="hidden"
       justifyContent="flex-end"
       borderColor={"$backgroundFocus"}
@@ -32,7 +32,6 @@ export const PlaylistsCard = ({
       pressStyle={{ scale: 0.875 }}
       animation="bouncy"
       onPress={handlePress}
-      elevation={"$0.75"}
       bg={"$background"}
     >
       {/* PHOTOS */}
@@ -45,7 +44,8 @@ export const PlaylistsCard = ({
         />
       </Flex>
       {/* name */}
-      <XStack
+      <Flex
+        row
         // w={bookWidth - 2}
         justifyContent="center"
         borderColor={"$color"}
@@ -57,7 +57,7 @@ export const PlaylistsCard = ({
         <Text h={20} numberOfLines={1} fontSize={"$5"} textAlign="center">
           {item.name}
         </Text>
-      </XStack>
-    </YStack>
+      </Flex>
+    </Flex>
   );
 };

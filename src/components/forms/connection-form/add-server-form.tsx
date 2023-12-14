@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Button, Input, Label, Spinner, Text, XStack } from "tamagui";
+import { Button, Input, Label, Spinner, styled, Text } from "tamagui";
 import { z } from "zod";
 
 import { LoginServerResponse, ServerConfig } from "../../../types/types";
 import { pingServer } from "../../../utils/api";
-import { ErrorMessage } from "../../error-message";
+import { Flex } from "../../layout/flex";
 
-import { AddServerFormFrame, FormFrame } from "./form";
+import { FormFrame } from "./form";
 
 const loginSchema = z.object({
   serverAddress: z
@@ -131,7 +131,7 @@ const AddServerForm = ({
   };
 
   return (
-    <AddServerFormFrame>
+    <Flex space={"$3"} paddingHorizontal={"$2"}>
       <Controller
         control={form.control}
         name="serverAddress"
@@ -201,7 +201,7 @@ const AddServerForm = ({
         </ErrorMessage>
       )}
 
-      <XStack w="100%" gap="$4">
+      <Flex w="100%" gap="$4">
         <Button
           theme="red_active"
           flex={1}
@@ -217,9 +217,14 @@ const AddServerForm = ({
         >
           <Text>Connect</Text>
         </Button>
-      </XStack>
-    </AddServerFormFrame>
+      </Flex>
+    </Flex>
   );
 };
+
+export const ErrorMessage = styled(Text, {
+  color: "$red10",
+  fontWeight: "500",
+});
 
 export default AddServerForm;

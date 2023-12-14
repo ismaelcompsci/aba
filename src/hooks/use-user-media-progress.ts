@@ -27,8 +27,6 @@ export const useUserMediaProgress = ({
     )
   );
 
-  console.log("RERENDER ", libraryItemId, episodeId);
-
   let useEBookProgress;
   if (!userMediaProgress || userMediaProgress.progress)
     useEBookProgress = false;

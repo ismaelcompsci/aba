@@ -5,8 +5,9 @@ import {
   SkipBack,
   SkipForward,
 } from "@tamagui/lucide-icons";
-import { useTheme, XStack } from "tamagui";
+import { useTheme } from "tamagui";
 
+import { Flex } from "../../layout/flex";
 import { TouchableArea } from "../../touchable/touchable-area";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
@@ -18,7 +19,8 @@ function BigAudioPlayerControls() {
   const color = colors.color.get();
 
   return (
-    <XStack
+    <Flex
+      row
       ai={"center"}
       width={"100%"}
       pt={"$4"}
@@ -32,17 +34,11 @@ function BigAudioPlayerControls() {
       >
         <SkipBack fill={color} />
       </TouchableArea>
-      <XStack
-        ai={"center"}
-        justifyContent="center"
-        flex={1}
-        $gtSm={{ flex: 0 }}
-        gap={"$3"}
-      >
+      <Flex row centered flex={1} $gtSm={{ flex: 0 }} gap={"$3"}>
         <BackwardButton />
         <PlayPauseControl small={false} color={color} />
         <ForwardButton />
-      </XStack>
+      </Flex>
       <TouchableArea
         alignItems={"center"}
         justifyContent={"center"}
@@ -50,7 +46,7 @@ function BigAudioPlayerControls() {
       >
         <SkipForward fill={color} />
       </TouchableArea>
-    </XStack>
+    </Flex>
   );
 }
 

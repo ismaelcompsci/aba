@@ -1,9 +1,10 @@
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { useAtomValue } from "jotai";
-import { AnimatePresence, Button, Text, XStack, YStack } from "tamagui";
+import { AnimatePresence, Button, Text } from "tamagui";
 
 import { HEADER_HEIGHT } from "../../../hooks/use-app-safe-areas";
 import { ebookSettignsAtom } from "../../../state/local-state";
+import { Flex } from "../../layout/flex";
 
 import { themes } from "./themes";
 
@@ -27,7 +28,8 @@ const ScrollLabels = ({
     <>
       <AnimatePresence>
         {showingPrev ? (
-          <XStack
+          <Flex
+            row
             zIndex={9999}
             animation={"100ms"}
             enterStyle={{
@@ -48,19 +50,20 @@ const ScrollLabels = ({
             margin={"auto"}
           >
             <Button backgroundColor={theme?.fg}>
-              <YStack py="$1" justifyContent="center" alignItems="center">
+              <Flex py="$1" justifyContent="center" alignItems="center">
                 <ChevronUp size={14} />
                 <Text numberOfLines={1} color={theme?.bg}>
                   RELEASE FOR: {label || "previous"}
                 </Text>
-              </YStack>
+              </Flex>
             </Button>
-          </XStack>
+          </Flex>
         ) : null}
       </AnimatePresence>
       <AnimatePresence>
         {showingNext ? (
-          <XStack
+          <Flex
+            row
             animation={"100ms"}
             enterStyle={{
               scale: 1.2,
@@ -81,14 +84,14 @@ const ScrollLabels = ({
             margin={"auto"}
           >
             <Button backgroundColor={theme?.fg}>
-              <YStack py="$1" justifyContent="center" alignItems="center">
+              <Flex centered py="$1">
                 <Text numberOfLines={1} color={theme?.bg}>
                   RELEASE FOR: {label || "next"}
                 </Text>
                 <ChevronDown size={14} />
-              </YStack>
+              </Flex>
             </Button>
-          </XStack>
+          </Flex>
         ) : null}
       </AnimatePresence>
     </>

@@ -4,7 +4,6 @@ import RenderHtml from "react-native-render-html";
 import { H3, Image, ScrollView, Text, useTheme } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
-import { AuthorText } from "../../../author-text";
 import { Flex } from "../../../layout/flex";
 import { useReader } from "../../rn-epub-reader";
 
@@ -73,7 +72,9 @@ export const Overview = () => {
           <Flex fill padding={"$2"}>
             <Flex fill>
               <H3>{title()}</H3>
-              <AuthorText>{author()}</AuthorText>
+              <Text fontSize={"$1"} color={"$gray10"} numberOfLines={1}>
+                {author()}
+              </Text>
             </Flex>
             <Flex>
               <Text color={"$gray11"}>{dateString}</Text>

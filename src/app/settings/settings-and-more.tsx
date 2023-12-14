@@ -11,7 +11,7 @@ import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import { TouchableArea } from "../../components/touchable/touchable-area";
-import { userAtom } from "../../state/app-state";
+import { showPlayerAtom, userAtom } from "../../state/app-state";
 import { DefaultSettings } from "../../state/default-state";
 import {
   appThemeAtom,
@@ -22,6 +22,8 @@ import {
   serverSettingsAtom,
   sortAtom,
 } from "../../state/local-state";
+import { ServerSettings } from "../../types/aba";
+import { ServerConfig } from "../../types/types";
 
 type Setting = {
   route: Href<string>;
@@ -43,6 +45,7 @@ const SettingsAndMore = () => {
   const setEbookSettings = useSetAtom(ebookSettignsAtom);
   const setDescOrder = useSetAtom(descOrderAtom);
   const setSort = useSetAtom(sortAtom);
+  const setShowPlayer = useSetAtom(showPlayerAtom);
   const [serverSettings, setServerSettings] = useAtom(serverSettingsAtom);
   const [currentServerConfig, setCurrentServerConfig] = useAtom(
     currentServerConfigAtom
@@ -51,8 +54,9 @@ const SettingsAndMore = () => {
   const disconnect = () => {
     setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });
     setEbookSettings(DefaultSettings.ebookSettings);
-    setCurrentServerConfig({});
-    setServerSettings({});
+    setShowPlayer({ open: false, playing: false });
+    setCurrentServerConfig({} as ServerConfig);
+    setServerSettings({} as ServerSettings);
     setDescOrder(false);
     setSort("");
 
