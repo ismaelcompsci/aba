@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import Animated, { StretchInY, StretchOutY } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -99,9 +99,11 @@ export function flattenTocItems(items: TocItem[]): NewTocItem[] {
 }
 
 export const Content = () => {
-  const { goToLocation, currentLocation } = useReader();
+  const { goToLocation } = useReader();
+  const listRef = useRef<FlashList<NewTocItem>>(null);
   const epubReaderToc = useAtomValue(epubReaderTocAtom);
   const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
+  const epubReaderCurrentLocation = useAtomValue(epubReaderCurrentLocationAtom);
   const newToc = useMemo(() => flattenTocItems(epubReaderToc || []), []);
 
   const { bottom } = useAppSafeAreas();
@@ -119,6 +121,14 @@ export const Content = () => {
     return `${index}-${item.id}-${item.label}`;
   };
 
+  const scrollToCurrentItem = () => {
+    const itemIndex = newToc.findIndex((value) => {
+      return value.id === epubReaderCurrentLocation?.tocItem.id;
+    });
+
+    listRef.current?.scrollToIndex({ index: itemIndex, animated: true });
+  };
+
   return (
     <Flex
       flex={1}
@@ -130,12 +140,14 @@ export const Content = () => {
     >
       {newToc.length ? (
         <FlashList
+          ref={listRef}
+          onLayout={scrollToCurrentItem}
           data={newToc}
           renderItem={renderItem}
           estimatedItemSize={37}
           keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
-          initialScrollIndex={currentLocation?.tocItem.id}
+          // initialScrollIndex={epubReaderCurrentLocation?.tocItem.id}
           contentContainerStyle={{
             paddingBottom: bottom,
           }}

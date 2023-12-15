@@ -79,7 +79,7 @@ const PersonalizedPage = ({
           userToken={userToken}
         />
         {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-          <Flex h="100%">
+          <Flex pt={44}>
             {isEmpty ? <Text>EMPTY :/</Text> : <Loaders.Main />}
           </Flex>
         ) : (
