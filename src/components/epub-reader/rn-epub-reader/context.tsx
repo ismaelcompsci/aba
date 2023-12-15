@@ -209,23 +209,13 @@ export interface ReaderContextProps {
   setAnnotations: (annotations: Annotation[]) => void;
   useMenuAction: (action: MenuActions) => void;
   registerBook: (bookRef: WebView) => void;
-  // setAtStart: (atStart: boolean) => void;
-  // setAtEnd: (atEnd: boolean) => void;
-  // setTotalLocations: (totalLocations: number) => void;
   setCurrentLocation: (location: LocationChange) => void;
   setMeta: (meta: ReaderBookMetadata) => void;
-  // setProgress: (progress: number) => void;
-  // setLocations: (locations: ePubCfi[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsRendering: (isRendering: boolean) => void;
   setIsPdf: (isPdf: boolean) => void;
   setCover: (cover: string) => void;
-
-  /**
-   * Go to specific location in the book
-   * @param {ePubCfi} target {@link ePubCfi}
-   */
-  goToLocation: (cfi: ePubCfi) => void;
+  goToLocation: (cfi: string | number) => void;
 
   // /**
   //  * Go to previous page in the book
@@ -237,28 +227,11 @@ export interface ReaderContextProps {
   //  */
   goNext: () => void;
 
-  // /**
-  //  * Get the total locations of the book
-  //  */
-  // getLocations: () => ePubCfi[];
-
-  // /**
-  //  * Returns the current location of the book
-  //  * @returns {LocationChange} {@link LocationChange}
-  //  */
-  // getCurrentLocation: () => LocationChange | null;
-
   /**
    * Returns an object containing the book's metadata
    * @returns {ReaderBookMetadata}
    */
   getMeta: () => ReaderBookMetadata;
-
-  // /**
-  //  * Search for a specific text in the book
-  //  * @param {string} query {@link string} text to search
-  //  */
-  // search: (query: string) => void;
 
   // /**
   //  * @param theme {@link Theme}
@@ -271,63 +244,9 @@ export interface ReaderContextProps {
   changeTheme: (theme: Theme) => void;
 
   // /**
-  //  * Change font size of all elements in the book
-  //  * @param font
-  //  * @see https://www.w3schools.com/cssref/css_websafe_fonts.asp
-  //  */
-  // changeFontFamily: (fontFamily: string) => void;
-
-  // /**
-  //  * Change font size of all elements in the book
-  //  * @param {FontSize} size {@link FontSize}
-  //  */
-  // changeFontSize: (size: number) => void;
-
-  // /**
-  //  * Add Mark a specific cfi in the book
-  //  */
-  // addMark: (
-  //   type: Mark,
-  //   cfiRange: ePubCfi,
-  //   data?: any,
-  //   callback?: () => void,
-  //   className?: string,
-  //   styles?: any
-  // ) => void;
-
-  // /**
-  //  * Remove Mark a specific cfi in the book
-  //  */
-  // removeMark: (cfiRange: ePubCfi, type: Mark) => void;
-
-  // setKey: (key: string) => void;
-
-  // /**
-  //  * Works like a unique id for book
-  //  */
-  // key: string;
-
-  // /**
   //  * A theme object.
   //  */
   theme: Theme;
-
-  // /**
-  //  * Indicates if you are at the beginning of the book
-  //  * @returns {boolean} {@link boolean}
-  //  */
-  // atStart: boolean;
-
-  // /**
-  //  * Indicates if you are at the end of the book
-  //  * @returns {boolean} {@link boolean}
-  //  */
-  // atEnd: boolean;
-
-  // /**
-  //  * The total number of locations
-  //  */
-  // totalLocations: number;
 
   /**
    * The current location of the book
@@ -360,14 +279,6 @@ export interface ReaderContextProps {
   isRendering: boolean;
 
   isPdf: boolean;
-  // /**
-  //  * Search results
-  //  * @returns {SearchResult[]} {@link SearchResult[]}
-  //  */
-  // searchResults: SearchResult[];
-
-  // setSearchResults: (results: SearchResult[]) => void;
-  // changePageFlow: (pageFlow: "paginated" | "scrolled") => void;
   /**
    * book cover in base64
    */
@@ -517,16 +428,20 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_IS_RENDERING, payload: isRendering });
   }, []);
 
-  const goToLocation = useCallback((target: string) => {
+  const goToLocation = useCallback((target: string | number) => {
     if (state.isPdf) {
       return;
-      const newLocation = JSON.parse(target);
-      book.current?.injectJavaScript(
-        `reader.view.goTo(Number(${Math.max(0, newLocation[0].num)})); true`
-      );
-    } else {
-      book.current?.injectJavaScript(`reader.view.goTo("${target}"); true`);
+      // const newLocation = JSON.parse(target);
+      // book.current?.injectJavaScript(
+      //   `reader.view.goTo(Number(${Math.max(0, newLocation[0].num)})); true`
+      // );
     }
+    if (typeof target === "number") {
+      book.current?.injectJavaScript(
+        `reader.view.goToFraction(${target}); true`
+      );
+    } else
+      book.current?.injectJavaScript(`reader.view.goTo("${target}"); true`);
   }, []);
 
   const goPrevious = useCallback(() => {

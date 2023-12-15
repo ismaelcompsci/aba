@@ -11,6 +11,7 @@ import { Button } from "tamagui";
 import {
   epubReaderCurrentLocationAtom,
   epubReaderLoadingAtom,
+  epubReaderSectionFractionsAtom,
   epubReaderShowMenuAtom,
   epubReaderTocAtom,
 } from "../../state/app-state";
@@ -69,6 +70,9 @@ const EBookReader = ({
   // const [currentLabel, setCurrentLabel] = useState("");
   const setEpubReaderShowMenu = useSetAtom(epubReaderShowMenuAtom);
   const setCurrentLocation = useSetAtom(epubReaderCurrentLocationAtom);
+  const setEpubReaderSectionFractions = useSetAtom(
+    epubReaderSectionFractionsAtom
+  );
   const [ready, setReady] = useState(false);
 
   const op = useRef(false);
@@ -85,7 +89,7 @@ const EBookReader = ({
     if (annotations) setAnnotations(annotations);
 
     setEpubReaderToc(readyBook.toc);
-
+    setEpubReaderSectionFractions(readyBook.sectionFractions);
     setEpubReaderLoading({
       loading: true,
       part: "Opening Book...",
@@ -122,8 +126,8 @@ const EBookReader = ({
   };
 
   const onLocationChange = (location: LocationChange) => {
-    if (!ready) return;
     setCurrentLocation(location);
+    if (!ready) return;
     let payload;
     if (!isPdf) {
       payload = {

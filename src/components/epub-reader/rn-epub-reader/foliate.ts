@@ -9824,7 +9824,8 @@ class Reader {
     await  this.getCover();
     const onReadyPayload = {
       metadata: this.book.metadata,
-      toc: this.book.toc
+      toc: this.book.toc,
+      sectionFractions: this.view.getSectionFractions()
     };
     emit({
       type: "onReady",

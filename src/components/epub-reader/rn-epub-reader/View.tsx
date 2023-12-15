@@ -52,7 +52,6 @@ export function View({
     goPrevious,
     changeTheme,
     setCover,
-    setCurrentLocation,
     setMeta,
     isPdf,
     theme,

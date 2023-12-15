@@ -184,7 +184,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
           {showSearch ? (
             <TouchableArea
               hapticFeedback
-              hitSlop={20}
+              hitSlop={10}
               // onPress={() => router.push("/test/")}
               onPress={() => router.push("/search/")}
             >
@@ -194,7 +194,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
           {showSettings ? (
             <TouchableArea
               hapticFeedback
-              hitSlop={20}
+              hitSlop={10}
               onPress={() => router.push("/settings/settings-and-more")}
               jc="center"
             >

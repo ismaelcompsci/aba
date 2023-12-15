@@ -46,6 +46,7 @@ export const epubReaderOverviewModalAtom = atom(false);
 export const epubReaderShowMenuAtom = atom(false);
 export const epubReaderTocAtom = atom<TocItem[] | null>(null);
 export const epubReaderCurrentLocationAtom = atom<LocationChange | null>(null);
+export const epubReaderSectionFractionsAtom = atom<number[] | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
   loading: false,
   part: "",

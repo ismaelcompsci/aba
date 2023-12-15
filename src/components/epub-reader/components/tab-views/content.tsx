@@ -74,6 +74,30 @@ const TocItemView = ({
   );
 };
 
+export function flattenTocItems(items: TocItem[]): NewTocItem[] {
+  const flattenedItems: NewTocItem[] = [];
+
+  function flatten(item: TocItem, depth: number) {
+    const flattenedItem: NewTocItem = {
+      href: item.href,
+      id: item.id,
+      label: item.label,
+      data: [],
+      depth: depth,
+    };
+
+    flattenedItems.push(flattenedItem);
+
+    if (item.subitems && item.subitems.length > 0) {
+      item.subitems.forEach((subitem) => flatten(subitem, depth + 1));
+    }
+  }
+
+  items.forEach((item) => flatten(item, 0));
+
+  return flattenedItems;
+}
+
 export const Content = () => {
   const { goToLocation, currentLocation } = useReader();
   const epubReaderToc = useAtomValue(epubReaderTocAtom);
@@ -86,30 +110,6 @@ export const Content = () => {
     goToLocation(item.href);
     setEpubReaderOverviewModal(false);
   };
-
-  function flattenTocItems(items: TocItem[]): NewTocItem[] {
-    const flattenedItems: NewTocItem[] = [];
-
-    function flatten(item: TocItem, depth: number) {
-      const flattenedItem: NewTocItem = {
-        href: item.href,
-        id: item.id,
-        label: item.label,
-        data: [],
-        depth: depth,
-      };
-
-      flattenedItems.push(flattenedItem);
-
-      if (item.subitems && item.subitems.length > 0) {
-        item.subitems.forEach((subitem) => flatten(subitem, depth + 1));
-      }
-    }
-
-    items.forEach((item) => flatten(item, 0));
-
-    return flattenedItems;
-  }
 
   const renderItem = ({ item }: { item: NewTocItem }) => {
     return <TocItemView handleTocItemPress={handleTocItemPress} item={item} />;

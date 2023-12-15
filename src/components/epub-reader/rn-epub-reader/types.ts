@@ -97,6 +97,7 @@ export type ReaderBookMetadata = {
 export type ReaderBook = {
   metadata: ReaderBookMetadata;
   toc: TocItem[];
+  sectionFractions: number[];
 };
 
 export type LocationChange = {

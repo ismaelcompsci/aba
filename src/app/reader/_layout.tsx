@@ -5,6 +5,7 @@ import {
   FadeInUp,
   FadeOutDown,
   FadeOutUp,
+  useSharedValue,
 } from "react-native-reanimated";
 import {
   ChevronsDownUp,
@@ -18,7 +19,7 @@ import {
 import { Stack } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { focusAtom } from "jotai-optics";
-import { Button, H6, Text } from "tamagui";
+import { Button, H6, Slider, Text } from "tamagui";
 
 import { themes } from "../../components/epub-reader/components/themes";
 import {
@@ -31,6 +32,7 @@ import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { TouchableArea } from "../../components/touchable/touchable-area";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import {
+  epubReaderCurrentLocationAtom,
   epubReaderOverviewModalAtom,
   epubReaderShowMenuAtom,
 } from "../../state/app-state";
@@ -86,13 +88,7 @@ const Menu = () => {
         >
           <Flex row flex={1} gap="$4" ai={"center"}>
             <BackButton />
-            <H6
-              numberOfLines={1}
-              $sm={{ maxWidth: "$15" }}
-              $md={{ maxWidth: "$20" }}
-            >
-              {/* {title} */}
-            </H6>
+            <ItemTitle />
           </Flex>
           <Flex row alignItems="center" gap={16}>
             <TouchableArea
@@ -119,16 +115,157 @@ const Menu = () => {
       <AnimatedFlex
         w={width}
         height={104}
-        bg={"$background"}
         pos={"absolute"}
         bottom={0}
         left={0}
         right={0}
+        centered
         entering={FadeInDown}
         exiting={FadeOutDown}
         paddingHorizontal="$4"
-      ></AnimatedFlex>
+        bg="$background"
+      >
+        <BottomEbookReaderMenu />
+      </AnimatedFlex>
     </>
+  );
+};
+
+const BottomEbookReaderMenu = () => {
+  const left = useSharedValue(0);
+  // const sliderRef = useRef<View>(null);
+  // const animatedTextRef = useAnimatedRef<Animated.Text>();
+
+  // const [showLabel, setShowLabel] = useState(false);
+  // const [layout, setLayout] = useState<LayoutRectangle | null>(null);
+  // const { width } = useWindowDimensions();
+
+  const epubReaderCurrentLocation = useAtomValue(epubReaderCurrentLocationAtom);
+
+  const safeAreas = useAppSafeAreas();
+
+  const { goToLocation } = useReader();
+
+  const onValueChange = (value: number[]) => {
+    goToLocation(value[0]);
+  };
+
+  // const pos = useDerivedValue(() => {
+  //   if (!layout) return 0;
+
+  //   if (left.value + layout.width + 24 >= width) {
+  //     return width - layout.width - 24;
+  //   }
+
+  //   if (left.value - layout.width / 2 <= width) {
+  //     return left.value;
+  //   }
+
+  //   return left.value - 500;
+  // }, [layout]);
+
+  const totalPages = parseInt(epubReaderCurrentLocation?.section?.total || "0");
+  const currentPage = parseInt(
+    epubReaderCurrentLocation?.section?.current || "0"
+  );
+
+  const pagesLeft = totalPages - currentPage;
+
+  const page =
+    pagesLeft === 1
+      ? "1 page left"
+      : pagesLeft === 0
+      ? "Last page"
+      : `${pagesLeft} pages left`;
+
+  return (
+    <Flex width="100%" height="100%" pb={safeAreas.bottom}>
+      {/* {showLabel ? (
+        <AnimatedFlex
+          bg="white"
+          style={[
+            {
+              position: "absolute",
+              borderRadius: 6,
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+            },
+            { left: pos, top: -20 },
+          ]}
+          onLayout={(e) => setLayout(e.nativeEvent.layout)}
+        >
+          <Animated.Text
+            ref={animatedTextRef}
+            style={{
+              color: "black",
+            }}
+            numberOfLines={1}
+          >
+            {epubReaderCurrentLocation?.tocItem?.label}{" "}
+            {epubReaderCurrentLocation?.fraction
+              ? (epubReaderCurrentLocation?.fraction * 100).toFixed(0)
+              : "0"}
+            %
+          </Animated.Text>
+        </AnimatedFlex>
+      ) : null} */}
+      <Slider
+        // ref={sliderRef}
+        // width="100%"
+        // height={"100%"}
+        flexGrow={1}
+        size="$1"
+        value={[
+          epubReaderCurrentLocation?.fraction
+            ? epubReaderCurrentLocation?.fraction
+            : 0,
+        ]}
+        max={1}
+        step={0.01}
+        // onSlideEnd={() => setShowLabel(false)}
+        // onSlideStart={() => setShowLabel(true)}
+        onValueChange={onValueChange}
+        onSlideMove={(event) => {
+          // if (!showLabel) setShowLabel(true);
+          left.value = event.nativeEvent.pageX;
+        }}
+        themeInverse
+      >
+        <Slider.Track>
+          <Slider.TrackActive />
+        </Slider.Track>
+        <Slider.Thumb size={"$0.75"} index={0} circular elevate />
+      </Slider>
+      <Flex jc="space-between" row shrink alignItems="center" flexWrap="nowrap">
+        <H6
+          fontSize={"$2"}
+          $gtSm={{ maxHeight: "80%" }}
+          maxWidth={"60%"}
+          numberOfLines={1}
+        >
+          {epubReaderCurrentLocation?.tocItem?.label}
+        </H6>
+        <Flex gap="$3" row>
+          <Text fontSize={"$1"} numberOfLines={1}>
+            {page}
+          </Text>
+          <Text fontSize={"$1"} fontWeight={"bold"} numberOfLines={1}>
+            {((epubReaderCurrentLocation?.fraction || 0) * 100).toFixed(0)}%
+          </Text>
+        </Flex>
+      </Flex>
+    </Flex>
+  );
+};
+
+const ItemTitle = () => {
+  const { getMeta } = useReader();
+
+  const metadata = getMeta();
+  return (
+    <H6 numberOfLines={1} $sm={{ maxWidth: "$15" }} $md={{ maxWidth: "$20" }}>
+      {metadata.title}
+    </H6>
   );
 };
 

@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 
 import EBookReader from "../../components/epub-reader/ebook-reader";
 import { Screen } from "../../components/layout/screen";
 import LoadingBook from "../../components/loading-book";
 import {
   currentItemAtom,
+  epubReaderCurrentLocationAtom,
+  epubReaderSectionFractionsAtom,
   serverAddressAtom,
   userAtom,
 } from "../../state/app-state";
@@ -18,6 +20,13 @@ const ReaderPage = () => {
   const { id, ino } = useLocalSearchParams();
   const currentItem = useAtomValue(currentItemAtom);
   const user = useAtomValue(userAtom);
+
+  const setEpubReaderSectionFractionsAtom = useSetAtom(
+    epubReaderSectionFractionsAtom
+  );
+  const setEpubReaderCurrentLocation = useSetAtom(
+    epubReaderCurrentLocationAtom
+  );
 
   const [bookPath, setBookPath] = useState("");
 
@@ -58,6 +67,13 @@ const ReaderPage = () => {
     }),
     []
   );
+
+  useEffect(() => {
+    return () => {
+      setEpubReaderSectionFractionsAtom(null);
+      setEpubReaderCurrentLocation(null);
+    };
+  }, []);
 
   return (
     <Screen centered>
