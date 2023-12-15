@@ -8,7 +8,7 @@ import {
   TabBar,
   TabView,
 } from "react-native-tab-view";
-import type { IconProps } from "@tamagui/helpers-icon";
+import { IconProps } from "@tamagui/helpers-icon";
 import {
   Activity,
   Backpack,
@@ -23,10 +23,11 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
-import { Button, Spinner, Text, useTheme } from "tamagui";
+import { Spinner, Text, useTheme } from "tamagui";
 
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
+import { Loaders } from "../../components/loader";
 import NoServer from "../../components/no-server";
 import AddPage from "../../components/tab-pages/add-page";
 import AuthorsPage from "../../components/tab-pages/authors-page";
@@ -245,7 +246,7 @@ const HomePage = () => {
     };
     return (
       <Screen centered {...props}>
-        <Spinner />
+        <Loaders.Main />
       </Screen>
     );
   };
@@ -295,10 +296,8 @@ const HomePage = () => {
       {!userToken || !routes ? (
         <NoServer />
       ) : changingLibrary ? (
-        <Flex fill centered pb={44}>
-          <Button>
-            <Spinner />
-          </Button>
+        <Flex fill pb={44} pt={44}>
+          <Loaders.Main />
         </Flex>
       ) : (
         <TabView

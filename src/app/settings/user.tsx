@@ -12,13 +12,14 @@ import {
 } from "react-native-wagmi-charts";
 import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
 import { useAtomValue } from "jotai";
-import { Separator, Spinner, Text, useTheme } from "tamagui";
+import { Separator, Text, useTheme } from "tamagui";
 
 import AnimatedText from "../../components/custom-components/animated-text";
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
+import { Loaders } from "../../components/loader";
 import { TouchableArea } from "../../components/touchable/touchable-area";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import useChartDimensions from "../../hooks/use-chart-dimensions";
@@ -57,7 +58,7 @@ const Stats = () => {
   if (loading)
     return (
       <Flex centered>
-        <Spinner />
+        <Loaders.Main />
       </Flex>
     );
 

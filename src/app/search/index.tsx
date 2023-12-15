@@ -3,7 +3,7 @@ import { Search } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Separator, Spinner, styled, Text } from "tamagui";
+import { ScrollView, Separator, styled, Text } from "tamagui";
 
 import AuthorSearchCard from "../../components/cards/author-search-card";
 import ItemSearchCard from "../../components/cards/item-search-card";
@@ -13,6 +13,7 @@ import InputWithIcon from "../../components/custom-components/input-with-icon";
 import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
+import { Loaders } from "../../components/loader";
 import useDebounce from "../../hooks/use-debounce";
 import {
   currentLibraryAtom,
@@ -117,7 +118,7 @@ const SearchPage = () => {
       <ScrollView space="$4" showsVerticalScrollIndicator={false}>
         {isLoading || isFetching ? (
           <Flex fill centered>
-            <Spinner />
+            <Loaders.Main />
           </Flex>
         ) : !resultsLength && !isLoading && debouncedSearchInput ? (
           <Flex fill centered>

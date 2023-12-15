@@ -2,7 +2,7 @@ import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Separator, Spinner, Text } from "tamagui";
+import { Separator, Text } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
@@ -10,6 +10,7 @@ import { PlaylistExpanded } from "../../types/aba";
 import { PlaylistsCard } from "../cards/playlists-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 
 interface PlaylistsPageProps {
   currentLibraryId: string | null;
@@ -94,7 +95,7 @@ const PlaylistsPage = ({
     <Screen edges={["left", "right"]}>
       {isLoading ? (
         <Flex fill centered>
-          <Spinner />
+          <Loaders.Main />
         </Flex>
       ) : (
         <FlashList

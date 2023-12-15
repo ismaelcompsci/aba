@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Image, Separator, Spinner, Text } from "tamagui";
+import { Image, Separator, Text } from "tamagui";
 
 import {
   PodcastEpisodeWithPodcast,
@@ -11,6 +11,7 @@ import {
 import { dateDistanceFromNow } from "../../utils/utils";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 import EpisodeTableRow from "../tables/episode-table-row";
 
 interface LatestPageProps {
@@ -98,7 +99,7 @@ const LatestPage = ({
       <Flex fill px="$4" pt="$2">
         {isInitialLoading ? (
           <Flex width="100%">
-            <Spinner />
+            <Loaders.Main />
           </Flex>
         ) : (
           <Flex fill>
@@ -135,22 +136,5 @@ const LatestPage = ({
     </Screen>
   );
 };
-/**
- *           <Button
-            theme={"blue"}
-            borderRadius={"$4"}
-            padding="$3"
-            width="100%"
-            pressTheme={false}
-            focusTheme={false}
-            hoverTheme={false}
-            pressStyle={{
-              bg: "",
-            }}
-          >
-            <Spinner />
-            <Text>Loading</Text>
-          </Button>
- */
 
 export default LatestPage;

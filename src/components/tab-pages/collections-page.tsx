@@ -3,7 +3,7 @@ import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { Separator, Spinner, Text } from "tamagui";
+import { Separator, Text } from "tamagui";
 
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { isCoverSquareAspectRatioAtom } from "../../state/app-state";
@@ -12,6 +12,7 @@ import { LibraryCollections } from "../../types/types";
 import CollectionsCard from "../cards/collections-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 
 interface CollectionsPageProps {
   currentLibraryId: string | null;
@@ -75,7 +76,7 @@ const CollectionsPage = ({
     <Screen edges={["left", "right"]}>
       {isLoading ? (
         <Flex fill centered pb={headerHeight}>
-          <Spinner />
+          <Loaders.Main />
         </Flex>
       ) : (
         <Flex fill>

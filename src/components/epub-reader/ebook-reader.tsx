@@ -8,6 +8,7 @@ import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button } from "tamagui";
 
+import { epubReaderMenuInlineSizeAtom } from "../../app/reader/_layout";
 import {
   epubReaderCurrentLocationAtom,
   epubReaderLoadingAtom,
@@ -73,6 +74,7 @@ const EBookReader = ({
   const setEpubReaderSectionFractions = useSetAtom(
     epubReaderSectionFractionsAtom
   );
+  const setEpubReaderMenuInlineSize = useSetAtom(epubReaderMenuInlineSizeAtom);
   const [ready, setReady] = useState(false);
 
   const op = useRef(false);
@@ -232,6 +234,10 @@ const EBookReader = ({
     // StatusBar.setHidden(!hide);
     return () => StatusBar.setHidden(false);
   }, []);
+
+  useEffect(() => {
+    setEpubReaderMenuInlineSize(width);
+  }, [width]);
 
   useEffect(() => {
     setIsPdf(bookPath.endsWith(".pdf"));

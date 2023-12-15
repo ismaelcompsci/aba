@@ -2,12 +2,13 @@ import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Spinner, Text } from "tamagui";
+import { Text } from "tamagui";
 
 import { AuthorExpanded } from "../../types/aba";
 import AuthorCard from "../cards/author-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 
 interface AuthorsPageProps {
   currentLibraryId: string | null;
@@ -58,7 +59,7 @@ const AuthorsPage = ({
     <Screen edges={["left", "right"]}>
       {isLoading || !data ? (
         <Flex fill centered>
-          <Spinner />
+          <Loaders.Main />
         </Flex>
       ) : (
         <Flex fill>

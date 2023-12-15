@@ -20,6 +20,7 @@ import InputWithIcon from "../custom-components/input-with-icon";
 import { NewPodcastForm } from "../forms/podcast-form/new-podcast-form";
 import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 import { TouchableArea } from "../touchable/touchable-area";
 
 interface AddPageProps {
@@ -147,7 +148,7 @@ const AddPage = ({ serverAddress, userToken }: AddPageProps) => {
         </Flex>
         <Flex fill centered width="100%">
           {isFetching ? (
-            <Spinner />
+            <Loaders.Main />
           ) : (
             <Flex width={"100%"} height="100%">
               {searchResult ? (
@@ -221,7 +222,7 @@ const AddPage = ({ serverAddress, userToken }: AddPageProps) => {
           </Flex>
           {feedIsFetching || feedIsLoading ? (
             <Flex fill centered paddingBottom={headerHeight}>
-              <Spinner />
+              <Loaders.Main />
             </Flex>
           ) : null}
           {selectedPodcastFeed &&

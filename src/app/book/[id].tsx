@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Button, H3, H6, Image, Spinner, Text, useTheme } from "tamagui";
+import { Button, H3, H6, Image, Text, useTheme } from "tamagui";
 import { LinearGradient } from "tamagui/linear-gradient";
 
 import OpenItemActionButton from "../../components/buttons/open-item-action-button";
@@ -17,6 +17,7 @@ import ItemProgress from "../../components/item-progress";
 import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
+import { Loaders } from "../../components/loader";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import BookFilesTable from "../../components/tables/book-files-table";
 import ChapterFilesTable from "../../components/tables/chapter-files-table";
@@ -196,11 +197,7 @@ const BookPage = () => {
 
   return (
     <Screen>
-      {isLoading ? (
-        <Screen centered>
-          <Spinner />
-        </Screen>
-      ) : null}
+      {isLoading ? <Loaders.Main /> : null}
       {!bookItem && !isLoading ? (
         <Screen centered space="$3">
           <BookX size="$10" />

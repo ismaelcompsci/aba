@@ -331,6 +331,7 @@ const EbookSettingsMenu = ({
   const { isPdf } = useReader();
 
   const setReaderSettigns = useSetAtom(ebookSettignsAtom);
+  const setEpubReaderMenuInlineSize = useSetAtom(epubReaderMenuInlineSizeAtom);
 
   // const [voicesModalOpen, setVoicesModalOpen] = useState(false);
 
@@ -344,7 +345,7 @@ const EbookSettingsMenu = ({
   };
 
   useEffect(() => {
-    setReaderSettigns((prev: Theme) => ({ ...prev, maxInlineSize: width }));
+    setEpubReaderMenuInlineSize(width);
   }, [width]);
 
   useEffect(() => {

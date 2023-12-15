@@ -15,6 +15,7 @@ import { LibraryItems } from "../../types/types";
 import BookCard from "../cards/book-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 import { SortSelect } from "../sort-popover";
 
 interface LibraryPageProps {
@@ -190,7 +191,7 @@ const LibraryPage = ({
       {/* items */}
       {isInitialLoading || changingLibrary || isEmpty ? (
         <Screen centered headerAndTabBar>
-          {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
+          {isEmpty ? <Text>Empty :/</Text> : <Loaders.Main />}
         </Screen>
       ) : (
         <Flex fill>

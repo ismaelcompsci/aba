@@ -9,13 +9,14 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
-import { Image, Spinner, Text, useTheme } from "tamagui";
+import { Image, Text, useTheme } from "tamagui";
 
 import { VirtualizedList } from "../../../components/custom-components/virtual-scroll-view";
 import ItemProgress from "../../../components/item-progress";
 import BackHeader from "../../../components/layout/back-header";
 import { Flex } from "../../../components/layout/flex";
 import { Screen } from "../../../components/layout/screen";
+import { Loaders } from "../../../components/loader";
 import BookMoreMenu from "../../../components/menus/book-more-menu";
 import { PodcastLabel } from "../../../components/podcast-label";
 import { TouchableArea } from "../../../components/touchable/touchable-area";
@@ -106,7 +107,7 @@ function EpisodePage() {
       </BackHeader>
       <VirtualizedList>
         {isLoading ? (
-          <Spinner />
+          <Loaders.Main />
         ) : (
           <Flex fill px={"$4"} space>
             <Flex row space>

@@ -3,7 +3,7 @@ import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Separator, Spinner, Text } from "tamagui";
+import { Separator, Text } from "tamagui";
 
 import { SERIES_INFINITE_LIMIT } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
@@ -12,6 +12,7 @@ import { LibrarySeries } from "../../types/types";
 import SeriesCard from "../cards/series-card";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
+import { Loaders } from "../loader";
 
 interface SeriesPageProps {
   currentLibraryId: string | null;
@@ -121,7 +122,7 @@ const SeriesPage = ({
     >
       {showLoadingOrEmpty ? (
         <Flex fill centered pb={headerHeight}>
-          {isEmpty ? <Text>EMPTY</Text> : <Spinner />}
+          {isEmpty ? <Text>EMPTY</Text> : <Loaders.Main />}
         </Flex>
       ) : (
         <FlashList

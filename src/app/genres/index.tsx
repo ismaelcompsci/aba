@@ -3,11 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
-import { Separator, Spinner, Text } from "tamagui";
+import { Separator, Text } from "tamagui";
 
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
 import BackHeader from "../../components/layout/back-header";
 import { Screen } from "../../components/layout/screen";
+import { Loaders } from "../../components/loader";
 import { GenreList } from "../../components/tables/genre-table";
 import { progressFilters } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
@@ -106,7 +107,7 @@ const GenresPage = () => {
       <BackHeader alignment="center" mx={16} py={16}>
         <Text fontSize="$6">Genres</Text>
       </BackHeader>
-      {isLoading ? <Spinner /> : FilterLists}
+      {isLoading ? <Loaders.Main /> : FilterLists}
     </Screen>
   );
 };

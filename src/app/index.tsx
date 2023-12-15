@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import * as Burnt from "burnt";
 import { Redirect, router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Spinner } from "tamagui";
 
 import { Screen } from "../components/layout/screen";
+import { Loaders } from "../components/loader";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
 import {
   attemptingConnectionAtom,
@@ -204,7 +204,11 @@ export default function IndexPage() {
   return (
     <Screen centered pb={headerHeight}>
       <Connector />
-      {attemptingConnection ? <Spinner /> : <Redirect href={"/library/"} />}
+      {attemptingConnection ? (
+        <Loaders.Main />
+      ) : (
+        <Redirect href={"/library/"} />
+      )}
     </Screen>
   );
 }

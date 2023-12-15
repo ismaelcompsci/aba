@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import { useAtom, useAtomValue } from "jotai";
-import { Spinner, Text, useTheme } from "tamagui";
+import { Text, useTheme } from "tamagui";
 
 import { CollectionCover } from "../../components/covers/collections-cover";
 import { VirtualizedList } from "../../components/custom-components/virtual-scroll-view";
@@ -18,6 +18,7 @@ import ItemProgress from "../../components/item-progress";
 import BackHeader from "../../components/layout/back-header";
 import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
+import { Loaders } from "../../components/loader";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import { TouchableArea } from "../../components/touchable/touchable-area";
 import {
@@ -78,7 +79,7 @@ const CollectionsPage = () => {
       </BackHeader>
       <Flex fill>
         {isLoading || !data ? (
-          <Spinner />
+          <Loaders.Main />
         ) : (
           <VirtualizedList contentContainerStyle={{ paddingBottom: 44 }}>
             <Flex fill p="$4" space>
