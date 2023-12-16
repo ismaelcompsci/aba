@@ -293,7 +293,7 @@ const EBookReader = ({
           pos={"absolute"}
           bottom={10}
           right={15}
-          zIndex={9999}
+          zIndex={100_000}
           ai={"center"}
           jc={"center"}
           onPress={() => onPress()}
