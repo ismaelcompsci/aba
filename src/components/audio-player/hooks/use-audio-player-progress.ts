@@ -63,6 +63,15 @@ export const useAudioPlayerProgress = () => {
   ) => {
     if (!audioTracks?.length) return;
 
+    if (
+      Math.floor(currentTrack?.startOffset || 0) <= value &&
+      Math.floor(
+        (currentTrack?.startOffset || 0) + (currentTrack?.duration || 0)
+      ) > value
+    ) {
+      return await TrackPlayer.seekTo(value - (currentTrack?.startOffset || 0));
+    }
+
     const trackIndex = Math.max(
       0,
       audioTracks.findIndex(

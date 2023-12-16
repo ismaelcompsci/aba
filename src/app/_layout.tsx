@@ -23,7 +23,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { ColorTokens, TamaguiProvider, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
-import { Flex, FlexProps } from "../components/layout/flex";
+import { Dot } from "../components/dot";
+import { Flex } from "../components/layout/flex";
 import { AppModals } from "../components/modals/app-modals";
 import ServerSelect from "../components/server-select";
 import { TouchableArea } from "../components/touchable/touchable-area";
@@ -253,8 +254,4 @@ const NetworkIndicator = () => {
       <Icon size="$1" color={color} />
     </TouchableArea>
   );
-};
-
-const Dot = ({ ...rest }: FlexProps) => {
-  return <Flex borderRadius={100} h={5} w={5} bg="$green10" {...rest} />;
 };
