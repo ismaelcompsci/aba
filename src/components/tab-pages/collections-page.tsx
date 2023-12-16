@@ -85,6 +85,7 @@ const CollectionsPage = ({
             horizontal={false}
             data={collections?.results ?? []}
             numColumns={columns}
+            contentInset={{ top: 20 }}
             keyExtractor={(item) => `${item.id}}`}
             ItemSeparatorComponent={() => <Separator w={0} h={10} />}
             estimatedItemSize={150}

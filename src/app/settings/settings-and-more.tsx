@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { SectionList } from "react-native";
-import { ChevronRight, Contrast, User } from "@tamagui/lucide-icons";
+import { ChevronRight, Contrast, Trash2, User } from "@tamagui/lucide-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { Href, router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -28,7 +28,7 @@ import { ServerConfig } from "../../types/types";
 type Setting = {
   route: Href<string>;
   text: string;
-  currentSetting: string;
+  currentSetting?: string;
   icon: JSX.Element;
   subText?: string;
 };
@@ -84,6 +84,11 @@ const SettingsAndMore = () => {
           text: "Appearance",
           currentSetting: appearanceCurrentSetting,
           icon: <Contrast color="$gray11" />,
+        },
+        {
+          route: "/settings/cache",
+          text: "Cache",
+          icon: <Trash2 color="$gray11" />,
         },
       ],
     },
@@ -144,25 +149,14 @@ const SettingsRow = ({
   return (
     <TouchableArea onPress={() => router.push(route)}>
       <Flex grow row alignItems="center" gap={16} minHeight={40}>
-        <Flex
-          grow
-          row
-          // alignItems={subText ? "flex-start" : "center"}
-          alignItems={"center"}
-          flexBasis={0}
-          gap={12}
-        >
+        <Flex grow row alignItems={"center"} flexBasis={0} gap={12}>
           <Flex centered height={32} width={32}>
             {icon}
           </Flex>
           <Flex fill grow alignItems="stretch">
             <Text numberOfLines={1}>{text}</Text>
             {subText && (
-              <Text
-                color="$gray11"
-                numberOfLines={1}
-                // variant="buttonLabel4"
-              >
+              <Text color="$gray11" numberOfLines={1}>
                 {subText}
               </Text>
             )}

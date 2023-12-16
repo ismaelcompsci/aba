@@ -85,6 +85,7 @@ const Menu = () => {
           alignItems="center"
           paddingHorizontal={"$4"}
           pos={"relative"}
+          pt={12}
         >
           <Flex row flex={1} gap="$4" ai={"center"}>
             <BackButton />

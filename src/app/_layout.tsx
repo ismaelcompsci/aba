@@ -2,29 +2,40 @@ import { useEffect } from "react";
 import { Appearance, UIManager } from "react-native";
 import TrackPlayer from "react-native-track-player";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { useNetInfo } from "@react-native-community/netinfo";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import {
   ChevronLeft,
+  Cloud,
+  CloudCog,
+  CloudOff,
   Library,
   MoreVertical,
   Search,
+  SmartphoneNfc,
+  WifiOff,
 } from "@tamagui/lucide-icons";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { TamaguiProvider, Theme, useTheme } from "tamagui";
+import { ColorTokens, TamaguiProvider, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
-import { Flex } from "../components/layout/flex";
+import { Flex, FlexProps } from "../components/layout/flex";
 import { AppModals } from "../components/modals/app-modals";
 import ServerSelect from "../components/server-select";
 import { TouchableArea } from "../components/touchable/touchable-area";
 import { IS_ANDROID, IS_IOS } from "../constants/consts";
 import { SocketProvider } from "../context/socket-context";
 import { useAppSafeAreas } from "../hooks/use-app-safe-areas";
-import { librariesAtom, requestInfoAtom } from "../state/app-state";
+import {
+  attemptingConnectionAtom,
+  librariesAtom,
+  requestInfoAtom,
+  socketConnectedAtom,
+} from "../state/app-state";
 import { appThemeAtom } from "../state/local-state";
 SplashScreen.preventAutoHideAsync();
 
@@ -179,13 +190,13 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             </TouchableArea>
           )}
           {showServerSwitch && <ServerSelect placement="bottom" />}
+          <NetworkIndicator />
         </Flex>
         <Flex row alignItems="center" gap={16}>
           {showSearch ? (
             <TouchableArea
               hapticFeedback
               hitSlop={10}
-              // onPress={() => router.push("/test/")}
               onPress={() => router.push("/search/")}
             >
               <Search color={color.color.get()} />
@@ -205,4 +216,45 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
       </Flex>
     </Flex>
   );
+};
+
+const NetworkIndicator = () => {
+  const attemptingConnection = useAtomValue(attemptingConnectionAtom);
+  const socketConnected = useAtomValue(socketConnectedAtom);
+
+  const netInfo = useNetInfo();
+
+  let Icon;
+
+  if (attemptingConnection) {
+    Icon = CloudCog;
+  } else if (!netInfo.isConnected) {
+    Icon = WifiOff;
+  } else if (!socketConnected) {
+    Icon = CloudOff;
+  } else if (netInfo.type === "cellular") {
+    Icon = SmartphoneNfc;
+  } else Icon = Cloud;
+
+  let color: ColorTokens;
+
+  if (!netInfo.isConnected) {
+    color = "$red10";
+  } else if (!socketConnected) {
+    color = "$orange10";
+  } else if (netInfo.type === "cellular") {
+    color = "$purple10";
+  } else {
+    color = "$green10";
+  }
+  return (
+    <TouchableArea flexDirection="row" gap="$2" alignItems="center">
+      <Dot bg={color} />
+      <Icon size="$1" color={color} />
+    </TouchableArea>
+  );
+};
+
+const Dot = ({ ...rest }: FlexProps) => {
+  return <Flex borderRadius={100} h={5} w={5} bg="$green10" {...rest} />;
 };

@@ -3,8 +3,6 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { io, Socket } from "socket.io-client";
 
 import {
-  currentItemAtom,
-  // mapMediProgressAtom,
   mediaProgressAtom,
   requestInfoAtom,
   socketConnectedAtom,
@@ -19,7 +17,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const { serverAddress, token } = useAtomValue(requestInfoAtom);
   const setSocketConnected = useSetAtom(socketConnectedAtom);
   const setMediaProgress = useSetAtom(mediaProgressAtom);
-  const currentItem = useAtomValue(currentItemAtom);
 
   const socket = useRef<Socket | null>(null);
 
@@ -83,33 +80,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
           return [...prev.slice(0, i), ...prev.slice(i + 1)];
         }
       });
-
-      // setMediaProgress((prev) => {
-      //   if (!prev) return prev;
-
-      //   if (currentItem) {
-      //     const previousCurrentItemProgress = prev.find(
-      //       (value) => currentItem.id === value.libraryItemId
-      //     );
-
-      //     const mediaProgressIndex = user.mediaProgress.findIndex(
-      //       (mp) => mp.id === previousCurrentItemProgress?.id
-      //     );
-
-      //     const newProg = user.mediaProgress[mediaProgressIndex];
-
-      //     if (mediaProgressIndex >= 0) {
-      //       prev.splice(mediaProgressIndex, 1, newProg);
-      //     } else {
-      //       prev.push(newProg);
-      //     }
-      //     console.log("END");
-      //     const copy = [...prev];
-      //     return copy;
-      //   }
-
-      //   return user.mediaProgress;
-      // });
     }, 1000);
 
     const onUserItemProgressUpdated = (payload: {
@@ -156,7 +126,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       console.log("DISCONNECTING SOCKET");
       socket.current?.disconnect();
     };
-  }, [serverAddress, token, currentItem]);
+  }, [serverAddress, token]);
 
   return (
     <SocketContext.Provider value={socket.current}>

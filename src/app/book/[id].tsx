@@ -196,7 +196,7 @@ const BookPage = () => {
   }, []);
 
   return (
-    <Screen>
+    <Screen edges={isLoading ? ["top"] : undefined}>
       {isLoading ? <Loaders.Main /> : null}
       {!bookItem && !isLoading ? (
         <Screen centered space="$3">

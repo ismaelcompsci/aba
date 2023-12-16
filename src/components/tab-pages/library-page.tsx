@@ -200,6 +200,7 @@ const LibraryPage = ({
             horizontal={false}
             data={flattenData || []}
             numColumns={columns}
+            contentInset={{ top: 20 }}
             onEndReached={loadNextPageData}
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}

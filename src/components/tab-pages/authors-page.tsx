@@ -69,6 +69,7 @@ const AuthorsPage = ({
             horizontal={false}
             numColumns={columns}
             data={data}
+            contentInset={{ top: 20 }}
             ListEmptyComponent={
               <Flex>
                 <Text>Empty :/</Text>

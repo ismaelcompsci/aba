@@ -135,6 +135,7 @@ const SeriesPage = ({
           renderItem={handleRenderItem}
           ItemSeparatorComponent={() => <Separator w={0} h={10} />}
           estimatedItemSize={bookWidth * 2}
+          contentInset={{ top: 20 }}
           contentContainerStyle={{ paddingBottom: bottom }}
           ListEmptyComponent={() => {
             return <Text>EMPTY</Text>;
