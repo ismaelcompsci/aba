@@ -19,14 +19,12 @@ function BookMoreMenu({
   episodeId,
   vertical,
   isPodcast,
-  hasTracks,
 }: {
   title?: string | null;
   itemId: string;
   episodeId?: string;
   vertical?: boolean;
   isPodcast?: boolean;
-  hasTracks?: boolean;
 }) {
   const { userProgressPercent, userMediaProgress } = useUserMediaProgress({
     libraryItemId: itemId,
@@ -134,6 +132,12 @@ function BookMoreMenu({
             <DropdownMenu.ItemIcon ios={{ name: "checkmark.seal.fill" }} />
           </DropdownMenu.Item>
         ) : null}
+        {!isPodcast ? (
+          <DropdownMenu.Item key="add_to_playlist" onSelect={addPlaylist}>
+            <DropdownMenu.ItemTitle>Add to Playlist</DropdownMenu.ItemTitle>
+            <DropdownMenu.ItemIcon ios={{ name: "plus" }} />
+          </DropdownMenu.Item>
+        ) : null}
         {userProgressPercent > 0 ? (
           <DropdownMenu.Item
             key="discard_progress"
@@ -161,12 +165,6 @@ function BookMoreMenu({
           >
             <DropdownMenu.ItemTitle>Discard Progress</DropdownMenu.ItemTitle>
             <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
-          </DropdownMenu.Item>
-        ) : null}
-        {!isPodcast && hasTracks ? (
-          <DropdownMenu.Item key="add_to_playlist" onSelect={addPlaylist}>
-            <DropdownMenu.ItemTitle>Add to Playlist</DropdownMenu.ItemTitle>
-            <DropdownMenu.ItemIcon ios={{ name: "plus" }} />
           </DropdownMenu.Item>
         ) : null}
       </DropdownMenu.Content>

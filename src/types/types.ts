@@ -134,6 +134,7 @@ export type PlayingState = {
   libraryItemId?: string;
   startTime?: number;
   episodeId?: string;
+  chapterId?: number;
 };
 
 export type ListeningStats = {

@@ -37,6 +37,7 @@ import {
   socketConnectedAtom,
 } from "../state/app-state";
 import { appThemeAtom } from "../state/local-state";
+import { Dot } from "../components/dot";
 SplashScreen.preventAutoHideAsync();
 
 if (IS_ANDROID && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -253,8 +254,4 @@ const NetworkIndicator = () => {
       <Icon size="$1" color={color} />
     </TouchableArea>
   );
-};
-
-const Dot = ({ ...rest }: FlexProps) => {
-  return <Flex borderRadius={100} h={5} w={5} bg="$green10" {...rest} />;
 };

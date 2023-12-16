@@ -1,18 +1,32 @@
 import { memo, useState } from "react";
 import { ChevronDown } from "@tamagui/lucide-icons";
+import { useSetAtom } from "jotai";
 import { Accordion, Button, H4, Paragraph, Square, Text } from "tamagui";
 
+import { showPlayerAtom } from "../../state/app-state";
 import { BookChapter, LibraryItem } from "../../types/aba";
 import { secondsToTimestamp } from "../../utils/utils";
 import { DataTable } from "../custom-components/data-table";
 import { Flex } from "../layout/flex";
+import { TouchableArea } from "../touchable/touchable-area";
 
 const ChapterFilesTable = memo(
   ({ libraryItem }: { libraryItem: LibraryItem }) => {
     const [opened, setOpened] = useState("");
+    const setShowPlayer = useSetAtom(showPlayerAtom);
 
     const chapters =
       "chapters" in libraryItem.media ? libraryItem.media.chapters : [];
+
+    const playChapter = (item: BookChapter) => {
+      setShowPlayer({
+        open: true,
+        playing: true,
+        libraryItemId: libraryItem.id,
+        chapterId: item.id,
+        startTime: item.start,
+      });
+    };
 
     const renderItem = ({ item }: { item: BookChapter }) => {
       return (
@@ -29,7 +43,11 @@ const ChapterFilesTable = memo(
             {item.title}
           </H4>
           <Flex row pl="$7" flex={1} justifyContent="flex-end">
-            <Text>{secondsToTimestamp(item.start)}</Text>
+            <TouchableArea onPress={() => playChapter(item)}>
+              <Text textDecorationLine="underline">
+                {secondsToTimestamp(item.start)}
+              </Text>
+            </TouchableArea>
           </Flex>
         </Flex>
       );

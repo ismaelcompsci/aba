@@ -33,7 +33,7 @@ const ChaptersModal = () => {
     >
       <Flex height={height * 0.8} width={width * 0.85} gap="$2">
         <ScrollView flex={1} showsVerticalScrollIndicator={false}>
-          {audioTracks?.map((track, i) => (
+          {audioTracks?.map((track) => (
             <Flex
               row
               key={track.id}
@@ -54,9 +54,7 @@ const ChaptersModal = () => {
                   left={0}
                 />
               ) : null}
-              <Text pl={"$4"}>
-                {i} - {track.title}
-              </Text>
+              <Text pl={"$4"}>{track.title}</Text>
               <Text ml="auto">{formatSeconds(track.startOffset)}</Text>
             </Flex>
           ))}

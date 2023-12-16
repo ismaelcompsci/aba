@@ -1,9 +1,10 @@
 import { memo, useEffect } from "react";
 import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
+import { CircleEllipsis } from "@tamagui/lucide-icons";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useAtom, useAtomValue } from "jotai";
+import { atom, useAtom, useAtomValue } from "jotai";
 import { Button, Spinner, Text } from "tamagui";
 
 import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
@@ -17,6 +18,7 @@ import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { Loaders } from "../loader";
 import { SortSelect } from "../sort-popover";
+import { TouchableArea } from "../touchable/touchable-area";
 
 interface LibraryPageProps {
   currentLibraryId?: string | null;
@@ -25,6 +27,9 @@ interface LibraryPageProps {
   userToken: string;
   isCoverSquareAspectRatio: boolean;
 }
+
+export const selectedItemsAtom = atom<string[]>([]);
+export const selectionModeAtom = atom(false);
 
 const LibraryPage = ({
   serverAddress,
@@ -35,7 +40,10 @@ const LibraryPage = ({
 }: LibraryPageProps) => {
   const sort = useAtomValue(sortAtom);
   const descOrder = useAtomValue(descOrderAtom);
-  const [changingLibrary] = useAtom(changingLibraryAtom);
+
+  const changingLibrary = useAtomValue(changingLibraryAtom);
+  const [selectionMode, setSelectionMode] = useAtom(selectionModeAtom);
+  const [selectedItems, setSelectedItems] = useAtom(selectedItemsAtom);
 
   const queryClient = useQueryClient();
 
@@ -133,18 +141,28 @@ const LibraryPage = ({
     }
   };
 
-  const handleRenderItem = ({
-    item,
-  }: {
-    item: LibraryItemMinified;
-    index: number;
-  }) => {
+  const handelItemSelected = ({ itemId }: { itemId: string }) => {
+    const alreadySelected = selectedItems.includes(itemId);
+
+    if (alreadySelected) {
+      return setSelectedItems((prev) => prev.filter((id) => id !== itemId));
+    }
+
+    setSelectedItems((prev) => [...prev, itemId]);
+  };
+
+  const handleRenderItem = ({ item }: { item: LibraryItemMinified }) => {
+    const selected = selectedItems.includes(item.id);
+
     return (
       <BookCard
+        onPress={() => handelItemSelected({ itemId: item.id })}
         serverAddress={serverAddress}
         isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         token={userToken}
         item={item}
+        selected={!!selected}
+        selectionMode={selectionMode}
         p="$2"
       />
     );
@@ -153,6 +171,12 @@ const LibraryPage = ({
   useEffect(() => {
     resetQuery();
   }, [currentLibraryId, descOrder]);
+
+  useEffect(() => {
+    if (!selectionMode) {
+      setSelectedItems([]);
+    }
+  }, [selectionMode]);
 
   const resetQuery = () => {
     flattenData = [];
@@ -171,7 +195,6 @@ const LibraryPage = ({
       <Flex
         row
         centered
-        justifyContent="space-between"
         px="$2"
         bg="$backgroundHover"
         shadowColor={"$backgroundStrong"}
@@ -179,14 +202,36 @@ const LibraryPage = ({
         shadowOpacity={0.25}
         shadowRadius={6}
         width={"100%"}
+        space="$2"
       >
         <Text fontWeight="$8">{libraryItems?.pages[0]?.data?.total} Books</Text>
+        {!selectionMode ? (
+          <TouchableArea
+            px="$2"
+            bg="$backgroundFocus"
+            borderRadius="$4"
+            onPress={() => setSelectionMode(true)}
+          >
+            <Text fontSize={12}>Select</Text>
+          </TouchableArea>
+        ) : (
+          <TouchableArea
+            px="$2"
+            // bg="red"
+            borderRadius="$4"
+            onPress={() => setSelectionMode(false)}
+          >
+            <CircleEllipsis size="$1" />
+          </TouchableArea>
+        )}
         {filter && seriesName ? (
           <Text numberOfLines={1} maxWidth={screenWidth / 1.6}>
             {seriesName}
           </Text>
         ) : null}
-        <SortSelect placement="bottom-end" />
+        <Flex grow alignItems="flex-end">
+          <SortSelect placement="bottom-end" />
+        </Flex>
       </Flex>
       {/* items */}
       {isInitialLoading || changingLibrary || isEmpty ? (
@@ -199,6 +244,7 @@ const LibraryPage = ({
             showsVerticalScrollIndicator={false}
             horizontal={false}
             data={flattenData || []}
+            extraData={selectedItems}
             numColumns={columns}
             contentInset={{ top: 20 }}
             onEndReached={loadNextPageData}

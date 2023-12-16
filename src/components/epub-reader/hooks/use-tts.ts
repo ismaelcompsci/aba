@@ -216,23 +216,23 @@ const useTTS = () => {
   useEffect(() => {
     if (Platform.OS !== "ios") return;
 
-    DeviceEventEmitter.addListener("TTS.ssml", async (event) => {
-      const { ssml, action } = event;
-      state.current = { ...state.current, text: ssml, action: action };
-      speak();
-    });
+    // DeviceEventEmitter.addListener("TTS.ssml", async (event) => {
+    //   const { ssml, action } = event;
+    //   state.current = { ...state.current, text: ssml, action: action };
+    //   speak();
+    // });
 
-    return () => {
-      stop();
-      state.current = {
-        ...state.current,
-        inProgress: false,
-        paused: false,
-        text: undefined,
-      };
-      DeviceEventEmitter.removeAllListeners("TTS.ssml");
-      Speech.stop();
-    };
+    // return () => {
+    //   stop();
+    //   state.current = {
+    //     ...state.current,
+    //     inProgress: false,
+    //     paused: false,
+    //     text: undefined,
+    //   };
+    //   DeviceEventEmitter.removeAllListeners("TTS.ssml");
+    //   Speech.stop();
+    // };
   }, []);
 
   useEffect(() => {

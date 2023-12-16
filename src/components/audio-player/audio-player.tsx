@@ -15,12 +15,15 @@ import { deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
-import { generateUUID } from "../../utils/utils";
+import { awaitTimeout, generateUUID } from "../../utils/utils";
 import Sheet from "../custom-components/sheet";
 import { Flex } from "../layout/flex";
 
 import BigAudioPlayer from "./components/big-audio-player";
-import { ProgressSlider } from "./components/progress-slider";
+import {
+  ProgressSlider,
+  sliderLoadingAtom,
+} from "./components/progress-slider";
 import {
   AudiobookInfo,
   AudioPlayerInfo,
@@ -42,6 +45,7 @@ const AudioPlayerContainer = () => {
   const [audiobookInfo, setAudiobookInfo] = useState<AudiobookInfo>({});
   const setPlaybackSession = useSetAtom(playbackSessionAtom);
   const playbackSessionId = useAtomValue(playbackSessionIdAtom);
+  const setSliderLoadingAtom = useSetAtom(sliderLoadingAtom);
 
   const [open, setOpen] = useState(false);
 
@@ -52,6 +56,7 @@ const AudioPlayerContainer = () => {
     metadata: { cover: string; title: string; author: string }
   ) => {
     try {
+      setSliderLoadingAtom(true);
       console.log(`[AUDIOPLAYER] SETTING UP PLAYER`);
 
       const tracks: AudioPlayerTrack[] = [];
@@ -76,7 +81,13 @@ const AudioPlayerContainer = () => {
         )
       );
 
-      const currentTrack = tracks[currentTrackIndex];
+      const playFromChapterIndex = showPlayer.chapterId
+        ? tracks.findIndex((t) => t.id === showPlayer.chapterId)
+        : null;
+
+      const currentTrack = playFromChapterIndex
+        ? tracks[playFromChapterIndex]
+        : tracks[currentTrackIndex];
 
       console.log(`[AUDIOPLAYER] LOADING TRACK ${currentTrack.title}`);
 
@@ -84,8 +95,10 @@ const AudioPlayerContainer = () => {
       await TrackPlayer.add(tracks);
 
       if (session.currentTime && currentTrack) {
-        loadCurrentTrack({
-          startTime: session.startTime,
+        await loadCurrentTrack({
+          startTime: showPlayer.startTime
+            ? showPlayer.startTime
+            : session.startTime,
           currentTrack,
         });
       }
@@ -101,6 +114,8 @@ const AudioPlayerContainer = () => {
       await TrackPlayer.play();
     } catch (error) {
       console.log("[AUDIOPLAYER] ", error);
+    } finally {
+      setSliderLoadingAtom(false);
     }
   };
 
@@ -116,8 +131,10 @@ const AudioPlayerContainer = () => {
       0,
       startTime - (currentTrack.startOffset || 0)
     );
-    await TrackPlayer.skip(trackIndex);
-    await TrackPlayer.seekTo(trackPosition);
+    await TrackPlayer.skip(trackIndex, trackPosition);
+    await awaitTimeout(100);
+    console.log("HELLO");
+    setSliderLoadingAtom(false);
   };
 
   const getDeviceId = () => {
@@ -223,9 +240,9 @@ const AudioPlayerContainer = () => {
           capabilities: [
             Capability.Play,
             Capability.Pause,
-            Capability.SkipToNext,
-            Capability.SkipToPrevious,
-            Capability.SeekTo,
+            // Capability.SkipToNext,
+            // Capability.SkipToPrevious,
+            // Capability.SeekTo,
           ],
           compactCapabilities: [Capability.Play, Capability.Pause],
           progressUpdateEventInterval: 1,

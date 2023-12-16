@@ -15,6 +15,7 @@ import { Text } from "tamagui";
 import { LibraryItemMinified } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { BookCover } from "../covers/book-cover";
+import { Dot } from "../dot";
 import ItemProgress from "../item-progress";
 import { AnimatedFlex, Flex, FlexProps } from "../layout/flex";
 import { TouchableArea, TouchableAreaProps } from "../touchable/touchable-area";
@@ -26,6 +27,8 @@ interface BookCardProps {
   token?: string;
   serverAddress: string;
   isCoverSquareAspectRatio: boolean;
+  selected?: boolean;
+  selectionMode?: boolean;
 }
 
 const BookCard = ({
@@ -33,6 +36,8 @@ const BookCard = ({
   token,
   serverAddress,
   isCoverSquareAspectRatio,
+  selected,
+  selectionMode,
   ...rest
 }: BookCardProps & TouchableAreaProps) => {
   const coverUrl = getItemCoverSrc(item, null, token, serverAddress);
@@ -75,10 +80,13 @@ const BookCard = ({
   const onGestureEvent =
     useAnimatedGestureHandler<TapGestureHandlerGestureEvent>({
       onStart: () => {
+        if (selectionMode) return;
         cancelAnimation(scale);
         scale.value = pulseAnimation(0.96);
       },
       onEnd: () => {
+        if (selectionMode) return;
+
         runOnJS(handlePress)();
       },
     });
@@ -100,6 +108,34 @@ const BookCard = ({
     >
       <TapGestureHandler onGestureEvent={onGestureEvent}>
         <AnimatedFlex style={animatedStyle}>
+          {selectionMode ? (
+            <Flex
+              w={bookWidth}
+              h={bookHeight}
+              pos={"absolute"}
+              bg="rgba(5, 5, 5, 0.8)"
+              zIndex={9999}
+              borderRadius={8}
+            >
+              <Flex
+                pos="absolute"
+                left={5}
+                top={5}
+                zIndex={100}
+                centered
+                borderWidth={1}
+                padding
+                borderRadius={100}
+                borderColor={"$gray10"}
+              >
+                {selected ? (
+                  <Dot bg="$blue9" h={9} w={9} />
+                ) : (
+                  <Dot bg="transparent" h={9} w={9} />
+                )}
+              </Flex>
+            </Flex>
+          ) : null}
           {!isPodcast || recentEpisode ? (
             <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
               <ItemProgress

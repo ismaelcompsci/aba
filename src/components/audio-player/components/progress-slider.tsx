@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import TrackPlayer, {
   Event,
   useTrackPlayerEvents,
 } from "react-native-track-player";
 import axios from "axios";
-import { useAtom, useAtomValue } from "jotai";
+import { atom, useAtom, useAtomValue } from "jotai";
 import { Slider, SliderTrackProps, Text } from "tamagui";
 
 import {
@@ -19,6 +19,8 @@ import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 import { AudiobookInfo } from "./small-audio-player";
 
 const TIME_BETWEEN_SESSION_UPDATES = 10;
+
+export const sliderLoadingAtom = atom(true);
 
 export const ProgressSlider = ({
   color,
@@ -35,10 +37,11 @@ export const ProgressSlider = ({
   const userToken = useAtomValue(userTokenAtom);
   const [seek, setSeek] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
-
+  const sliderLoading = useAtomValue(sliderLoadingAtom);
   const [playbackSession, setPlaybackSession] = useAtom(playbackSessionAtom);
 
   const {
+    audioTracks,
     currentPosition: overallCurrentTime,
     getTotalDuration,
     seekTo,
@@ -57,10 +60,10 @@ export const ProgressSlider = ({
     }
   });
 
-  const totalDuration = getTotalDuration();
+  const totalDuration = useMemo(() => getTotalDuration(), [audioTracks]);
 
   const handleSliderEnd = async (value: number) => {
-    seekTo(value, 1250, () => setIsSeeking(false));
+    seekTo(value, 1450, () => setIsSeeking(false));
   };
 
   const updateSession = async () => {
@@ -120,6 +123,8 @@ export const ProgressSlider = ({
     }
   };
 
+  if (sliderLoading) return null;
+
   return (
     <Flex>
       <Flex gap="$1" alignItems="center" justifyContent="space-between" mt={4}>
@@ -144,13 +149,7 @@ export const ProgressSlider = ({
               <Slider.TrackActive bg={color} />
             </Slider.Track>
             {showThumb ? (
-              <Slider.Thumb
-                size={"$1"}
-                scale={isSeeking ? 1.5 : 1}
-                index={0}
-                circular
-                elevate
-              />
+              <Slider.Thumb size={"$1"} index={0} circular elevate />
             ) : null}
           </Slider>
         ) : (
