@@ -1,14 +1,19 @@
 /* eslint-disable react/prop-types */
 import { Alert } from "react-native";
 import { MoreHorizontal, MoreVertical } from "@tamagui/lucide-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import * as Burnt from "burnt";
+import { router } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 import { useUserMediaProgress } from "../../hooks/use-user-media-progress";
-import { serverAddressAtom, userTokenAtom } from "../../state/app-state";
-import { currentServerConfigAtom } from "../../state/local-state";
+import {
+  isAdminOrUpAtom,
+  serverAddressAtom,
+  userTokenAtom,
+} from "../../state/app-state";
 import { cleanString } from "../../utils/utils";
 import { AddPlaylistsModalAtom } from "../modals/add-playlists-modal";
 import { TouchableArea } from "../touchable/touchable-area";
@@ -30,10 +35,12 @@ function BookMoreMenu({
     libraryItemId: itemId,
     episodeId,
   });
-  const serverConfig = useAtomValue(currentServerConfigAtom);
   const setAddPlaylistModalController = useSetAtom(AddPlaylistsModalAtom);
-  const token = useAtomValue(userTokenAtom);
+  const userToken = useAtomValue(userTokenAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
+  const isAdminOrUp = useAtomValue(isAdminOrUpAtom);
+
+  const queryClient = useQueryClient();
 
   const markAsFinshed = async () => {
     try {
@@ -48,7 +55,7 @@ function BookMoreMenu({
 
       await axios.patch(route, data, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${userToken}`,
         },
       });
     } catch (error) {
@@ -68,7 +75,7 @@ function BookMoreMenu({
         `${serverAddress}/api/me/progress/${userMediaProgress?.id}`,
         {
           headers: {
-            Authorization: `Bearer ${serverConfig?.token}`,
+            Authorization: `Bearer ${userToken}`,
           },
         }
       );
@@ -80,6 +87,20 @@ function BookMoreMenu({
         message: "reset progress for book",
         preset: "done",
       });
+    }
+  };
+
+  const removeFromServer = async () => {
+    try {
+      await axios.delete(
+        `${serverAddress}/api/podcasts/${itemId}/episode/${episodeId}?hard=1`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+
+      await queryClient.invalidateQueries({ queryKey: ["bookItem"] });
+      router.push(`/book/${itemId}`);
+    } catch (error) {
+      console.log("[BOOK_MORE_MENU] removeFromServer error", error);
     }
   };
 
@@ -164,6 +185,35 @@ function BookMoreMenu({
             }}
           >
             <DropdownMenu.ItemTitle>Discard Progress</DropdownMenu.ItemTitle>
+            <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
+          </DropdownMenu.Item>
+        ) : null}
+        {isAdminOrUp && episodeId ? (
+          <DropdownMenu.Item
+            key="remove_from_server"
+            destructive
+            onSelect={() => {
+              Alert.alert(
+                "Confirm",
+                `Are you sure you want to delete episode "${title}" from the server`,
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel",
+                  },
+                  {
+                    text: "Okay",
+                    style: "destructive",
+                    onPress: async () => await removeFromServer(),
+                  },
+                ],
+                {
+                  cancelable: true,
+                }
+              );
+            }}
+          >
+            <DropdownMenu.ItemTitle>Remove from server</DropdownMenu.ItemTitle>
             <DropdownMenu.ItemIcon ios={{ name: "trash.fill" }} />
           </DropdownMenu.Item>
         ) : null}

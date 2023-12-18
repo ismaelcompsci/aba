@@ -186,6 +186,7 @@ const PodcastDownloadWidget = ({
   libraryItemId: string;
 }) => {
   const socket = useAudioBookShelfSocket();
+  const isAdminOrUp = useAtomValue(isAdminOrUpAtom);
   const requestInfo = useAtomValue(requestInfoAtom);
 
   const [episodeDownloadQueue, setEpisodeDownloadQueue] = useState<
@@ -307,30 +308,32 @@ const PodcastDownloadWidget = ({
             {episodeDownloadQueue.length === 1 ? "Episode" : "Episodes"} queued
             for download
           </Text>
-          <TouchableArea
-            onPress={() =>
-              Alert.alert(
-                "Confirm",
-                `Are you sure you want to clear episode download queue?`,
-                [
+          {isAdminOrUp ? (
+            <TouchableArea
+              onPress={() =>
+                Alert.alert(
+                  "Confirm",
+                  `Are you sure you want to clear episode download queue?`,
+                  [
+                    {
+                      text: "Cancel",
+                      style: "cancel",
+                    },
+                    {
+                      text: "Okay",
+                      style: "destructive",
+                      onPress: async () => await clearQueue(),
+                    },
+                  ],
                   {
-                    text: "Cancel",
-                    style: "cancel",
-                  },
-                  {
-                    text: "Okay",
-                    style: "destructive",
-                    onPress: async () => await clearQueue(),
-                  },
-                ],
-                {
-                  cancelable: true,
-                }
-              )
-            }
-          >
-            <X size={14} />
-          </TouchableArea>
+                    cancelable: true,
+                  }
+                )
+              }
+            >
+              <X size={14} />
+            </TouchableArea>
+          ) : null}
         </AnimatedFlex>
       ) : null}
 
