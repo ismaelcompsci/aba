@@ -267,15 +267,18 @@ export const sanitizeFilename = (input: string, colonReplacement = " - ") => {
   return sanitized;
 };
 
-export const debounce = (callback: (args: unknown) => void, wait: number) => {
-  //@ts-ignore
-  let timeoutId = null;
-  //@ts-ignore
-  return (...args: unknown) => {
-    //@ts-ignore
-    clearTimeout(timeoutId);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DebouncedFunction<T extends any[]> = (...args: T) => void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const debounce = <T extends any[]>(
+  callback: DebouncedFunction<T>,
+  wait: number
+) => {
+  let timeoutId: NodeJS.Timeout | null = null;
+
+  return (...args: T) => {
+    clearTimeout(timeoutId!);
     timeoutId = setTimeout(() => {
-      //@ts-ignore
       callback(...args);
     }, wait);
   };

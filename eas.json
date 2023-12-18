@@ -22,9 +22,6 @@
         "buildType": "apk"
       }
     },
-    "previewTest" : {
-      "developmentClient": true
-    },
     "production": {}
   },
   "submit": {

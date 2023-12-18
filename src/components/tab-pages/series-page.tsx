@@ -32,7 +32,6 @@ const SeriesPage = ({
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
 
-  // todo
   let columns = Math.floor(screenWidth / (bookWidth * 2)) - 1;
   columns = columns === 0 ? 1 : columns;
 

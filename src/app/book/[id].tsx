@@ -55,7 +55,7 @@ const BookPage = () => {
   const IHeight = 400;
 
   const { data: bookItem, isLoading } = useQuery({
-    queryKey: ["bookItem", `${Array.isArray(id) ? id[0] : id}`],
+    queryKey: ["bookItem", id],
     queryFn: async () => {
       const response = await axios.get(`${serverAddress}/api/items/${id}`, {
         params: {
@@ -165,6 +165,11 @@ const BookPage = () => {
   const episodes =
     bookItem && "episodes" in bookItem.media ? bookItem?.media.episodes : null;
 
+  const feedUrl =
+    bookItem && "feedUrl" in bookItem.media.metadata
+      ? bookItem?.media?.metadata?.feedUrl
+      : null;
+
   const { author, genres, series, numberChapters, ebookFiles } = useMemo(
     () => ({
       genres: getGenres(),
@@ -175,7 +180,7 @@ const BookPage = () => {
         (lf) => lf.fileType === "ebook"
       ),
     }),
-    [bookItem?.id]
+    [bookItem]
   );
 
   const renderViewMore = (onPress: () => void) => (
@@ -197,14 +202,18 @@ const BookPage = () => {
 
   return (
     <Screen edges={isLoading ? ["top"] : undefined}>
-      {isLoading ? <Loaders.Main /> : null}
+      {isLoading ? (
+        <Flex fill centered>
+          <Loaders.Main />
+        </Flex>
+      ) : null}
       {!bookItem && !isLoading ? (
-        <Screen centered space="$3">
+        <Flex fill centered space="$3">
           <BookX size="$10" />
           <H3 color="$red10">No item found</H3>
 
           <Button onPress={() => router.back()}>Go back</Button>
-        </Screen>
+        </Flex>
       ) : null}
 
       {!isLoading && bookItem ? (
@@ -294,6 +303,8 @@ const BookPage = () => {
                   <PodcastEpisodesTable
                     podcastId={bookItem.id}
                     episodes={episodes}
+                    rssFeedUrl={feedUrl}
+                    libraryItemId={id}
                   />
                 ) : null}
                 {ebookFiles?.length ? <BookFilesTable /> : null}

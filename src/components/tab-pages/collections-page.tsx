@@ -31,7 +31,6 @@ const CollectionsPage = ({
   const { width: screenWidth } = useWindowDimensions();
 
   const bookWidth = 100;
-  // todo
   let columns = Math.floor(screenWidth / (bookWidth * 2)) - 1;
   columns = columns === 0 ? 1 : columns;
 

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { router } from "expo-router";
 import { Image, Separator, Text } from "tamagui";
 
 import {
@@ -13,6 +14,7 @@ import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { Loaders } from "../loader";
 import EpisodeTableRow from "../tables/episode-table-row";
+import { TouchableArea } from "../touchable/touchable-area";
 
 interface LatestPageProps {
   currentLibraryId: string | null;
@@ -28,7 +30,7 @@ const LatestPage = ({
 }: LatestPageProps) => {
   const { data, isInitialLoading, hasNextPage, fetchNextPage } =
     useInfiniteQuery({
-      queryKey: ["latest-episodes"],
+      queryKey: ["latest-episodes", currentLibraryId, serverAddress, userToken],
       queryFn: async ({ pageParam = 0 }) => {
         const response: { data: RecentEpisodesResponse } = await axios.get(
           `${serverAddress}/api/libraries/${currentLibraryId}/recent-episodes`,
@@ -57,7 +59,7 @@ const LatestPage = ({
 
   const flattenData = useMemo(
     () => data?.pages.flatMap((page) => page?.data.episodes || []) || [],
-    [data?.pageParams]
+    [data]
   );
 
   const loadNextPageData = () => {
@@ -71,7 +73,10 @@ const LatestPage = ({
 
     return (
       <Flex>
-        <Flex row>
+        <TouchableArea
+          flexDirection="row"
+          onPress={() => router.push(`/book/${item.libraryItemId}`)}
+        >
           {cover ? (
             <Image
               width={"$5"}
@@ -83,12 +88,14 @@ const LatestPage = ({
             />
           ) : null}
           <Flex px="$2">
-            <Text fontSize={16}>{item.podcast.metadata.title}</Text>
+            <Text fontSize={16} color="$gray11" textDecorationLine="underline">
+              {item.podcast.metadata.title}
+            </Text>
             <Text color={"$gray10"}>
               {dateDistanceFromNow(item.publishedAt)}
             </Text>
           </Flex>
-        </Flex>
+        </TouchableArea>
         <EpisodeTableRow item={item} podcastId={item.libraryItemId} />
       </Flex>
     );

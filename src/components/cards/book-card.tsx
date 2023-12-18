@@ -124,7 +124,9 @@ const BookCard = ({
           />
           <Flex w={bookWidth}>
             <Text numberOfLines={1} fontWeight="$10" pt="$2">
-              {item.media?.metadata?.title}
+              {item.recentEpisode
+                ? item.recentEpisode.title
+                : item.media?.metadata?.title}
             </Text>
             <Text fontSize="$1" color="$gray10" numberOfLines={1}>
               {"authorName" in item.media.metadata

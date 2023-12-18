@@ -2,7 +2,7 @@
  * forked from here ->
  * https://github.com/Uniswap/wallet/blob/main/apps/mobile/src/components/modals/BottomSheetModal.tsx#L196
  */
-import { PropsWithChildren, useCallback, useRef } from "react";
+import { forwardRef, PropsWithChildren, useCallback } from "react";
 import {
   FlexStyle,
   StyleProp,
@@ -28,89 +28,96 @@ type Props = PropsWithChildren<{
   fullScreen?: boolean;
 }>;
 
-export const AppBottomSheetModal = ({
-  children,
-  onClose,
-  renderBehindTopInset = false,
-  hideHandlebar,
-  fullScreen,
-}: Props) => {
-  const dimensions = useWindowDimensions();
-  const colors = useTheme();
+export const AppBottomSheetModalR = BottomSheet;
 
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const insets = useAppSafeAreas();
-
-  const backgroundColor = colors.background.get();
-  const backgroundStyle = { backgroundColor };
-
-  const renderHandleBar = useCallback(
-    (props: BottomSheetHandleProps) => {
-      // This adds an extra gap of unwanted space
-      if (renderBehindTopInset && hideHandlebar) {
-        return null;
-      }
-      return (
-        <HandleBar
-          {...props}
-          hidden={hideHandlebar}
-          containerFlexStyles={{ paddingBottom: 12, paddingTop: 16 }}
-        />
-      );
+export const AppBottomSheetModal = forwardRef<BottomSheet, Props>(
+  (
+    {
+      children,
+      onClose,
+      renderBehindTopInset = false,
+      hideHandlebar,
+      fullScreen,
     },
-    [backgroundColor, hideHandlebar, renderBehindTopInset]
-  );
+    ref
+  ) => {
+    const dimensions = useWindowDimensions();
+    const colors = useTheme();
 
-  const handleBarHeight = hideHandlebar ? 0 : 12 + 16 + 4;
-  let fullContentHeight = dimensions.height - insets.top - handleBarHeight;
+    // const bottomSheetRef = useRef<BottomSheet>(null);
+    const insets = useAppSafeAreas();
 
-  const bottomSheetViewStyles: StyleProp<ViewStyle> = [
-    { backgroundColor: backgroundColor },
-  ];
+    const backgroundColor = colors.background.get();
+    const backgroundStyle = { backgroundColor };
 
-  if (renderBehindTopInset) {
-    bottomSheetViewStyles.push({ overflow: "hidden" });
+    const renderHandleBar = useCallback(
+      (props: BottomSheetHandleProps) => {
+        // This adds an extra gap of unwanted space
+        if (renderBehindTopInset && hideHandlebar) {
+          return null;
+        }
+        return (
+          <HandleBar
+            {...props}
+            hidden={hideHandlebar}
+            containerFlexStyles={{ paddingBottom: 12, paddingTop: 16 }}
+          />
+        );
+      },
+      [backgroundColor, hideHandlebar, renderBehindTopInset]
+    );
 
-    if (hideHandlebar) {
+    const handleBarHeight = hideHandlebar ? 0 : 12 + 16 + 4;
+    let fullContentHeight = dimensions.height - insets.top - handleBarHeight;
+
+    const bottomSheetViewStyles: StyleProp<ViewStyle> = [
+      { backgroundColor: backgroundColor },
+    ];
+
+    if (renderBehindTopInset) {
+      bottomSheetViewStyles.push({ overflow: "hidden" });
+
+      if (hideHandlebar) {
+        bottomSheetViewStyles.push({
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+        });
+      }
+
+      fullContentHeight += insets.top;
+    } else if (hideHandlebar) {
       bottomSheetViewStyles.push({
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
       });
     }
 
-    fullContentHeight += insets.top;
-  } else if (hideHandlebar) {
-    bottomSheetViewStyles.push({
-      borderTopLeftRadius: 24,
-      borderTopRightRadius: 24,
-    });
-  }
+    if (fullScreen) {
+      bottomSheetViewStyles.push({ height: fullContentHeight });
+    }
 
-  if (fullScreen) {
-    bottomSheetViewStyles.push({ height: fullContentHeight });
+    return (
+      <BottomSheet
+        ref={ref}
+        onClose={onClose}
+        backdropComponent={Backdrop}
+        containerHeight={fullScreen ? dimensions.height : undefined}
+        backgroundStyle={backgroundStyle}
+        handleComponent={renderHandleBar}
+        topInset={renderBehindTopInset ? 0 : insets.top}
+        enablePanDownToClose
+        enableHandlePanningGesture
+        enableContentPanningGesture
+        snapPoints={["100%"]}
+      >
+        <BottomSheetView style={bottomSheetViewStyles}>
+          {children}
+        </BottomSheetView>
+      </BottomSheet>
+    );
   }
-
-  return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      onClose={onClose}
-      backdropComponent={Backdrop}
-      containerHeight={fullScreen ? dimensions.height : undefined}
-      backgroundStyle={backgroundStyle}
-      handleComponent={renderHandleBar}
-      topInset={renderBehindTopInset ? 0 : insets.top}
-      enablePanDownToClose
-      enableHandlePanningGesture
-      enableContentPanningGesture
-      snapPoints={["100%"]}
-      // enableDynamicSizing
-    >
-      <BottomSheetView style={bottomSheetViewStyles}>
-        {children}
-      </BottomSheetView>
-    </BottomSheet>
-  );
-};
+);
+AppBottomSheetModal.displayName = "AppBottomSheetModal";
 
 const BACKDROP_APPEARS_ON_INDEX = 0;
 const DISAPPEARS_ON_INDEX = -1;

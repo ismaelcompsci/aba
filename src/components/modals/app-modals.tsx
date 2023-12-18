@@ -12,6 +12,10 @@ import AddPlaylistsModal, {
 import { BookmarksModal } from "./bookmarks-modal";
 import ChaptersModal, { chaptersModalAtom } from "./chapter-modal";
 import { CreatePlaylistModal } from "./create-playlist-modal";
+import {
+  PodcastEpisodeSearchModal,
+  podcastEpisodeSearchModalAtom,
+} from "./podcast-episode-search-modal";
 
 export const AppModals = () => {
   return (
@@ -34,6 +38,10 @@ export const AppModals = () => {
 
       <LazyModalRenderer atom={createPlaylistModalAtom}>
         <CreatePlaylistModal />
+      </LazyModalRenderer>
+
+      <LazyModalRenderer atom={podcastEpisodeSearchModalAtom}>
+        <PodcastEpisodeSearchModal />
       </LazyModalRenderer>
     </>
   );

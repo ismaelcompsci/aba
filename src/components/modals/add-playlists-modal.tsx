@@ -1,11 +1,13 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { ListRenderItem } from "react-native";
-import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { FlatList } from "react-native-gesture-handler";
+import BottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet/BottomSheet";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, Spinner, Text } from "tamagui";
 
+import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import {
   createPlaylistModalAtom,
   currentLibraryIdAtom,
@@ -46,6 +48,10 @@ const AddPlaylistsModal = () => {
   const userToken = useAtomValue(userTokenAtom);
   const currentLibraryId = useAtomValue(currentLibraryIdAtom);
   const queryClient = useQueryClient();
+
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  const { bottom } = useAppSafeAreas();
 
   const { data: playlists, isLoading } = useQuery({
     queryKey: ["playlists-modal", currentLibraryId],
@@ -184,43 +190,47 @@ const AddPlaylistsModal = () => {
       hideHandlebar
       renderBehindTopInset
       onClose={onClose}
+      ref={bottomSheetRef}
     >
       <Screen edges={["top"]}>
-        <HandleBar />
+        <HandleBar containerFlexStyles={{ height: 30 }} />
 
-        <BottomSheetFlatList
+        <FlatList
+          showsVerticalScrollIndicator={false}
           data={isLoading ? undefined : playlistsSorted}
+          onScroll={(e) => {
+            if (e.nativeEvent.contentOffset.y < -180) {
+              bottomSheetRef.current?.close();
+            }
+          }}
           contentContainerStyle={{
             paddingBottom: 44,
             paddingTop: 10,
             flexGrow: 1,
           }}
-          ListFooterComponentStyle={{ flex: 1, justifyContent: "flex-end" }}
           ItemSeparatorComponent={() => <Flex h={10} />}
           ListEmptyComponent={
             <Flex fill mx={24} my={12} centered>
               {isLoading ? <Spinner /> : <Text>Empty :/</Text>}
             </Flex>
           }
-          ListFooterComponent={
-            <Flex px="$4">
-              <Button
-                onPress={() =>
-                  setCreatePlaylist({
-                    open: true,
-                    libraryItemId: addPlaylistsModalController.libraryItemId,
-                    episodeId: addPlaylistsModalController.episodeId,
-                    libraryId: currentLibraryId ?? "",
-                  })
-                }
-              >
-                Create Playlist
-              </Button>
-            </Flex>
-          }
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id as string}
           renderItem={renderItem}
         />
+        <Flex px="$4" pt="$2" bg="$background" pb={bottom}>
+          <Button
+            onPress={() =>
+              setCreatePlaylist({
+                open: true,
+                libraryItemId: addPlaylistsModalController.libraryItemId,
+                episodeId: addPlaylistsModalController.episodeId,
+                libraryId: currentLibraryId ?? "",
+              })
+            }
+          >
+            Create Playlist
+          </Button>
+        </Flex>
       </Screen>
     </AppBottomSheetModal>
   );

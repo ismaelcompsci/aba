@@ -19,7 +19,6 @@ export const getBorderRadius = ({
   isLast: boolean;
   disable: DisablePassBorderRadius;
 }) => {
-  // TODO: RTL support would be nice here
   return {
     borderTopLeftRadius:
       isFirst && disable !== "top" && disable !== "start" ? radius : 0,

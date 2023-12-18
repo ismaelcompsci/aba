@@ -29,8 +29,8 @@
 - [x] add server info
 - [x] lazy render audio player
 
-- [ ] Implement socket updates
-    - [ ]  change the refresh user hook to a socket update
+- [x] Implement socket updates
+    - [x]  change the refresh user hook to a socket update
 
 - [ ] fix unnecessary rerenders when we get a user update from the socket
 

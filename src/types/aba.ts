@@ -167,15 +167,12 @@ export type PodcastEpisodeExpanded = PodcastEpisode & {
   size: number;
 };
 
-// Define the PodcastEpisodeEnclosure type
 export type PodcastEpisodeEnclosure = {
-  // Define attributes for Podcast Episode Enclosure here
   url: string;
   type: string;
   length: string;
 };
 
-// Define the base Podcast type
 export type Podcast = {
   libraryItemId: string;
   metadata: PodcastMetadata;
@@ -189,7 +186,6 @@ export type Podcast = {
   maxNewEpisodesToDownload: number;
 };
 
-// Define the Podcast Minified export type by extending the base type
 export type PodcastMinified = Omit<
   Podcast,
   "libraryItemId" | "episodes" | "metadata"
