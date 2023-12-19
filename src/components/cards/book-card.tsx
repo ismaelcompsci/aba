@@ -134,8 +134,12 @@ const BookCard = ({
                 : item.media.metadata.author}
             </Text>
           </Flex>
-          {recentEpisodeNumber ? (
-            <HoverLabel label={`Episode #${recentEpisodeNumber}`} />
+          {recentEpisodeNumber !== null ? (
+            <HoverLabel
+              label={`Episode ${
+                recentEpisodeNumber && "#"
+              }${recentEpisodeNumber}`}
+            />
           ) : null}
           {numEpisodesIncomplete ? (
             <HoverLabel label={`${numEpisodesIncomplete}`} />

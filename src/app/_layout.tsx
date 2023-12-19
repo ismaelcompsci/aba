@@ -19,10 +19,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ColorTokens, TamaguiProvider, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
+import { useAudioPlayerProgress } from "../components/audio-player/hooks/use-audio-player-progress";
 import { Dot } from "../components/dot";
 import { Flex } from "../components/layout/flex";
 import { AppModals } from "../components/modals/app-modals";
@@ -35,6 +36,7 @@ import {
   attemptingConnectionAtom,
   librariesAtom,
   requestInfoAtom,
+  showPlayerAtom,
   socketConnectedAtom,
 } from "../state/app-state";
 import { appThemeAtom } from "../state/local-state";
@@ -110,6 +112,9 @@ export default function Layout() {
 const DataUpdaters = () => {
   const { serverAddress, token } = useAtomValue(requestInfoAtom);
   const setLibraries = useSetAtom(librariesAtom);
+  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+
+  const { isFinished } = useAudioPlayerProgress();
 
   useEffect(() => {
     const getLibraries = async () => {
@@ -124,6 +129,29 @@ const DataUpdaters = () => {
       getLibraries();
     }
   }, [token, serverAddress]);
+
+  useEffect(() => {
+    if (isFinished && showPlayer.playlist) {
+      const nextItem = showPlayer.playlist[0];
+
+      const updatedPlaylist = showPlayer.playlist.filter(
+        (item) =>
+          nextItem.episodeId !== item.episodeId &&
+          nextItem.libraryItemId !== item.libraryItemId
+      );
+
+      const isPlaylistDone = !updatedPlaylist.length;
+
+      if (!isPlaylistDone)
+        setShowPlayer({
+          open: true,
+          playing: true,
+          playlist: updatedPlaylist,
+          libraryItemId: nextItem.libraryItemId,
+          episodeId: nextItem.episodeId,
+        });
+    }
+  }, [isFinished]);
 
   return null;
 };

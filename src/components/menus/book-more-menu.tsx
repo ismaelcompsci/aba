@@ -97,11 +97,28 @@ function BookMoreMenu({
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
 
-      await queryClient.invalidateQueries({ queryKey: ["bookItem"] });
+      await invalidateQueries();
       router.push(`/book/${itemId}`);
     } catch (error) {
       console.log("[BOOK_MORE_MENU] removeFromServer error", error);
     }
+  };
+
+  const invalidateQueries = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ["personalized-library-view"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["latest-episodes"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["bookItem"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["library-items"],
+      }),
+    ]);
   };
 
   const addPlaylist = () => {

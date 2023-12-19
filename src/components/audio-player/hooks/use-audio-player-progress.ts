@@ -9,6 +9,14 @@ export const useAudioPlayerProgress = () => {
   const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;
   const currentPosition = currentTrackOffset + position;
 
+  const lastTrack = audioTracks && audioTracks[audioTracks?.length - 1];
+  const isLastTrack =
+    currentTrack && lastTrack ? currentTrack.id === lastTrack.id : false;
+  const isLastTrackDone =
+    lastTrack && Math.floor(lastTrack.duration || 0) === Math.floor(position);
+
+  const isFinished = isLastTrack && isLastTrackDone;
+
   const getTotalDuration = () => {
     let total = 0;
     audioTracks?.forEach((t) => (total += t.duration || 0));
@@ -69,23 +77,23 @@ export const useAudioPlayerProgress = () => {
         (currentTrack?.startOffset || 0) + (currentTrack?.duration || 0)
       ) > value
     ) {
-      return await TrackPlayer.seekTo(value - (currentTrack?.startOffset || 0));
+      await TrackPlayer.seekTo(value - (currentTrack?.startOffset || 0));
+    } else {
+      const trackIndex = Math.max(
+        0,
+        audioTracks.findIndex(
+          (t) =>
+            Math.floor(t.startOffset) <= value &&
+            Math.floor(t.startOffset + (t.duration || 0)) > value
+        )
+      );
+
+      const initialPosition = value - audioTracks[trackIndex].startOffset;
+
+      await TrackPlayer.pause();
+      await TrackPlayer.skip(trackIndex);
+      await TrackPlayer.seekTo(initialPosition);
     }
-
-    const trackIndex = Math.max(
-      0,
-      audioTracks.findIndex(
-        (t) =>
-          Math.floor(t.startOffset) <= value &&
-          Math.floor(t.startOffset + (t.duration || 0)) > value
-      )
-    );
-
-    const initialPosition = value - audioTracks[trackIndex].startOffset;
-
-    await TrackPlayer.pause();
-    await TrackPlayer.skip(trackIndex);
-    await TrackPlayer.seekTo(initialPosition);
     /**
      * stops the slider from bouncing because it takes a second to update progress from TrackPlayer
      */
@@ -100,6 +108,7 @@ export const useAudioPlayerProgress = () => {
   };
 
   return {
+    isFinished,
     currentPosition,
     currentTrack,
     audioTracks,

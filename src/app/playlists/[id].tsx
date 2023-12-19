@@ -24,11 +24,13 @@ import { Loaders } from "../../components/loader";
 import BookMoreMenu from "../../components/menus/book-more-menu";
 import { TouchableArea } from "../../components/touchable/touchable-area";
 import {
+  mediaProgressAtom,
   serverAddressAtom,
   showPlayerAtom,
   userTokenAtom,
 } from "../../state/app-state";
 import { PlaylistExpanded, PlaylistItemExpanded } from "../../types/aba";
+import { LibraryPlaylistsResponse } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { elapsedTime } from "../../utils/utils";
 
@@ -39,7 +41,7 @@ const PlaylistsPage = () => {
   const { name, id } = useLocalSearchParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["playlists-page", id],
+    queryKey: ["single-playlist", id],
     queryFn: async () => {
       const response: { data: PlaylistExpanded } = await axios.get(
         `${serverAddress}/api/playlists/${id}`,
@@ -152,8 +154,12 @@ const PlaylistPageMore = ({
         headers: { Authorization: `Bearer ${userToken}` },
       });
 
-      await queryClient.invalidateQueries(["playlists"]);
+      const playlistPageData: LibraryPlaylistsResponse | undefined =
+        queryClient.getQueryData(["playlists-page"]);
 
+      if (playlistPageData?.results.length === 1 || !playlistPageData) {
+        await queryClient.invalidateQueries(["has-playlists"]);
+      } else await queryClient.invalidateQueries(["playlists-page"]);
       router.back();
     } catch (error) {
       console.log("[PLAYLISTPAGEMORE] deletePlaylist error", error);
@@ -217,11 +223,40 @@ const PlaylistPageHeader = ({
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const playlistPictureSize = 216;
 
+  const mediaProgress = useAtomValue(mediaProgressAtom);
+
   const colors = useTheme();
   const textColor = colors.color.get();
 
   const playItem = () => {
-    const firstItem = data.items[0];
+    const playableItems = data.items.filter((item) => {
+      const { libraryItem, episode } = item;
+      if (libraryItem.isMissing || libraryItem.isInvalid) return true;
+      if (episode) return episode.audioFile;
+      // @ts-ignore
+      return libraryItem.media.tracks?.length;
+    });
+
+    const firstItemIndex = playableItems.findIndex((v) => {
+      const itemProgress = mediaProgress.find((val) => {
+        if (v.episodeId && val?.episodeId !== v.episodeId) return false;
+        return val?.libraryItemId === v.libraryItemId;
+      });
+
+      return !itemProgress?.isFinished && itemProgress?.progress !== 1;
+    });
+
+    const firstItem = playableItems[firstItemIndex];
+    playableItems.splice(firstItemIndex, 1);
+
+    const playlist = !playableItems.length
+      ? undefined
+      : [
+          ...playableItems.map((item) => ({
+            libraryItemId: item.libraryItemId,
+            episodeId: item.episodeId ? item.episodeId : undefined,
+          })),
+        ];
 
     if (isPlaying) {
       if (showPlayer.playing) {
@@ -230,8 +265,9 @@ const PlaylistPageHeader = ({
         setShowPlayer({
           open: true,
           playing: true,
-          libraryItemId: firstItem.libraryItemId,
-          episodeId: firstItem.episodeId ? firstItem.episodeId : undefined,
+          libraryItemId: firstItem?.libraryItemId,
+          episodeId: firstItem?.episodeId ? firstItem?.episodeId : undefined,
+          playlist: playlist,
         });
       }
     } else {
@@ -241,8 +277,9 @@ const PlaylistPageHeader = ({
         setShowPlayer({
           open: true,
           playing: true,
-          libraryItemId: firstItem.libraryItemId,
-          episodeId: firstItem.episodeId ? firstItem.episodeId : undefined,
+          libraryItemId: firstItem?.libraryItemId,
+          episodeId: firstItem?.episodeId ? firstItem?.episodeId : undefined,
+          playlist: playlist,
         });
       }
     }
@@ -455,7 +492,6 @@ const PlaylistItemRow = ({
           episodeId={
             playlistItem.episodeId ? playlistItem.episodeId : undefined
           }
-          hasTracks={Boolean(tracks.length)}
           vertical
         />
       </Flex>

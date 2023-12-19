@@ -51,7 +51,7 @@ export const CreatePlaylistModal = () => {
         createPlaylist.libraryId,
       ]);
       await queryClient.invalidateQueries([
-        "playlists",
+        "playlists-page",
         createPlaylist.libraryId,
       ]);
 

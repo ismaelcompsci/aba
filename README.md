@@ -34,4 +34,8 @@
 
 - [ ] fix unnecessary rerenders when we get a user update from the socket
 
+- [ ] better error handleing for requests
+    - [ ] show toast on error for all request
+
+
 

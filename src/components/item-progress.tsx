@@ -38,15 +38,21 @@ const ItemProgress = ({
 
   if (withText) {
     return (
-      <CircularProgress
-        value={userProgressPercent * 100}
-        strokeColorConfig={[
-          { color: rest.activeStrokeColor || "#2ecc71", value: 0 },
-          { color: rest.activeStrokeColor || "#2ecc71", value: 99 },
-          { color: "#2ecc71", value: 100 },
-        ]}
-        {...rest}
-      />
+      <>
+        {userProgressPercent < 1 ? (
+          <CircularProgress
+            value={userProgressPercent * 100}
+            strokeColorConfig={[
+              { color: rest.activeStrokeColor || "#2ecc71", value: 0 },
+              { color: rest.activeStrokeColor || "#2ecc71", value: 99 },
+              { color: "#2ecc71", value: 100 },
+            ]}
+            {...rest}
+          />
+        ) : showOnlyBase ? null : (
+          <CheckCircle size={checkMarkSize} color="#2ecc71" />
+        )}
+      </>
     );
   } else
     return (

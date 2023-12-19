@@ -15,6 +15,7 @@ import {
   userTokenAtom,
 } from "../../state/app-state";
 import { PlaylistExpanded } from "../../types/aba";
+import { LibraryPlaylistsResponse } from "../../types/types";
 import { PlaylistCover } from "../covers/playlist-cover";
 import {
   AppBottomSheetModal,
@@ -84,7 +85,7 @@ const AddPlaylistsModal = () => {
         ? `/${addPlaylistsModalController.libraryItemId}/${addPlaylistsModalController.episodeId}`
         : `/${addPlaylistsModalController.libraryItemId}`;
 
-      const response = await axios.delete(
+      const response: { data: PlaylistExpanded } = await axios.delete(
         `${serverAddress}/api/playlists/${id}/item${fullUrl}`,
         {
           headers: {
@@ -106,13 +107,44 @@ const AddPlaylistsModal = () => {
           } else return oldData;
         }
       );
+
+      queryClient.setQueryData(
+        ["playlists-page", currentLibraryId],
+        (oldData: LibraryPlaylistsResponse | undefined) => {
+          if (oldData) {
+            const newResults = oldData.results.filter(
+              (playlist) => playlist.id !== id
+            );
+            newResults.push(response.data);
+            const newData = {
+              ...oldData,
+              results: newResults,
+            };
+
+            return newData;
+          }
+
+          return oldData;
+        }
+      );
+
+      queryClient.setQueryData(
+        ["single-playlist", id],
+        (oldData: PlaylistExpanded | undefined) => {
+          if (oldData) {
+            return response.data;
+          }
+
+          return oldData;
+        }
+      );
     } catch (error) {
       console.log("[ADD_PLAYLISTS_MODAL] addToPlaylist error", error);
     }
   };
   const addToPlaylist = async (id: string) => {
     try {
-      const response = await axios.post(
+      const response: { data: PlaylistExpanded } = await axios.post(
         `${serverAddress}/api/playlists/${id}/item`,
         {
           libraryItemId: addPlaylistsModalController.libraryItemId,
@@ -133,6 +165,23 @@ const AddPlaylistsModal = () => {
           if (oldData) {
             return [...oldData.filter((pl) => pl.id !== id), response.data];
           } else return oldData;
+        }
+      );
+
+      queryClient.setQueryData(
+        ["playlists-page", currentLibraryId],
+        (oldData: LibraryPlaylistsResponse | undefined) => {
+          if (oldData) {
+            const newResults = oldData.results.filter((old) => old.id !== id);
+
+            newResults.push(response.data);
+            return {
+              ...oldData,
+              results: newResults,
+            };
+          }
+
+          return oldData;
         }
       );
     } catch (error) {

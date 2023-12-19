@@ -8,6 +8,7 @@ import {
   LibraryItemExpanded,
   LibraryItemMinified,
   PlaybackSession,
+  PlaylistExpanded,
   PodcastEpisodeExpanded,
   PodcastMetadata,
   PodcastMinified,
@@ -128,6 +129,11 @@ export type AudioPlayerTrack = {
 
 export interface AudioPlayerTrackExtra extends Track, AudioPlayerTrack {}
 
+export type PlayingStatePlaylist = {
+  libraryItemId?: string;
+  episodeId?: string;
+};
+
 export type PlayingState = {
   open: boolean;
   playing: boolean;
@@ -135,6 +141,7 @@ export type PlayingState = {
   startTime?: number;
   episodeId?: string;
   chapterId?: number;
+  playlist?: PlayingStatePlaylist[];
 };
 
 export type ListeningStats = {
@@ -197,4 +204,11 @@ export type BaseModalAtom = {
 
 export type BookmarksModalAtom = BaseModalAtom & {
   libraryItemId?: string;
+};
+
+export type LibraryPlaylistsResponse = {
+  total: number;
+  page: number;
+  limit: number;
+  results: PlaylistExpanded[];
 };
