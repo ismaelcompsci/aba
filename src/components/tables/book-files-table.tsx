@@ -45,7 +45,7 @@ const BookFilesTable = () => {
   const libraryFiles = currentItem?.libraryFiles || [];
   const ebookFiles = useMemo(
     () => libraryFiles.filter((lf) => lf.fileType === "ebook"),
-    [currentItem?.id]
+    [currentItem?.id, currentItem?.libraryFiles]
   );
   const itemId = currentItem?.id;
 

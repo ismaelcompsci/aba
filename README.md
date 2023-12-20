@@ -9,6 +9,8 @@
     - custom patch that opens a UIMenuController on ios and a ActionMode on android
 
 ### Todo's
+- [ ] Offline mode
+
 - [ ] fix in book reader when switching to previous chapter and then switching scroll view it goes to start of chapter
 
 - [ ] better audioplayer
@@ -23,7 +25,7 @@
 
 - [ ] better playlist implementation
     - [ ] show playlist in the audioplayer
-    - [ ] play one after the other
+    - [x] play one after the other
     - [ ] movable playlist rows
 
 - [x] add server info

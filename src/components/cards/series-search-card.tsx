@@ -1,5 +1,4 @@
 import FastImage from "react-native-fast-image";
-import { BlurView } from "@react-native-community/blur";
 import { router } from "expo-router";
 import { Image, Text, ZStack } from "tamagui";
 
@@ -48,22 +47,9 @@ const SeriesSearchCard = ({
             width: seriesCardWidth,
             height: seriesCardHeight,
           }}
+          blurRadius={10}
         />
       ) : null}
-      <BlurView
-        style={{
-          height: seriesCardHeight,
-          width: seriesCardWidth,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-        }}
-        blurType={"dark"}
-        blurAmount={3}
-        reducedTransparencyFallbackColor="black"
-      />
       {/* book images */}
       <ZStack height={seriesCardHeight} width={seriesCardWidth}>
         {books.map((book, i) => {

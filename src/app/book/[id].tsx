@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { Animated, useWindowDimensions } from "react-native";
 import ViewMoreText from "react-native-view-more-text";
-import { BlurView } from "@react-native-community/blur";
 import { BookX } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -30,7 +29,6 @@ import {
   serverAddressAtom,
   userTokenAtom,
 } from "../../state/app-state";
-import { appThemeAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { getItemCoverSrc } from "../../utils/api";
 import { encode, getGradient } from "../../utils/utils";
@@ -180,7 +178,7 @@ const BookPage = () => {
         (lf) => lf.fileType === "ebook"
       ),
     }),
-    [bookItem]
+    [bookItem, bookItem?.libraryFiles]
   );
 
   const renderViewMore = (onPress: () => void) => (
@@ -327,7 +325,6 @@ const BookParallaxHeader = ({
   bookItem?: LibraryItemExpanded;
 }) => {
   const { width } = useWindowDimensions();
-  const appScheme = useAtomValue(appThemeAtom);
   const userToken = useAtomValue(userTokenAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
@@ -349,21 +346,9 @@ const BookParallaxHeader = ({
           source={{
             uri: cover || "",
           }}
+          blurRadius={10}
         />
       ) : null}
-      <BlurView
-        style={{
-          height: "100%",
-          position: "absolute",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-        }}
-        blurType={appScheme.scheme === "oled" ? "dark" : appScheme.scheme}
-        blurAmount={3}
-        reducedTransparencyFallbackColor="black"
-      />
       {!cover || cover === "" ? (
         <Flex centered fill>
           <BookX size="$19" />
