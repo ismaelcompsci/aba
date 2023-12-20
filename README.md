@@ -10,6 +10,7 @@
 
 ### Todo's
 - [ ] Offline mode
+- [ ] fix view jumping around on orientation change
 
 - [ ] fix in book reader when switching to previous chapter and then switching scroll view it goes to start of chapter
 

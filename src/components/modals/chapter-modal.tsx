@@ -57,7 +57,9 @@ const ChaptersModal = () => {
                   left={0}
                 />
               ) : null}
-              <Text pl={"$4"}>{track.title}</Text>
+              <Text numberOfLines={1} pl={"$4"} maxWidth={"75%"}>
+                {track.title}
+              </Text>
               <Text ml="auto">{formatSeconds(track.startOffset)}</Text>
             </Flex>
           ))}

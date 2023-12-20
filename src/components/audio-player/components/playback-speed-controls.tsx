@@ -26,7 +26,7 @@ const PlaybackSpeedControls = () => {
             opacity: 0.8,
           }}
         >
-          <Text fontSize={"$5"}>{on}</Text>
+          <Text fontSize={"$6"}>{on}</Text>
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

@@ -3,7 +3,7 @@ import TrackPlayer, { Capability } from "react-native-track-player";
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { selectAtom } from "jotai/utils";
-import { Spinner, useTheme } from "tamagui";
+import { Spinner } from "tamagui";
 
 import {
   playbackSessionAtom,
@@ -20,10 +20,7 @@ import Sheet from "../custom-components/sheet";
 import { Flex } from "../layout/flex";
 
 import BigAudioPlayer from "./components/big-audio-player";
-import {
-  ProgressSlider,
-  sliderLoadingAtom,
-} from "./components/progress-slider";
+import { sliderLoadingAtom } from "./components/progress-slider";
 import {
   AudiobookInfo,
   AudioPlayerInfo,
@@ -49,7 +46,7 @@ const AudioPlayerContainer = () => {
 
   const [open, setOpen] = useState(false);
 
-  const colors = useTheme();
+  // const colors = useTheme();
 
   const setupPlayer = async (
     session: PlaybackSessionExpanded,
@@ -267,11 +264,11 @@ const AudioPlayerContainer = () => {
         {ready ? (
           <>
             <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
-            <ProgressSlider
+            {/* <ProgressSlider
               showThumb={false}
               color={colors.color.get()}
               audiobookInfo={audiobookInfo}
-            />
+            /> */}
           </>
         ) : (
           <Spinner />

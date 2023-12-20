@@ -68,13 +68,32 @@ const Sheet = ({
     const listener = Dimensions.addEventListener(
       "change",
       ({ window, screen }) => {
-        onOpenChange && onOpenChange(false);
+        // onOpenChange && onOpenChange(false);
         setDimensions({ window, screen });
+
+        if (open) {
+          navHeight.value = NAV_HEIGHT + 10;
+          sheetHeight.value = -screen.height;
+          headerOpacity.value = 0;
+          position.value = "maximised";
+        } else {
+          navHeight.value = 0;
+          sheetHeight.value = -_minHeight;
+          headerOpacity.value = 1;
+          position.value = "minimised";
+        }
+
+        console.log(
+          headerOpacity.value,
+          sheetHeight.value,
+          position.value,
+          open
+        );
       }
     );
 
     return () => listener?.remove();
-  }, []);
+  }, [open]);
 
   // Fixed values (for snap positions)
   const _minHeight = minHeight || 120;
@@ -96,6 +115,26 @@ const Sheet = ({
   const headerOpacity = useSharedValue(1);
 
   const DRAG_BUFFER = 40;
+
+  const minimise = () => {
+    "worklet";
+
+    navHeight.value = withSpring(0, springConfig);
+    sheetHeight.value = withSpring(-_minHeight, springConfig);
+    headerOpacity.value = withSpring(1, springConfig);
+    position.value = "minimised";
+    onOpenChange && runOnJS(onOpenChange)(false);
+  };
+
+  const maximise = () => {
+    "worklet";
+
+    navHeight.value = NAV_HEIGHT + 10;
+    sheetHeight.value = withSpring(-_maxHeight, springConfig);
+    headerOpacity.value = withSpring(0, springConfig);
+    position.value = "maximised";
+    onOpenChange && runOnJS(onOpenChange)(true);
+  };
 
   const onGestureEvent = useAnimatedGestureHandler({
     // Set the context value to the sheet's current height value
@@ -140,17 +179,9 @@ const Sheet = ({
         -sheetHeight.value > _minHeight + DRAG_BUFFER;
 
       if (shouldMaximize) {
-        navHeight.value = NAV_HEIGHT + 10;
-        sheetHeight.value = withSpring(-_maxHeight, springConfig);
-        headerOpacity.value = withSpring(0, springConfig);
-        position.value = "maximised";
-        onOpenChange && runOnJS(onOpenChange)(true);
+        maximise();
       } else if (shouldMinimize) {
-        navHeight.value = withSpring(0, springConfig);
-        sheetHeight.value = withSpring(-_minHeight, springConfig);
-        headerOpacity.value = withSpring(1, springConfig);
-        position.value = "minimised";
-        onOpenChange && runOnJS(onOpenChange)(false);
+        minimise();
       } else {
         if (position.value === "minimised" && headerOpacity.value !== 1) {
           headerOpacity.value = withSpring(1, springConfig);
