@@ -298,6 +298,27 @@ const Bookmark = ({
 }) => {
   const { seekTo } = useAudioPlayerProgress();
 
+  const deleteBookmarkAlert = () => {
+    Alert.alert(
+      "Delete bookmark",
+      `Are you sure you want to remove bookmark`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Okay",
+          style: "destructive",
+          onPress: async () => await removeBookmark(bookmark),
+        },
+      ],
+      {
+        cancelable: true,
+      }
+    );
+  };
+
   return (
     <TouchableArea
       key={bookmark.title}
@@ -328,28 +349,7 @@ const Bookmark = ({
         >
           <Edit3 size={"$1"} />
         </TouchableArea>
-        <TouchableArea
-          onPress={() =>
-            Alert.alert(
-              "Delete bookmark",
-              `Are you sure you want to remove bookmark`,
-              [
-                {
-                  text: "Cancel",
-                  style: "cancel",
-                },
-                {
-                  text: "Okay",
-                  style: "destructive",
-                  onPress: async () => await removeBookmark(bookmark),
-                },
-              ],
-              {
-                cancelable: true,
-              }
-            )
-          }
-        >
+        <TouchableArea onPress={deleteBookmarkAlert}>
           <Trash2 size={"$1"} />
         </TouchableArea>
       </Flex>

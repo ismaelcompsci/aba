@@ -1,4 +1,5 @@
 import { useWindowDimensions } from "react-native";
+import { StretchInY, StretchOutY } from "react-native-reanimated";
 import TrackPlayer from "react-native-track-player";
 import { atom, useAtom } from "jotai";
 import { ScrollView, Text } from "tamagui";
@@ -7,7 +8,7 @@ import { AudioPlayerTrackExtra } from "../../types/types";
 import { formatSeconds } from "../../utils/utils";
 import { useTracks } from "../audio-player/hooks/use-tracks";
 import { Modal } from "../custom-components/modal";
-import { Flex } from "../layout/flex";
+import { AnimatedFlex, Flex } from "../layout/flex";
 
 export const chaptersModalAtom = atom({ open: false });
 
@@ -45,7 +46,9 @@ const ChaptersModal = () => {
               }}
             >
               {track.id === currentTrack?.id ? (
-                <Flex
+                <AnimatedFlex
+                  entering={StretchInY.springify()}
+                  exiting={StretchOutY.duration(100)}
                   h={"$2"}
                   w={10}
                   bg={"$blue10"}

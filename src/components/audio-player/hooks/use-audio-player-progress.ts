@@ -44,18 +44,29 @@ export const useAudioPlayerProgress = () => {
   const jump = async (jump: number) => {
     if (!audioTracks) return;
     const value = Math.max(0, currentPosition + jump);
-    const trackIndex = Math.max(
-      0,
-      audioTracks.findIndex(
-        (t) =>
-          Math.floor(t.startOffset) <= value &&
-          Math.floor(t.startOffset + (t.duration || 0)) > value
-      )
-    );
 
-    const initialPosition = value - audioTracks[trackIndex].startOffset;
+    if (
+      Math.floor(currentTrack?.startOffset || 0) <= value &&
+      Math.floor(
+        (currentTrack?.startOffset || 0) + (currentTrack?.duration || 0)
+      ) > value
+    ) {
+      TrackPlayer.setPlayWhenReady;
+      await TrackPlayer.seekTo(value - (currentTrack?.startOffset || 0));
+    } else {
+      const trackIndex = Math.max(
+        0,
+        audioTracks.findIndex(
+          (t) =>
+            Math.floor(t.startOffset) <= value &&
+            Math.floor(t.startOffset + (t.duration || 0)) > value
+        )
+      );
 
-    await TrackPlayer.skip(trackIndex, initialPosition);
+      const initialPosition = value - audioTracks[trackIndex].startOffset;
+
+      await TrackPlayer.skip(trackIndex, initialPosition);
+    }
   };
 
   /**

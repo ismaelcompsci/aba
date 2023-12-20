@@ -5,38 +5,69 @@ import TrackPlayer, {
 } from "react-native-track-player";
 import { BookOpen, Pause, Play } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
-import { useAtom } from "jotai/react";
+import { useAtom, useAtomValue } from "jotai/react";
 import { Button, Text, useTheme } from "tamagui";
 
-import { showPlayerAtom } from "../../state/app-state";
+import { mediaProgressAtom, showPlayerAtom } from "../../state/app-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { TouchableArea } from "../touchable/touchable-area";
 
 const PlayButton = ({
-  bookItemId,
+  bookItem,
   id,
   textColor,
 }: {
-  bookItemId: string;
+  bookItem: LibraryItemExpanded;
   id: string;
   textColor: string;
 }) => {
   const playerState = usePlaybackState();
   const isPlaying = playerState.state === State.Playing;
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+  const mediaProgress = useAtomValue(mediaProgressAtom);
+
+  const isPodcast = bookItem.mediaType === "podcast";
 
   const playerPlayPress = () => {
+    let episode;
+    if (isPodcast) {
+      const episodes =
+        "episodes" in bookItem.media ? bookItem.media.episodes : null;
+
+      const playableEpisode = episodes?.find((ep) => {
+        const itemProgress = mediaProgress.find((v) => {
+          if (ep.id !== v.episodeId) return false;
+
+          return v.libraryItemId === ep.libraryItemId;
+        });
+
+        return !itemProgress?.isFinished;
+      });
+
+      episode = playableEpisode;
+    }
+
     if (isPlaying) {
       if (showPlayer.libraryItemId === id) {
         TrackPlayer.pause();
       } else {
-        setShowPlayer({ open: true, playing: true, libraryItemId: bookItemId });
+        setShowPlayer({
+          open: true,
+          playing: true,
+          libraryItemId: bookItem.id,
+          episodeId: episode?.id,
+        });
       }
     } else {
       if (showPlayer.playing && showPlayer.libraryItemId === id) {
         TrackPlayer.play();
       } else {
-        setShowPlayer({ open: true, playing: true, libraryItemId: bookItemId });
+        setShowPlayer({
+          open: true,
+          playing: true,
+          libraryItemId: bookItem.id,
+          episodeId: episode?.id,
+        });
       }
     }
   };
@@ -111,9 +142,7 @@ const OpenItemActionButton = ({
   const showRead = canShowRead();
 
   if (showPlay) {
-    return (
-      <PlayButton bookItemId={bookItem.id} id={id} textColor={background} />
-    );
+    return <PlayButton bookItem={bookItem} id={id} textColor={background} />;
   } else if (showRead) {
     return (
       <TouchableArea

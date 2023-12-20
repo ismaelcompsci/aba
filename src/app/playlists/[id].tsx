@@ -287,11 +287,12 @@ const PlaylistPageHeader = ({
 
   const isPlaylistPlaying = useMemo(
     () =>
-      data.items.find(
-        (item) =>
-          item.libraryItemId === showPlayer.libraryItemId &&
-          item.episodeId === showPlayer.episodeId
-      ),
+      data.items.find((item) => {
+        if (item.episodeId && item.episodeId !== showPlayer.episodeId)
+          return false;
+
+        return showPlayer.libraryItemId === item.libraryItemId;
+      }),
     [showPlayer, data]
   );
 

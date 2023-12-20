@@ -225,8 +225,10 @@ const BigAudioPlayerBackground = ({
   return (
     <LinearGradient
       height={height}
-      colors={[gradientColors.colorFour.value, "$backgroundPress"]}
-      locations={[0.1, 0.7]}
+      colors={[gradientColors.colorOne.value, "$backgroundPress"]}
+      // locations={[0.1, 0.7]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       borderRadius={"$7"}
     >
       {children}
