@@ -202,7 +202,7 @@ const LibraryPage = ({
             onEndReached={loadNextPageData}
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
-            estimatedItemSize={bookWidth}
+            estimatedItemSize={211}
             ListFooterComponent={
               hasNextPage ? (
                 <Button mt="$3">

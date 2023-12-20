@@ -301,6 +301,7 @@ const HomePage = () => {
         </Flex>
       ) : (
         <TabView
+          key={`${layout.width}-tabview`}
           lazy
           navigationState={{ index, routes }}
           renderScene={renderScene}
