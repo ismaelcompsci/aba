@@ -19,6 +19,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
+import * as SystemUI from "expo-system-ui";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ColorTokens, TamaguiProvider, Theme, useTheme } from "tamagui";
 
@@ -40,6 +41,7 @@ import {
   socketConnectedAtom,
 } from "../state/app-state";
 import { appThemeAtom } from "../state/local-state";
+
 SplashScreen.preventAutoHideAsync();
 
 if (IS_ANDROID && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -68,11 +70,6 @@ export default function Layout() {
   }, [loaded]);
 
   useEffect(() => {
-    Appearance.setColorScheme(
-      appTheme.scheme === "oled" || appTheme.scheme === "dark"
-        ? "dark"
-        : "light"
-    );
     (async () => {
       try {
         await TrackPlayer.setupPlayer();
@@ -89,9 +86,9 @@ export default function Layout() {
   return (
     <BottomSheetModalProvider>
       <QueryClientProvider client={queryClient}>
-        <DataUpdaters />
         <TamaguiProvider config={appConfig} defaultTheme="system">
           <Theme name={appTheme.scheme}>
+            <DataUpdaters />
             <SocketProvider>
               <Stack
                 initialRouteName="index"
@@ -110,11 +107,13 @@ export default function Layout() {
 }
 
 const DataUpdaters = () => {
-  const { serverAddress, token } = useAtomValue(requestInfoAtom);
-  const setLibraries = useSetAtom(librariesAtom);
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+  const { serverAddress, token } = useAtomValue(requestInfoAtom);
+  const appTheme = useAtomValue(appThemeAtom);
+  const setLibraries = useSetAtom(librariesAtom);
 
   const { isFinished } = useAudioPlayerProgress();
+  const colors = useTheme();
 
   useEffect(() => {
     const getLibraries = async () => {
@@ -152,6 +151,19 @@ const DataUpdaters = () => {
         });
     }
   }, [isFinished]);
+
+  useEffect(() => {
+    const bg = colors.background.val;
+    SystemUI.setBackgroundColorAsync(bg);
+  }, [appTheme]);
+
+  useEffect(() => {
+    Appearance.setColorScheme(
+      appTheme.scheme === "oled" || appTheme.scheme === "dark"
+        ? "dark"
+        : "light"
+    );
+  }, []);
 
   return null;
 };

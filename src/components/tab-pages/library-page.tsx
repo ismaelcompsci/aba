@@ -202,6 +202,7 @@ const LibraryPage = ({
             onEndReached={loadNextPageData}
             keyExtractor={(item) => `${item.id}}`}
             renderItem={handleRenderItem}
+            scrollEventThrottle={16}
             estimatedItemSize={211}
             ListFooterComponent={
               hasNextPage ? (

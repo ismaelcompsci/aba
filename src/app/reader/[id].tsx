@@ -10,16 +10,17 @@ import {
   currentItemAtom,
   epubReaderCurrentLocationAtom,
   epubReaderSectionFractionsAtom,
+  mediaProgressAtom,
   serverAddressAtom,
   userAtom,
 } from "../../state/app-state";
-import { getUserMediaProgress } from "../../utils/utils";
 
 const ReaderPage = () => {
   const serverAddress = useAtomValue(serverAddressAtom);
   const { id, ino } = useLocalSearchParams();
   const currentItem = useAtomValue(currentItemAtom);
   const user = useAtomValue(userAtom);
+  const mediaProgres = useAtomValue(mediaProgressAtom);
 
   const setEpubReaderSectionFractionsAtom = useSetAtom(
     epubReaderSectionFractionsAtom
@@ -50,7 +51,7 @@ const ReaderPage = () => {
 
   const getInitialLocation = () => {
     if (!currentItem || !currentItem.id) return;
-    const prog = getUserMediaProgress(user, currentItem.id);
+    const prog = mediaProgres.find((v) => v.libraryItemId === id);
 
     if (!prog || !prog.ebookLocation) return;
 

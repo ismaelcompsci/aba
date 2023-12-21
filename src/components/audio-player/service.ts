@@ -1,71 +1,49 @@
-import TrackPlayer, { Event } from "react-native-track-player";
+import TrackPlayer, { Event, Track } from "react-native-track-player";
 
 module.exports = async function () {
+  let tracks: Track[] | null = null;
+
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play());
   TrackPlayer.addEventListener(Event.RemotePause, () => TrackPlayer.pause());
-  // TrackPlayer.addEventListener(Event.RemoteNext, () =>
-  //   TrackPlayer.skipToNext()
-  // );
-  // TrackPlayer.addEventListener(Event.RemotePrevious, () =>
-  //   TrackPlayer.skipToPrevious()
-  // );
-  // TrackPlayer.addEventListener(Event.RemoteNext, () => {
-  //   console.log("Event.RemoteNext");
-  //   TrackPlayer.skipToNext();
-  // });
 
-  // TrackPlayer.addEventListener(Event.RemoteJumpForward, async (event) => {
-  //   console.log("Event.RemoteJumpForward", event);
-  //   TrackPlayer.seekBy(event.interval);
-  // });
+  TrackPlayer.addEventListener(Event.RemoteJumpForward, async (event) => {
+    // console.log("Event.RemoteJumpForward", event);
+    await TrackPlayer.seekBy(event.interval);
+  });
 
-  // TrackPlayer.addEventListener(Event.RemoteJumpBackward, async (event) => {
-  //   console.log("Event.RemoteJumpBackward", event);
-  //   TrackPlayer.seekBy(-event.interval);
-  // });
+  TrackPlayer.addEventListener(Event.RemoteJumpBackward, async (event) => {
+    // console.log("Event.RemoteJumpBackward", event.interval);
+    await TrackPlayer.seekBy(-event.interval);
+  });
 
-  // TrackPlayer.addEventListener(Event.RemoteSeek, (event) => {
-  //   console.log("Event.RemoteSeek", event);
-  //   TrackPlayer.seekTo(event.position);
-  // });
+  TrackPlayer.addEventListener(Event.RemoteSeek, async (event) => {
+    // console.log("Event.RemoteSeek", event);
+    if (!tracks) return;
 
-  // TrackPlayer.addEventListener(Event.RemoteDuck, async (event) => {
-  //   console.log("Event.RemoteDuck", event);
-  // });
+    const currentTrackIndex = await TrackPlayer.getActiveTrackIndex();
+    const currentTrack = currentTrackIndex ? tracks[currentTrackIndex] : null;
 
-  // TrackPlayer.addEventListener(Event.PlaybackQueueEnded, (event) => {
-  //   console.log("Event.PlaybackQueueEnded", event);
-  // });
+    if (!currentTrack || !tracks.length) return;
 
-  // TrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, (event) => {
-  //   console.log("Event.PlaybackActiveTrackChanged", event);
-  // });
+    const seekToTrackIndex = Math.max(
+      0,
+      tracks.findIndex(
+        (t) =>
+          Math.floor(t.startOffset) <= event.position &&
+          Math.floor(t.startOffset + (t.duration || 0)) > event.position
+      )
+    );
 
-  // TrackPlayer.addEventListener(Event.PlaybackPlayWhenReadyChanged, (event) => {
-  //   console.log("Event.PlaybackPlayWhenReadyChanged", event);
-  // });
+    const initialPosition =
+      event.position - tracks[seekToTrackIndex].startOffset;
+    await TrackPlayer.pause();
+    await TrackPlayer.skip(seekToTrackIndex);
+    await TrackPlayer.seekTo(initialPosition);
+    await TrackPlayer.play();
+  });
 
-  // TrackPlayer.addEventListener(Event.PlaybackState, (event) => {
-  //   console.log("Event.PlaybackState", event);
-  // });
-
-  // TrackPlayer.addEventListener(Event.PlaybackMetadataReceived, (event) => {
-  //   console.log("[Deprecated] Event.PlaybackMetadataReceived", event);
-  // });
-
-  // TrackPlayer.addEventListener(Event.MetadataChapterReceived, (event) => {
-  //   console.log("Event.MetadataChapterReceived", event);
-  // });
-
-  // TrackPlayer.addEventListener(Event.MetadataTimedReceived, (event) => {
-  //   console.log("Event.MetadataTimedReceived", event);
-  // });
-
-  // TrackPlayer.addEventListener(Event.MetadataCommonReceived, (event) => {
-  //   console.log("Event.MetadataCommonReceived", event);
-  // });
-
-  // TrackPlayer.addEventListener(Event.PlaybackProgressUpdated, (event) => {
-  //   console.log("Event.PlaybackProgressUpdated", event);
-  // });
+  TrackPlayer.addEventListener(Event.MetadataCommonReceived, async (event) => {
+    // console.log("Event.MetadataCommonReceived", event);
+    tracks = await TrackPlayer.getQueue();
+  });
 };

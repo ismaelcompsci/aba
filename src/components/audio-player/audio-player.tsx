@@ -236,9 +236,11 @@ const AudioPlayerContainer = () => {
           capabilities: [
             Capability.Play,
             Capability.Pause,
+            Capability.JumpForward,
+            Capability.JumpBackward,
             // Capability.SkipToNext,
             // Capability.SkipToPrevious,
-            // Capability.SeekTo,
+            Capability.SeekTo,
           ],
           compactCapabilities: [Capability.Play, Capability.Pause],
           progressUpdateEventInterval: 1,

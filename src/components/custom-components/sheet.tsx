@@ -82,13 +82,6 @@ const Sheet = ({
           headerOpacity.value = 1;
           position.value = "minimised";
         }
-
-        console.log(
-          headerOpacity.value,
-          sheetHeight.value,
-          position.value,
-          open
-        );
       }
     );
 

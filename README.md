@@ -17,7 +17,7 @@
 - [ ] better audioplayer
     - [ ] better seeking
     - [ ] better fast forwarding
-    - [ ] play from chapter
+    - [x] play from chapter
 
 - [ ] better tts
 

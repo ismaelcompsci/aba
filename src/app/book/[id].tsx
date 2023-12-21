@@ -222,7 +222,7 @@ const BookPage = () => {
           fixedHeader={renderFixedHeader}
           showsVerticalScrollIndicator={false}
         >
-          <Screen edges={["bottom", "left", "right"]}>
+          <Flex bg="$background">
             <LinearGradient
               colors={getGradient(colors.background.get())}
               start={{ x: 0, y: 1 }}
@@ -312,7 +312,7 @@ const BookPage = () => {
                 {numTracks ? <TrackFilesTable tracks={tracks} /> : null}
               </Flex>
             </Flex>
-          </Screen>
+          </Flex>
         </ParallaxScrollView>
       ) : null}
     </Screen>

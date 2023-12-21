@@ -67,8 +67,9 @@ export const ProgressSlider = ({
     seekTo(value, 1450, () => setIsSeeking(false));
   };
 
-  const updateSession = async () => {
-    if (showThumb) return;
+  const updateSession = async (force: boolean = false) => {
+    if (!showThumb) return;
+
     // udpate only every 15 seconds
     const nowInMilliseconds = Date.now();
     const nowInSeconds = nowInMilliseconds / 1000;
@@ -82,7 +83,7 @@ export const ProgressSlider = ({
     const newTimeListening = (timeListening += secondsSinceLastUpdate);
     if (newTimeListening >= TIME_BETWEEN_SESSION_UPDATES) sync = true;
 
-    sync &&
+    (sync || force) &&
       // @ts-ignore
       setPlaybackSession((prev) => {
         return {
@@ -93,7 +94,7 @@ export const ProgressSlider = ({
         };
       });
 
-    if (sync) {
+    if (sync || force) {
       console.log("SYNCING SESSION");
       const updatePayload = {
         currentTime: overallCurrentTime,

@@ -31,6 +31,7 @@ import { BackButton } from "../../components/layout/back-header";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { TouchableArea } from "../../components/touchable/touchable-area";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
+import { useOrientation } from "../../hooks/use-orientation";
 import {
   epubReaderCurrentLocationAtom,
   epubReaderOverviewModalAtom,
@@ -47,6 +48,7 @@ const layout = () => {
         }}
       />
       <Menu />
+      <ThemeUpdater />
     </ReaderProvider>
   );
 };
@@ -319,13 +321,17 @@ export const epubReaderMenuInlineSizeAtom = focusAtom(
   (optic) => optic.prop("maxInlineSize")
 );
 
-const Updater = () => {
+const ThemeUpdater = () => {
   const settings = useAtomValue(ebookSettignsAtom);
   const { changeTheme } = useReader();
+  const orientation = useOrientation();
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
     changeTheme(settings);
   }, [settings]);
+
+  useEffect(() => {}, [width, orientation]);
   return <></>;
 };
 
@@ -380,7 +386,6 @@ const EbookSettingsMenu = ({
       entering={FadeInUp}
       exiting={FadeOutUp}
     >
-      <Updater />
       {/* theme & font size */}
       <Flex row justifyContent="space-between">
         <ThemeButtons />
