@@ -131,7 +131,7 @@ export function View({
       });
     }
 
-    if (type === "menuAction") {
+    if (type === "copyAction") {
       const { value } = parsedEvent;
       value && Clipboard.setString(value);
     }

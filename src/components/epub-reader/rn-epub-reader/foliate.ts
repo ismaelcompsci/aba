@@ -10027,6 +10027,10 @@ class Reader {
       case "underline":
         this.addAnnotation(action);
         break;
+      case "copy":
+        const value = this.currentlySelected.range.toString()
+        emit({type: "copyAction", value})
+        break;
       default:
         break;
     }

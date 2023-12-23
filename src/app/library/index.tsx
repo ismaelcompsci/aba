@@ -19,12 +19,14 @@ import {
   Search,
   User,
 } from "@tamagui/lucide-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
 import { Text, useTheme } from "tamagui";
 
+import { AnimatedDotIsland } from "../../components/custom-components/animated-dot-island";
+import { Dot } from "../../components/dot";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import { Loaders } from "../../components/loader";
@@ -37,6 +39,7 @@ import LibraryPage from "../../components/tab-pages/library-page";
 import PersonalizedPage from "../../components/tab-pages/personalized-page";
 import PlaylistsPage from "../../components/tab-pages/playlists-page";
 import SeriesPage from "../../components/tab-pages/series-page";
+import { useAudioBookShelfSocket } from "../../context/socket-context";
 import {
   changingLibraryAtom,
   currentLibraryIdAtom,
@@ -46,6 +49,7 @@ import {
   serverAddressAtom,
   userTokenAtom,
 } from "../../state/app-state";
+import { LibraryItemExpanded } from "../../types/aba";
 import { TabName, Tabs } from "../../types/types";
 
 const tabs: Tabs<IconProps> = {
@@ -312,8 +316,73 @@ const HomePage = () => {
           style={{ width: layout.width, height: layout.height }}
         />
       )}
+      <LibraryItemAddedNotification />
     </Screen>
   );
+};
+
+const DOT_SIZE = 8;
+const LibraryItemAddedNotification = () => {
+  const socket = useAudioBookShelfSocket();
+
+  let timer: NodeJS.Timeout | null;
+
+  const [newItems, setNewItems] = useState<LibraryItemExpanded[]>([]);
+  const colors = useTheme();
+
+  const queryClient = useQueryClient();
+
+  const libraryItemAdded = (item: LibraryItemExpanded) => {
+    setNewItems((p) => [...p, item]);
+
+    timer = setTimeout(() => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+        return;
+      }
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["personalized-library-view"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["library-items"],
+        }),
+      ]);
+      setNewItems([]);
+    }, 4000);
+  };
+
+  useEffect(() => {
+    socket?.on("item_added", libraryItemAdded);
+  }, []);
+
+  if (newItems.length) {
+    return (
+      <AnimatedDotIsland
+        expandedHeight={32}
+        expandedWidth={208}
+        yLocation={50}
+        dotSize={12}
+        backgroundColor={"black"}
+        dotColor={colors.blue10.get()}
+        borderColor={"white"}
+        onPress={() => {
+          timer && clearTimeout(timer);
+          setNewItems([]);
+        }}
+      >
+        <Flex row alignItems="center" gap="$2">
+          <Dot bg="$blue10" h={DOT_SIZE} width={DOT_SIZE} />
+          <Text fontSize={12} numberOfLines={1} color={"white"}>
+            {newItems.length === 1
+              ? "1 new item added to library"
+              : `${newItems.length} new items added to library`}
+          </Text>
+        </Flex>
+      </AnimatedDotIsland>
+    );
+  } else return null;
 };
 
 export default HomePage;

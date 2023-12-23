@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import FastImage from "react-native-fast-image";
+import { useQueryClient } from "@tanstack/react-query";
 import RNFetchBlob from "rn-fetch-blob";
 import { Spinner, Text } from "tamagui";
 
@@ -10,13 +11,11 @@ import { TouchableArea } from "../../components/touchable/touchable-area";
 import { epubDir } from "../../constants/consts";
 import { humanFileSize } from "../../utils/utils";
 
-/**
- * todo better ui
- */
-
 const Cache = () => {
   const [loading, setLoading] = useState(false);
   const [cacheSize, setCacheSize] = useState(0);
+
+  const queryClient = useQueryClient();
 
   const getCacheSize = async () => {
     try {
@@ -42,7 +41,7 @@ const Cache = () => {
     }
   };
 
-  const clearCache = async () => {
+  const clearFileCache = async () => {
     try {
       setLoading(true);
       await RNFetchBlob.fs.unlink(epubDir);
@@ -51,10 +50,22 @@ const Cache = () => {
 
       await getCacheSize();
     } catch (error) {
-      console.log("[CACHE] clearCache error", error);
+      console.log("[CACHE] clearFileCache error", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const clearNetworkCache = async () => {
+    await queryClient.invalidateQueries();
+    await queryClient.resetQueries();
+  };
+
+  const clearAllCache = async () => {
+    setLoading(true);
+    await clearFileCache();
+    await clearNetworkCache();
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -72,7 +83,7 @@ const Cache = () => {
           flexDirection="row"
           justifyContent="space-between"
           py={12}
-          onPress={clearCache}
+          onPress={clearFileCache}
         >
           <Text fontSize={18} lineHeight={24} fontWeight={"400"} color="$red10">
             Clear ebook file cache
@@ -82,6 +93,29 @@ const Cache = () => {
           ) : (
             <Spinner />
           )}
+        </TouchableArea>
+        <TouchableArea
+          onPress={clearNetworkCache}
+          alignItems="center"
+          flexDirection="row"
+          justifyContent="space-between"
+          py={12}
+        >
+          <Text fontSize={18} lineHeight={24} fontWeight={"400"} color="$red10">
+            Clear network cache
+          </Text>
+          {loading ? <Spinner /> : null}
+        </TouchableArea>
+        <TouchableArea
+          onPress={clearAllCache}
+          alignItems="center"
+          flexDirection="row"
+          py={12}
+        >
+          <Text fontSize={18} lineHeight={24} fontWeight={"400"} color="$red10">
+            Clear all cache
+          </Text>
+          {loading ? <Spinner /> : null}
         </TouchableArea>
       </Flex>
     </Screen>
