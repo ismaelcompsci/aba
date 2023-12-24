@@ -73,6 +73,8 @@ export default function Layout() {
     (async () => {
       try {
         await TrackPlayer.setupPlayer();
+        await TrackPlayer.reset();
+        await TrackPlayer.stop();
       } catch (error) {
         console.log("[TRACKPLAYER] player already setup");
       }
@@ -84,25 +86,23 @@ export default function Layout() {
   const animation = IS_IOS ? "fade" : "default";
 
   return (
-    <BottomSheetModalProvider>
-      <QueryClientProvider client={queryClient}>
-        <TamaguiProvider config={appConfig} defaultTheme="system">
-          <Theme name={appTheme.scheme}>
-            <DataUpdaters />
-            <SocketProvider>
-              <Stack
-                initialRouteName="index"
-                screenOptions={{
-                  header: Header,
-                  animation: animation,
-                }}
-              />
-              <AppModals />
-            </SocketProvider>
-          </Theme>
-        </TamaguiProvider>
-      </QueryClientProvider>
-    </BottomSheetModalProvider>
+    <TamaguiProvider config={appConfig} defaultTheme="dark">
+      <BottomSheetModalProvider>
+        <QueryClientProvider client={queryClient}>
+          <DataUpdaters />
+          <SocketProvider>
+            <Stack
+              initialRouteName="index"
+              screenOptions={{
+                header: Header,
+                animation: animation,
+              }}
+            />
+            <AppModals />
+          </SocketProvider>
+        </QueryClientProvider>
+      </BottomSheetModalProvider>
+    </TamaguiProvider>
   );
 }
 
@@ -114,6 +114,13 @@ const DataUpdaters = () => {
 
   const { isFinished } = useAudioPlayerProgress();
   const colors = useTheme();
+
+  useEffect(() => {
+    return () => {
+      TrackPlayer.reset();
+      setShowPlayer({ open: false, playing: false });
+    };
+  }, []);
 
   useEffect(() => {
     const getLibraries = async () => {
@@ -201,7 +208,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
     name === "playlists/[id]" ||
     name === "book/[bookId]/[episodeId]" ||
     name === "collection/[id]" ||
-    name === "reader"
+    name === "reader" ||
+    name === "test-page"
   ) {
     return null;
   }
@@ -238,8 +246,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             <TouchableArea
               hapticFeedback
               hitSlop={10}
-              // onPress={() => router.push("/test-page")}
-              onPress={() => router.push("/search/")}
+              onPress={() => router.push("/test-page")}
+              // onPress={() => router.push("/search/")}
             >
               <Search color={color.color.get()} />
             </TouchableArea>

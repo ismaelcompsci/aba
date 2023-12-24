@@ -21,14 +21,16 @@ export const useTracks = () => {
     }
   });
 
-  useEffect(() => {
-    (async () => {
-      const track = await TrackPlayer.getActiveTrack();
-      const tracks = await TrackPlayer.getQueue();
+  const getTracks = async () => {
+    const track = await TrackPlayer.getActiveTrack();
+    const tracks = await TrackPlayer.getQueue();
 
-      setAudioTracks(tracks as unknown as AudioPlayerTrack[]);
-      setCurrentTrack(track ? (track as unknown as AudioPlayerTrack) : null);
-    })();
+    setAudioTracks(tracks as unknown as AudioPlayerTrack[]);
+    setCurrentTrack(track ? (track as unknown as AudioPlayerTrack) : null);
+  };
+
+  useEffect(() => {
+    getTracks();
   }, []);
 
   return {

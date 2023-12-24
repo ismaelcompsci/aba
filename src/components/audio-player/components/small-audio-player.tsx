@@ -41,7 +41,7 @@ export const AudioPlayerInfo = ({
           <Text fontSize={14} fontWeight={"$7"}>
             {audiobookInfo.title}
           </Text>
-          <Text fontSize={14} color={"$gray10"} numberOfLines={1}>
+          <Text fontSize={14} numberOfLines={1}>
             {audiobookInfo.author}
           </Text>
         </Flex>
@@ -56,15 +56,8 @@ export const SmallAudioPlayerWrapper = styled(Flex, {
   height: SMALL_PLAYER_HEIGHT,
   borderRadius: "$7",
   padding: "$3",
-  bg: "$backgroundHover",
+  bg: "$backgroundPress",
   mx: "$4",
   justifyContent: "center",
-  shadowColor: "#000",
-  shadowOffset: {
-    width: 0,
-    height: 5,
-  },
-  shadowOpacity: 0.23,
-  shadowRadius: 2.62,
   space: "$2",
 });

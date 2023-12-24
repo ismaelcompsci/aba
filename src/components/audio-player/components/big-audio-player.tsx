@@ -8,6 +8,7 @@ import { Bookmark, ChevronDown, List } from "@tamagui/lucide-icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
+import { IS_ANDROID } from "../../../constants/consts";
 import { useOrientation } from "../../../hooks/use-orientation";
 import { bookmarksModalAtom } from "../../../state/app-state";
 import { appThemeAtom } from "../../../state/local-state";
@@ -70,6 +71,7 @@ const BigAudioPlayer = ({
           pr={right ? right : "$4"}
           pb={orientation === "PORTRAIT" ? bottom : bottom + 40}
           justifyContent="space-between"
+          w={"100%"}
         >
           <Flex row ai={"center"} width={"100%"} justifyContent="space-between">
             <TouchableArea
@@ -90,7 +92,6 @@ const BigAudioPlayer = ({
           <Flex
             jc={"center"}
             ai="center"
-            shadowColor={"$shadowColor"}
             style={{
               shadowOffset: {
                 width: 0,
@@ -100,6 +101,7 @@ const BigAudioPlayer = ({
               shadowRadius: 5.46,
               elevation: 9,
             }}
+            w={"100%"}
           >
             <FastImage
               style={{
@@ -120,9 +122,6 @@ const BigAudioPlayer = ({
           <ProgressSlider
             showThumb
             color={colors.color.get()}
-            trackProps={{
-              bg: "$gray8",
-            }}
             audiobookInfo={audiobookInfo}
           />
           {/* CONTROLS */}
@@ -150,6 +149,7 @@ const ShowBookmarksButton = ({ libraryItemId }: { libraryItemId: string }) => {
       height={"$4"}
       alignItems={"center"}
       justifyContent={"center"}
+      hitSlop={24}
       onPress={() =>
         setBookmarksModalAtom({ open: true, libraryItemId: libraryItemId })
       }
@@ -227,9 +227,9 @@ const BigAudioPlayerBackground = ({
     })();
   }, [cover]);
 
-  if (appScheme.scheme === "oled") {
+  if (appScheme.scheme === "oled" || IS_ANDROID) {
     return (
-      <Flex height={height} borderRadius={"$7"}>
+      <Flex height={height} borderRadius={"$7"} bg="$backgroundPress">
         {children}
       </Flex>
     );

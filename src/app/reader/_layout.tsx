@@ -244,8 +244,16 @@ const BottomEbookReaderMenu = () => {
         }}
         themeInverse
       >
-        <Slider.Track>
-          <Slider.TrackActive />
+        <Slider.Track
+          $theme-oled={{
+            bg: "$gray10",
+          }}
+        >
+          <Slider.TrackActive
+            $theme-oled={{
+              bg: "$gray5",
+            }}
+          />
         </Slider.Track>
         <Slider.Thumb size={"$0.75"} index={0} circular elevate />
       </Slider>

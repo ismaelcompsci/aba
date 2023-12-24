@@ -16,16 +16,13 @@ import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { awaitTimeout, generateUUID } from "../../utils/utils";
-import Sheet from "../custom-components/sheet";
-import { Flex } from "../layout/flex";
 
-import BigAudioPlayer from "./components/big-audio-player";
 import { sliderLoadingAtom } from "./components/progress-slider";
 import {
   AudiobookInfo,
-  AudioPlayerInfo,
   SmallAudioPlayerWrapper,
 } from "./components/small-audio-player";
+import { Player } from "./player";
 
 const playbackSessionIdAtom = selectAtom(
   playbackSessionAtom,
@@ -43,10 +40,6 @@ const AudioPlayerContainer = () => {
   const setPlaybackSession = useSetAtom(playbackSessionAtom);
   const playbackSessionId = useAtomValue(playbackSessionIdAtom);
   const setSliderLoadingAtom = useSetAtom(sliderLoadingAtom);
-
-  const [open, setOpen] = useState(false);
-
-  // const colors = useTheme();
 
   const setupPlayer = async (
     session: PlaybackSessionExpanded,
@@ -260,51 +253,15 @@ const AudioPlayerContainer = () => {
     };
   }, []);
 
-  const renderHeader = () => {
-    return (
-      <SmallAudioPlayerWrapper onPress={() => setOpen(true)}>
-        {ready ? (
-          <>
-            <AudioPlayerInfo audiobookInfo={audiobookInfo} color="white" />
-            {/* <ProgressSlider
-              showThumb={false}
-              color={colors.color.get()}
-              audiobookInfo={audiobookInfo}
-            /> */}
-          </>
-        ) : (
-          <Spinner />
-        )}
-      </SmallAudioPlayerWrapper>
-    );
-  };
-
-  return (
-    <Sheet
-      sheetStyles={{ backgroundColor: "transparent" }}
-      renderHeader={renderHeader}
-      open={open}
-      onOpenChange={setOpen}
-      controlled
-    >
-      {ready ? (
-        <BigAudioPlayer
-          audiobookInfo={audiobookInfo}
-          setOpen={setOpen}
-          libraryItemId={showPlayer.libraryItemId ?? ""}
-        />
-      ) : (
-        <Flex
-          fill
-          centered
-          borderRadius={"$7"}
-          paddingBottom={0}
-          bg={"$background"}
-        >
-          <Spinner />
-        </Flex>
-      )}
-    </Sheet>
+  return ready ? (
+    <Player
+      audiobookInfo={audiobookInfo}
+      libraryItemId={showPlayer.libraryItemId ?? ""}
+    />
+  ) : (
+    <SmallAudioPlayerWrapper mb={44}>
+      <Spinner />
+    </SmallAudioPlayerWrapper>
   );
 };
 

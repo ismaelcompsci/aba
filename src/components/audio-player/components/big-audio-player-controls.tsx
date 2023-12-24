@@ -16,7 +16,7 @@ import { PlayPauseControl } from "./play-pause-control";
 
 function BigAudioPlayerControls() {
   const colors = useTheme();
-  const color = colors.color.get();
+  const color = colors.color?.get();
 
   return (
     <Flex row ai={"center"} width={"100%"} $gtSm={{ justifyContent: "center" }}>
@@ -58,7 +58,7 @@ const ForwardButton = () => {
       w={"$6"}
       onPress={() => jumpForwards(SEEK_INTERVAL)}
     >
-      <FastForward size="$3" fill={colors.color.get()} />
+      <FastForward size="$3" fill={colors.color?.get()} />
     </TouchableArea>
   );
 };
@@ -76,7 +76,7 @@ const BackwardButton = () => {
       w={"$6"}
       onPress={() => jumpBackwards(SEEK_INTERVAL)}
     >
-      <Rewind size="$3" fill={colors.color.get()} />
+      <Rewind size="$3" fill={colors.color?.get()} />
     </TouchableArea>
   );
 };
