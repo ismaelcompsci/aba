@@ -81,9 +81,9 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace 'com.ismael.aba'
+    namespace 'com.ismael.adb.aba'
     defaultConfig {
-        applicationId 'com.ismael.aba'
+        applicationId 'com.ismael.adb.aba'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

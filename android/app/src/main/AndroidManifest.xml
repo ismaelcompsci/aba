@@ -28,6 +28,7 @@
         <data android:scheme="aba"/>
         <data android:scheme="com.ismael.aba"/>
         <data android:scheme="exp+aba"/>
+        <data android:scheme="com.ismael.adb.aba"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

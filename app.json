@@ -28,7 +28,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ismael.aba",
+      "bundleIdentifier": "com.ismael.adb.aba",
       "infoPlist": {
         "UIBackgroundModes": [
           "audio"
@@ -40,7 +40,7 @@
         "foregroundImage": "./assets/ic_foreground.png",
         "backgroundImage": "./assets/ic_background.png"
       },
-      "package": "com.ismael.aba"
+      "package": "com.ismael.adb.aba"
     },
     "extra": {
       "router": {
