@@ -92,13 +92,27 @@ function BookMoreMenu({
 
   const removeFromServer = async () => {
     try {
+      Burnt.alert({
+        title: "Deleting...",
+        message: "",
+        preset: "spinner",
+        duration: 30,
+      });
+
       await axios.delete(
         `${serverAddress}/api/podcasts/${itemId}/episode/${episodeId}?hard=1`,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
 
+      await Burnt.dismissAllAlerts();
+      Burnt.alert({
+        title: "Podcast deleted.",
+        preset: "done",
+        duration: 1,
+      });
+
       await invalidateQueries();
-      router.push(`/book/${itemId}`);
+      router.replace(`/book/${itemId}`);
     } catch (error) {
       console.log("[BOOK_MORE_MENU] removeFromServer error", error);
     }

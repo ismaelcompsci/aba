@@ -123,7 +123,7 @@ const Sheet = ({
     "worklet";
 
     navHeight.value = NAV_HEIGHT + 10;
-    sheetHeight.value = withSpring(-_maxHeight, springConfig);
+    sheetHeight.value = withSpring(-dimensions.window.height, springConfig);
     headerOpacity.value = withSpring(0, springConfig);
     position.value = "maximised";
     onOpenChange && runOnJS(onOpenChange)(true);

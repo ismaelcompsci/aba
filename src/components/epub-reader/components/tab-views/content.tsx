@@ -123,7 +123,7 @@ export const Content = () => {
 
   const scrollToCurrentItem = () => {
     const itemIndex = newToc.findIndex((value) => {
-      return value.id === epubReaderCurrentLocation?.tocItem.id;
+      return value.id === epubReaderCurrentLocation?.tocItem?.id;
     });
 
     listRef.current?.scrollToIndex({ index: itemIndex, animated: true });

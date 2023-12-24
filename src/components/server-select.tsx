@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Popover, PopoverProps, Text, useTheme } from "tamagui";
 
+import { IS_ANDROID } from "../constants/consts";
 import {
   changingLibraryAtom,
   currentLibraryAtom,
@@ -47,17 +48,17 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
       size="$3"
       offset={{
         crossAxis: 20,
-        mainAxis: 15,
+        mainAxis: IS_ANDROID ? 40 : 20,
       }}
+      stayInFrame
       allowFlip
       {...props}
       open={open}
       onOpenChange={setOpen}
     >
-      <Popover.Trigger asChild>
-        <Flex
+      <Popover.Trigger>
+        <TouchableArea
           minWidth={80}
-          flexDirection="row"
           alignItems="center"
           gap="$2"
           borderWidth="$1"
@@ -67,6 +68,8 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
           px="$2"
           py="$1.5"
           opacity={open ? 0.5 : 1}
+          flexDirection="row"
+          onPress={() => setOpen(true)}
         >
           <Icon size={14} color={colors.color.get()} />
           <Text
@@ -77,7 +80,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
           >
             {library?.name ?? ""}
           </Text>
-        </Flex>
+        </TouchableArea>
       </Popover.Trigger>
 
       <Popover.Content
