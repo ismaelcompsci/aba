@@ -49,6 +49,13 @@ interface EBookReaderProps {
  * Dismiss ActionMode for android on view press -> https://stackoverflow.com/a/77408989
  *
  * Touch events for open menu and pdf swiping inside webview. because android is bad
+ *
+ *
+ * TODO
+ * fix scrolling mode
+ *
+ * rebuild the touch system
+ * open menu stuff
  */
 
 const EBookReader = ({

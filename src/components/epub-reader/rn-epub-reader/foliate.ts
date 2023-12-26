@@ -1614,10 +1614,10 @@ class Paginator extends HTMLElement {
   #touchState;
   #touchScrolled;
   pageAnimation = true;
-  #canGoToNextSection = false;
-  #canGoToPrevSection = false;
-  #goingNext = false;
-  #goingPrev = false;
+  // #canGoToNextSection = false
+  // #canGoToPrevSection = false
+  // #goingNext = false
+  // #goingPrev = false
   pause = false;
   constructor() {
     super();
@@ -1951,15 +1951,15 @@ class Paginator extends HTMLElement {
     const state = this.#touchState;
     if (state.pinched) return;
     state.pinched = globalThis.visualViewport.scale > 1;
-    if (this.scrolled || state.pinched) {
-      if (this.hasChecked && this.scrolled) {
-        this.hasChecked = false;
-        this.#check();
-      } else {
-        this.hasChecked = true;
-      }
-      return;
-    }
+    // if (this.scrolled || state.pinched) {
+    //     if (this.hasChecked && this.scrolled) {
+    //         this.hasChecked = false
+    //         this.#check()
+    //     } else {
+    //         this.hasChecked = true
+    //     }
+    //     return
+    // }
     if (e.touches.length > 1) {
       if (this.#touchScrolled) e.preventDefault();
       return;
@@ -1982,28 +1982,24 @@ class Paginator extends HTMLElement {
   #onTouchEnd() {
     this.#touchScrolled = false;
     if (this.scrolled) {
-      if (this.#canGoToNextSection) {
-        this.nextSection().then(() => {
-          this.#goingNext = true;
-        });
-        this.dispatchEvent(new CustomEvent('next', {
-          detail: {
-            show: false
-          }
-        }));
-      }
-      if (this.#canGoToPrevSection) {
-        this.prevSection().then(() => {
-          this.#goingPrev = true;
-        });
-        this.dispatchEvent(new CustomEvent('previous', {
-          detail: {
-            show: false
-          }
-        }));
-      }
-      this.#canGoToPrevSection = false;
-      this.#canGoToNextSection = false;
+      // if (this.#canGoToNextSection) {
+      //     this.nextSection().then(() => {
+      //         this.#goingNext = true
+      //     })
+      //     this.dispatchEvent(new CustomEvent('next', {detail: {show: false}}))
+      // }
+
+      // if (this.#canGoToPrevSection) {
+      //     this.prevSection().then(() => {
+      //         this.#goingPrev = true
+      //     })
+      //     this.dispatchEvent(new CustomEvent('previous', {detail: {show: false}}))
+
+      // }
+
+      // this.#canGoToPrevSection = false
+      // this.#canGoToNextSection = false
+
       return;
     }
 
@@ -2014,51 +2010,39 @@ class Paginator extends HTMLElement {
       if (globalThis.visualViewport.scale === 1) this.snap(this.#touchState.vx, this.#touchState.vy);
     });
   }
-  #check() {
-    if (this.scrolled) {
-      const scrollTop = this.#container.scrollTop;
-      const scrollheight = this.#container.scrollHeight;
-      const start = scrollTop;
-      const end = this.end - scrollheight;
-      if (end > 50) {
-        if (this.atEnd || this.#canGoToPrevSection || this.#canGoToNextSection) return;
-        this.#canGoToNextSection = true;
-        this.dispatchEvent(new CustomEvent('next', {
-          detail: {
-            show: true
-          }
-        }));
-        return;
-      }
-      if (start < -50) {
-        if (this.atStart || this.#canGoToNextSection || this.#canGoToPrevSection) return;
-        this.#canGoToPrevSection = true;
-        this.dispatchEvent(new CustomEvent('previous', {
-          detail: {
-            show: true
-          }
-        }));
-        return;
-      }
-      this.#canGoToPrevSection = false;
-      this.#canGoToNextSection = false;
-      if (this.sentEvent && (this.#canGoToPrevSection || this.#canGoToPrevSection)) {
-        this.sentEvent = false;
-        this.dispatchEvent(new CustomEvent('next', {
-          detail: {
-            show: false
-          }
-        }));
-        this.dispatchEvent(new CustomEvent('previous', {
-          detail: {
-            show: false
-          }
-        }));
-      } else {
-        this.sentEvent = true;
-      }
-    }
-  }
+  // #check() {
+  //     if (this.scrolled) {
+  //         const scrollTop = this.#container.scrollTop
+  //         const scrollheight = this.#container.scrollHeight
+
+  //         const start = scrollTop
+  //         const end = this.end - scrollheight
+
+  //         if (end > 50) {
+  //             if (this.atEnd || this.#canGoToPrevSection || this.#canGoToNextSection) return
+  //             this.#canGoToNextSection = true
+  //             this.dispatchEvent(new CustomEvent('next', {detail: {show: true}}))
+  //             return
+  //         }
+  //         if (start < -50) {
+  //             if (this.atStart || this.#canGoToNextSection || this.#canGoToPrevSection) return
+  //             this.#canGoToPrevSection = true
+  //             this.dispatchEvent(new CustomEvent('previous', {detail: {show: true}}))
+  //             return
+  //         }
+
+  //         this.#canGoToPrevSection = false
+  //         this.#canGoToNextSection = false
+
+  //         if (this.sentEvent && (this.#canGoToPrevSection || this.#canGoToPrevSection)) {
+  //             this.sentEvent = false
+  //             this.dispatchEvent(new CustomEvent('next', { detail: { show: false } }))
+  //             this.dispatchEvent(new CustomEvent('previous', { detail: { show: false } }))
+  //         } else {
+  //             this.sentEvent = true
+  //         }
+  //     }
+  // }
   // allows one to process rects as if they were LTR and horizontal
   #getRectMapper() {
     if (this.scrolled) {
@@ -2142,20 +2126,25 @@ class Paginator extends HTMLElement {
     }
     // if anchor is a fraction
     if (this.scrolled) {
-      if (this.#goingPrev || this.#goingNext) {
-        if (this.#goingPrev) {
-          await this.#scrollTo(this.viewSize, 'anchor');
-          this.#goingPrev = false;
-          return;
-        } else {
-          await this.#scrollTo(0, 'anchor');
-          this.#goingNext = false;
-          return;
-        }
-      }
-      // idk what this.#anchor is ????
-      this.#anchor && debugMessage(\`[SCROLLTOANCHOR] anchor \${JSON.stringify(this.#anchor)} \${this.#anchor}\`);
-      // await this.#scrollTo(this.#anchor * this.viewSize, 'anchor')
+      // if (this.#goingPrev || this.#goingNext) {
+      //     if (this.#goingPrev) {
+      //         await this.#scrollTo(this.viewSize, 'anchor')
+      //         this.#goingPrev = false
+      //         return
+      //     } else {
+      //         await this.#scrollTo(0, 'anchor')
+      //         this.#goingNext = false
+      //         return
+      //     }
+      // }
+      // // idk what this.#anchor is ????
+      // this.#anchor &&
+      //   debugMessage(
+      //       \`[SCROLLTOANCHOR] anchor \${JSON.stringify(this.#anchor)} \${
+      //           this.#anchor
+      //       }\`,
+      //   )
+      await this.#scrollTo(this.#anchor * this.viewSize, 'anchor');
       return;
     }
     const {
@@ -9793,13 +9782,22 @@ const main_getLang = el => {
   if (lang) return lang;
   if (el.parentElement) return main_getLang(el.parentElement);
 };
+
+/**
+ * playing state 
+ * location change 
+ * stop scrolling every word scroll only when at the end
+ * 
+ * 
+ */
+
 class Reader {
   annotations = new Map();
   annotationsByValue = new Map();
   style = {};
   isPdf;
   highlight_color = "yellow";
-  #prevLocation
+  #prevLocation;
   constructor(bookPath, initLocation) {
     this.initLocation = initLocation;
     if (bookPath) {
@@ -9820,8 +9818,8 @@ class Reader {
     } else {
       this.initLocation ? await this.view.goTo(Number(this.initLocation)) : this.view.renderer.next();
     }
-    this.sectionFractions = this.view.getSectionFractions()
-    await  this.getCover();
+    this.sectionFractions = this.view.getSectionFractions();
+    await this.getCover();
     const onReadyPayload = {
       metadata: this.book.metadata,
       toc: this.book.toc,
@@ -9860,7 +9858,7 @@ class Reader {
   };
   #handleEvents = () => {
     this.view.addEventListener("relocate", e => {
-      if (this.#prevLocation === e.detail.fraction) return;    
+      if (this.#prevLocation === e.detail.fraction) return;
       const {
         heads,
         feet
@@ -9962,14 +9960,15 @@ class Reader {
       e.preventDefault();
     });
     this.view.addEventListener("load", e => this.#onLoad(e));
-    if (!this.isPdf) {
-      this.view.renderer.addEventListener("next", this.showNext, {
-        passive: false
-      });
-      this.view.renderer.addEventListener("previous", this.showPrevious, {
-        passive: false
-      });
-    }
+
+    // if (!this.isPdf) {
+    //   this.view.renderer.addEventListener("next", this.showNext, {
+    //     passive: false,
+    //   });
+    //   this.view.renderer.addEventListener("previous", this.showPrevious, {
+    //     passive: false,
+    //   });
+    // }
   };
 
   /**
@@ -10028,8 +10027,11 @@ class Reader {
         this.addAnnotation(action);
         break;
       case "copy":
-        const value = this.currentlySelected.range.toString()
-        emit({type: "copyAction", value})
+        const value = this.currentlySelected.range.toString();
+        emit({
+          type: "copyAction",
+          value
+        });
         break;
       default:
         break;
@@ -10054,6 +10056,10 @@ class Reader {
       this.annotationsByValue.set(ann.value, ann);
     });
   };
+  speakFromHere = () => {};
+  startTTS = () => {};
+  resumeTTS = () => {};
+  nextTTS = () => {};
   showNext = ev => {
     const nextLabel = null;
     emit({
@@ -10106,377 +10112,6 @@ class Reader {
   };
 }
 
-// class Reader {
-//   #tocMap;
-//   #isPdf;
-//   #currentTocPos;
-//   #previousFraction;
-//   currentAnnotation = null;
-//   annotations = new Map();
-//   annotationsByValue = new Map();
-
-//   open = async (file) => {
-//     try {
-//       this.#isPdf = await isPDF(file);
-//       this.book = await getView(file);
-
-//       this.view = document.createElement("foliate-view");
-//       this.view.addEventListener("relocate", this.onRelocate);
-
-//       this.view.addEventListener("create-overlay", (e) => {
-//         const { index } = e.detail;
-//         const list = this.annotations.get(index);
-//         if (list)
-//           for (const annotation of list) this.view.addAnnotation(annotation);
-//       });
-
-//       this.view.addEventListener("show-annotation", (e) => {
-//         const { value, index, range } = e.detail;
-//         const pos = getPosition(range);
-//         const ann = this.annotationsByValue.get(value);
-//         if (ann) {
-//           ann.range = range;
-//           this.currentAnnotation = ann;
-//           emit({
-//             type: "annotationClick",
-//             index,
-//             range,
-//             value,
-//             pos,
-//           });
-//         }
-//       });
-
-//       this.view.addEventListener("draw-annotation", (e) => {
-//         const { draw, annotation, doc, range } = e.detail;
-//         const { color } = annotation;
-//         if (["underline", "squiggly", "strikethrough"].includes(color)) {
-//           const { defaultView } = doc;
-//           const node = range.startContainer;
-//           const el = node.nodeType === 1 ? node : node.parentElement;
-//           const { writingMode } = defaultView.getComputedStyle(el);
-//           draw(Overlayer[color], {
-//             writingMode,
-//             color: "yellow",
-//           });
-//         } else {
-//           draw(Overlayer.highlight, {
-//             color,
-//           });
-//         }
-//       });
-
-//       this.view.addEventListener("external-link", (e) => {
-//         e.preventDefault();
-//       });
-
-//       this.view.addEventListener("load", (e) => this.#onLoad(e));
-//       await this.view.open(this.book);
-//       document.body.append(this.view);
-
-//       if (!this.#isPdf) {
-//         this.view.renderer.addEventListener("next", this.showNext, {
-//           passive: false,
-//         });
-//         this.view.renderer.addEventListener("previous", this.showPrevious, {
-//           passive: false,
-//         });
-//       }
-
-//       const { book } = this.view;
-//       const toc = book.toc;
-//       this.book = book;
-
-//       let count = 0;
-//       toc?.flatMap((item, i) => {
-//         if (item.subitems?.length > 0) {
-//           return item.subitems.map((subitem) => {
-//             this.#tocMap.set(count, { label: subitem?.label, id: subitem?.id });
-//             count += 1;
-//           });
-//         } else {
-//           this.#tocMap.set(count, { label: item?.label, id: item?.id });
-//           count += 1;
-//         }
-//       });
-
-//       if (!this.#isPdf) {
-//         this.initalLocation
-//           ? await this.view.goTo(this.initalLocation)
-//           : this.view.renderer.next();
-//       } else {
-//         this.initalLocation
-//           ? await this.view.goTo(Number(this.initalLocation))
-//           : this.view.renderer.next();
-//       }
-
-//       const onReadyPayload = {
-//         metadata: book.metadata,
-//         toc: book.toc,
-//       };
-
-//       await this.getCover();
-//       emit({ type: "onReady", book: onReadyPayload });
-//     } catch (err) {
-//       debugMessage("[READER_OPEN_ERROR] " + err);
-//       emit({
-//         type: "onDisplayError",
-//         reason: "book-error-failed-to-open",
-//       });
-//     }
-//   };
-
-//   #onLoad = (ev) => {
-//     debugMessage("ON LOAD");
-
-//     /**
-//      * @type {Document}
-//      */
-//     const doc = ev.detail.doc;
-//     const index = ev.detail.index;
-
-//     let annotation = null;
-//     this.prevValueAnn = null;
-//     doc.addEventListener("selectionchange", () => {
-//       const range = getSelectionRange(doc);
-//       if (!range) return;
-//       this.view.renderer.pause = true;
-
-//       if (this.prevValue) {
-//         this.view.addAnnotation(
-//           {
-//             value: this.prevValue,
-//             color: "red",
-//           },
-//           true
-//         );
-//       }
-
-//       if (this.playing) {
-//         const pos = getPosition(range);
-//         const value = this.view.getCFI(index, range);
-//         this.selectedAnn.range = range;
-//         this.view.addAnnotation(
-//           {
-//             value: value,
-//             color: "red",
-//           },
-//           false
-//         );
-//         doc.getSelection().removeAllRanges();
-//         this.prevValue = value;
-//       }
-//     });
-
-//     doc.addEventListener("touchend", () => {
-//       this.view.renderer.pause = false;
-//       const range = getSelectionRange(doc);
-//       if (!range) return;
-//       const pos = getPosition(range);
-//       const value = this.view.getCFI(index, range);
-//       const lang = main_getLang(range.commonAncestorContainer);
-//       annotation = {
-//         index,
-//         range,
-//         lang,
-//         value,
-//         pos,
-//       };
-//       this.currentAnnotation = annotation;
-//       this.annotationsByValue.set(annotation.value, annotation);
-//       // if (annotation) {
-//       //   this.currentAnnotation = annotation;
-//       //   this.annotationsByValue.set(annotation.value, annotation)
-//       // }
-//     });
-//   };
-
-//   setAnnotations = (annotations) => {
-//     annotations.forEach((ann) => {
-//       this.view.addAnnotation(ann);
-//       const list = this.annotations.get(ann.index);
-//       if (list) list.push(ann);
-//       else this.annotations.set(ann.index, [ann]);
-//       this.annotationsByValue.set(ann.value, ann);
-//     });
-//   };
-
-//   copy = () => {
-//     const text = this.currentAnnotation.range.toString();
-//     if (text)
-//       emit({
-//         type: "menuAction",
-//         value: text,
-//       });
-//     else
-//       emit({
-//         type: "menuAction",
-//         error: "copy-error",
-//       });
-//   };
-
-//   highlight = (color) => {
-//     // get value from args check if it extis if it does edit it
-//     if (this.currentAnnotation) {
-//       this.view.addAnnotation(
-//         {
-//           value: this.currentAnnotation.value,
-//           color: color,
-//         },
-//         false
-//       );
-//       this.currentAnnotation.color = color;
-//       this.currentAnnotation.created = new Date().toISOString();
-//       if (this.currentAnnotation.range) {
-//         this.currentAnnotation.text = this.currentAnnotation.range.toString();
-//       }
-//       const annotations = this.annotations.get(this.currentAnnotation.index);
-//       if (annotations) annotations.push(this.currentAnnotation);
-//       else
-//         this.annotations.set(this.currentAnnotation.index, [
-//           this.currentAnnotation,
-//         ]);
-
-//       emit({
-//         type: "newAnnotation",
-//         annotation: this.currentAnnotation,
-//       });
-
-//       this.currentAnnotation = null;
-//     }
-//   };
-
-//   speak_from_here = () => {
-//     this.playing = true;
-//     this.view.initTTS().then(() =>
-//       emit({
-//         type: "tts",
-//         action: "speak_from_here",
-//         ssml: this.view.tts.from(this.currentAnnotation.range),
-//       })
-//     );
-//   };
-
-//   resumeTTS = () => {
-//     const ssml = this.view.tts.resume();
-//     this.view.initTTS().then(() =>
-//       emit({
-//         type: "tts",
-//         action: "resume",
-//         ssml: ssml,
-//       })
-//     );
-//   };
-
-//   startTTS = () => {
-//     let ssml;
-//     if (this.currentLocation?.range) {
-//       ssml = this.view.tts.from(this.currentLocation.range);
-//     } else {
-//       ssml = this.view.tts.start();
-//     }
-
-//     emit({
-//       type: "tts",
-//       action: "start",
-//       ssml: ssml,
-//     });
-//   };
-
-//   nextTTS = () => {
-//     const ssml = this.view.tts.next();
-//     emit({
-//       type: "tts",
-//       action: "next",
-//       ssml: ssml,
-//     });
-//   };
-
-//   setPlaying = (playing) => {
-//     this.playing = playing;
-//   };
-
-//   showNext = (ev) => {
-//     /**
-//      * TODO instead of rendering a component in react do it here.
-//      */
-//     const nextLabel = ev.detail.show
-//       ? this.#tocMap.get(this.#currentTocPos?.id + 1)?.label
-//       : null;
-
-//     emit({
-//       type: "showNext",
-//       show: ev.detail.show,
-//       label: nextLabel,
-//     });
-//   };
-
-//   showPrevious = (ev) => {
-//     const prevLabel = ev.detail.show
-//       ? this.#tocMap.get(this.#currentTocPos?.id - 1)?.label
-//       : null;
-//     emit({
-//       type: "showPrevious",
-//       show: ev.detail.show,
-//       label: prevLabel,
-//     });
-//   };
-
-//   onRelocate = (e) => {
-//     const { section, fraction, location, tocItem, pageItem, cfi, time } =
-//       e.detail;
-
-//     this.currentLocation = e.detail;
-//     if (this.#previousFraction !== fraction) {
-//       emit({
-//         type: "onLocationChange",
-//         section,
-//         fraction,
-//         location,
-//         tocItem,
-//         pageItem,
-//         cfi,
-//         time,
-//       });
-//     }
-//     this.#previousFraction = fraction;
-//   };
-
-//   setTheme = ({ style, layout }) => {
-//     Object.assign(this.style, style);
-//     const { theme } = style;
-
-//     const \$style = document.documentElement.style;
-//     \$style.setProperty("--bg", theme.bg);
-//     \$style.setProperty("--fg", theme.fg);
-
-//     const renderer = this.view?.renderer;
-
-//     if (renderer) {
-//       renderer.setAttribute("flow", layout.flow ? "scrolled" : "paginated");
-//       renderer.setAttribute("gap", layout.gap * 100 + "%");
-//       renderer.setAttribute("max-inline-size", layout.maxInlineSize + "px");
-//       renderer.setAttribute("max-block-size", layout.maxBlockSize + "px");
-//       renderer.setAttribute("max-column-count", layout.maxColumnCount);
-//       renderer.setStyles?.(getCSS(this.style));
-//     }
-//   };
-//   async getCover() {
-//     try {
-//       const blob = await this.book.getCover?.();
-//       const base64Image = blob ? await blobToBase64(blob) : null;
-
-//       emit({
-//         type: "cover",
-//         cover: base64Image,
-//       });
-//     } catch (e) {
-//       console.warn(e);
-//       console.warn("Failed to load cover");
-//       return null;
-//     }
-//   }
-// }
 
 /* harmony default export */ const main = (Reader);
 __webpack_exports__ = __webpack_exports__["default"];
@@ -10484,4 +10119,5 @@ __webpack_exports__ = __webpack_exports__["default"];
 /******/ })()
 ;
 });
-//# sourceMappingURL=foliate.js.map`;
+//# sourceMappingURL=foliate.js.map
+`;

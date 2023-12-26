@@ -21,7 +21,9 @@ const ChaptersModal = () => {
     TrackPlayer.skip(track.id);
   };
 
-  if (!chaptersModal.open) return null;
+  if (!chaptersModal.open) {
+    return null;
+  }
 
   return (
     <Modal
@@ -32,7 +34,7 @@ const ChaptersModal = () => {
       hide={() => setChaptersModal({ open: false })}
       title="Chapters"
     >
-      <Flex height={height * 0.8} width={width * 0.85} gap="$2">
+      <Flex height={height * 0.7} width={width * 0.85} gap="$2">
         <ScrollView flex={1} showsVerticalScrollIndicator={false}>
           {audioTracks?.map((track) => (
             <Flex

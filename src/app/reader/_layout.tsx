@@ -20,7 +20,7 @@ import {
 import { Stack } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { focusAtom } from "jotai-optics";
-import { Button, H6, Slider, Text } from "tamagui";
+import { Button, H6, Label, Separator, Slider, Switch, Text } from "tamagui";
 
 import { themes } from "../../components/epub-reader/components/themes";
 import {
