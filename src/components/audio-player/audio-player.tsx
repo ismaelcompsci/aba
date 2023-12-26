@@ -16,12 +16,10 @@ import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
 import { awaitTimeout, generateUUID } from "../../utils/utils";
+import { Flex } from "../layout/flex";
 
 import { sliderLoadingAtom } from "./components/progress-slider";
-import {
-  AudiobookInfo,
-  SmallAudioPlayerWrapper,
-} from "./components/small-audio-player";
+import { AudiobookInfo } from "./components/small-audio-player";
 import { Player } from "./player";
 
 const playbackSessionIdAtom = selectAtom(
@@ -259,9 +257,9 @@ const AudioPlayerContainer = () => {
       libraryItemId={showPlayer.libraryItemId ?? ""}
     />
   ) : (
-    <SmallAudioPlayerWrapper mb={44}>
+    <Flex height={64} w="100%" bg="$backgroundPress" borderRadius="$7" centered>
       <Spinner />
-    </SmallAudioPlayerWrapper>
+    </Flex>
   );
 };
 

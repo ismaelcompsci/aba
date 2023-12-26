@@ -5,15 +5,11 @@ import * as DropdownMenu from "zeego/dropdown-menu";
 import { showPlayerAtom } from "../../state/app-state";
 import { TouchableArea } from "../touchable/touchable-area";
 
-const AudioPlayerMore = ({
-  setOpen,
-}: {
-  setOpen?: (open: boolean) => void;
-}) => {
+const AudioPlayerMore = ({ closePlayer }: { closePlayer?: () => void }) => {
   const setShowPlayer = useSetAtom(showPlayerAtom);
 
-  const closePlayer = async () => {
-    setOpen && setOpen(false);
+  const _closePlayer = async () => {
+    closePlayer && closePlayer();
     setShowPlayer({ open: true, playing: false });
   };
 
@@ -34,7 +30,7 @@ const AudioPlayerMore = ({
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content>
-        <DropdownMenu.Item key="close" destructive onSelect={closePlayer}>
+        <DropdownMenu.Item key="close" destructive onSelect={_closePlayer}>
           <DropdownMenu.ItemTitle>Close player</DropdownMenu.ItemTitle>
           <DropdownMenu.ItemIcon ios={{ name: "xmark.circle.fill" }} />
         </DropdownMenu.Item>

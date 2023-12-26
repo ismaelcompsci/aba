@@ -41,7 +41,7 @@ export const AudioPlayerInfo = ({
           <Text fontSize={14} fontWeight={"$7"}>
             {audiobookInfo.title}
           </Text>
-          <Text fontSize={14} numberOfLines={1}>
+          <Text fontSize={12} numberOfLines={1} color={"$gray10"}>
             {audiobookInfo.author}
           </Text>
         </Flex>

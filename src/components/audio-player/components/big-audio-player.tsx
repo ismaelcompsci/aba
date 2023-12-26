@@ -32,23 +32,17 @@ const initialState = {
 
 const BigAudioPlayer = ({
   audiobookInfo,
-  setOpen,
+  closePlayer,
   libraryItemId,
 }: {
   libraryItemId: string;
   audiobookInfo: AudiobookInfo;
-  setOpen?: (open: boolean) => void;
+  closePlayer?: () => void;
 }) => {
   const { width, height } = useWindowDimensions();
   const { bottom, top, left, right } = useSafeAreaInsets();
 
-  const colors = useTheme();
   const orientation = useOrientation();
-
-  // const imageWidth = Math.min(
-  //   width * 0.7,
-  //   orientation === "PORTRAIT" ? 464 : 200
-  // );
 
   const imageWidth = orientation === "PORTRAIT" ? width * 0.9 : 150;
   const imageHeight = imageWidth;
@@ -61,7 +55,6 @@ const BigAudioPlayer = ({
       bg={"$backgroundPress"}
       width={width}
       height={height}
-      borderRadius={"$7"}
     >
       <BigAudioPlayerBackground cover={audiobookInfo.cover}>
         <Flex
@@ -82,11 +75,11 @@ const BigAudioPlayer = ({
               alignItems={"center"}
               justifyContent={"center"}
               bg="$background"
-              onPress={() => setOpen && setOpen(false)}
+              onPress={() => closePlayer && closePlayer()}
             >
               <ChevronDown />
             </TouchableArea>
-            <AudioPlayerMore setOpen={setOpen} />
+            <AudioPlayerMore closePlayer={closePlayer} />
           </Flex>
           {/* IMAGE */}
           <Flex
@@ -115,15 +108,15 @@ const BigAudioPlayer = ({
               }}
             />
           </Flex>
-          {/* INFO */}
-          <H3>{audiobookInfo.title}</H3>
-          <H6>{audiobookInfo.author}</H6>
-          {/* PROGRESS */}
-          <ProgressSlider
-            showThumb
-            color={colors.color.get()}
-            audiobookInfo={audiobookInfo}
-          />
+          <Flex space={"$2"}>
+            {/* INFO */}
+            <Flex>
+              <H3>{audiobookInfo.title}</H3>
+              <H6>{audiobookInfo.author}</H6>
+            </Flex>
+            {/* PROGRESS */}
+            <ProgressSlider audiobookInfo={audiobookInfo} />
+          </Flex>
           {/* CONTROLS */}
           <BigAudioPlayerControls />
           {/* ACTIONS */}
@@ -238,7 +231,7 @@ const BigAudioPlayerBackground = ({
       <LinearGradient
         height={height}
         colors={[gradientColors.colorOne.value, "$backgroundPress"]}
-        // locations={[0.1, 0.7]}
+        locations={[0.1, 0.65]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         borderRadius={"$7"}

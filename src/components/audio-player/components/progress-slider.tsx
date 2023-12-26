@@ -1,12 +1,15 @@
 import { useMemo, useState } from "react";
+import { createNativeWrapper } from "react-native-gesture-handler";
 import TrackPlayer, {
   Event,
   useTrackPlayerEvents,
 } from "react-native-track-player";
+import Slider from "@react-native-community/slider";
 import axios from "axios";
 import { atom, useAtom, useAtomValue } from "jotai";
-import { Slider, SliderTrackProps, Text } from "tamagui";
+import { Text } from "tamagui";
 
+import { IS_ANDROID } from "../../../constants/consts";
 import {
   playbackSessionAtom,
   serverAddressAtom,
@@ -22,15 +25,15 @@ const TIME_BETWEEN_SESSION_UPDATES = 10;
 
 export const sliderLoadingAtom = atom(true);
 
+const WrappedSlider = createNativeWrapper(Slider, {
+  shouldCancelWhenOutside: false,
+  shouldActivateOnStart: true,
+  disallowInterruption: true,
+});
+
 export const ProgressSlider = ({
-  color,
-  trackProps,
-  showThumb = false,
   audiobookInfo,
 }: {
-  color: string;
-  trackProps?: SliderTrackProps;
-  showThumb: boolean;
   audiobookInfo: AudiobookInfo;
 }) => {
   const serverAddress = useAtomValue(serverAddressAtom);
@@ -38,7 +41,6 @@ export const ProgressSlider = ({
   const [seek, setSeek] = useState(0);
   const [isSeeking, setIsSeeking] = useState(false);
 
-  const sliderLoading = useAtomValue(sliderLoadingAtom);
   const [playbackSession, setPlaybackSession] = useAtom(playbackSessionAtom);
 
   const {
@@ -64,12 +66,12 @@ export const ProgressSlider = ({
   const totalDuration = useMemo(() => getTotalDuration(), [audioTracks]);
 
   const handleSliderEnd = async (value: number) => {
-    seekTo(value, 1450, () => setIsSeeking(false));
+    seekTo(value, 1450, () => {
+      setIsSeeking(false);
+    });
   };
 
   const updateSession = async (force: boolean = false) => {
-    if (!showThumb) return;
-
     // udpate only every 15 seconds
     const nowInMilliseconds = Date.now();
     const nowInSeconds = nowInMilliseconds / 1000;
@@ -125,62 +127,36 @@ export const ProgressSlider = ({
     }
   };
 
-  if (sliderLoading) return null;
-
   return (
-    <Flex>
-      <Flex gap="$1" alignItems="center" justifyContent="space-between" mt={4}>
-        {!!overallCurrentTime && !!totalDuration ? (
-          <Slider
-            width={"100%"}
-            size={"$4"}
-            min={0}
-            value={[isSeeking ? seek : overallCurrentTime]}
-            max={totalDuration ? Math.floor(totalDuration) : 100}
-            step={1}
-            onValueChange={(value) => {
-              setIsSeeking(true);
-              setSeek(value[0]);
-            }}
-            disabled={!showThumb}
-            onSlideEnd={() => {
-              showThumb && handleSliderEnd(seek);
-            }}
-          >
-            <Slider.Track {...trackProps}>
-              <Slider.TrackActive bg={color} />
-            </Slider.Track>
-            {showThumb ? (
-              <Slider.Thumb size={"$1"} index={0} circular elevate />
-            ) : null}
-          </Slider>
-        ) : (
-          <PlaceHolderSlider showThumb={showThumb} />
-        )}
+    <Flex alignItems="center" justifyContent="space-between" mt={4}>
+      <WrappedSlider
+        style={{
+          width: "100%",
+        }}
+        value={isSeeking ? seek : overallCurrentTime}
+        minimumValue={0}
+        step={1}
+        onSlidingStart={() => setIsSeeking(true)}
+        onValueChange={setSeek}
+        onSlidingComplete={() => handleSliderEnd(seek)}
+        maximumValue={totalDuration ? Math.floor(totalDuration) : 99999}
+        tapToSeek
+      />
+      <Flex
+        row
+        ai={"center"}
+        jc={"space-between"}
+        w={IS_ANDROID ? "95%" : "100%"}
+      >
+        <Text fontSize={"$1"} color={"$gray10"}>
+          {formatSeconds(isSeeking ? seek : overallCurrentTime)}
+        </Text>
+        <Text fontSize={"$1"} color={"$gray10"}>
+          {formatSeconds(
+            totalDuration - (isSeeking ? seek : overallCurrentTime)
+          )}
+        </Text>
       </Flex>
-      {showThumb ? (
-        <Flex row ai={"center"} jc={"space-between"} pt={"$2.5"}>
-          <Text fontSize={"$1"} color={"$gray10"}>
-            {formatSeconds(isSeeking ? seek : overallCurrentTime)}
-          </Text>
-          <Text fontSize={"$1"} color={"$gray10"}>
-            {formatSeconds(
-              totalDuration - (isSeeking ? seek : overallCurrentTime)
-            )}
-          </Text>
-        </Flex>
-      ) : null}
     </Flex>
-  );
-};
-
-const PlaceHolderSlider = ({ showThumb }: { showThumb: boolean }) => {
-  return (
-    <Slider width={"100%"} size={"$4"} defaultValue={[0]} max={100} step={1}>
-      <Slider.Track>
-        <Slider.TrackActive />
-      </Slider.Track>
-      {showThumb ? <Slider.Thumb size="$1" index={0} circular elevate /> : null}
-    </Slider>
   );
 };
