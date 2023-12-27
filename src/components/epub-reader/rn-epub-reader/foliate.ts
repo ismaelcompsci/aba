@@ -9985,13 +9985,29 @@ class Reader {
       index
     } = e.detail;
     let isSelecting = false;
+    let startTime;
+    let touchStart
     doc.addEventListener("selectionchange", () => {
       const range = getSelectionRange(doc);
       if (!range) return;
+      isSelecting = true;
       this.view.renderer.pause = true;
     });
-    doc.addEventListener("touchstart", () => isSelecting = true);
-    doc.addEventListener("touchend", () => {
+
+    doc.addEventListener("touchstart", (ev) => {
+      emit({type: "epubjs", message: "touchstart"})
+      startTime = new Date().getTime();
+      touchStart = {x: ev.touches[0].screenX, y: ev.touches[0].screenY}
+
+
+    });
+    doc.addEventListener("touchend", (ev) => {
+      var duration = (new Date().getTime() - startTime);
+      if (!isSelecting) {
+        emit({type: "pressEvent", touch: JSON.stringify({x: ev.changedTouches[0].screenX, y: ev.changedTouches[0].screenY}), isSelecting, duration, touchStart})
+
+
+      }
       this.view.renderer.pause = false;
       isSelecting = false;
       const range = getSelectionRange(doc);
@@ -9999,6 +10015,7 @@ class Reader {
       const pos = getPosition(range);
       const value = this.view.getCFI(index, range);
       const lang = main_getLang(range.commonAncestorContainer);
+      this.doc = doc;
       this.currentlySelected = {
         index,
         range,
@@ -10047,6 +10064,10 @@ class Reader {
       type: "newAnnotation",
       annotation: this.currentlySelected
     });
+
+    this.currentlySelected = null
+    this.doc.getSelection().removeAllRanges();
+
   };
   setAnnotations = annotations => {
     annotations.forEach(ann => {

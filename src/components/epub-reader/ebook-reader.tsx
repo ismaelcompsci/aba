@@ -1,12 +1,10 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, StatusBar, useWindowDimensions } from "react-native";
+import { memo, useEffect, useMemo, useState } from "react";
+import { StatusBar, useWindowDimensions } from "react-native";
 import { useFileSystem } from "@epubjs-react-native/expo-file-system";
-import { Settings } from "@tamagui/lucide-icons";
 import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Button } from "tamagui";
 
 import { epubReaderMenuInlineSizeAtom } from "../../app/reader/_layout";
 import {
@@ -22,7 +20,6 @@ import {
 } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
-import { Screen } from "../layout/screen";
 
 import { BookChapterModal } from "./components/book-modal";
 import {
@@ -72,10 +69,6 @@ const EBookReader = ({
   const setEpubReaderLoading = useSetAtom(epubReaderLoadingAtom);
   const setEpubReaderToc = useSetAtom(epubReaderTocAtom);
   const ebookSettings = useAtomValue(ebookSettignsAtom);
-  // const [hide, setHide] = useState(false);
-  // const [showingNext, setShowingNext] = useState(false);
-  // const [showingPrev, setShowingPrev] = useState(false);
-  // const [currentLabel, setCurrentLabel] = useState("");
   const setEpubReaderShowMenu = useSetAtom(epubReaderShowMenuAtom);
   const setCurrentLocation = useSetAtom(epubReaderCurrentLocationAtom);
   const setEpubReaderSectionFractions = useSetAtom(
@@ -84,7 +77,6 @@ const EBookReader = ({
   const setEpubReaderMenuInlineSize = useSetAtom(epubReaderMenuInlineSizeAtom);
   const [ready, setReady] = useState(false);
 
-  const op = useRef(false);
   const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
 
   const isPdf = useMemo(() => bookPath.endsWith(".pdf"), [bookPath]);
@@ -109,19 +101,7 @@ const EBookReader = ({
     setReady(true);
   };
 
-  // const onShowPrevious = (show: boolean, label: string) => {
-  //   setCurrentLabel((prev) => (label ? label : prev));
-  //   setShowingPrev(show);
-  // };
-
-  // const onShowNext = (show: boolean, label: string) => {
-  //   setCurrentLabel((prev) => (label ? label : prev));
-  //   setShowingNext(show);
-  // };
-
   const onPress = () => {
-    // if (op.current) return;
-    // setHide((p) => !p);
     setEpubReaderShowMenu((p) => !p);
   };
 
@@ -203,7 +183,6 @@ const EBookReader = ({
   };
 
   const onAnnotationClick = ({ pos }: ShowAnnotation) => {
-    op.current = true;
     openMenu({ x: pos.point.x, y: pos.point.y });
   };
 
@@ -250,20 +229,8 @@ const EBookReader = ({
     setIsPdf(bookPath.endsWith(".pdf"));
   }, [bookPath]);
 
-  const ReaderFullScreenPress = () => {
-    op.current = false;
-  };
-
   return (
-    <ReaderFullscreen
-      onPress={Platform.OS === "ios" ? ReaderFullScreenPress : undefined}
-    >
-      {/* <ScrollLabels
-        showingNext={showingNext}
-        showingPrev={showingPrev}
-        label={currentLabel}
-        menuHidden={false}
-      /> */}
+    <>
       <Reader
         height={height}
         width={width}
@@ -273,8 +240,6 @@ const EBookReader = ({
         onPress={onPress}
         initialLocation={initialLocation}
         defaultTheme={defaultTheme}
-        // onShowNext={onShowNext}
-        // onShowPrevious={onShowPrevious}
         onLocationChange={onLocationChange}
         onStarted={() =>
           setEpubReaderLoading({ loading: true, part: "Opening Book..." })
@@ -289,44 +254,12 @@ const EBookReader = ({
           { label: "Underline", key: "underline" },
           { label: "Squiggly", key: "squiggly" },
           { label: "Strikethrough", key: "strikethrough" },
-          // { label: "Speak from here", key: "speak_from_here" },
         ]}
         onCustomMenuSelection={onCustomMenuSelection}
       />
       <BookChapterModal />
-      {Platform.OS === "android" ? (
-        <Button
-          circular
-          pos={"absolute"}
-          bottom={10}
-          right={15}
-          zIndex={100_000}
-          ai={"center"}
-          jc={"center"}
-          onPress={() => onPress()}
-          icon={() => <Settings />}
-        />
-      ) : null}
-    </ReaderFullscreen>
+    </>
   );
-};
-
-const ReaderFullscreen = ({
-  children,
-  onPress,
-}: {
-  children: React.ReactNode;
-  onPress?: () => void;
-}) => {
-  if (Platform.OS === "ios") {
-    return (
-      <Screen centered onPress={onPress}>
-        {children}
-      </Screen>
-    );
-  } else {
-    return children;
-  }
 };
 
 export default memo(EBookReader);

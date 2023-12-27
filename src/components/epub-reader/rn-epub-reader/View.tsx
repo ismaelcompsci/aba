@@ -1,10 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from "react";
-import {
-  I18nManager,
-  Platform,
-  useWindowDimensions,
-  View as RNView,
-} from "react-native";
+import { I18nManager, useWindowDimensions, View as RNView } from "react-native";
 import {
   Directions,
   Gesture,
@@ -70,6 +65,31 @@ export function View({
       console.log("[JS]", parsedEvent.message);
     }
 
+    if (type === "pressEvent") {
+      const { touch, isSelecting, duration, touchStart } = parsedEvent;
+
+      const endTouch = JSON.parse(touch);
+      const startTouch = touchStart;
+      const endTouchX = endTouch.x;
+      const endTouchY = endTouch.y;
+      const startTouchX = startTouch.x;
+      const startTouchY = startTouch.y;
+
+      const xDiff = Math.abs(startTouchX - endTouchX);
+      const yDiff = Math.abs(startTouchY - endTouchY);
+
+      const thirdOfScreen = Math.floor(SCREEN_WIDTH / 3);
+
+      if (
+        endTouchX > thirdOfScreen &&
+        endTouchX < thirdOfScreen + thirdOfScreen &&
+        !isSelecting &&
+        xDiff < 50 &&
+        yDiff < 50
+      ) {
+        viewPress();
+      }
+    }
     if (type === "onStarted") {
       setIsRendering(true);
 
@@ -158,7 +178,7 @@ export function View({
 
   const leftFlingGesture = Gesture.Fling()
     .direction(I18nManager.isRTL ? Directions.LEFT : Directions.RIGHT)
-    .onStart(() => {
+    .onEnd(() => {
       if (enableSwipe) {
         runOnJS(goPrevious)();
       }
@@ -166,35 +186,17 @@ export function View({
 
   const rightFlingGesture = Gesture.Fling()
     .direction(I18nManager.isRTL ? Directions.RIGHT : Directions.LEFT)
-    .onStart(() => {
+    .onEnd(() => {
       if (enableSwipe) {
         runOnJS(goNext)();
       }
     });
 
-  const testPress = () => {
+  const viewPress = () => {
     setTimeout(() => {
       onPress();
     }, 130);
   };
-
-  const tapGesture = Gesture.Tap().onTouchesUp((_event) => {
-    const touch = _event.allTouches[0].absoluteX;
-    const third = Math.floor(SCREEN_WIDTH / 3);
-    if (enableSwipe) {
-      if (touch < third) {
-        runOnJS(goPrevious)();
-      } else if (touch > third && touch < third + third) {
-        runOnJS(testPress)();
-      } else {
-        runOnJS(goNext)();
-      }
-    } else {
-      if (touch > third && touch < third + third) {
-        runOnJS(testPress)();
-      }
-    }
-  });
 
   const _theme = useCallback(
     () => themes.find((th) => th.name === theme.theme),
@@ -203,13 +205,9 @@ export function View({
   const t = _theme();
 
   return (
-    <GesturePerPlatform
+    <PDFGestureDetector
       isPdf={isPdf}
-      gestures={
-        Platform.OS === "ios"
-          ? [tapGesture, rightFlingGesture, leftFlingGesture]
-          : [rightFlingGesture, leftFlingGesture]
-      }
+      gestures={[leftFlingGesture, rightFlingGesture]}
     >
       <RNView
         style={{
@@ -253,34 +251,24 @@ export function View({
           }}
         />
       </RNView>
-    </GesturePerPlatform>
+    </PDFGestureDetector>
   );
 }
 
-const GesturePerPlatform = ({
+const PDFGestureDetector = ({
   children,
-  gestures,
   isPdf,
+  gestures,
 }: {
-  isPdf: boolean;
   children: React.ReactNode;
+  isPdf: boolean;
   gestures: GestureType[];
 }) => {
-  if (Platform.OS === "ios") {
+  if (isPdf) {
     return (
       <GestureDetector gesture={Gesture.Race(...gestures)}>
         {children}
       </GestureDetector>
     );
-  } else {
-    if (isPdf) {
-      return (
-        <GestureDetector gesture={Gesture.Race(...gestures)}>
-          {children}
-        </GestureDetector>
-      );
-    } else {
-      return <>{children}</>;
-    }
-  }
+  } else return children;
 };

@@ -16,8 +16,8 @@
 - [ ] fix in book reader when switching to previous chapter and then switching scroll view it goes to start of chapter
 
 - [ ] better audioplayer
-    - [ ] better seeking
-    - [ ] better fast forwarding
+    - [x] better seeking
+    - [x] better fast forwarding
     - [x] play from chapter
 
 - [ ] better tts

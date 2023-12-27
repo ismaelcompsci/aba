@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Platform, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 import {
   FadeInDown,
   FadeInUp,
@@ -15,12 +15,11 @@ import {
   Fullscreen,
   List,
   Settings2,
-  X,
 } from "@tamagui/lucide-icons";
 import { Stack } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { focusAtom } from "jotai-optics";
-import { Button, H6, Label, Separator, Slider, Switch, Text } from "tamagui";
+import { Button, H6, Slider, Text } from "tamagui";
 
 import { themes } from "../../components/epub-reader/components/themes";
 import {
@@ -55,7 +54,7 @@ const layout = () => {
 
 const Menu = () => {
   const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
-  const [show, setShow] = useAtom(epubReaderShowMenuAtom);
+  const show = useAtomValue(epubReaderShowMenuAtom);
   const [openSettings, setOpenSettings] = useState(false);
 
   const { left, right, top } = useAppSafeAreas();
@@ -127,17 +126,6 @@ const Menu = () => {
         paddingHorizontal="$4"
         bg="$background"
       >
-        {Platform.OS === "android" ? (
-          <TouchableArea
-            pos={"absolute"}
-            right={0}
-            top={0}
-            padding={"$2"}
-            onPress={() => setShow(false)}
-          >
-            <X size={"$1"} />
-          </TouchableArea>
-        ) : null}
         <BottomEbookReaderMenu />
       </AnimatedFlex>
     </>
