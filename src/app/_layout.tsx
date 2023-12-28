@@ -116,12 +116,6 @@ const DataUpdaters = () => {
 
   const colors = useTheme();
 
-  const { type, isConnected, details, isInternetReachable } = useNetInfo();
-
-  useEffect(() => {
-    console.log(type, isConnected, details, isInternetReachable);
-  }, [type, isConnected, details, isInternetReachable]);
-
   useEffect(() => {
     return () => {
       TrackPlayer.reset();

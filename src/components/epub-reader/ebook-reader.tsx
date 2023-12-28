@@ -7,6 +7,7 @@ import { router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { epubReaderMenuInlineSizeAtom } from "../../app/reader/_layout";
+import { IS_ANDROID } from "../../constants/consts";
 import {
   epubReaderCurrentLocationAtom,
   epubReaderLoadingAtom,
@@ -41,6 +42,19 @@ interface EBookReaderProps {
   userId: string;
   initialLocation: string | undefined;
 }
+
+const MENU_ITEMS = [
+  { label: "Copy", key: "copy" },
+  { label: "Highlight", key: "highlight" },
+  { label: "Underline", key: "underline" },
+  { label: "Squiggly", key: "squiggly" },
+  { label: "Strikethrough", key: "strikethrough" },
+];
+
+if (IS_ANDROID) {
+  MENU_ITEMS.unshift({ label: "x", key: "x" });
+}
+
 /**
  * Possible Issues / Fixes / TODOS
  * Dismiss ActionMode for android on view press -> https://stackoverflow.com/a/77408989
@@ -248,13 +262,7 @@ const EBookReader = ({
         onDisplayError={onDisplayError}
         onNewAnnotation={onNewAnnotation}
         onAnnotationClick={onAnnotationClick}
-        menuItems={[
-          { label: "Copy", key: "copy" },
-          { label: "Highlight", key: "highlight" },
-          { label: "Underline", key: "underline" },
-          { label: "Squiggly", key: "squiggly" },
-          { label: "Strikethrough", key: "strikethrough" },
-        ]}
+        menuItems={MENU_ITEMS}
         onCustomMenuSelection={onCustomMenuSelection}
       />
       <BookChapterModal />

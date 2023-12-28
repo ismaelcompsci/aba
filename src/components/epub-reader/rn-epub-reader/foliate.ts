@@ -9992,14 +9992,24 @@ class Reader {
       if (!range) return;
       isSelecting = true;
       this.view.renderer.pause = true;
+      const pos = getPosition(range);
+      const value = this.view.getCFI(index, range);
+      const lang = main_getLang(range.commonAncestorContainer);
+      this.doc = doc;
+      this.currentlySelected = {
+        index,
+        range,
+        lang,
+        value,
+        pos,
+        created: new Date().toISOString(),
+        text: range.toString()
+      };
     });
 
     doc.addEventListener("touchstart", (ev) => {
-      emit({type: "epubjs", message: "touchstart"})
       startTime = new Date().getTime();
       touchStart = {x: ev.touches[0].screenX, y: ev.touches[0].screenY}
-
-
     });
     doc.addEventListener("touchend", (ev) => {
       var duration = (new Date().getTime() - startTime);
@@ -10055,6 +10065,7 @@ class Reader {
     }
   };
   addAnnotation = method => {
+    if (!this.currentlySelected) return
     this.view.addAnnotation({
       value: this.currentlySelected.value,
       color: method ? method : this.highlight_color
@@ -10066,7 +10077,8 @@ class Reader {
     });
 
     this.currentlySelected = null
-    this.doc.getSelection().removeAllRanges();
+    this.doc?.getSelection().removeAllRanges();
+    return true
 
   };
   setAnnotations = annotations => {
