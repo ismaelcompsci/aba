@@ -75,6 +75,16 @@ export const ProgressSlider = ({
     }
   }, [isFinished]);
 
+  useEffect(() => {
+    if (isFinished) {
+      syncSession({
+        currentTime: overallCurrentTime,
+        timeListened: TIME_BETWEEN_SESSION_UPDATES,
+        duration: totalDuration,
+      });
+    }
+  }, [isFinished]);
+
   useTrackPlayerEvents([Event.PlaybackProgressUpdated], async (event) => {
     if (event.type === Event.PlaybackProgressUpdated) {
       TrackPlayer.updateNowPlayingMetadata({
@@ -122,33 +132,42 @@ export const ProgressSlider = ({
       });
 
     if (sync || force) {
-      console.log("SYNCING SESSION");
       const updatePayload = {
         currentTime: overallCurrentTime,
         timeListened: TIME_BETWEEN_SESSION_UPDATES,
         duration: totalDuration,
       };
 
-      try {
-        const response = await axios.post(
-          `${serverAddress}/api/session/${playbackSession?.id}/sync`,
-          updatePayload,
-          {
-            headers: {
-              Authorization: `Bearer ${userToken}`,
-            },
-          }
-        );
+      await syncSession(updatePayload);
+    }
+  };
 
-        if (response.data) {
-          // @ts-ignore
-          setPlaybackSession((prev) => {
-            return { ...prev, timeListening: 0 };
-          });
+  const syncSession = async (updatePayload: {
+    currentTime: number;
+    timeListened: number;
+    duration: number;
+  }) => {
+    console.log("SYNCING SESSION");
+
+    try {
+      const response = await axios.post(
+        `${serverAddress}/api/session/${playbackSession?.id}/sync`,
+        updatePayload,
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
         }
-      } catch (error) {
-        console.log("[PROGRESS_SLIDER] updateProgress error", error);
+      );
+
+      if (response.data) {
+        // @ts-ignore
+        setPlaybackSession((prev) => {
+          return { ...prev, timeListening: 0 };
+        });
       }
+    } catch (error) {
+      console.log("[PROGRESS_SLIDER] updateProgress error", error);
     }
   };
 

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { SectionList } from "react-native";
 import { ChevronRight, Contrast, Trash2, User } from "@tamagui/lucide-icons";
 import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { Href, router } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, Text } from "tamagui";
@@ -47,11 +48,13 @@ const SettingsAndMore = () => {
   const setSort = useSetAtom(sortAtom);
   const setShowPlayer = useSetAtom(showPlayerAtom);
   const [serverSettings, setServerSettings] = useAtom(serverSettingsAtom);
+  const [user, setUser] = useAtom(userAtom);
   const [currentServerConfig, setCurrentServerConfig] = useAtom(
     currentServerConfigAtom
   );
 
-  const disconnect = () => {
+  const disconnect = async () => {
+    await logout();
     setDeviceData({ ...deviceData, lastServerConnectionConfigId: null });
     setEbookSettings(DefaultSettings.ebookSettings);
     setShowPlayer({ open: false, playing: false });
@@ -61,8 +64,25 @@ const SettingsAndMore = () => {
     setSort("");
 
     queryClient.clear();
-    queryClient.resetQueries();
+    await queryClient.resetQueries();
     router.push("/server-connect/");
+    setUser(null);
+  };
+
+  const logout = async () => {
+    try {
+      await axios.post(
+        `${currentServerConfig.serverAddress}/logout`,
+        undefined,
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.log("[SETTINGS_AND_MORE] logout error ", error);
+    }
   };
 
   const appearanceCurrentSetting = useMemo(() => {
