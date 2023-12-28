@@ -1,6 +1,6 @@
 import { memo, useState } from "react";
 import { ChevronDown } from "@tamagui/lucide-icons";
-import { Accordion, Button, H4, Paragraph, Square, Text } from "tamagui";
+import { Accordion, H4, Square, Text } from "tamagui";
 
 import { AudioTrack } from "../../types/aba";
 import { DataTable } from "../custom-components/data-table";
@@ -64,13 +64,13 @@ const TrackFilesTable = memo(({ tracks }: { tracks: AudioTrack[] }) => {
         >
           {({ open }: { open: boolean }) => {
             return (
-              <Flex fill row jc="space-between">
-                <Paragraph space="$4">
-                  Tracks
-                  <Button size={"$2"} bg={"$gray6"}>
+              <Flex row fill jc="space-between">
+                <Flex row space="$4" alignItems="center">
+                  <Text>Tracks</Text>
+                  <Flex bg={"$gray6"} px="$2" py="$1.5" borderRadius={"$7"}>
                     <Text>{tracks.length}</Text>
-                  </Button>
-                </Paragraph>
+                  </Flex>
+                </Flex>
 
                 <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                   <ChevronDown size="$1" />

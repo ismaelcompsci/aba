@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAtomValue } from "jotai";
 import { Separator, Text } from "tamagui";
 
+import { IS_ANDROID } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { isCoverSquareAspectRatioAtom } from "../../state/app-state";
 import { CollectionMinified } from "../../types/aba";
@@ -30,7 +31,7 @@ const CollectionsPage = ({
   const { headerHeight } = useAppSafeAreas();
   const { width: screenWidth } = useWindowDimensions();
 
-  const bookWidth = 100;
+  const bookWidth = isCoverSquareAspectRatio ? 1.6 * 100 : 100;
   let columns = Math.floor(screenWidth / (bookWidth * 2)) - 1;
   columns = columns === 0 ? 1 : columns;
 
@@ -89,6 +90,13 @@ const CollectionsPage = ({
             ItemSeparatorComponent={() => <Separator w={0} h={10} />}
             estimatedItemSize={150}
             renderItem={handleRenderItem}
+            contentContainerStyle={
+              IS_ANDROID
+                ? {
+                    paddingTop: 20,
+                  }
+                : undefined
+            }
             ListEmptyComponent={
               <Flex p="$4" centered>
                 <Text>Empty :/</Text>

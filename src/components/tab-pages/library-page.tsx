@@ -6,7 +6,7 @@ import axios from "axios";
 import { useAtom, useAtomValue } from "jotai";
 import { Button, Spinner, Text } from "tamagui";
 
-import { LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
+import { IS_ANDROID, LIBRARY_INFINITE_LIMIT } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { changingLibraryAtom } from "../../state/app-state";
 import { descOrderAtom, sortAtom } from "../../state/local-state";
@@ -172,7 +172,10 @@ const LibraryPage = ({
         justifyContent="space-between"
         px="$2"
         bg="$backgroundHover"
-        shadowColor={"$backgroundStrong"}
+        $theme-oled={{
+          backgroundColor: "rgb(14, 14, 14)",
+        }}
+        shadowColor={"$shadowColor"}
         shadowOffset={{ height: 2, width: 0 }}
         shadowOpacity={0.25}
         shadowRadius={6}
@@ -204,6 +207,14 @@ const LibraryPage = ({
             renderItem={handleRenderItem}
             scrollEventThrottle={16}
             estimatedItemSize={211}
+            contentContainerStyle={
+              IS_ANDROID
+                ? {
+                    paddingTop: 20,
+                    paddingBottom: bottom,
+                  }
+                : { paddingBottom: bottom }
+            }
             ListFooterComponent={
               hasNextPage ? (
                 <Button mt="$3">
@@ -211,7 +222,6 @@ const LibraryPage = ({
                 </Button>
               ) : null
             }
-            contentContainerStyle={{ paddingBottom: bottom }}
           />
         </Flex>
       )}

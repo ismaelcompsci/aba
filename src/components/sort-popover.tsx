@@ -2,7 +2,7 @@ import { ArrowDown, ArrowDownWideNarrow, ArrowUp } from "@tamagui/lucide-icons";
 import { useAtom } from "jotai";
 import { Button, Popover, PopoverProps, Text } from "tamagui";
 
-import { sorts } from "../constants/consts";
+import { IS_ANDROID, sorts } from "../constants/consts";
 import { descOrderAtom, sortAtom } from "../state/local-state";
 
 import { Flex } from "./layout/flex";
@@ -24,7 +24,13 @@ export function SortSelect({ ...props }: PopoverProps) {
   };
 
   return (
-    <Popover size="$3" {...props}>
+    <Popover
+      size="$3"
+      offset={{
+        mainAxis: IS_ANDROID ? 20 : 0,
+      }}
+      {...props}
+    >
       <Popover.Trigger asChild>
         <Button
           justifyContent="center"

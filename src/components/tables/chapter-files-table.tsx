@@ -1,7 +1,7 @@
 import { memo, useState } from "react";
 import { ChevronDown } from "@tamagui/lucide-icons";
 import { useSetAtom } from "jotai";
-import { Accordion, Button, H4, Paragraph, Square, Text } from "tamagui";
+import { Accordion, H4, Square, Text } from "tamagui";
 
 import { showPlayerAtom } from "../../state/app-state";
 import { BookChapter, LibraryItem } from "../../types/aba";
@@ -73,12 +73,12 @@ const ChapterFilesTable = memo(
             {({ open }: { open: boolean }) => {
               return (
                 <Flex row fill jc="space-between">
-                  <Paragraph space="$4">
-                    Chapters
-                    <Button size={"$2"} bg={"$gray6"}>
+                  <Flex row space="$4" alignItems="center">
+                    <Text>Chapters</Text>
+                    <Flex bg={"$gray6"} px="$2" py="$1.5" borderRadius={"$7"}>
                       <Text>{chapters.length}</Text>
-                    </Button>
-                  </Paragraph>
+                    </Flex>
+                  </Flex>
 
                   <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                     <ChevronDown size="$1" />

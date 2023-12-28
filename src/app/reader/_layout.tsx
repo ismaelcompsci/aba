@@ -29,6 +29,7 @@ import {
 import { BackButton } from "../../components/layout/back-header";
 import { AnimatedFlex, Flex } from "../../components/layout/flex";
 import { TouchableArea } from "../../components/touchable/touchable-area";
+import { IS_ANDROID } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { useOrientation } from "../../hooks/use-orientation";
 import {
@@ -134,13 +135,6 @@ const Menu = () => {
 
 const BottomEbookReaderMenu = () => {
   const left = useSharedValue(0);
-  // const sliderRef = useRef<View>(null);
-  // const animatedTextRef = useAnimatedRef<Animated.Text>();
-
-  // const [showLabel, setShowLabel] = useState(false);
-  // const [layout, setLayout] = useState<LayoutRectangle | null>(null);
-  // const { width } = useWindowDimensions();
-
   const epubReaderCurrentLocation = useAtomValue(epubReaderCurrentLocationAtom);
 
   const safeAreas = useAppSafeAreas();
@@ -150,20 +144,6 @@ const BottomEbookReaderMenu = () => {
   const onValueChange = (value: number[]) => {
     goToLocation(value[0]);
   };
-
-  // const pos = useDerivedValue(() => {
-  //   if (!layout) return 0;
-
-  //   if (left.value + layout.width + 24 >= width) {
-  //     return width - layout.width - 24;
-  //   }
-
-  //   if (left.value - layout.width / 2 <= width) {
-  //     return left.value;
-  //   }
-
-  //   return left.value - 500;
-  // }, [layout]);
 
   const totalPages = parseInt(epubReaderCurrentLocation?.section?.total || "0");
   const currentPage = parseInt(
@@ -180,40 +160,12 @@ const BottomEbookReaderMenu = () => {
       : `${pagesLeft} pages left`;
 
   return (
-    <Flex width="100%" height="100%" pb={safeAreas.bottom}>
-      {/* {showLabel ? (
-        <AnimatedFlex
-          bg="white"
-          style={[
-            {
-              position: "absolute",
-              borderRadius: 6,
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-            },
-            { left: pos, top: -20 },
-          ]}
-          onLayout={(e) => setLayout(e.nativeEvent.layout)}
-        >
-          <Animated.Text
-            ref={animatedTextRef}
-            style={{
-              color: "black",
-            }}
-            numberOfLines={1}
-          >
-            {epubReaderCurrentLocation?.tocItem?.label}{" "}
-            {epubReaderCurrentLocation?.fraction
-              ? (epubReaderCurrentLocation?.fraction * 100).toFixed(0)
-              : "0"}
-            %
-          </Animated.Text>
-        </AnimatedFlex>
-      ) : null} */}
+    <Flex
+      width="100%"
+      height="100%"
+      pb={safeAreas.bottom + (IS_ANDROID ? 10 : 0)}
+    >
       <Slider
-        // ref={sliderRef}
-        // width="100%"
-        // height={"100%"}
         flexGrow={1}
         size="$1"
         value={[
@@ -223,11 +175,8 @@ const BottomEbookReaderMenu = () => {
         ]}
         max={1}
         step={0.01}
-        // onSlideEnd={() => setShowLabel(false)}
-        // onSlideStart={() => setShowLabel(true)}
         onValueChange={onValueChange}
         onSlideMove={(event) => {
-          // if (!showLabel) setShowLabel(true);
           left.value = event.nativeEvent.pageX;
         }}
         themeInverse
@@ -269,10 +218,10 @@ const BottomEbookReaderMenu = () => {
 
 const ItemTitle = () => {
   const { getMeta } = useReader();
-
   const metadata = getMeta();
+
   return (
-    <H6 numberOfLines={1} $sm={{ maxWidth: "$15" }} $md={{ maxWidth: "$20" }}>
+    <H6 numberOfLines={1} maxWidth={"75%"}>
       {metadata.title}
     </H6>
   );

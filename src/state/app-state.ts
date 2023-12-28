@@ -1,3 +1,4 @@
+import { Route } from "@react-navigation/native";
 import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
 
@@ -30,6 +31,7 @@ export const changingLibraryAtom = atom(false);
 export const currentItemAtom = atom<LibraryItemExpanded | null>(null);
 export const playbackSessionAtom = atom<PlaybackSessionExpanded | null>(null);
 export const socketConnectedAtom = atom(false);
+export const routeAtom = atom<Route<string> | null>(null);
 export const showPlayerAtom = atom<PlayingState>({
   open: false,
   playing: false,

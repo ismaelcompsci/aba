@@ -31,9 +31,11 @@ const CollectionCard = ({
       h={bookHeight}
       borderTopLeftRadius="$4"
       borderTopRightRadius="$4"
+      borderBottomEndRadius={"$2.5"}
+      borderBottomStartRadius={"$2.5"}
+      overflow="hidden"
       borderColor={"$backgroundFocus"}
       borderWidth={1}
-      mt={24}
       pressStyle={{ scale: 0.875 }}
       animation="bouncy"
       onPress={handlePress}
@@ -57,6 +59,8 @@ const CollectionCard = ({
         borderBottomRightRadius={"$4"}
         borderColor={"$color"}
         borderWidth={"$0.25"}
+        pos={"absolute"}
+        bottom={0}
       >
         <Text>{item.name}</Text>
       </Flex>

@@ -7,7 +7,7 @@ import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtomValue } from "jotai";
 import { selectAtom } from "jotai/utils";
-import { Accordion, H4, Paragraph, Square, Text } from "tamagui";
+import { Accordion, H4, Square, Text } from "tamagui";
 import * as ContextMenu from "zeego/context-menu";
 
 import {
@@ -220,11 +220,13 @@ const BookFilesTable = () => {
         >
           {({ open }: { open: boolean }) => {
             return (
-              <Flex fill row jc="space-between">
-                <Paragraph space="$4">
-                  Ebook Files
-                  <Text>{ebookFiles.length}</Text>
-                </Paragraph>
+              <Flex row fill jc="space-between">
+                <Flex row space="$4" alignItems="center">
+                  <Text>Ebook files</Text>
+                  <Flex bg={"$gray6"} px="$2" py="$1.5" borderRadius={"$7"}>
+                    <Text>{ebookFiles.length}</Text>
+                  </Flex>
+                </Flex>
 
                 <Square animation="quick" rotate={open ? "180deg" : "0deg"}>
                   <ChevronDown size="$1" />

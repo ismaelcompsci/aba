@@ -82,7 +82,6 @@ const SeriesCard = ({
       h={bookHeight + 22}
       borderColor={"$backgroundFocus"}
       borderWidth={1}
-      mt="$4"
       br={"$4"}
       pressStyle={{ scale: 0.875 }}
       animation="bouncy"

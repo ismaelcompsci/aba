@@ -5,7 +5,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Separator, Text } from "tamagui";
 
-import { SERIES_INFINITE_LIMIT } from "../../constants/consts";
+import { IS_ANDROID, SERIES_INFINITE_LIMIT } from "../../constants/consts";
 import { useAppSafeAreas } from "../../hooks/use-app-safe-areas";
 import { SeriesBooksMinified } from "../../types/aba";
 import { LibrarySeries } from "../../types/types";
@@ -135,7 +135,14 @@ const SeriesPage = ({
           ItemSeparatorComponent={() => <Separator w={0} h={10} />}
           estimatedItemSize={bookWidth * 2}
           contentInset={{ top: 20 }}
-          contentContainerStyle={{ paddingBottom: bottom }}
+          contentContainerStyle={
+            IS_ANDROID
+              ? {
+                  paddingTop: 20,
+                  paddingBottom: bottom,
+                }
+              : { paddingBottom: bottom }
+          }
           ListEmptyComponent={() => {
             return <Text>EMPTY</Text>;
           }}

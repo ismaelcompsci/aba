@@ -78,14 +78,16 @@ export function View({
       const xDiff = Math.abs(startTouchX - endTouchX);
       const yDiff = Math.abs(startTouchY - endTouchY);
 
+      const MAX_DIFF = 10;
+
       const thirdOfScreen = Math.floor(SCREEN_WIDTH / 3);
 
       if (
         endTouchX > thirdOfScreen &&
         endTouchX < thirdOfScreen + thirdOfScreen &&
         !isSelecting &&
-        xDiff < 50 &&
-        yDiff < 50
+        xDiff < MAX_DIFF &&
+        yDiff < MAX_DIFF
       ) {
         viewPress();
       }

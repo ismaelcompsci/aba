@@ -31,7 +31,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
     const onConnect = () => {
       console.debug(`[SOCKET] socket conncted to ${socket.current?.id}`);
       setSocketConnected(true);
-      console.log(token);
       socket.current?.emit("auth", token);
     };
 

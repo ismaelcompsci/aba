@@ -47,8 +47,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
     <Popover
       size="$3"
       offset={{
-        crossAxis: 20,
-        mainAxis: IS_ANDROID ? 40 : 20,
+        mainAxis: IS_ANDROID ? 40 : 10,
       }}
       stayInFrame
       allowFlip
@@ -111,6 +110,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
                 alignItems="center"
                 justifyContent="space-between"
                 onPress={() => onValueChange(lib.name)}
+                opacity={currentLibraryId === lib.id ? 0.2 : 1}
               >
                 <Text fontWeight="$7">{lib.name}</Text>
                 <Flex minWidth={"$4"} />

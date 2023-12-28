@@ -199,7 +199,7 @@ const BookPage = () => {
   }, []);
 
   return (
-    <Screen edges={isLoading ? ["top"] : undefined}>
+    <Screen edges={isLoading ? ["top"] : ["bottom"]}>
       {isLoading ? (
         <Flex fill centered>
           <Loaders.Main />
@@ -267,6 +267,7 @@ const BookPage = () => {
                         activeStrokeWidth={5}
                         inActiveStrokeWidth={6}
                         progressValueFontSize={14}
+                        checkMarkSize={24}
                         inActiveStrokeOpacity={0.4}
                         circleBackgroundColor={colors.backgroundPress.get()}
                         activeStrokeColor={colors.color.get()}
