@@ -15,7 +15,7 @@
     "experiments": {
       "typedRoutes": true
     },
-    "orientation": "default",
+    "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {

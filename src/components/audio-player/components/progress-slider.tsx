@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createNativeWrapper } from "react-native-gesture-handler";
 import TrackPlayer, {
   Event,
@@ -13,6 +13,7 @@ import { IS_ANDROID } from "../../../constants/consts";
 import {
   playbackSessionAtom,
   serverAddressAtom,
+  showPlayerAtom,
   userTokenAtom,
 } from "../../../state/app-state";
 import { formatSeconds } from "../../../utils/utils";
@@ -36,6 +37,7 @@ export const ProgressSlider = ({
 }: {
   audiobookInfo: AudiobookInfo;
 }) => {
+  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const serverAddress = useAtomValue(serverAddressAtom);
   const userToken = useAtomValue(userTokenAtom);
   const [seek, setSeek] = useState(0);
@@ -44,11 +46,34 @@ export const ProgressSlider = ({
   const [playbackSession, setPlaybackSession] = useAtom(playbackSessionAtom);
 
   const {
+    isFinished,
     audioTracks,
     currentPosition: overallCurrentTime,
     getTotalDuration,
     seekTo,
   } = useAudioPlayerProgress();
+
+  useEffect(() => {
+    if (isFinished && showPlayer.playlist) {
+      const prevItem = showPlayer.playlist[0];
+
+      const updatedPlaylist = showPlayer.playlist.filter((item) => {
+        return prevItem.libraryItemId !== item.libraryItemId;
+      });
+
+      const isPlaylistDone = !updatedPlaylist.length;
+
+      const nextItem = updatedPlaylist[0];
+      if (!isPlaylistDone)
+        setShowPlayer({
+          open: true,
+          playing: true,
+          playlist: updatedPlaylist,
+          libraryItemId: nextItem.libraryItemId,
+          episodeId: nextItem.episodeId,
+        });
+    }
+  }, [isFinished]);
 
   useTrackPlayerEvents([Event.PlaybackProgressUpdated], async (event) => {
     if (event.type === Event.PlaybackProgressUpdated) {

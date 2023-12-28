@@ -1,4 +1,9 @@
-import TrackPlayer, { useProgress } from "react-native-track-player";
+import { useEffect, useState } from "react";
+import TrackPlayer, {
+  Event,
+  useProgress,
+  useTrackPlayerEvents,
+} from "react-native-track-player";
 
 import { useTracks } from "./use-tracks";
 
@@ -6,16 +11,18 @@ export const useAudioPlayerProgress = () => {
   const { audioTracks, currentTrack } = useTracks();
   const { position } = useProgress();
 
+  const [isFinished, setIsFinished] = useState(false);
+
   const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;
   const currentPosition = currentTrackOffset + position;
 
-  const lastTrack = audioTracks && audioTracks[audioTracks?.length - 1];
-  const isLastTrack =
-    currentTrack && lastTrack ? currentTrack.id === lastTrack.id : false;
-  const isLastTrackDone =
-    lastTrack && Math.floor(lastTrack.duration || 0) === Math.floor(position);
-
-  const isFinished = isLastTrack && isLastTrackDone;
+  useTrackPlayerEvents([Event.PlaybackQueueEnded], (event) => {
+    if (event.type === Event.PlaybackQueueEnded) {
+      const lastTrack = audioTracks && audioTracks[audioTracks?.length - 1];
+      if (lastTrack?.id !== event.track) return;
+      setIsFinished(true);
+    }
+  });
 
   const getTotalDuration = () => {
     let total = 0;

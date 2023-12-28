@@ -20,11 +20,10 @@ import axios from "axios";
 import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
 import * as SystemUI from "expo-system-ui";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { ColorTokens, TamaguiProvider, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
-import { useAudioPlayerProgress } from "../components/audio-player/hooks/use-audio-player-progress";
 import { Dot } from "../components/dot";
 import { Flex } from "../components/layout/flex";
 import { AppModals } from "../components/modals/app-modals";
@@ -37,6 +36,7 @@ import {
   attemptingConnectionAtom,
   librariesAtom,
   requestInfoAtom,
+  routeAtom,
   showPlayerAtom,
   socketConnectedAtom,
 } from "../state/app-state";
@@ -87,33 +87,40 @@ export default function Layout() {
 
   return (
     <TamaguiProvider config={appConfig} defaultTheme="dark">
-      <BottomSheetModalProvider>
-        <QueryClientProvider client={queryClient}>
-          <DataUpdaters />
-          <SocketProvider>
-            <Stack
-              initialRouteName="index"
-              screenOptions={{
-                header: Header,
-                animation: animation,
-              }}
-            />
-            <AppModals />
-          </SocketProvider>
-        </QueryClientProvider>
-      </BottomSheetModalProvider>
+      <Theme shouldUpdate={() => false} name={appTheme.scheme}>
+        <BottomSheetModalProvider>
+          <QueryClientProvider client={queryClient}>
+            <DataUpdaters />
+            <SocketProvider>
+              <Stack
+                initialRouteName="index"
+                screenOptions={{
+                  header: Header,
+                  animation: animation,
+                }}
+              />
+              <AppModals />
+            </SocketProvider>
+          </QueryClientProvider>
+        </BottomSheetModalProvider>
+      </Theme>
     </TamaguiProvider>
   );
 }
 
 const DataUpdaters = () => {
-  const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
+  const setShowPlayer = useSetAtom(showPlayerAtom);
   const { serverAddress, token } = useAtomValue(requestInfoAtom);
   const appTheme = useAtomValue(appThemeAtom);
   const setLibraries = useSetAtom(librariesAtom);
 
-  const { isFinished } = useAudioPlayerProgress();
   const colors = useTheme();
+
+  const { type, isConnected, details, isInternetReachable } = useNetInfo();
+
+  useEffect(() => {
+    console.log(type, isConnected, details, isInternetReachable);
+  }, [type, isConnected, details, isInternetReachable]);
 
   useEffect(() => {
     return () => {
@@ -137,29 +144,6 @@ const DataUpdaters = () => {
   }, [token, serverAddress]);
 
   useEffect(() => {
-    if (isFinished && showPlayer.playlist) {
-      const nextItem = showPlayer.playlist[0];
-
-      const updatedPlaylist = showPlayer.playlist.filter(
-        (item) =>
-          nextItem.episodeId !== item.episodeId &&
-          nextItem.libraryItemId !== item.libraryItemId
-      );
-
-      const isPlaylistDone = !updatedPlaylist.length;
-
-      if (!isPlaylistDone)
-        setShowPlayer({
-          open: true,
-          playing: true,
-          playlist: updatedPlaylist,
-          libraryItemId: nextItem.libraryItemId,
-          episodeId: nextItem.episodeId,
-        });
-    }
-  }, [isFinished]);
-
-  useEffect(() => {
     const bg = colors.background.val;
     SystemUI.setBackgroundColorAsync(bg);
   }, [appTheme]);
@@ -172,10 +156,11 @@ const DataUpdaters = () => {
     );
   }, []);
 
-  return null;
+  return <></>;
 };
 
 const Header = ({ navigation, route }: NativeStackHeaderProps) => {
+  const setRoute = useSetAtom(routeAtom);
   const { headerHeight, top, left } = useAppSafeAreas();
   const color = useTheme();
   const { name } = route;
@@ -192,6 +177,11 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   const handleBack = () => {
     router.back();
   };
+
+  useEffect(() => {
+    // @ts-ignore
+    setRoute(route);
+  }, [route]);
 
   useEffect(() => {
     navigation.setOptions({ gestureEnabled: !showLogo });
@@ -230,7 +220,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             </TouchableArea>
           ) : (
             <TouchableArea
-              pt={16}
+              py={8}
               hapticFeedback
               hitSlop={20}
               onPress={handleBack}
@@ -246,8 +236,8 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
             <TouchableArea
               hapticFeedback
               hitSlop={10}
-              onPress={() => router.push("/test-page")}
-              // onPress={() => router.push("/search/")}
+              // onPress={() => router.push("/test-page")}
+              onPress={() => router.push("/search/")}
             >
               <Search color={color.color.get()} />
             </TouchableArea>
