@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import TrackPlayer from "react-native-track-player";
-import { Button, Text } from "tamagui";
+import { Button, Text, useTheme } from "tamagui";
 import * as DropdownMenu from "zeego/dropdown-menu";
 
 const PlaybackSpeedControls = () => {
   const [on, setOn] = useState("1x");
+
+  const colors = useTheme();
 
   useEffect(() => {
     const playbackSpeed = Number(on.replace("x", ""));
@@ -26,7 +28,23 @@ const PlaybackSpeedControls = () => {
             opacity: 0.8,
           }}
         >
-          <Text fontSize={"$6"}>{on}</Text>
+          <Text
+            fontSize={"$6"}
+            px="$2"
+            py="$1"
+            style={
+              on != "1x"
+                ? {
+                    color: colors.color.get(),
+                    textShadowColor: colors.color.get(),
+                    textShadowOffset: { width: -1, height: 0 },
+                    textShadowRadius: 5,
+                  }
+                : undefined
+            }
+          >
+            {on}
+          </Text>
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>

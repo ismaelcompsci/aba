@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useWindowDimensions } from "react-native";
 import FastImage from "react-native-fast-image";
 import { getColors } from "react-native-image-colors";
+import { useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useIsPlaying } from "react-native-track-player";
 import { LinearGradient } from "@tamagui/linear-gradient";
-import { Bookmark, ChevronDown, List } from "@tamagui/lucide-icons";
+import { Bookmark, ChevronDown, Headphones, List } from "@tamagui/lucide-icons";
 import { useAtomValue, useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
@@ -12,7 +14,7 @@ import { IS_ANDROID } from "../../../constants/consts";
 import { useOrientation } from "../../../hooks/use-orientation";
 import { bookmarksModalAtom } from "../../../state/app-state";
 import { appThemeAtom } from "../../../state/local-state";
-import { Flex } from "../../layout/flex";
+import { AnimatedFlex, Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
 import { chaptersModalAtom } from "../../modals/chapter-modal";
 import { TouchableArea } from "../../touchable/touchable-area";
@@ -41,11 +43,7 @@ const BigAudioPlayer = ({
 }) => {
   const { width, height } = useWindowDimensions();
   const { bottom, top, left, right } = useSafeAreaInsets();
-
   const orientation = useOrientation();
-
-  const imageWidth = orientation === "PORTRAIT" ? width * 0.9 : 150;
-  const imageHeight = imageWidth;
 
   return (
     <Flex
@@ -82,32 +80,8 @@ const BigAudioPlayer = ({
             <AudioPlayerMore closePlayer={closePlayer} />
           </Flex>
           {/* IMAGE */}
-          <Flex
-            jc={"center"}
-            ai="center"
-            style={{
-              shadowOffset: {
-                width: 0,
-                height: 4,
-              },
-              shadowOpacity: 0.32,
-              shadowRadius: 5.46,
-              elevation: 9,
-            }}
-            w={"100%"}
-          >
-            <FastImage
-              style={{
-                width: imageWidth,
-                height: imageHeight,
-                borderRadius: 16,
-              }}
-              resizeMode="contain"
-              source={{
-                uri: audiobookInfo.cover || "",
-              }}
-            />
-          </Flex>
+
+          <AudioPlayerImage cover={audiobookInfo.cover} />
           <Flex space={"$2"}>
             {/* INFO */}
             <Flex>
@@ -128,6 +102,74 @@ const BigAudioPlayer = ({
         </Flex>
       </BigAudioPlayerBackground>
     </Flex>
+  );
+};
+
+const AudioPlayerImage = ({ cover }: { cover?: string | null }) => {
+  const { playing } = useIsPlaying();
+
+  const { width } = useWindowDimensions();
+  const orientation = useOrientation();
+  const imageWidth = orientation === "PORTRAIT" ? width * 0.9 : 150;
+  const imageHeight = imageWidth;
+
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    if (playing) {
+      scale.value = withTiming(1);
+    } else {
+      scale.value = withTiming(0.65);
+    }
+  }, [playing]);
+
+  return (
+    <AnimatedFlex
+      jc={"center"}
+      ai="center"
+      style={[
+        {
+          shadowOffset: {
+            width: 0,
+            height: 4,
+          },
+          shadowOpacity: 0.32,
+          shadowRadius: 5.46,
+          elevation: 9,
+        },
+        { transform: [{ scale }] },
+      ]}
+      w={"100%"}
+    >
+      {cover ? (
+        <FastImage
+          style={{
+            width: imageWidth,
+            height: imageHeight,
+            borderRadius: 16,
+          }}
+          resizeMode="contain"
+          source={{
+            uri: cover,
+          }}
+        />
+      ) : (
+        <Headphones
+          size={imageHeight}
+          style={{
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 5,
+            },
+            shadowOpacity: 0.34,
+            shadowRadius: 6.27,
+
+            elevation: 10,
+          }}
+        />
+      )}
+    </AnimatedFlex>
   );
 };
 
@@ -230,10 +272,14 @@ const BigAudioPlayerBackground = ({
     return (
       <LinearGradient
         height={height}
-        colors={[gradientColors.colorOne.value, "$backgroundPress"]}
-        locations={[0.1, 0.65]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        colors={[
+          // gradientColors.colorOne.value,
+          gradientColors.colorFour.value,
+          "$backgroundPress",
+        ]}
+        locations={[0, 0.7]}
+        // start={{ x: 0, y: 0 }}
+        // end={{ x: 1, y: 1 }}
         borderRadius={"$7"}
       >
         {children}

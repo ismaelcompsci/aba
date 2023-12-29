@@ -19,7 +19,13 @@ function BigAudioPlayerControls() {
   const color = colors.color?.get();
 
   return (
-    <Flex row ai={"center"} width={"100%"} $gtSm={{ justifyContent: "center" }}>
+    <Flex
+      row
+      px="$2.5"
+      ai={"center"}
+      width={"100%"}
+      $gtSm={{ justifyContent: "center" }}
+    >
       <TouchableArea
         padding={"$0"}
         alignItems={"center"}
