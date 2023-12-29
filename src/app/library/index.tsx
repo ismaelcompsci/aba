@@ -297,6 +297,8 @@ const HomePage = () => {
 
   return (
     <Screen>
+      <LibraryItemAddedNotification />
+
       {!userToken || !routes ? (
         <NoServer />
       ) : changingLibrary ? (
@@ -316,7 +318,6 @@ const HomePage = () => {
           style={{ width: layout.width, height: layout.height }}
         />
       )}
-      <LibraryItemAddedNotification />
     </Screen>
   );
 };
@@ -328,20 +329,85 @@ const LibraryItemAddedNotification = () => {
   let timer: NodeJS.Timeout | null;
 
   const [newItems, setNewItems] = useState<LibraryItemExpanded[]>([]);
+  const [message, setMessage] = useState("");
   const colors = useTheme();
 
   const queryClient = useQueryClient();
 
   const libraryItemAdded = (item: LibraryItemExpanded) => {
-    setNewItems((p) => [...p, item]);
+    setNewItems((p) => {
+      const newItems = [...p, item];
 
-    timer = setTimeout(() => {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
-        return;
-      }
-      Promise.all([
+      setMessage(
+        newItems.length === 1
+          ? "1 new item added to library"
+          : `${newItems.length} new items added to library`
+      );
+
+      return newItems;
+    });
+
+    timer = setTimeout(async () => {
+      timer && clearTimeout(timer);
+      timer = null;
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["personalized-library-view"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["library-items"],
+        }),
+      ]);
+      setNewItems([]);
+    }, 4000);
+  };
+
+  const libraryItemRemoved = (item: LibraryItemExpanded) => {
+    setNewItems((p) => {
+      const newItems = [...p, item];
+
+      setMessage(
+        newItems.length === 1
+          ? "1 item removed from library"
+          : `${newItems.length} items removed from library`
+      );
+
+      return newItems;
+    });
+
+    timer = setTimeout(async () => {
+      timer && clearTimeout(timer);
+      timer = null;
+
+      // TODO new item into setQuery data
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["personalized-library-view"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["library-items"],
+        }),
+      ]);
+
+      setNewItems([]);
+    }, 4000);
+  };
+
+  const libraryItemsAdded = (items: LibraryItemExpanded[]) => {
+    setNewItems(items);
+
+    setMessage(
+      items.length === 1
+        ? "1 new item added to library"
+        : `${newItems.length} new items added to library`
+    );
+
+    timer = setTimeout(async () => {
+      timer && clearTimeout(timer);
+      timer = null;
+
+      await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ["personalized-library-view"],
         }),
@@ -354,10 +420,25 @@ const LibraryItemAddedNotification = () => {
   };
 
   useEffect(() => {
+    timer = null;
     socket?.on("item_added", libraryItemAdded);
+    socket?.on("items_added", libraryItemsAdded);
+    socket?.on("item_removed", libraryItemRemoved);
+
+    // socket?.on("item_updated", () => console.log("item_updated"));
+    // socket?.on("items_updated", () => console.log("items_updated"));
+
+    return () => {
+      socket?.off("item_added");
+      socket?.off("items_added");
+      socket?.off("item_updated");
+      socket?.off("item_removed");
+      socket?.off("items_updated");
+      timer = null;
+    };
   }, []);
 
-  if (newItems.length) {
+  if (newItems.length > 0) {
     return (
       <AnimatedDotIsland
         expandedHeight={32}
@@ -375,9 +456,7 @@ const LibraryItemAddedNotification = () => {
         <Flex row alignItems="center" gap="$2">
           <Dot bg="$blue10" h={DOT_SIZE} width={DOT_SIZE} />
           <Text fontSize={12} numberOfLines={1} color={"white"}>
-            {newItems.length === 1
-              ? "1 new item added to library"
-              : `${newItems.length} new items added to library`}
+            {message}
           </Text>
         </Flex>
       </AnimatedDotIsland>
