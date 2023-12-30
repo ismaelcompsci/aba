@@ -105,10 +105,13 @@ function EpisodePage() {
           <Text>{data?.episode?.title}</Text>
         )}
       </BackHeader>
-      <VirtualizedList>
-        {isLoading ? (
+      {isLoading ? (
+        <Flex fill centered>
           <Loaders.Main />
-        ) : (
+        </Flex>
+      ) : null}
+      <VirtualizedList>
+        {isLoading ? null : (
           <Flex fill px={"$4"} space>
             <Flex row space>
               {coverUrl ? (

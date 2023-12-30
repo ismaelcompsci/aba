@@ -196,6 +196,7 @@ export const ProgressSlider = ({
           {formatSeconds(isSeeking ? seek : overallCurrentTime)}
         </Text>
         <Text fontSize={"$1"} color={"$gray10"}>
+          -
           {formatSeconds(
             totalDuration - (isSeeking ? seek : overallCurrentTime)
           )}

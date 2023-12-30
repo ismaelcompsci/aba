@@ -4,7 +4,7 @@
 
 <p float="left">
   <img src="screenshots/book.png" width="120" />
-  <img src="screenshots/home.png" width="120" />
+  <img src="screenshots/home-audiobooks.png" width="120" />
   <img src="screenshots/player.png" width="120" />
   <img src="screenshots/reader.png" width="120" />
 </p>
