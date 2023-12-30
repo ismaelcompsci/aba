@@ -75,7 +75,7 @@ export const getGradient = (color: string) => {
 
         const hex = hslToHex(hue, saturation, lightness);
 
-        return [hex, hex + "33", hex + "00"];
+        return [hex, hex + "33", hex + "00"].reverse();
       }
       break;
     default:
@@ -201,6 +201,22 @@ export const elapsedTime = (seconds: number, useFullNames = false): string => {
   return `${hours} ${
     useFullNames ? `hour${hours === 1 ? "" : "s"}` : "hr"
   } ${minutes} ${useFullNames ? `minute${minutes === 1 ? "" : "s"}` : "min"}`;
+};
+export const elapsedMiniTime = (seconds: number): string => {
+  "worklet";
+  if (seconds < 60) {
+    return `${Math.floor(seconds)} sec`;
+  }
+  let minutes = Math.floor(seconds / 60);
+  if (minutes < 70) {
+    return `${minutes}m`;
+  }
+  const hours = Math.floor(minutes / 60);
+  minutes -= hours * 60;
+  if (!minutes) {
+    return `${hours}h`;
+  }
+  return `${hours}h ${minutes}m`;
 };
 
 export const secondsToTimestamp = (seconds: number) => {

@@ -44,7 +44,6 @@ const BookShelf = ({
           <BookCard
             pt={"$2"}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-            key={item.id}
             serverAddress={serverAddress}
             item={item}
             token={token}
@@ -62,14 +61,13 @@ const BookShelf = ({
         data={shelf.entities || []}
         horizontal
         ItemSeparatorComponent={() => <Flex w={10} />}
-        keyExtractor={(item, index) => item.id + String(index)}
+        keyExtractor={(item, index) => item.id + String(index) + "cards"}
         showsHorizontalScrollIndicator={false}
         style={{
           backgroundColor: bg,
         }}
         renderItem={({ item, index }) => (
           <Flex
-            key={index}
             pl={index === 0 ? "$4" : null}
             pr={index === shelf.entities.length - 1 ? "$4" : null}
           >

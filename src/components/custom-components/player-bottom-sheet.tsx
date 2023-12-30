@@ -115,7 +115,7 @@ export const PlayerBottomSheet = forwardRef<
     const borderRadius = interpolate(
       translateY.value,
       [-dimensions.screen.height + 60, -dimensions.screen.height],
-      [24, 4],
+      [24, 1],
       Extrapolate.CLAMP
     );
 

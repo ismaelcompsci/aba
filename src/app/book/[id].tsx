@@ -199,7 +199,7 @@ const BookPage = () => {
   }, []);
 
   return (
-    <Screen edges={isLoading ? ["top"] : ["bottom"]}>
+    <Screen edges={isLoading ? ["top"] : undefined}>
       {isLoading ? (
         <Flex fill centered>
           <Loaders.Main />
@@ -222,7 +222,7 @@ const BookPage = () => {
           fixedHeader={renderFixedHeader}
           showsVerticalScrollIndicator={false}
         >
-          <Flex bg="$background">
+          <Flex bg="$background" pb={44}>
             <LinearGradient
               colors={getGradient(colors.background.get())}
               start={{ x: 0, y: 1 }}

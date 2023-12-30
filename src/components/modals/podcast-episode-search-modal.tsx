@@ -198,7 +198,11 @@ const EpisodeSearchModalFooter = ({
 
   return (
     <Flex px="$4" pt="$2" bg="$background" pb={bottom}>
-      <Button disabled={!true} onPress={addEpisodes}>
+      <Button
+        disabled={!length}
+        opacity={!length ? 0.6 : 1}
+        onPress={addEpisodes}
+      >
         <Text>
           {!length
             ? "No Episodes Selected"

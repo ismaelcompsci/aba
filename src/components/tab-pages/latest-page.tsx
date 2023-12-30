@@ -2,19 +2,16 @@ import { useMemo } from "react";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { router } from "expo-router";
-import { Image, Separator, Text } from "tamagui";
+import { Separator, Text } from "tamagui";
 
 import {
   PodcastEpisodeWithPodcast,
   RecentEpisodesResponse,
 } from "../../types/types";
-import { dateDistanceFromNow } from "../../utils/utils";
 import { Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { Loaders } from "../loader";
 import EpisodeTableRow from "../tables/episode-table-row";
-import { TouchableArea } from "../touchable/touchable-area";
 
 interface LatestPageProps {
   currentLibraryId: string | null;
@@ -72,32 +69,12 @@ const LatestPage = ({
     const cover = `${serverAddress}/api/items/${item.libraryItemId}/cover?token=${userToken}`;
 
     return (
-      <Flex>
-        <TouchableArea
-          flexDirection="row"
-          onPress={() => router.push(`/book/${item.libraryItemId}`)}
-        >
-          {cover ? (
-            <Image
-              width={"$5"}
-              height={"$5"}
-              resizeMode="cover"
-              source={{
-                uri: cover,
-              }}
-            />
-          ) : null}
-          <Flex px="$2">
-            <Text fontSize={16} color="$gray11" textDecorationLine="underline">
-              {item.podcast.metadata.title}
-            </Text>
-            <Text color={"$gray10"}>
-              {dateDistanceFromNow(item.publishedAt)}
-            </Text>
-          </Flex>
-        </TouchableArea>
-        <EpisodeTableRow item={item} podcastId={item.libraryItemId} />
-      </Flex>
+      <EpisodeTableRow
+        item={item}
+        podcastId={item.libraryItemId}
+        cover={cover}
+        numberOfLines={1}
+      />
     );
   };
 
@@ -126,7 +103,7 @@ const LatestPage = ({
               showsVerticalScrollIndicator={false}
               data={flattenData}
               // eslint-disable-next-line react/prop-types
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id + "latest-page"}
               ItemSeparatorComponent={() => (
                 <Separator width="95%" alignSelf="center" my="$2" />
               )}

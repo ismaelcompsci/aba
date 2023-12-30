@@ -96,7 +96,9 @@ const PodcastEpisodesTable = ({
     <Flex fill pt="$4">
       <PodcastDownloadWidget libraryItemId={libraryItemId} />
       <Flex row space pb="$2">
-        <Text fontSize={20}>Episodes ({episodes.length})</Text>
+        <Text fontSize={20} fontWeight={"700"}>
+          Episodes ({episodes.length})
+        </Text>
         <Flex grow />
         {isAdminOrUp ? (
           <TouchableArea
@@ -170,12 +172,14 @@ const PodcastEpisodesTable = ({
           </Popover.Content>
         </Popover>
       </Flex>
+      <Separator pt="$1.5" />
       <FlatList
         data={sortedEpisodes}
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={() => <Separator pt="$1.5" />}
         renderItem={renderItem}
       />
+      <Separator pt="$1.5" />
     </Flex>
   );
 };

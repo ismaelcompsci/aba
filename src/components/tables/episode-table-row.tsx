@@ -1,10 +1,12 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import React from "react";
+import FastImage from "react-native-fast-image";
 import TrackPlayer, {
   State,
   usePlaybackState,
 } from "react-native-track-player";
 import { Pause, Play } from "@tamagui/lucide-icons";
+import { format } from "date-fns";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
 import { Text, useTheme } from "tamagui";
@@ -13,20 +15,20 @@ import { useUserMediaProgress } from "../../hooks/use-user-media-progress";
 import { showPlayerAtom } from "../../state/app-state";
 import { PodcastEpisodeExpanded } from "../../types/aba";
 import { elapsedTime } from "../../utils/utils";
-import RenderHTML from "../custom-components/render-html";
 import ItemProgress from "../item-progress";
 import { Flex } from "../layout/flex";
-import { PodcastLabel } from "../podcast-label";
 import { TouchableArea } from "../touchable/touchable-area";
-
-import PlayingWidget from "./playing-widget";
 
 const EpisodeTableRow = ({
   item,
   podcastId,
+  cover,
+  numberOfLines,
 }: {
   item: PodcastEpisodeExpanded;
   podcastId: string;
+  cover?: string;
+  numberOfLines?: number;
 }) => {
   const [showPlayer, setShowPlayer] = useAtom(showPlayerAtom);
   const playerState = usePlaybackState();
@@ -38,11 +40,25 @@ const EpisodeTableRow = ({
   const colors = useTheme();
   const color = colors.color.get();
 
-  const episodeType = item.episodeType === "full" ? null : item.episodeType;
-  const subtitle = item.subtitle;
   const isPlaying = playerState.state === State.Playing;
-  const episodeNumber = item.episode;
-  const season = item.season;
+
+  const cleanedDescription = useMemo(() => {
+    const regex = /(<([^>]+)>)/gi;
+    const result = item.description.replace(regex, "");
+
+    return result;
+  }, [item.id]);
+
+  const formattedDate = useMemo(() => {
+    let _format = "MMM d";
+    const publishedAt = new Date(item.publishedAt);
+
+    if (publishedAt.getFullYear() - new Date().getFullYear() > 1) {
+      _format = "LL/dd/yyyy";
+    }
+
+    return format(publishedAt, _format);
+  }, []);
 
   const timeRemaining = !userProgressPercent
     ? elapsedTime(item.duration)
@@ -78,63 +94,88 @@ const EpisodeTableRow = ({
   };
 
   return (
-    <TouchableArea hapticFeedback onPress={() => onEpisodePress(item.id)}>
-      <Flex py="$2" space="$1.5">
-        <Text fontSize={18}>{item.title}</Text>
-        {!subtitle && item.description ? (
-          <RenderHTML html={item.description} maxTextLength={60} />
-        ) : (
-          <Text>{item.subtitle}</Text>
-        )}
-        <Flex row alignItems="center" gap="$2">
-          {episodeNumber ? (
-            <PodcastLabel label={`Episode #${episodeNumber}`} />
-          ) : null}
-          {season ? <PodcastLabel label={`Season #${season}`} /> : null}
-          {episodeType ? <PodcastLabel label={`${episodeType}`} /> : null}
-        </Flex>
-        <Flex row alignItems="center" pt="$4" space>
-          <TouchableArea
-            alignItems="center"
-            borderWidth={1}
-            borderColor={colors.gray8.get()}
-            paddingHorizontal="$4"
-            paddingVertical="$2"
-            flexDirection="row"
-            gap="$4"
-            borderRadius="$6"
-            onPress={() => onPlayItem(item.id)}
-            opacity={userProgressPercent === 1 ? 0.8 : 1}
-          >
-            {showPlayer.playing &&
-            showPlayer.episodeId === item.id &&
-            isPlaying ? (
-              <>
-                <Pause size={18} fill={color} />
-                <Text>Playing</Text>
-              </>
-            ) : (
-              <>
-                <Play size={18} fill={color} />
-                <Text>{timeRemaining}</Text>
-              </>
-            )}
-          </TouchableArea>
-          {showPlayer.playing && item.id === showPlayer.episodeId ? (
-            <PlayingWidget />
-          ) : null}
-          <Flex grow />
-          <ItemProgress
-            episodeId={item.id}
-            id={podcastId}
-            radius={18}
-            activeStrokeWidth={5}
-            inActiveStrokeWidth={6}
-            progressValueFontSize={10}
-            inActiveStrokeOpacity={0.4}
-            circleBackgroundColor={colors.backgroundPress.get()}
-            activeStrokeColor={color}
+    <TouchableArea
+      hapticFeedback
+      onPress={() => onEpisodePress(item.id)}
+      py="$2.5"
+    >
+      <Flex fill row space={"$2"}>
+        {cover ? (
+          <FastImage
+            resizeMode="cover"
+            style={{
+              height: 100,
+              width: 100,
+              borderRadius: 4,
+            }}
+            source={{
+              uri: cover,
+            }}
           />
+        ) : null}
+        <Flex fill space="$1.5" grow>
+          <Flex gap="$1">
+            <Text fontWeight={"700"} color={"$gray11"} fontSize={11}>
+              {formattedDate}
+            </Text>
+
+            <Text fontWeight={"800"} fontSize={16}>
+              {item.title}
+            </Text>
+
+            {cleanedDescription ? (
+              <Text
+                numberOfLines={numberOfLines ? numberOfLines : 3}
+                color={"$gray11"}
+              >
+                {cleanedDescription}
+              </Text>
+            ) : null}
+          </Flex>
+          <Flex grow />
+          <Flex shrink row alignItems="center" justifyContent="center">
+            <TouchableArea
+              alignItems="center"
+              borderWidth={1}
+              borderColor={colors.gray8.get()}
+              paddingHorizontal="$3.5"
+              bg={"$backgroundHover"}
+              paddingVertical={6}
+              flexDirection="row"
+              gap="$1.5"
+              borderRadius="$7"
+              onPress={() => onPlayItem(item.id)}
+              opacity={userProgressPercent === 1 ? 0.8 : 1}
+            >
+              {showPlayer.playing &&
+              showPlayer.episodeId === item.id &&
+              isPlaying ? (
+                <>
+                  <Pause size={14} fill={color} />
+                  <Text>Playing</Text>
+                </>
+              ) : (
+                <>
+                  <Play size={14} fill={color} />
+                  <Text fontWeight={"600"} fontSize={12}>
+                    {timeRemaining}
+                  </Text>
+                </>
+              )}
+            </TouchableArea>
+            <Flex grow />
+            <ItemProgress
+              episodeId={item.id}
+              id={podcastId}
+              radius={14}
+              activeStrokeWidth={3}
+              inActiveStrokeWidth={4}
+              progressValueFontSize={10}
+              inActiveStrokeOpacity={0.4}
+              circleBackgroundColor={colors.backgroundPress.get()}
+              activeStrokeColor={color}
+            />
+          </Flex>
         </Flex>
       </Flex>
     </TouchableArea>

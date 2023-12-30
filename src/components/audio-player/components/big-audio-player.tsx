@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useWindowDimensions } from "react-native";
 import FastImage from "react-native-fast-image";
-import { getColors } from "react-native-image-colors";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsPlaying } from "react-native-track-player";
-import { LinearGradient } from "@tamagui/linear-gradient";
 import { Bookmark, ChevronDown, Headphones, List } from "@tamagui/lucide-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useAtomValue, useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
-import { IS_ANDROID } from "../../../constants/consts";
+import { useImageColors } from "../../../hooks/use-image-colors";
 import { useOrientation } from "../../../hooks/use-orientation";
 import { bookmarksModalAtom } from "../../../state/app-state";
 import { appThemeAtom } from "../../../state/local-state";
@@ -23,14 +22,6 @@ import BigAudioPlayerControls from "./big-audio-player-controls";
 import PlaybackSpeedControls from "./playback-speed-controls";
 import { ProgressSlider } from "./progress-slider";
 import { AudiobookInfo } from "./small-audio-player";
-
-const initialState = {
-  colorOne: { value: "", name: "" },
-  colorTwo: { value: "", name: "" },
-  colorThree: { value: "", name: "" },
-  colorFour: { value: "", name: "" },
-  rawResult: "",
-};
 
 const BigAudioPlayer = ({
   audiobookInfo,
@@ -135,7 +126,7 @@ const AudioPlayerImage = ({ cover }: { cover?: string | null }) => {
           },
           shadowOpacity: 0.32,
           shadowRadius: 5.46,
-          elevation: 9,
+          elevation: 24,
         },
         { transform: [{ scale }] },
       ]}
@@ -221,70 +212,25 @@ const BigAudioPlayerBackground = ({
   const appScheme = useAtomValue(appThemeAtom);
   const { height } = useWindowDimensions();
   const colors = useTheme();
+  const { colorTwo } = useImageColors(cover);
 
-  const [gradientColors, setColors] = useState(initialState);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const result = await getColors(cover || "", {
-          fallback: colors.backgroundPress.get(),
-          cache: true,
-          key: cover || "cover",
-        });
-
-        switch (result.platform) {
-          case "android":
-          case "web":
-            setColors({
-              colorOne: { value: result.lightVibrant, name: "lightVibrant" },
-              colorTwo: { value: result.dominant, name: "dominant" },
-              colorThree: { value: result.vibrant, name: "vibrant" },
-              colorFour: { value: result.darkVibrant, name: "darkVibrant" },
-              rawResult: JSON.stringify(result),
-            });
-            break;
-          case "ios":
-            setColors({
-              colorOne: { value: result.background, name: "background" },
-              colorTwo: { value: result.detail, name: "detail" },
-              colorThree: { value: result.primary, name: "primary" },
-              colorFour: { value: result.secondary, name: "secondary" },
-              rawResult: JSON.stringify(result),
-            });
-            break;
-          default:
-            throw new Error("Unexpected platform");
-        }
-      } catch (error) {
-        console.log("[BIGAUDIOPLAYER] get colors error ", error, cover);
-      }
-    })();
-  }, [cover]);
-
-  if (appScheme.scheme === "oled" || IS_ANDROID) {
+  if (appScheme.scheme === "oled") {
     return (
       <Flex height={height} borderRadius={"$7"} bg="$backgroundPress">
         {children}
       </Flex>
     );
-  } else
+  } else {
     return (
       <LinearGradient
-        height={height}
-        colors={[
-          // gradientColors.colorOne.value,
-          gradientColors.colorFour.value,
-          "$backgroundPress",
-        ]}
+        style={{ height: height }}
+        colors={[colorTwo.value, colors.backgroundPress.get()]}
         locations={[0, 0.7]}
-        // start={{ x: 0, y: 0 }}
-        // end={{ x: 1, y: 1 }}
-        borderRadius={"$7"}
       >
         {children}
       </LinearGradient>
     );
+  }
 };
 
 export default BigAudioPlayer;

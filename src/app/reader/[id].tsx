@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import EBookReader from "../../components/epub-reader/ebook-reader";
 import { Screen } from "../../components/layout/screen";
@@ -14,11 +16,12 @@ import {
   serverAddressAtom,
   userAtom,
 } from "../../state/app-state";
+import { LibraryItemExpanded } from "../../types/aba";
 
 const ReaderPage = () => {
   const serverAddress = useAtomValue(serverAddressAtom);
   const { id, ino } = useLocalSearchParams();
-  const currentItem = useAtomValue(currentItemAtom);
+  const [currentItem, setCurrentItem] = useAtom(currentItemAtom);
   const user = useAtomValue(userAtom);
   const mediaProgres = useAtomValue(mediaProgressAtom);
 
@@ -28,8 +31,25 @@ const ReaderPage = () => {
   const setEpubReaderCurrentLocation = useSetAtom(
     epubReaderCurrentLocationAtom
   );
-
   const [bookPath, setBookPath] = useState("");
+
+  useQuery({
+    queryKey: ["bookItem", id],
+    queryFn: async () => {
+      const response = await axios.get(`${serverAddress}/api/items/${id}`, {
+        params: {
+          expanded: 1,
+          include: "rssfeed",
+        },
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+
+      setCurrentItem(response.data);
+      return response.data as LibraryItemExpanded;
+    },
+  });
 
   if (!currentItem || id !== currentItem?.id || !user) {
     return router.back();
