@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TrackPlayer, {
   Event,
   useProgress,
   useTrackPlayerEvents,
 } from "react-native-track-player";
+import { atom, useAtomValue } from "jotai";
+
+import { playbackSessionAtom } from "../../../state/app-state";
 
 import { useTracks } from "./use-tracks";
 
+const durationAtom = atom((get) => get(playbackSessionAtom)?.duration ?? 0);
+
 export const useAudioPlayerProgress = () => {
+  const duration = useAtomValue(durationAtom);
   const { audioTracks, currentTrack } = useTracks();
   const { position } = useProgress();
 
@@ -23,12 +29,6 @@ export const useAudioPlayerProgress = () => {
       setIsFinished(true);
     }
   });
-
-  const getTotalDuration = () => {
-    let total = 0;
-    audioTracks?.forEach((t) => (total += t.duration || 0));
-    return total;
-  };
 
   /**
    *
@@ -130,7 +130,7 @@ export const useAudioPlayerProgress = () => {
     currentPosition,
     currentTrack,
     audioTracks,
-    getTotalDuration,
+    duration,
     jumpBackwards,
     jumpForwards,
     seekTo,

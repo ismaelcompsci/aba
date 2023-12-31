@@ -3,7 +3,9 @@ import TrackPlayer, {
   Event,
   useTrackPlayerEvents,
 } from "react-native-track-player";
+import { atom } from "jotai";
 
+import { playbackSessionAtom } from "../../../state/app-state";
 import { AudioPlayerTrack } from "../../../types/types";
 
 export const useTracks = () => {
@@ -38,3 +40,8 @@ export const useTracks = () => {
     currentTrack,
   };
 };
+
+export const chaptersAtom = atom((get) => {
+  const session = get(playbackSessionAtom);
+  return session?.chapters;
+});

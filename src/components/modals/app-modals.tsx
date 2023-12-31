@@ -28,9 +28,9 @@ export const AppModals = () => {
         <AddPlaylistsModal />
       </LazyModalRenderer>
 
-      <LazyModalRenderer atom={chaptersModalAtom}>
-        <ChaptersModal />
-      </LazyModalRenderer>
+      {/* <LazyModalRenderer atom={chaptersModalAtom} > */}
+      <ChaptersModal />
+      {/* </LazyModalRenderer> */}
 
       <LazyModalRenderer atom={bookmarksModalAtom}>
         <BookmarksModal />

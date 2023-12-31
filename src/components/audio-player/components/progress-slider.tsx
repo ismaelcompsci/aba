@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createNativeWrapper } from "react-native-gesture-handler";
 import TrackPlayer, {
   Event,
@@ -16,7 +16,7 @@ import {
   showPlayerAtom,
   userTokenAtom,
 } from "../../../state/app-state";
-import { formatSeconds } from "../../../utils/utils";
+import { secondsToTimestamp } from "../../../utils/utils";
 import { Flex } from "../../layout/flex";
 import { useAudioPlayerProgress } from "../hooks/use-audio-player-progress";
 
@@ -47,9 +47,8 @@ export const ProgressSlider = ({
 
   const {
     isFinished,
-    audioTracks,
     currentPosition: overallCurrentTime,
-    getTotalDuration,
+    duration,
     seekTo,
   } = useAudioPlayerProgress();
 
@@ -80,7 +79,7 @@ export const ProgressSlider = ({
       syncSession({
         currentTime: overallCurrentTime,
         timeListened: TIME_BETWEEN_SESSION_UPDATES,
-        duration: totalDuration,
+        duration: duration,
       });
     }
   }, [isFinished]);
@@ -91,14 +90,12 @@ export const ProgressSlider = ({
         artwork: audiobookInfo.cover || "",
         title: audiobookInfo.title,
         artist: audiobookInfo.author,
-        duration: totalDuration,
+        duration: duration,
         elapsedTime: overallCurrentTime,
       });
       updateSession();
     }
   });
-
-  const totalDuration = useMemo(() => getTotalDuration(), [audioTracks]);
 
   const handleSliderEnd = async (value: number) => {
     seekTo(value, 1450, () => {
@@ -135,7 +132,7 @@ export const ProgressSlider = ({
       const updatePayload = {
         currentTime: overallCurrentTime,
         timeListened: TIME_BETWEEN_SESSION_UPDATES,
-        duration: totalDuration,
+        duration: duration,
       };
 
       await syncSession(updatePayload);
@@ -183,7 +180,7 @@ export const ProgressSlider = ({
         onSlidingStart={() => setIsSeeking(true)}
         onValueChange={setSeek}
         onSlidingComplete={() => handleSliderEnd(seek)}
-        maximumValue={totalDuration ? Math.floor(totalDuration) : 99999}
+        maximumValue={duration ? Math.floor(duration) : 99999}
         tapToSeek
       />
       <Flex
@@ -193,12 +190,12 @@ export const ProgressSlider = ({
         w={IS_ANDROID ? "95%" : "100%"}
       >
         <Text fontSize={"$1"} color={"$gray10"}>
-          {formatSeconds(isSeeking ? seek : overallCurrentTime)}
+          {secondsToTimestamp(isSeeking ? seek : overallCurrentTime)}
         </Text>
         <Text fontSize={"$1"} color={"$gray10"}>
           -
-          {formatSeconds(
-            totalDuration - (isSeeking ? seek : overallCurrentTime)
+          {secondsToTimestamp(
+            duration - (isSeeking ? seek : overallCurrentTime)
           )}
         </Text>
       </Flex>
