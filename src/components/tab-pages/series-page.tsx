@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { useWindowDimensions } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -33,7 +33,7 @@ const SeriesPage = ({
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
 
   let columns = Math.floor(screenWidth / (bookWidth * 2)) - 1;
-  columns = columns === 0 ? 1 : columns;
+  columns = columns <= 0 ? 1 : columns;
 
   const {
     data: seriesItems,
@@ -96,21 +96,18 @@ const SeriesPage = ({
     }
   };
 
-  const handleRenderItem = useCallback(
-    ({ item }: { item: SeriesBooksMinified }) => {
-      return (
-        <Flex grow centered>
-          <SeriesCard
-            userToken={userToken}
-            item={item}
-            isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-            serverAddress={serverAddress}
-          />
-        </Flex>
-      );
-    },
-    [currentLibraryId]
-  );
+  const handleRenderItem = ({ item }: { item: SeriesBooksMinified }) => {
+    return (
+      <Flex grow centered>
+        <SeriesCard
+          userToken={userToken}
+          item={item}
+          isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+          serverAddress={serverAddress}
+        />
+      </Flex>
+    );
+  };
 
   const showLoadingOrEmpty = isInitialLoading || isLoading || isEmpty;
 
@@ -130,7 +127,7 @@ const SeriesPage = ({
           data={flattenData}
           numColumns={columns}
           onEndReached={loadNextPageData}
-          keyExtractor={(item) => `${item.id}}`}
+          keyExtractor={(item) => `${item.id}-series-page`}
           renderItem={handleRenderItem}
           ItemSeparatorComponent={() => <Separator w={0} h={10} />}
           estimatedItemSize={bookWidth * 2}

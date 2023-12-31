@@ -221,10 +221,12 @@ const BigAudioPlayerBackground = ({
       </Flex>
     );
   } else {
+    const bg = colors.backgroundPress.get();
+    const gColor = colorTwo.value === "" ? bg : colorTwo.value;
     return (
       <LinearGradient
         style={{ height: height }}
-        colors={[colorTwo.value, colors.backgroundPress.get()]}
+        colors={[gColor, bg]}
         locations={[0, 0.7]}
       >
         {children}

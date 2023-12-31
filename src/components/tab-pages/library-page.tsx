@@ -50,7 +50,7 @@ const LibraryPage = ({
   } else if (screenWidth <= 991) {
     numOfColumns = 5;
   } else {
-    numOfColumns = 9;
+    numOfColumns = 8;
   }
 
   const bookW = screenWidth / numOfColumns;

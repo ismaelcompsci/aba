@@ -56,7 +56,6 @@ const SeriesCard = ({
           return (
             <Flex key={i} x={offsetLeft}>
               <FastImage
-                key={i}
                 style={{
                   height: bookHeight,
                   width: coverWidth,
@@ -72,7 +71,7 @@ const SeriesCard = ({
         })}
       </ZStack>
     );
-  }, []);
+  }, [item.id]);
 
   return (
     <Flex

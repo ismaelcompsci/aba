@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { FlatList } from "react-native";
-import { SlideInUp, useSharedValue, withTiming } from "react-native-reanimated";
+import { SlideInUp, useSharedValue, withSpring } from "react-native-reanimated";
 import { useAtomValue } from "jotai";
 
 import {
@@ -8,8 +8,8 @@ import {
   requestInfoAtom,
 } from "../../state/app-state";
 import { PersonalizedView } from "../../types/types";
-import { AnimatedFlex, Flex } from "../layout/flex";
 import { ShelfCard } from "../cards/shelf-card";
+import { AnimatedFlex, Flex } from "../layout/flex";
 
 export const ContinueListeningShelf = ({
   shelf,
@@ -22,7 +22,7 @@ export const ContinueListeningShelf = ({
   const height = useSharedValue(0);
 
   useEffect(() => {
-    height.value = withTiming(324 + 20, { duration: 500 });
+    height.value = withSpring(324 + 20, { damping: 16 });
   }, []);
 
   if (!shelf.entities.length) return null;

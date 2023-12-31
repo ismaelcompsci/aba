@@ -2,10 +2,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { Spinner } from "tamagui";
 
 import EBookReader from "../../components/epub-reader/ebook-reader";
+import { Flex } from "../../components/layout/flex";
 import { Screen } from "../../components/layout/screen";
 import LoadingBook from "../../components/loading-book";
 import {
@@ -33,7 +35,7 @@ const ReaderPage = () => {
   );
   const [bookPath, setBookPath] = useState("");
 
-  useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["bookItem", id],
     queryFn: async () => {
       const response = await axios.get(`${serverAddress}/api/items/${id}`, {
@@ -51,12 +53,12 @@ const ReaderPage = () => {
     },
   });
 
-  if (!currentItem || id !== currentItem?.id || !user) {
+  if (!user) {
     return router.back();
   }
 
   const ebookFile =
-    "ebookFile" in currentItem.media
+    currentItem && "ebookFile" in currentItem.media
       ? ino
         ? currentItem?.libraryFiles.find((lf) => lf.ino === ino)
         : currentItem?.media.ebookFile
@@ -64,13 +66,13 @@ const ReaderPage = () => {
 
   const ebookUrl = () => {
     if (ino) {
-      return `${serverAddress}/api/items/${currentItem!.id}/ebook/${ino}`;
+      return `${serverAddress}/api/items/${currentItem?.id}/ebook/${ino}`;
     }
-    return `${serverAddress}/api/items/${currentItem!.id}/ebook`;
+    return `${serverAddress}/api/items/${currentItem?.id}/ebook`;
   };
 
   const getInitialLocation = () => {
-    if (!currentItem || !currentItem.id) return;
+    if (!currentItem) return;
     const prog = mediaProgres.find((v) => v.libraryItemId === id);
 
     if (!prog || !prog.ebookLocation) return;
@@ -82,11 +84,11 @@ const ReaderPage = () => {
 
   const props = useMemo(
     () => ({
-      userId: user.id,
-      userToken: user.token,
+      userId: user?.id,
+      userToken: user?.token,
       initialLocation: getInitialLocation(),
     }),
-    []
+    [currentItem]
   );
 
   useEffect(() => {
@@ -95,6 +97,18 @@ const ReaderPage = () => {
       setEpubReaderCurrentLocation(null);
     };
   }, []);
+
+  if (isLoading) {
+    return (
+      <Flex fill centered>
+        <Spinner />
+      </Flex>
+    );
+  }
+
+  if (!currentItem) {
+    return <Redirect href={"/"} />;
+  }
 
   return (
     <Screen centered>
