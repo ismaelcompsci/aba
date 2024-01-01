@@ -61,6 +61,12 @@ const Menu = () => {
   const { left, right, top } = useAppSafeAreas();
   const { width } = useWindowDimensions();
 
+  useEffect(() => {
+    if (!show) {
+      setOpenSettings(false);
+    }
+  }, [show]);
+
   if (!show) return null;
 
   return (
