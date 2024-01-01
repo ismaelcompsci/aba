@@ -91,12 +91,13 @@ const Chapters = () => {
         <FlashList
           // @ts-ignore
           data={tracks}
+          extraData={currentTrack}
           initialScrollIndex={currentTrack.id}
           showsVerticalScrollIndicator={false}
           estimatedItemSize={44}
           renderItem={({ item }) => {
             const start = (
-              "startOffset" in item ? item.startOffset : item.start
+              "startOffset" in item ? item.startOffset : (item.start as number)
             ) as number;
             const isPodcastChapter = !("startOffset" in item);
 

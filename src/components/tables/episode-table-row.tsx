@@ -19,6 +19,8 @@ import ItemProgress from "../item-progress";
 import { Flex } from "../layout/flex";
 import { TouchableArea } from "../touchable/touchable-area";
 
+import PlayingWidget from "./playing-widget";
+
 const EpisodeTableRow = ({
   item,
   podcastId,
@@ -132,8 +134,9 @@ const EpisodeTableRow = ({
               </Text>
             ) : null}
           </Flex>
+
           <Flex grow />
-          <Flex shrink row alignItems="center" justifyContent="center">
+          <Flex shrink row alignItems="center" justifyContent="center" gap="$2">
             <TouchableArea
               alignItems="center"
               borderWidth={1}
@@ -152,7 +155,7 @@ const EpisodeTableRow = ({
               isPlaying ? (
                 <>
                   <Pause size={14} fill={color} />
-                  <Text>Playing</Text>
+                  <Text fontSize={12}>Playing</Text>
                 </>
               ) : (
                 <>
@@ -163,6 +166,9 @@ const EpisodeTableRow = ({
                 </>
               )}
             </TouchableArea>
+            {showPlayer.playing && item.id === showPlayer.episodeId ? (
+              <PlayingWidget initalHeight={28} />
+            ) : null}
             <Flex grow />
             <ItemProgress
               episodeId={item.id}

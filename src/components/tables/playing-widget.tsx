@@ -12,11 +12,21 @@ import { State, usePlaybackState } from "react-native-track-player";
 
 import { Flex } from "../layout/flex";
 
-const PlayingWidget = () => {
+const FIRST_HEIGHT_BAR = 30;
+
+const PlayingWidget = ({
+  initalHeight = FIRST_HEIGHT_BAR,
+}: {
+  initalHeight?: number;
+}) => {
   const playerState = usePlaybackState();
   const isPlaying = playerState.state === State.Playing;
   const height = useSharedValue(0);
   const otherHeight = useSharedValue(0);
+
+  const first = initalHeight;
+  const third = initalHeight - 10;
+  const fourth = initalHeight / 2;
 
   useEffect(() => {
     height.value = withRepeat(withTiming(1, { duration: 400 }), Infinity, true);
@@ -30,7 +40,7 @@ const PlayingWidget = () => {
   const firstBarStyle = useAnimatedStyle(
     () => ({
       height: isPlaying
-        ? interpolate(otherHeight.value, [0, 1], [7, 30])
+        ? interpolate(otherHeight.value, [0, 1], [7, first])
         : withTiming(1, { duration: 400 }),
     }),
     [isPlaying]
@@ -53,7 +63,7 @@ const PlayingWidget = () => {
   const thirdBarStyle = useAnimatedStyle(
     () => ({
       height: isPlaying
-        ? interpolate(otherHeight.value, [0, 1], [height.value * 10, 20]) +
+        ? interpolate(otherHeight.value, [0, 1], [height.value * 10, third]) +
           height.value * 10
         : withTiming(1, { duration: 400 }),
     }),
@@ -62,7 +72,7 @@ const PlayingWidget = () => {
   const fourthBarStyle = useAnimatedStyle(
     () => ({
       height: isPlaying
-        ? interpolate(height.value, [0, 1], [otherHeight.value * 10, 15], {
+        ? interpolate(height.value, [0, 1], [otherHeight.value * 10, fourth], {
             extrapolateLeft: Extrapolation.CLAMP,
           })
         : withTiming(1, { duration: 400 }),

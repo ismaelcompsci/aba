@@ -111,7 +111,7 @@ const ReaderPage = () => {
   }
 
   return (
-    <Screen centered>
+    <Screen>
       <LoadingBook
         url={url}
         user={user}
