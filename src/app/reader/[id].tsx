@@ -35,7 +35,7 @@ const ReaderPage = () => {
   );
   const [bookPath, setBookPath] = useState("");
 
-  const { isLoading } = useQuery({
+  const { isLoading, isFetching } = useQuery({
     queryKey: ["bookItem", id],
     queryFn: async () => {
       const response = await axios.get(`${serverAddress}/api/items/${id}`, {
@@ -98,7 +98,7 @@ const ReaderPage = () => {
     };
   }, []);
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
       <Flex fill centered>
         <Spinner />
@@ -106,19 +106,21 @@ const ReaderPage = () => {
     );
   }
 
-  if (!currentItem) {
+  if (!isLoading && !isFetching && !currentItem) {
     return <Redirect href={"/"} />;
   }
 
   return (
     <Screen>
-      <LoadingBook
-        url={url}
-        user={user}
-        ebookFile={ebookFile}
-        book={currentItem}
-        setBookPath={(path) => setBookPath(path)}
-      />
+      {currentItem ? (
+        <LoadingBook
+          url={url}
+          user={user}
+          ebookFile={ebookFile}
+          book={currentItem}
+          setBookPath={(path) => setBookPath(path)}
+        />
+      ) : null}
       {user && bookPath !== "" ? (
         <EBookReader
           book={currentItem!}
