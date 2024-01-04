@@ -52,8 +52,6 @@ export const PlayerBottomSheet = forwardRef<
         -initialHeight,
         Math.max(translateY.value, -dimensions.screen.height)
       );
-
-      event.state;
     })
     .onEnd((event) => {
       const skip = event.velocityY > -100 && event.velocityY < 100;

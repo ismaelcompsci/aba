@@ -28,7 +28,7 @@ type Props = PropsWithChildren<{
   fullScreen?: boolean;
 }>;
 
-export const AppBottomSheetModalR = BottomSheet;
+// export const AppBottomSheetModalR = BottomSheet;
 
 export const AppBottomSheetModal = forwardRef<BottomSheet, Props>(
   (

@@ -9,6 +9,7 @@ import {
   LibraryItemMinified,
   PlaybackSession,
   PlaylistExpanded,
+  PlaylistItemExpanded,
   PodcastEpisodeExpanded,
   PodcastMetadata,
   PodcastMinified,
@@ -129,11 +130,6 @@ export type AudioPlayerTrack = {
 
 export interface AudioPlayerTrackExtra extends Track, AudioPlayerTrack {}
 
-export type PlayingStatePlaylist = {
-  libraryItemId?: string;
-  episodeId?: string;
-};
-
 export type PlayingState = {
   open: boolean;
   playing: boolean;
@@ -141,7 +137,7 @@ export type PlayingState = {
   startTime?: number;
   episodeId?: string;
   chapterId?: number;
-  playlist?: PlayingStatePlaylist[];
+  playlist?: PlaylistItemExpanded[];
 };
 
 export type ListeningStats = {

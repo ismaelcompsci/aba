@@ -257,7 +257,15 @@ const AudioPlayerContainer = () => {
       libraryItemId={showPlayer.libraryItemId ?? ""}
     />
   ) : (
-    <Flex height={64} w="100%" bg="$backgroundPress" borderRadius="$7" centered>
+    <Flex
+      pos={"absolute"}
+      height={64}
+      bottom={0}
+      w="100%"
+      bg="$backgroundPress"
+      borderRadius="$7"
+      centered
+    >
       <Spinner />
     </Flex>
   );

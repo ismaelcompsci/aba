@@ -172,14 +172,7 @@ const PlaylistPageHeader = ({
     const firstItem = playableItems[firstItemIndex];
     playableItems.splice(firstItemIndex, 1);
 
-    const playlist = !playableItems.length
-      ? undefined
-      : [
-          ...playableItems.map((item) => ({
-            libraryItemId: item.libraryItemId,
-            episodeId: item.episodeId ? item.episodeId : undefined,
-          })),
-        ];
+    const playlist = !playableItems.length ? undefined : [...playableItems];
 
     if (isPlaying) {
       if (showPlayer.playing) {

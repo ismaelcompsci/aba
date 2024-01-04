@@ -4,17 +4,24 @@ import FastImage from "react-native-fast-image";
 import { useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useIsPlaying } from "react-native-track-player";
-import { Bookmark, ChevronDown, Headphones, List } from "@tamagui/lucide-icons";
+import {
+  Bookmark,
+  ChevronDown,
+  Headphones,
+  ListOrdered,
+  ListVideo,
+} from "@tamagui/lucide-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAtomValue, useSetAtom } from "jotai";
 import { H3, H6, useTheme } from "tamagui";
 
 import { useImageColors } from "../../../hooks/use-image-colors";
 import { useOrientation } from "../../../hooks/use-orientation";
-import { bookmarksModalAtom } from "../../../state/app-state";
+import { bookmarksModalAtom, showPlayerAtom } from "../../../state/app-state";
 import { appThemeAtom } from "../../../state/local-state";
 import { AnimatedFlex, Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
+import { playlistModalAtom } from "../../modals/app-modals";
 import { chaptersModalAtom } from "../../modals/chapter-modal";
 import { TouchableArea } from "../../touchable/touchable-area";
 
@@ -35,6 +42,7 @@ const BigAudioPlayer = ({
   const { width, height } = useWindowDimensions();
   const { bottom, top, left, right } = useSafeAreaInsets();
   const orientation = useOrientation();
+  const showPlayer = useAtomValue(showPlayerAtom);
 
   return (
     <Flex
@@ -89,6 +97,7 @@ const BigAudioPlayer = ({
             <ShowBookmarksButton libraryItemId={libraryItemId} />
             <PlaybackSpeedControls />
             <ShowChaptersButton />
+            {showPlayer.playlist ? <ShowPlaylistButton /> : null}
           </Flex>
         </Flex>
       </BigAudioPlayerBackground>
@@ -197,7 +206,24 @@ const ShowChaptersButton = () => {
       justifyContent={"center"}
       onPress={() => setChaptersModal({ open: true })}
     >
-      <List />
+      <ListOrdered />
+    </TouchableArea>
+  );
+};
+
+const ShowPlaylistButton = () => {
+  const setShowPlaylistModal = useSetAtom(playlistModalAtom);
+
+  return (
+    <TouchableArea
+      borderRadius={"$12"}
+      width={"$4"}
+      height={"$4"}
+      alignItems={"center"}
+      justifyContent={"center"}
+      onPress={() => setShowPlaylistModal({ open: true })}
+    >
+      <ListVideo />
     </TouchableArea>
   );
 };
