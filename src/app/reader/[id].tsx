@@ -100,7 +100,7 @@ const ReaderPage = () => {
 
   if (isLoading || isFetching) {
     return (
-      <Flex fill centered>
+      <Flex fill centered bg={"$background"}>
         <Spinner />
       </Flex>
     );
