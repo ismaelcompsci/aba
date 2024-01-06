@@ -22,3 +22,7 @@ eas.json
 .metro-health-check*
 
 .tamagui
+
+app-release/
+app-release*
+build*
