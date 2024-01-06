@@ -93,7 +93,10 @@ const EBookReader = ({
 
   const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
 
-  const isPdf = useMemo(() => bookPath.endsWith(".pdf"), [bookPath]);
+  const isPdf = useMemo(
+    () => bookPath.endsWith(".pdf") || bookPath.endsWith("cbz"),
+    [bookPath]
+  );
 
   const annotationKey = `${book.id}-${userId}`;
 
@@ -238,7 +241,7 @@ const EBookReader = ({
   }, [width]);
 
   useEffect(() => {
-    setIsPdf(bookPath.endsWith(".pdf"));
+    setIsPdf(bookPath.endsWith(".pdf") || bookPath.endsWith("cbz"));
   }, [bookPath]);
 
   return (

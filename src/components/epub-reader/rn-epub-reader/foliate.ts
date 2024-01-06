@@ -1,3 +1,10163 @@
 export default `
-!function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e():"function"==typeof define&&define.amd?define([],e):"object"==typeof exports?exports.foliate=e():t.foliate=e()}(self,(()=>(()=>{"use strict";var t={d:(e,n)=>{for(var i in n)t.o(n,i)&&!t.o(e,i)&&Object.defineProperty(e,i,{enumerable:!0,get:n[i]})},o:(t,e)=>Object.prototype.hasOwnProperty.call(t,e)},e={};t.d(e,{default:()=>sa});const n=(t,e)=>[-1,...e,t.length].reduce((({xs:e,a:n},i)=>({xs:e?.concat([t.slice(n+1,i)])??[],a:i})),{}).xs,i=/\\d/,r=/^epubcfi\\((.*)\\)\$/,s=t=>t.replace(/[\\^[\\](),;=]/g,"^\$&"),a=t=>r.test(t)?t:\`epubcfi(\${t})\`,o=(...t)=>\`epubcfi(\${((...t)=>t.join("!"))(...t.map((t=>t.match(r)?.[1]??t)))})\`,l=(t,e)=>((t,e)=>t.map(((t,n,i)=>e(t)?n:null)).filter((t=>null!=t)))(t,(([t])=>t===e)),c=t=>{const e=[];let n;for(const[i,r]of t){if("/"===i)e.push({index:r});else{const t=e[e.length-1];if(":"===i)t.offset=r;else if("~"===i)t.temporal=r;else if("@"===i)t.spatial=(t.spatial??[]).concat(r);else if(";s"===i)t.side=r;else if("["===i){if("/"!==n||!r){t.text=(t.text??[]).concat(r);continue}t.id=r}}n=i}return e},h=t=>n(t,l(t,"!")).map(c),d=t=>{const e=(t=>{const e=[];let n,r,s="";const a=t=>(e.push(t),n=null,s=""),o=t=>(s+=t,r=!1);for(const e of Array.from(t.trim()).concat(""))if("^"!==e||r){if("!"===n)a(["!"]);else if(","===n)a([","]);else if("/"===n||":"===n){if(i.test(e)){o(e);continue}a([n,parseInt(s)])}else if("~"===n){if(i.test(e)||"."===e){o(e);continue}a(["~",parseFloat(s)])}else if("@"===n){if(":"===e){a(["@",parseFloat(s)]),n="@";continue}if(i.test(e)||"."===e){o(e);continue}a(["@",parseFloat(s)])}else{if("["===n){";"!==e||r?","!==e||r?"]"!==e||r?o(e):a(["[",s]):(a(["[",s]),n="["):(a(["[",s]),n=";");continue}if(n?.startsWith(";")){"="!==e||r?";"!==e||r?"]"!==e||r?o(e):a([n,s]):(a([n,s]),n=";"):(n=\`;\${s}\`,s="");continue}}"/"!==e&&":"!==e&&"~"!==e&&"@"!==e&&"["!==e&&"!"!==e&&","!==e||(n=e)}else r=!0;return e})((t=>t.match(r)?.[1]??t)(t)),s=l(e,",");if(!s.length)return h(e);const[a,o,c]=n(e,s).map(h);return{parent:a,start:o,end:c}},u=({index:t,id:e,offset:n,temporal:i,spatial:r,text:a,side:o})=>{const l=o?\`;s=\${o}\`:"";return\`/\${t}\`+(e?\`[\${s(e)}\${l}]\`:"")+(null!=n&&t%2?\`:\${n}\`:"")+(i?\`~\${i}\`:"")+(r?\`@\${r.join(":")}\`:"")+(a||!e&&o?"["+(a?.map(s)?.join(",")??"")+l+"]":"")},f=t=>t.parent?[t.parent,t.start,t.end].map(f).join(","):t.map((t=>t.map(u).join(""))).join("!"),p=t=>a(f(t)),g=(t,e)=>"string"==typeof t?p(g(d(t),e)):t.parent?((t,e)=>t.slice(0,-1).concat([t[t.length-1].concat(e[0])]).concat(e.slice(1)))(t.parent,t[e?"end":"start"]):t,m=({nodeType:t})=>3===t||4===t,b=({nodeType:t})=>1===t,w=(t,e)=>{const n=Array.from(t.childNodes).filter((t=>m(t)||b(t)));return e?n.map((t=>{const n=e(t);return n===NodeFilter.FILTER_REJECT?null:n===NodeFilter.FILTER_SKIP?w(t,e):t})).flat().filter((t=>t)):n},y=(t,e)=>{const n=w(t,e).reduce(((t,e)=>{let n=t[t.length-1];return n?m(e)?Array.isArray(n)?n.push(e):m(n)?t[t.length-1]=[n,e]:t.push(e):b(n)?t.push(null,e):t.push(e):t.push(e),t}),[]);return b(n[0])&&n.unshift("first"),b(n[n.length-1])&&n.push("last"),n.unshift("before"),n.push("after"),n},x=(t,e,n)=>{const{id:i}=e[e.length-1];if(i){const e=t.ownerDocument.getElementById(i);if(e)return{node:e,offset:0}}for(const{index:i}of e){const e=t?y(t,n)[i]:null;if("first"===e)return{node:t.firstChild??t};if("last"===e)return{node:t.lastChild??t};if("before"===e)return{node:t,before:!0};if("after"===e)return{node:t,after:!0};t=e}const{offset:r}=e[e.length-1];if(!Array.isArray(t))return{node:t,offset:r};let s=0;for(const e of t){const{length:t}=e.nodeValue;if(s+t>=r)return{node:e,offset:r-s};s+=t}},v=(t,e,n)=>{const{parentNode:i,id:r}=t,s=y(i,n),a=s.findIndex((e=>Array.isArray(e)?e.some((e=>e===t)):e===t)),o=s[a];if(Array.isArray(o)){let n=0;for(const i of o){if(i===t){n+=e;break}n+=i.nodeValue.length}e=n}const l={id:r,index:a,offset:e};return(i!==t.ownerDocument.documentElement?v(i,null,n).concat(l):[l]).filter((t=>-1!==t.index))},k=(t,e,n)=>{const i=g(e),r=g(e,!0),s=t.documentElement,a=x(s,i[0],n),o=x(s,r[0],n),l=t.createRange();return a.before?l.setStartBefore(a.node):a.after?l.setStartAfter(a.node):l.setStart(a.node,a.offset),o.before?l.setEndBefore(o.node):o.after?l.setEndAfter(o.node):l.setEnd(o.node,o.offset),l},_=(t,e)=>x(t.documentElement,g(e)).node,S=t=>t?.at(-1).index/2-1,A=t=>t.map((t=>t.subitems?.length?[t,A(t.subitems)].flat():t)).flat();class L{async init({toc:t,ids:e,splitHref:n,getFragment:i}){(t=>{let e=0;const n=t=>{if(t.id=e++,t.subitems)for(const e of t.subitems)n(e)};for(const e of t)n(e)})(t);const r=A(t),s=new Map;for(const[t,e]of r.entries()){const[i,a]=await n(e?.href)??[],o={fragment:a,item:e};s.has(i)?s.get(i).items.push(o):s.set(i,{prev:r[t-1],items:[o]})}const a=new Map;for(const[t,n]of e.entries())s.has(n)?a.set(n,s.get(n)):a.set(n,a.get(e[t-1]));this.ids=e,this.map=a,this.getFragment=i}getProgress(t,e){if(!this.ids)return;const n=this.ids[t],i=this.map.get(n);if(!i)return null;const{prev:r,items:s}=i;if(!s)return r;if(!e||1===s.length&&!s[0].fragment)return s[0].item;const a=e.startContainer.getRootNode();for(const[t,{fragment:n}]of s.entries()){const i=this.getFragment(a,n);if(i&&e.comparePoint(i,0)>0)return s[t-1]?.item??r}return s[s.length-1].item}}class E{constructor(t,e,n){this.sizes=t.map((t=>"no"!=t.linear&&t.size>0?t.size:0)),this.sizePerLoc=e,this.sizePerTimeUnit=n,this.sizeTotal=this.sizes.reduce(((t,e)=>t+e),0),this.sectionFractions=this.#t()}#t(){const{sizeTotal:t}=this,e=[0];let n=0;for(const i of this.sizes)e.push((n+=i)/t);return e}getProgress(t,e,n=0){const{sizes:i,sizePerLoc:r,sizePerTimeUnit:s,sizeTotal:a}=this,o=i[t]??0,l=i.slice(0,t).reduce(((t,e)=>t+e),0),c=l+e*o,h=c+n*o,d=a-c,u=(1-e)*o;return{fraction:h/a,section:{current:t,total:i.length},location:{current:Math.floor(c/r),next:Math.floor(h/r),total:Math.ceil(a/r)},time:{section:u/s,total:d/s}}}getSection(t){if(t<=0)return[0,0];if(t>=1)return[this.sizes.length-1,1];t+=Number.EPSILON;const{sizeTotal:e}=this;let n=this.sectionFractions.findIndex((e=>e>t))-1;if(n<0)return[0,0];for(;!this.sizes[n];)n++;return[n,(t-this.sectionFractions[n])/(this.sizes[n]/e)]}}const T=t=>document.createElementNS("http://www.w3.org/2000/svg",t);class C{#e=T("svg");#n=new Map;constructor(){Object.assign(this.#e.style,{position:"absolute",top:"0",left:"0",width:"100%",height:"100%",pointerEvents:"none"})}get element(){return this.#e}add(t,e,n,i){this.#n.has(t)&&this.remove(t),"function"==typeof e&&(e=e(this.#e.getRootNode()));const r=e.getClientRects(),s=n(r,i);this.#e.append(s),this.#n.set(t,{range:e,draw:n,options:i,element:s,rects:r})}remove(t){this.#n.has(t)&&(this.#e.removeChild(this.#n.get(t).element),this.#n.delete(t))}redraw(){for(const t of this.#n.values()){const{range:e,draw:n,options:i,element:r}=t;this.#e.removeChild(r);const s=e.getClientRects(),a=n(s,i);this.#e.append(a),t.element=a,t.rects=s}}hitTest({x:t,y:e}){const n=Array.from(this.#n.entries());for(let i=n.length-1;i>=0;i--){const[r,s]=n[i];for(const{left:n,top:i,right:a,bottom:o}of s.rects)if(i<=e&&n<=t&&o>e&&a>t)return[r,s.range]}return[]}static underline(t,e={}){const{color:n="red",width:i=2,writingMode:r}=e,s=T("g");if(s.setAttribute("fill",n),"vertical-rl"===r||"vertical-lr"===r)for(const{right:e,top:n,height:r}of t){const t=T("rect");t.setAttribute("x",e-i),t.setAttribute("y",n),t.setAttribute("height",r),t.setAttribute("width",i),s.append(t)}else for(const{left:e,bottom:n,width:r}of t){const t=T("rect");t.setAttribute("x",e),t.setAttribute("y",n-i),t.setAttribute("height",i),t.setAttribute("width",r),s.append(t)}return s}static strikethrough(t,e={}){const{color:n="red",width:i=2,writingMode:r}=e,s=T("g");if(s.setAttribute("fill",n),"vertical-rl"===r||"vertical-lr"===r)for(const{right:e,left:n,top:r,height:a}of t){const t=T("rect");t.setAttribute("x",(e+n)/2),t.setAttribute("y",r),t.setAttribute("height",a),t.setAttribute("width",i),s.append(t)}else for(const{left:e,top:n,bottom:r,width:a}of t){const t=T("rect");t.setAttribute("x",e),t.setAttribute("y",(n+r)/2),t.setAttribute("height",i),t.setAttribute("width",a),s.append(t)}return s}static squiggly(t,e={}){const{color:n="red",width:i=2,writingMode:r}=e,s=T("g");s.setAttribute("fill","none"),s.setAttribute("stroke",n),s.setAttribute("stroke-width",i);const a=1.5*i;if("vertical-rl"===r||"vertical-lr"===r)for(const{right:e,top:n,height:i}of t){const t=T("path"),r=Math.round(i/a/1.5),o=i/r,l=Array.from({length:r},((t,e)=>\`l\${e%2?-a:a} \${o}\`)).join("");t.setAttribute("d",\`M\${e} \${n}\${l}\`),s.append(t)}else for(const{left:e,bottom:n,width:i}of t){const t=T("path"),r=Math.round(i/a/1.5),o=i/r,l=Array.from({length:r},((t,e)=>\`l\${o} \${e%2?a:-a}\`)).join("");t.setAttribute("d",\`M\${e} \${n}\${l}\`),s.append(t)}return s}static highlight(t,e={}){const{color:n="red"}=e,i=T("g");i.setAttribute("fill",n),i.style.opacity="var(--overlayer-highlight-opacity, .3)",i.style.mixBlendMode="var(--overlayer-highlight-blend-mode, normal)";for(const{left:e,top:n,height:r,width:s}of t){const t=T("rect");t.setAttribute("x",e),t.setAttribute("y",n),t.setAttribute("height",r),t.setAttribute("width",s),i.append(t)}return i}static outline(t,e={}){const{color:n="red",width:i=3,radius:r=3}=e,s=T("g");s.setAttribute("fill","none"),s.setAttribute("stroke",n),s.setAttribute("stroke-width",i);for(const{left:e,top:n,height:i,width:a}of t){const t=T("rect");t.setAttribute("x",e),t.setAttribute("y",n),t.setAttribute("height",i),t.setAttribute("width",a),t.setAttribute("rx",r),s.append(t)}return s}static copyImage([t],e={}){const{src:n}=e,i=T("image"),{left:r,top:s,height:a,width:o}=t;return i.setAttribute("href",n),i.setAttribute("x",r),i.setAttribute("y",s),i.setAttribute("height",a),i.setAttribute("width",o),i}}const R=(t,e)=>{const n=[];for(let i=e.currentNode;i;i=e.nextNode()){const e=t.comparePoint(i,0);if(0===e)n.push(i);else if(e>0)break}return n},I=(t,e)=>{const n=[];for(let t=e.nextNode();t;t=e.nextNode())n.push(t);return n},M=NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT|NodeFilter.SHOW_CDATA_SECTION,z=t=>{if(1===t.nodeType){const e=t.tagName.toLowerCase();return"script"===e||"style"===e?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP}return NodeFilter.FILTER_ACCEPT},O=function*(t,e){const n=t.commonAncestorContainer??t.body??t,i=document.createTreeWalker(n,M,{acceptNode:z}),r=(t.commonAncestorContainer?R:I)(t,i),s=r.map((t=>t.nodeValue)),a=(t,e,n,i)=>{const s=document.createRange();return s.setStart(r[t],e),s.setEnd(r[n],i),s};for(const t of e(s,a))yield t},N=t=>t?.split(/[,;\\s]/)?.filter((t=>t))?.map((t=>t.split("=").map((t=>t.trim()))));class B extends HTMLElement{#i=this.attachShadow({mode:"closed"});#r=new ResizeObserver((()=>this.#s()));#a;#o=-1;defaultViewport;spread;#l=!1;#c;#h;#d;#u;constructor(){super();const t=new CSSStyleSheet;this.#i.adoptedStyleSheets=[t],t.replaceSync(":host {\\n            width: 100%;\\n            height: 100%;\\n            display: flex;\\n            justify-content: center;\\n            align-items: center;\\n        }"),this.#r.observe(this)}async#f({index:t,src:e}){const n=document.createElement("div"),i=document.createElement("iframe");return n.append(i),Object.assign(i.style,{border:"0",display:"none",overflow:"hidden"}),i.setAttribute("sandbox","allow-same-origin allow-scripts"),i.setAttribute("scrolling","no"),i.setAttribute("part","filter"),this.#i.append(n),e?new Promise((r=>{const s=()=>{i.removeEventListener("load",s);const e=i.contentDocument;this.dispatchEvent(new CustomEvent("load",{detail:{doc:e,index:t}}));const{width:a,height:o}=((t,e)=>{if("svg"===t.documentElement.localName){const[,,e,n]=t.documentElement.getAttribute("viewBox")?.split(/\\s/)??[];return{width:e,height:n}}const n=N(t.querySelector('meta[name="viewport"]')?.getAttribute("content"));if(n)return Object.fromEntries(n);if("string"==typeof e)return N(e);if(e)return e;const i=t.querySelector("img");return i?{width:i.naturalWidth,height:i.naturalHeight}:(console.warn(new Error("Missing viewport properties")),{width:1e3,height:2e3})})(e,this.defaultViewport);r({element:n,iframe:i,width:parseFloat(a),height:parseFloat(o)})};i.addEventListener("load",s),i.src=e})):{blank:!0,element:n,iframe:i}}#s(t=this.#u){if(!t)return;const e=this.#c??{},n=this.#d??this.#h,i="left"===t?e:n;let{width:r,height:s}=this.getBoundingClientRect();var a=window.innerWidth>0?window.innerWidth:screen.width;r=0===r?a:r;const o="both"!==this.spread&&"portrait"!==this.spread&&s>r;this.#l=o;const l=e.width??n.width,c=e.height??n.height,h=o||this.#d?Math.min(r/(i.width??l),s/(i.height??c)):Math.min(r/((e.width??l)+(n.width??l)),s/Math.max(e.height??c,n.height??c)),d=t=>{const{element:e,iframe:n,width:r,height:s,blank:a}=t;Object.assign(n.style,{width:\`\${r}px\`,height:\`\${s}px\`,transform:\`scale(\${h})\`,transformOrigin:"top left",display:a?"none":"block"}),Object.assign(e.style,{width:(r??l)*h+"px",height:(s??c)*h+"px",overflow:"hidden",display:"block"}),o&&t!==i&&(e.style.display="none")};this.#d?d(this.#d):(d(e),d(n))}async#p({left:t,right:e,center:n,side:i}){this.#i.replaceChildren(),this.#c=null,this.#h=null,this.#d=null,n?(this.#d=await this.#f(n),this.#u="center",this.#s()):(this.#c=await this.#f(t),this.#h=await this.#f(e),this.#u=this.#c.blank?"right":this.#h.blank?"left":i,this.#s())}#g(){if(!this.#d&&!this.#c?.blank)return this.#l&&"none"===this.#c?.element?.style?.display?(this.#h.element.style.display="none",this.#c.element.style.display="block",this.#u="left",!0):void 0}#m(){if(!this.#d&&!this.#h?.blank)return this.#l&&"none"===this.#h?.element?.style?.display?(this.#c.element.style.display="none",this.#h.element.style.display="block",this.#u="right",!0):void 0}open(t){this.book=t;const{rendition:e}=t;this.spread=e?.spread,this.defaultViewport=e?.viewport;const n="rtl"===t.dir,i=!n;this.rtl=n,this.#a="none"===e?.spread?t.sections.map((t=>({center:t}))):t.sections.reduce(((t,e)=>{const r=t[t.length-1],{linear:s,pageSpread:a}=e;if("no"===s)return t;const o=()=>{const e={};return t.push(e),e};return"center"===a?(r.left||r.right?o():r).center=e:"left"===a?(r.center||r.left||i?o():r).left=e:"right"===a?(r.center||r.right||n?o():r).right=e:i?r.center||r.right?o().left=e:r.left?r.right=e:r.left=e:r.center||r.left?o().right=e:r.right?r.left=e:r.right=e,t}),[{}])}get index(){const t=this.#a[this.#o],e=t?.center??("left"===this.side?t.left??t.right:t.right??t.left);return this.book.sections.indexOf(e)}#b(t){this.dispatchEvent(new CustomEvent("relocate",{detail:{reason:t,range:null,index:this.index,fraction:0,size:1}}))}getSpreadOf(t){const e=this.#a;for(let n=0;n<e.length;n++){const{left:i,right:r,center:s}=e[n];if(i===t)return{index:n,side:"left"};if(r===t)return{index:n,side:"right"};if(s===t)return{index:n,side:"center"}}}async goToSpread(t,e,n){if(t<0||t>this.#a.length-1)return;if(t===this.#o)return void this.#s(e);this.#o=t;const i=this.#a[t];if(i.center){const t=this.book.sections.indexOf(i.center),e=await(i.center?.load?.());await this.#p({center:{index:t,src:e}})}else{const t=this.book.sections.indexOf(i.left),n=this.book.sections.indexOf(i.right),r={index:t,src:await(i.left?.load?.())},s={index:n,src:await(i.right?.load?.())};await this.#p({left:r,right:s,side:e})}this.#b(n)}async select(t){await this.goTo(t)}async goTo(t){const{book:e}=this,n=await t,i=e.sections[n.index];if(!i)return;const{index:r,side:s}=this.getSpreadOf(i);await this.goToSpread(r,s)}async next(){if(!(this.rtl?this.#g():this.#m()))return this.goToSpread(this.#o+1,this.rtl?"right":"left","page");this.#b("page")}async prev(){if(!(this.rtl?this.#m():this.#g()))return this.goToSpread(this.#o-1,this.rtl?"left":"right","page");this.#b("page")}getContents(){return Array.from(this.#i.querySelectorAll("iframe"),(t=>({doc:t.contentDocument})))}destroy(){this.#r.unobserve(this)}}customElements.define("foliate-fxl",B);const F=t=>1-(1-t)*(1-t),U=(t,e,n,i=n)=>{const r=t.createRange();return r.setStart(e,n),r.setEnd(e,i),r},D=(t,e,n,i=0,r=e.nodeValue.length)=>{if(r-i==1)return n(U(t,e,i),U(t,e,r))<0?i:r;const s=Math.floor(i+(r-i)/2),a=n(U(t,e,i,s),U(t,e,s,r));return a<0?D(t,e,n,i,s):a>0?D(t,e,n,s,r):s},{SHOW_ELEMENT:P,SHOW_TEXT:j,SHOW_CDATA_SECTION:W,FILTER_ACCEPT:\$,FILTER_REJECT:H,FILTER_SKIP:q}=NodeFilter,V=P|j|W,X=(t,e,n,i)=>{const r=t.createTreeWalker(t.body,V,{acceptNode:r=>{const s=r.localName?.toLowerCase();if("script"===s||"style"===s)return H;if(1===r.nodeType){const{left:t,right:s}=i(r.getBoundingClientRect());if(s<e||t>n)return H;if(t>=e&&s<=n)return \$}else{if(!r.nodeValue?.trim())return q;const s=t.createRange();s.selectNodeContents(r);const{left:a,right:o}=i(s.getBoundingClientRect());if(o>=e&&a<=n)return \$}return q}}),s=[];for(let t=r.nextNode();t;t=r.nextNode())s.push(t);const a=s[0]??t.body,o=s[s.length-1]??a,l=1===a.nodeType?0:D(t,a,((t,n)=>{const r=i(t.getBoundingClientRect()),s=i(n.getBoundingClientRect());return r.right<e&&s.left>e?0:s.left>e?-1:1})),c=1===o.nodeType?0:D(t,o,((t,e)=>{const r=i(t.getBoundingClientRect()),s=i(e.getBoundingClientRect());return r.right<n&&s.left>n?0:s.left>n?-1:1})),h=t.createRange();return h.setStart(a,l),h.setEnd(o,c),h},G=t=>{const e=t.defaultView.getComputedStyle(t.body);return"rgba(0, 0, 0, 0)"===e.backgroundColor&&"none"===e.backgroundImage?t.defaultView.getComputedStyle(t.documentElement).background:e.background},K=(t,e)=>Array.from({length:t},(()=>{const t=document.createElement("div"),n=document.createElement("div");return t.append(n),n.setAttribute("part",e),t})),J=(t,e)=>{const{style:n}=t;for(const[t,i]of Object.entries(e))n.setProperty(t,i,"important")};class Y{#r=new ResizeObserver((()=>this.expand()));#w=document.createElement("div");#y=document.createElement("iframe");#x=document.createRange();#v;#k=!1;#_=!1;#S=!0;#A;#L={};constructor({container:t,onExpand:e}){this.container=t,this.onExpand=e,this.#y.setAttribute("part","filter"),this.#w.append(this.#y),Object.assign(this.#w.style,{boxSizing:"content-box",position:"relative",overflow:"hidden",flex:"0 0 auto",width:"100%",height:"100%",display:"flex",justifyContent:"center",alignItems:"center"}),Object.assign(this.#y.style,{overflow:"hidden",border:"0",display:"none",width:"100%",height:"100%"}),this.#y.setAttribute("sandbox","allow-same-origin allow-scripts"),this.#y.setAttribute("scrolling","no")}get element(){return this.#w}get document(){return this.#y.contentDocument}async load(t,e,n){if("string"!=typeof t)throw new Error(\`\${t} is not string\`);return new Promise((i=>{this.#y.addEventListener("load",(()=>{const t=this.document;e?.(t),this.#y.style.display="block";const{vertical:r,rtl:s}=(t=>{const{defaultView:e}=t,{writingMode:n,direction:i}=e.getComputedStyle(t.body);return{vertical:"vertical-rl"===n||"vertical-lr"===n,rtl:"rtl"===t.body.dir||"rtl"===i||"rtl"===t.documentElement.dir}})(t),a=G(t);this.#y.style.display="none",this.#k=r,this.#_=s,this.#x.selectNodeContents(t.body);const o=n?.({vertical:r,rtl:s,background:a});this.#y.style.display="block",this.render(o),this.#r.observe(t.body),t.fonts.ready.then((()=>this.expand())),i()}),{once:!0}),this.#y.src=t}))}render(t){t&&(this.#S="scrolled"!==t.flow,this.#L=t,this.#S?this.columnize(t):this.scrolled(t))}scrolled({gap:t,columnWidth:e}){const n=this.#k,i=this.document;J(i.documentElement,{"box-sizing":"border-box",padding:n?\`\${t}px 0\`:\`0 \${t}px\`,"column-width":"auto",height:"auto",width:"auto"}),J(i.body,{[n?"max-height":"max-width"]:\`\${e}px\`,margin:"auto"}),this.setImageSize(),this.expand()}columnize({width:t,height:e,gap:n,columnWidth:i}){const r=this.#k;this.#A=r?e:t;const s=this.document;J(s.documentElement,{"box-sizing":"border-box","column-width":\`\${Math.trunc(i)}px\`,"column-gap":\`\${n}px\`,"column-fill":"auto",...r?{width:\`\${t}px\`}:{height:\`\${e}px\`},padding:r?n/2+"px 0":\`0 \${n/2}px\`,overflow:"hidden","overflow-wrap":"anywhere",position:"static",border:"0",margin:"0","max-height":"none","max-width":"none","min-height":"none","min-width":"none","-webkit-line-box-contain":"block glyphs replaced"}),J(s.body,{"max-height":"none","max-width":"none",margin:"0"}),this.setImageSize(),this.expand()}setImageSize(){const{width:t,height:e,margin:n}=this.#L,i=this.#k,r=this.document;for(const s of r.body.querySelectorAll("img, svg, video")){const{maxHeight:a,maxWidth:o}=r.defaultView.getComputedStyle(s);J(s,{"max-height":i?"none"!==a&&"0px"!==a?a:"100%":e-2*n+"px","max-width":i?t-2*n+"px":"none"!==o&&"0px"!==o?o:"100%","object-fit":"contain","page-break-inside":"avoid","break-inside":"avoid","box-sizing":"border-box"})}}expand(){if(this.#S){const t=this.#k?"height":"width",e=this.#k?"width":"height",n=this.#x.getBoundingClientRect()[t],i=Math.ceil(n/this.#A)*this.#A;this.#w.style.padding="0",this.#y.style[t]=\`\${i}px\`,this.#w.style[t]=\`\${i+2*this.#A}px\`,this.#y.style[e]="100%",this.#w.style[e]="100%",this.document&&(this.document.documentElement.style[t]=\`\${this.#A}px\`),this.#v&&(this.#v.element.style.margin="0",this.#v.element.style.left=this.#k?"0":\`\${this.#A}px\`,this.#v.element.style.top=this.#k?\`\${this.#A}px\`:"0",this.#v.element.style[t]=\`\${i}px\`,this.#v.redraw())}else{const t=this.#k?"width":"height",e=this.#k?"height":"width",n=this.document,i=n?.documentElement?.getBoundingClientRect()?.[t],r=i<this.container.clientHeight?this.container.clientHeight:i,{margin:s}=this.#L,a=this.#k?\`0 \${s}px\`:\`\${s}px 0\`;this.#w.style.padding=a,this.#y.style[t]=\`\${r}px\`,this.#w.style[t]=\`\${r}px\`,this.#y.style[e]="100%",this.#w.style[e]="100%",this.#v&&(this.#v.element.style.margin=a,this.#v.element.style.left="0",this.#v.element.style.top="0",this.#v.element.style[t]=\`\${r}px\`,this.#v.redraw())}this.onExpand()}set overlayer(t){this.#v=t,this.#w.append(t.element)}get overlayer(){return this.#v}destroy(){this.document&&this.#r.unobserve(this.document.body)}}class Z extends HTMLElement{static observedAttributes=["flow","gap","margin","max-inline-size","max-block-size","max-column-count"];#i=this.attachShadow({mode:"open"});#r=new ResizeObserver((()=>this.render()));#E;#T;#C;#R;#I;#k=!1;#_=!1;#M=0;#o=-1;#z=0;#O=!1;#N=!1;#B;#F=new WeakMap;#U=matchMedia("(prefers-color-scheme: dark)");#D;#P;#j;#W;pageAnimation=!0;pause=!1;constructor(){super(),this.#i.innerHTML='<style>\\n        :host {\\n            --_gap: 7%;\\n            --_margin: 48px;\\n            --_max-inline-size: 720px;\\n            --_max-block-size: 1440px;\\n            --_max-column-count: 2;\\n            --_vertical: 0;\\n            --_half-gap: calc(var(--_gap) / 2);\\n            --_max-width: calc(\\n                var(--_vertical) * var(--_max-block-size)\\n                + (1 - var(--_vertical)) * var(--_max-inline-size) * var(--_max-column-count)\\n            );\\n            --_max-height: calc(\\n                var(--_vertical) * var(--_max-inline-size) * var(--_max-column-count)\\n                + (1 - var(--_vertical)) * var(--_max-block-size)\\n            );\\n            display: grid;\\n            grid-template-columns:\\n                minmax(var(--_half-gap), 1fr)\\n                minmax(0, var(--_max-width))\\n                minmax(var(--_half-gap), 1fr);\\n            grid-template-rows:\\n                minmax(var(--_margin), 1fr)\\n                minmax(0, var(--_max-height))\\n                minmax(var(--_margin), 1fr);\\n            box-sizing: border-box;\\n            position: relative;\\n            overflow: hidden;\\n            width: 100%;\\n            height: 100%;\\n        }\\n        #background {\\n            grid-column-start: 1;\\n            grid-column-end: 4;\\n            grid-row-start: 1;\\n            grid-row-end: 4;\\n        }\\n        #container {\\n            grid-column-start: 2;\\n            grid-row-start: 2;\\n            overflow: hidden;\\n        }\\n        :host([flow="scrolled"]) #container {\\n            grid-column-start: 1;\\n            grid-column-end: 4;\\n            grid-row-start: 1;\\n            grid-row-end: 4;\\n            overflow: auto;\\n        }\\n        #header {\\n            grid-column-start: 2;\\n            grid-row-start: 1;\\n        }\\n        #footer {\\n            grid-column-start: 2;\\n            grid-row-start: 3;\\n            align-self: end;\\n        }\\n        #header, #footer {\\n            display: grid;\\n            height: var(--_margin);\\n        }\\n        :is(#header, #footer) > * {\\n            display: flex;\\n            align-items: center;\\n            min-width: 0;\\n        }\\n        :is(#header, #footer) > * > * {\\n            width: 100%;\\n            overflow: hidden;\\n            white-space: nowrap;\\n            text-overflow: ellipsis;\\n            text-align: center;\\n            font-size: .75em;\\n            opacity: .6;\\n        }\\n        </style>\\n        <div id="background" part="filter"></div>\\n        <div id="header"></div>\\n        <div id="container"></div>\\n        <div id="footer"></div>\\n        ',this.#E=this.#i.getElementById("background"),this.#T=this.#i.getElementById("container"),this.#C=this.#i.getElementById("header"),this.#R=this.#i.getElementById("footer"),this.#r.observe(this.#T),this.#T.addEventListener("scroll",((t,e,n)=>{let i;return(...e)=>{i&&clearTimeout(i),i=setTimeout((()=>{i=null,t(...e)}),250)}})((()=>{this.scrolled&&(this.#O?this.#O=!1:this.#\$("scroll"))})));const t={passive:!1};this.addEventListener("touchstart",this.#H.bind(this),t),this.addEventListener("touchmove",this.#q.bind(this),t),this.addEventListener("touchend",this.#V.bind(this)),this.addEventListener("load",(({detail:{doc:e}})=>{e.addEventListener("touchstart",this.#H.bind(this),t),e.addEventListener("touchmove",this.#q.bind(this),t),e.addEventListener("touchend",this.#V.bind(this))})),this.#D=()=>{this.#I&&(this.#E.style.background=G(this.#I.document))},this.#U.addEventListener("change",this.#D)}attributeChangedCallback(t,e,n){switch(t){case"flow":this.render();break;case"gap":case"margin":case"max-block-size":case"max-column-count":this.style.setProperty("--_"+t,n);break;case"max-inline-size":this.style.setProperty("--_"+t,n),this.render()}}open(t){this.bookDir=t.dir,this.sections=t.sections}#X(){return this.#I&&this.#T.removeChild(this.#I.element),this.#I=new Y({container:this,onExpand:()=>this.scrollToAnchor(this.#z)}),this.#T.append(this.#I.element),this.#I}#G({vertical:t,rtl:e,background:n}){this.#k=t,this.#_=e,this.style.setProperty("--_vertical",t?1:0),this.#E.style.background=n;const{width:i,height:r}=this.#T.getBoundingClientRect(),s=t?r:i,a=getComputedStyle(this),o=parseFloat(a.getPropertyValue("--_max-inline-size")),l=parseInt(a.getPropertyValue("--_max-column-count")),c=parseFloat(a.getPropertyValue("--_margin"));this.#M=c;const h=parseFloat(a.getPropertyValue("--_gap"))/100,d=-h/(h-1)*s,u=this.getAttribute("flow");if("scrolled"===u){this.setAttribute("dir",t?"rtl":"ltr"),this.style.padding="0";const e=o;return this.heads=null,this.feet=null,this.#C.replaceChildren(),this.#R.replaceChildren(),{flow:u,margin:c,gap:d,columnWidth:e}}const f=Math.min(l,Math.ceil(s/o)),p=s/f-d;this.setAttribute("dir",e?"rtl":"ltr");const g=t?Math.min(2,Math.ceil(i/o)):f,m={gridTemplateColumns:\`repeat(\${g}, 1fr)\`,gap:\`\${d}px\`,padding:t?"0":\`0 \${d/2}px\`,direction:"rtl"===this.bookDir?"rtl":"ltr"};Object.assign(this.#C.style,m),Object.assign(this.#R.style,m);const b=K(g,"head"),w=K(g,"foot");return this.heads=b.map((t=>t.children[0])),this.feet=w.map((t=>t.children[0])),this.#C.replaceChildren(...b),this.#R.replaceChildren(...w),{height:r,width:i,margin:c,gap:d,columnWidth:p}}render(){this.#I&&(this.#I.render(this.#G({vertical:this.#k,rtl:this.#_})),this.scrollToAnchor(this.#z))}get scrolled(){return"scrolled"===this.getAttribute("flow")}get scrollProp(){const{scrolled:t}=this;return this.#k?t?"scrollLeft":"scrollTop":t?"scrollTop":"scrollLeft"}get sideProp(){const{scrolled:t}=this;return this.#k?t?"width":"height":t?"height":"width"}get size(){return this.#T.getBoundingClientRect()[this.sideProp]}get viewSize(){return this.#I.element.getBoundingClientRect()[this.sideProp]}get start(){return Math.abs(this.#T[this.scrollProp])}get end(){return this.start+this.size}get page(){return Math.floor((this.start+this.end)/2/this.size)}get pages(){return Math.round(this.viewSize/this.size)}scrollBy(t,e){const n=this.#k?e:t,i=this.#T,{scrollProp:r}=this,[s,a,o]=this.#P,l=this.#_,c=l?s-o:s-a,h=l?s+a:s+o;i[r]=Math.max(c,Math.min(h,i[r]+n))}snap(t,e){const n=this.#k?e:t,[i,r,s]=this.#P,{start:a,end:o,pages:l,size:c}=this,h=Math.abs(i)-r,d=Math.abs(i)+s,u=n*(this.#_?-c:c),f=Math.floor(Math.max(h,Math.min(d,(a+o)/2+(isNaN(u)?0:u)))/c),p=f<=0?-1:f>=l-1?1:null;if(p){if(this.lastCalled){this.now=Date.now();const t=this.now-this.lastCalled;if(this.lastCalled=null,t<325)return}this.lastCalled=Date.now()}this.#K(f,"snap").then((()=>{if(p)return this.#J({index:this.#Y(p),anchor:p<0?()=>1:()=>0})}))}#H(t){const e=t.changedTouches[0];this.#j={x:e?.screenX,y:e?.screenY,t:t.timeStamp,vx:0,xy:0}}#q(t){if(this.pause)return;const e=this.#j;if(e.pinched)return;if(e.pinched=globalThis.visualViewport.scale>1,t.touches.length>1)return void(this.#W&&t.preventDefault());t.preventDefault();const n=t.changedTouches[0],i=n.screenX,r=n.screenY,s=e.x-i,a=e.y-r,o=t.timeStamp-e.t;e.x=i,e.y=r,e.t=t.timeStamp,e.vx=s/o,e.vy=a/o,this.#W=!0,this.scrollBy(s,a)}#V(){this.#W=!1,this.scrolled||requestAnimationFrame((()=>{1===globalThis.visualViewport.scale&&this.snap(this.#j.vx,this.#j.vy)}))}#Z(){if(this.scrolled){const t=this.viewSize,e=this.#M;return this.#k?({left:n,right:i})=>({left:t-i-e,right:t-n-e}):({top:t,bottom:n})=>({left:t+e,right:n+e})}const t=this.pages*this.size;return this.#_?({left:e,right:n})=>({left:t-n,right:t-e}):this.#k?({top:t,bottom:e})=>({left:t,right:e}):t=>t}async#Q(t,e){if(this.scrolled){const n=this.#Z()(t).left-this.#M;return this.#tt(n,e)}const n=this.#Z()(t).left+this.#M/2;return this.#K(Math.floor(n/this.size)+(this.#_?-1:1),e)}async#tt(t,e,n){const i=this.#T,{scrollProp:r,size:s}=this;return i[r]===t?(this.#P=[t,this.atStart?0:s,this.atEnd?0:s],void this.#\$(e)):(this.scrolled&&this.#k&&(t=-t),"snap"===e||n&&this.pageAnimation?((t,e,n,s,a)=>new Promise((n=>{let a;const o=l=>{a??=l;const c=Math.min(1,(l-a)/300);(t=>{i[r]=t})(((t,e,n)=>n*(e-t)+t)(t,e,s(c))),c<1?requestAnimationFrame(o):n()};requestAnimationFrame(o)})))(i[r],t,0,F).then((()=>{this.#P=[t,this.atStart?0:s,this.atEnd?0:s],this.#\$(e)})):(i[r]=t,this.#P=[t,this.atStart?0:s,this.atEnd?0:s],void this.#\$(e)))}async#K(t,e,n){const i=this.size*(this.#_?-t:t);return this.#tt(i,e,n)}async scrollToAnchor(t,e){this.#z=t;const n=(t=>{if(!t?.collapsed)return t;const{endOffset:e,endContainer:n}=t;if(1===n.nodeType)return n;if(e+1<n.length)t.setEnd(n,e+1);else{if(!(e>1))return n.parentNode;t.setStart(n,e-1)}return t})(t)?.getClientRects?.();if(n){const t=Array.from(n).find((t=>t.width>0&&t.height>0))||n[0];if(!t)return;return await this.#Q(t,"anchor"),void(e&&this.#et())}if(this.scrolled)return void await this.#tt(this.#z*this.viewSize,"anchor");const{pages:i}=this;if(!i)return;const r=i-2,s=Math.round(t*(r-1));await this.#K(s+1,"anchor")}#et(){const{defaultView:t}=this.#I.document;if(this.#z.startContainer){const e=t.getSelection();e.removeAllRanges(),e.addRange(this.#z)}}#nt(){if(this.scrolled)return X(this.#I.document,this.start+this.#M,this.end-this.#M,this.#Z());const t=this.#_?-this.size:this.size;return X(this.#I.document,this.start-t,this.end-t,this.#Z())}#\$(t){const e=this.#nt();"anchor"!==t?this.#z=e:this.#O=!0;const n={reason:t,range:e,index:this.#o};if(this.scrolled)n.fraction=this.start/this.viewSize;else if(this.pages>0){const{page:t,pages:e}=this;this.#C.style.visibility=t>1?"visible":"hidden",n.fraction=(t-1)/(e-2),n.size=1/(e-2)}this.dispatchEvent(new CustomEvent("relocate",{detail:n}))}async#it(t){const{index:e,src:n,anchor:i,onLoad:r,select:s}=await t;if(this.#o=e,n){const t=this.#X(),i=t=>{if(t.head){const e=t.createElement("style");t.head.prepend(e);const n=t.createElement("style");t.head.append(n),this.#F.set(t,[e,n])}r?.({doc:t,index:e})},s=this.#G.bind(this);await t.load(n,i,s),this.dispatchEvent(new CustomEvent("create-overlayer",{detail:{doc:t.document,index:e,attach:e=>t.overlayer=e}})),this.#I=t}await this.scrollToAnchor(("function"==typeof i?i(this.#I.document):i)??0,s)}#rt(t){return t>=0&&t<=this.sections.length-1}async#J({index:t,anchor:e,select:n}){if(t===this.#o)await this.#it({index:t,anchor:e,select:n});else{const i=this.#o,r=t=>{this.sections[i]?.unload?.(),this.setStyles(this.#B),this.dispatchEvent(new CustomEvent("load",{detail:t}))};await this.#it(Promise.resolve(this.sections[t].load()).then((i=>({index:t,src:i,anchor:e,onLoad:r,select:n}))).catch((e=>(console.warn(e),console.warn(new Error(\`Failed to load section \${t}\`)),{}))))}}async goTo(t){if(this.#N)return;const e=await t;return this.#rt(e.index)?this.#J(e):void 0}#st(t){if(!this.#I)return!0;if(this.scrolled)return!(this.start>0)||this.#tt(Math.max(0,this.start-(t??this.size)),null,!0);if(this.atStart)return;const e=this.page-1;return this.#K(e,"page",!0).then((()=>e<=0))}#at(t){if(!this.#I)return!0;if(this.scrolled)return!(this.viewSize-this.end>2)||this.#tt(Math.min(this.viewSize,t?this.start+t:this.end),null,!0);if(this.atEnd)return;const e=this.page+1,n=this.pages;return this.#K(e,"page",!0).then((()=>e>=n-1))}get atStart(){return null==this.#Y(-1)&&this.page<=1}get atEnd(){return null==this.#Y(1)&&this.page>=this.pages-2}#Y(t){for(let e=this.#o+t;this.#rt(e);e+=t)if("no"!==this.sections[e]?.linear)return e}async#ot(t,e){if(this.#N)return;this.#N=!0;const n=-1===t,i=await(n?this.#st(e):this.#at(e));i&&await this.#J({index:this.#Y(t),anchor:n?()=>1:()=>0}),!i&&this.pageAnimation||await(100,new Promise((t=>setTimeout(t,100)))),this.#N=!1}prev(t){return this.#ot(-1,t)}next(t){return this.#ot(1,t)}prevSection(){return this.goTo({index:this.#Y(-1)})}nextSection(){return this.goTo({index:this.#Y(1)})}firstSection(){const t=this.sections.findIndex((t=>"no"!==t.linear));return this.goTo({index:t})}lastSection(){const t=this.sections.findLastIndex((t=>"no"!==t.linear));return this.goTo({index:t})}getContents(){return this.#I?[{index:this.#o,overlayer:this.#I.overlayer,doc:this.#I.document}]:[]}setStyles(t){this.#B=t;const e=this.#F.get(this.#I?.document);if(!e)return;const[n,i]=e;if(Array.isArray(t)){const[e,r]=t;n.textContent=e,i.textContent=r}else i.textContent=t;this.#E.style.background=G(this.#I.document),this.#I?.document?.fonts?.ready?.then((()=>this.#I.expand()))}destroy(){this.#r.unobserve(this),this.#I.destroy(),this.#I=null,this.sections[this.#o]?.unload?.(),this.#U.removeEventListener("change",this.#D)}}customElements.define("foliate-paginator",Z);const Q=t=>t.replace(/\\s+/g," "),tt=(t,{startIndex:e,startOffset:n,endIndex:i,endOffset:r})=>{const s=t[e],a=t[i],o=s===a?s.slice(n,r):s.slice(n)+t.slice(s+1,a).join("")+a.slice(0,r),l=Q(s.slice(0,n)).trimStart(),c=Q(a.slice(r)).trimEnd(),h=l.length<50?"":"…",d=c.length<50?"":"…";return{pre:\`\${h}\${l.slice(-50)}\`,match:o,post:\`\${c.slice(0,50)}\${d}\`}},et="http://www.w3.org/XML/1998/namespace",nt="http://www.w3.org/2001/10/synthesis",it=new Set(["article","aside","audio","blockquote","caption","details","dialog","div","dl","dt","dd","figure","footer","form","figcaption","h1","h2","h3","h4","h5","h6","header","hgroup","hr","li","main","math","nav","ol","p","pre","section","tr"]),rt=t=>t.lang||t?.getAttributeNS?.(et,"lang")||(t.parentElement?rt(t.parentElement):null),st=t=>{const e=t?.getAttributeNS?.(et,"lang");return e||(t.parentElement?st(t.parentElement):null)},at=t=>!t.toString().trim();class ot{#lt=[];#ct;#o=-1;#ht;constructor(t,e=(t=>t)){this.#ct=t,this.#ht=e}current(){if(this.#lt[this.#o])return this.#ht(this.#lt[this.#o])}first(){if(this.#lt[0])return this.#o=0,this.#ht(this.#lt[0])}prev(){const t=this.#o-1;if(this.#lt[t])return this.#o=t,this.#ht(this.#lt[t])}next(){const t=this.#o+1;if(this.#lt[t])return this.#o=t,this.#ht(this.#lt[t]);for(;;){const{done:e,value:n}=this.#ct.next();if(e)break;if(this.#lt.push(n),this.#lt[t])return this.#o=t,this.#ht(this.#lt[t])}}find(t){const e=this.#lt.findIndex((e=>t(e)));if(e>-1)return this.#o=e,this.#ht(this.#lt[e]);for(;;){const{done:e,value:n}=this.#ct.next();if(e)break;if(this.#lt.push(n),t(n))return this.#o=this.#lt.length-1,this.#ht(n)}}}class lt{#dt;#ut;#ft;#pt=new XMLSerializer;constructor(t,e,n){this.doc=t,this.highlight=n,this.#dt=new ot(function*(t){let e;const n=t.createTreeWalker(t.body,NodeFilter.SHOW_ELEMENT);for(let i=n.nextNode();i;i=n.nextNode()){const n=i.tagName.toLowerCase();it.has(n)&&(e&&(e.setEndBefore(i),at(e)||(yield e)),e=t.createRange(),e.setStart(i,0))}e||(e=t.createRange(),e.setStart(t.body.firstChild??t.body,0)),e.setEndAfter(t.body.lastChild??t.body),at(e)||(yield e)}(t),(t=>{const{entries:n,ssml:i}=((t,e,n)=>{const i=rt(t.commonAncestorContainer),r=st(t.commonAncestorContainer),s=((t="en",e="word")=>{const n=new Intl.Segmenter(t,{granularity:e}),i="word"===e;return function*(t,e){const r=t.join("");let s=0,a=-1,o=0;for(const{index:l,segment:c,isWordLike:h}of n.segment(r)){if(i&&!h)continue;for(;o<=l;)o+=t[++a].length;const n=a,d=l-(o-t[a].length),u=l+c.length;if(u<r.length)for(;o<=u;)o+=t[++a].length;const f=a,p=u-(o-t[a].length);yield[(s++).toString(),e(n,d,f,p)]}}})(i,n),a=t.cloneContents(),o=[...e(t,s)],l=[...e(a,s)];for(const[t,e]of l){const n=document.createElement("foliate-mark");n.dataset.name=t,e.insertNode(n)}const c=((t,e)=>{const n=document.implementation.createDocument(nt,"speak"),{lang:i}=e;i&&n.documentElement.setAttributeNS(et,"lang",i);const r=(t,e,i)=>{if(!t)return;if(3===t.nodeType)return n.createTextNode(t.textContent);if(4===t.nodeType)return n.createCDATASection(t.textContent);if(1!==t.nodeType)return;let s;const a=t.nodeName.toLowerCase();"foliate-mark"===a?(s=n.createElementNS(nt,"mark"),s.setAttribute("name",t.dataset.name)):"br"===a?s=n.createElementNS(nt,"break"):"em"!==a&&"strong"!==a||(s=n.createElementNS(nt,"emphasis"));const o=t.lang||t.getAttributeNS(et,"lang");o&&(s||(s=n.createElementNS(nt,"lang")),s.setAttributeNS(et,"lang",o));const l=t.getAttributeNS(nt,"alphabet")||i;if(!s){const e=t.getAttributeNS(nt,"ph");e&&(s=n.createElementNS(nt,"phoneme"),l&&s.setAttribute("alphabet",l),s.setAttribute("ph",e))}s||(s=e);let c=t.firstChild;for(;c;){const t=r(c,s,l);t&&s!==t&&s.append(t),c=c.nextSibling}return s};return r(t.firstChild,n.documentElement,e.alphabet),n})(a,{lang:i,alphabet:r});return{entries:o,ssml:c}})(t,e);return this.#ut=new Map(n),[i,t]}))}#gt(t,e){return e?t.querySelector(\`mark[name="\${CSS.escape(e)}"\`):null}#mt(t,e){if(!t)return;if(!e)return this.#pt.serializeToString(t);const n=document.implementation.createDocument(nt,"speak");n.documentElement.replaceWith(n.importNode(t.documentElement,!0));let i=e(n)?.previousSibling;for(;i;){const t=i.previousSibling??i.parentNode?.previousSibling;i.parentNode.removeChild(i),i=t}return this.#pt.serializeToString(n)}start(){this.#ft=null;const[t]=this.#dt.first()??[];return t?this.#mt(t,(t=>this.#gt(t,this.#ft))):this.next()}resume(){const[t]=this.#dt.current()??[];return t?this.#mt(t,(t=>this.#gt(t,this.#ft))):this.next()}prev(t){this.#ft=null;const[e,n]=this.#dt.prev()??[];return t&&n&&this.highlight(n.cloneRange()),this.#mt(e)}next(t){this.#ft=null;const[e,n]=this.#dt.next()??[];return t&&n&&this.highlight(n.cloneRange()),this.#mt(e)}from(t){this.#ft=null;const[e]=this.#dt.find((e=>t.compareBoundaryPoints(Range.END_TO_START,e)<=0));let n;for(const[e,i]of this.#ut.entries())if(t.compareBoundaryPoints(Range.START_TO_START,i)<=0){n=e;break}return this.#mt(e,(t=>this.#gt(t,n)))}setMark(t){const e=this.#ut.get(t);e&&(this.#ft=t,this.highlight(e.cloneRange()))}}const ct=t=>{void 0!==window.ReactNativeWebView?window.ReactNativeWebView.postMessage(JSON.stringify({type:"epubjs",message:t})):console.log(t)},ht="foliate-search:";class dt extends EventTarget{#lt=[];#o=-1;pushState(t){const e=this.#lt[this.#o];e===t||e?.fraction&&e.fraction===t.fraction||(this.#lt[++this.#o]=t,this.#lt.length=this.#o+1,this.dispatchEvent(new Event("index-change")))}replaceState(t){const e=this.#o;this.#lt[e]=t}back(){const t=this.#o;if(t<=0)return;const e={state:this.#lt[t-1]};this.#o=t-1,this.dispatchEvent(new CustomEvent("popstate",{detail:e})),this.dispatchEvent(new Event("index-change"))}forward(){const t=this.#o;if(t>=this.#lt.length-1)return;const e={state:this.#lt[t+1]};this.#o=t+1,this.dispatchEvent(new CustomEvent("popstate",{detail:e})),this.dispatchEvent(new Event("index-change"))}get canGoBack(){return this.#o>0}get canGoForward(){return this.#o<this.#lt.length-1}clear(){this.#lt=[],this.#o=-1}}class ut extends HTMLElement{#i=this.attachShadow({mode:"closed"});#bt;#wt;#yt;#xt=new Map;#vt;#kt;#_t;#St;#At;isFixedLayout=!1;lastLocation;history=new dt;constructor(){super(),this.history.addEventListener("popstate",(({detail:t})=>{const e=this.resolveNavigation(t.state);this.renderer.goTo(e)}))}async open(t){if(this.book=t,this.language=(t=>{if(!t)return{};try{const e=Intl.getCanonicalLocales(t)[0],n=new Intl.Locale(e),i=["zh","ja","kr"].includes(n.language),r=(n.getTextInfo?.()??n.textInfo)?.direction;return{canonical:e,locale:n,isCJK:i,direction:r}}catch(t){return console.warn(t),{}}})(t.metadata?.language),t.splitTOCHref&&t.getTOCFragment){const e=t.sections.map((t=>t.id));this.#bt=new E(t.sections,1500,1600);const n=t.splitTOCHref.bind(t),i=t.getTOCFragment.bind(t);this.#wt=new L,await this.#wt.init({toc:t.toc??[],ids:e,splitHref:n,getFragment:i}),this.#yt=new L,await this.#yt.init({toc:t.pageList??[],ids:e,splitHref:n,getFragment:i})}this.isFixedLayout="pre-paginated"===this.book.rendition?.layout,this.isFixedLayout?this.renderer=document.createElement("foliate-fxl"):this.renderer=document.createElement("foliate-paginator"),this.renderer.setAttribute("exportparts","head,foot,filter"),this.renderer.addEventListener("load",(t=>this.#Lt(t.detail))),this.renderer.addEventListener("relocate",(t=>this.#Et(t.detail))),this.renderer.addEventListener("create-overlayer",(t=>t.detail.attach(this.#Tt(t.detail))));try{this.renderer.open(t)}catch(t){return void ct("[VIEW_OPEN] "+t)}if(this.#i.append(this.renderer),t.sections.some((t=>t.mediaOverlay))){t.media.activeClass||="-epub-media-overlay-active";const e=t.media.activeClass;let n;this.mediaOverlay=t.getMediaOverlay(),this.mediaOverlay.addEventListener("highlight",(t=>{const i=this.resolveNavigation(t.detail.text);this.renderer.goTo(i).then((()=>{const{doc:t}=this.renderer.getContents().find((t=>t.index=i.index)),r=i.anchor(t);r.classList.add(e),n=new WeakRef(r)}))})),this.mediaOverlay.addEventListener("unhighlight",(()=>{n?.deref()?.classList?.remove(e)}))}}close(){this.renderer?.destroy(),this.renderer?.remove(),this.#bt=null,this.#wt=null,this.#yt=null,this.#xt=new Map,this.lastLocation=null,this.history.clear(),this.tts=null,this.mediaOverlay=null}goToTextStart(){return this.goTo(this.book.landmarks?.find((t=>t.type.includes("bodymatter")||t.type.includes("text")))?.href??this.book.sections.findIndex((t=>"no"!==t.linear)))}async init({lastLocation:t,showTextStart:e}){const n=t?this.resolveNavigation(t):null;n?(await this.renderer.goTo(n),this.history.pushState(t)):e?await this.goToTextStart():(this.history.pushState(0),await this.next())}#Ct(t,e,n){return this.dispatchEvent(new CustomEvent(t,{detail:e,cancelable:n}))}#Et({reason:t,range:e,index:n,fraction:i,size:r}){const s=this.#bt?.getProgress(n,i,r)??{},a=this.#wt?.getProgress(n,e),o=this.#yt?.getProgress(n,e),l=this.getCFI(n,e);this.lastLocation={...s,tocItem:a,pageItem:o,cfi:l,range:e},"snap"!==t&&"page"!==t&&"scroll"!==t||this.history.replaceState(l),this.#Ct("relocate",this.lastLocation)}#Lt({doc:t,index:e}){t.documentElement.lang||=this.language.canonical??"",this.language.isCJK||(t.documentElement.dir||=this.language.direction??""),this.#Rt(t,e),this.#Ct("load",{doc:t,index:e})}#Rt(t,e){const{book:n}=this,i=n.sections[e];for(const e of t.querySelectorAll("a[href]"))e.addEventListener("click",(t=>{t.preventDefault();const r=e.getAttribute("href"),s=i?.resolveHref?.(r)??r;n?.isExternal?.(s)?Promise.resolve(this.#Ct("external-link",{a:e,href:s},!0)).then((t=>t?globalThis.open(s,"_blank"):null)).catch((t=>console.error(t))):Promise.resolve(this.#Ct("link",{a:e,href:s},!0)).then((t=>t?this.goTo(s):null)).catch((t=>console.error(t)))}))}async addAnnotation(t,e){const{value:n}=t;if(n.startsWith(ht)){const t=n.replace(ht,""),{index:i,anchor:r}=await this.resolveNavigation(t),s=this.#It(i);if(s){const{overlayer:t,doc:i}=s;if(e)return void t.remove(n);const a=i?r(i):r;t.add(n,a,C.outline)}return}const{index:i,anchor:r}=await this.resolveNavigation(n),s=this.#It(i);if(s){const{overlayer:i,doc:a}=s;if(i.remove(n),!e){const e=a?r(a):r,s=(t,r)=>i.add(n,e,t,r);this.#Ct("draw-annotation",{draw:s,annotation:t,doc:a,range:e})}}return{index:i,label:this.#wt.getProgress(i)?.label??""}}deleteAnnotation(t){return this.addAnnotation(t,!0)}#It(t){return this.renderer.getContents().find((e=>e.index===t&&e.overlayer))}#Tt({doc:t,index:e}){const n=new C;t.addEventListener("click",(t=>{const[i,r]=n.hitTest(t);i&&!i.startsWith(ht)&&this.#Ct("show-annotation",{value:i,index:e,range:r})}),!1);const i=this.#xt.get(e);if(i)for(const t of i)this.addAnnotation(t);return this.#Ct("create-overlay",{index:e}),n}async showAnnotation(t){const{value:e}=t,n=await this.goTo(e);if(n){const{index:t,anchor:i}=n,{doc:r}=this.#It(t),s=i(r);this.#Ct("show-annotation",{value:e,index:t,range:s})}}getCFI(t,e){const n=this.book.sections[t].cfi??(t=>a("/6/"+2*(t+1)))(t);return e?o(n,((t,e)=>{const{startContainer:n,startOffset:i,endContainer:r,endOffset:s}=t,a=v(n,i,e);if(t.collapsed)return p([a]);return((t,e)=>{"string"==typeof t&&(t=d(t)),"string"==typeof e&&(e=d(e)),t=g(t),e=g(e,!0);const n=t[t.length-1],i=e[e.length-1],r=[],s=[],a=[];let o=!0;const l=Math.max(n.length,i.length);for(let t=0;t<l;t++){const e=n[t],l=i[t];o&&=e?.index===l?.index&&!e?.offset&&!l?.offset,o?r.push(e):(e&&s.push(e),l&&a.push(l))}const c=t.slice(0,-1).concat([r]);return p({parent:c,start:[s],end:[a]})})([a],[v(r,s,e)])})(e)):n}resolveCFI(t){if(this.book.resolveCFI)return this.book.resolveCFI(t);{const e=d(t);return{index:S((e.parent??e).shift()),anchor:t=>k(t,e)}}}resolveNavigation(t){try{if("number"==typeof t)return{index:t};if("number"==typeof t.fraction){const[e,n]=this.#bt.getSection(t.fraction);return{index:e,anchor:n}}return r.test(t)?this.resolveCFI(t):this.book.resolveHref(t)}catch(e){console.error(e),console.error(\`Could not resolve target \${t}\`)}}async goTo(t){const e=this.resolveNavigation(t);try{return await this.renderer.goTo(e),this.history.pushState(t),e}catch(e){console.error(e),console.error(\`Could not go to \${t}\`)}}async goToFraction(t){const[e,n]=this.#bt.getSection(t);await this.renderer.goTo({index:e,anchor:n}),this.history.pushState({fraction:t})}async select(t){try{const e=await this.resolveNavigation(t);await this.renderer.goTo({...e,select:!0}),this.history.pushState(t)}catch(e){console.error(e),console.error(\`Could not go to \${t}\`)}}deselect(){for(const{doc:t}of this.renderer.getContents())t.defaultView.getSelection().removeAllRanges()}getSectionFractions(){return(this.#bt?.sectionFractions??[]).map((t=>t+Number.EPSILON))}getProgressOf(t,e){const n=this.#wt?.getProgress(t,e),i=this.#yt?.getProgress(t,e);return{tocItem:n,pageItem:i}}async getTOCItemOf(t){try{const{index:e,anchor:n}=await this.resolveNavigation(t),i=await this.book.sections[e].createDocument(),r=n(i),s=r instanceof Range,a=s?r:i.createRange();return s||a.selectNodeContents(r),this.#wt.getProgress(e,a)}catch(e){console.error(e),console.error(\`Could not get \${t}\`)}}async prev(t){await this.renderer.prev(t)}async next(t){await this.renderer.next(t)}goLeft(){return"rtl"===this.book.dir?this.next():this.prev()}goRight(){return"rtl"===this.book.dir?this.prev():this.next()}async*#Mt(t,e,n){const i=await this.book.sections[n].createDocument();for(const{range:r,excerpt:s}of t(i,e))yield{cfi:this.getCFI(n,r),excerpt:s}}async*#zt(t,e){const{sections:n}=this.book;for(const[i,{createDocument:r}]of n.entries()){if(!r)continue;const s=await r(),a=Array.from(t(s,e),(({range:t,excerpt:e})=>({cfi:this.getCFI(i,t),excerpt:e}))),o=(i+1)/n.length;yield{progress:o},a.length&&(yield{index:i,subitems:a})}}async*search(t){this.clearSearch();const{query:e,index:n}=t,i=((t,e)=>{const{defalutLocale:n,matchCase:i,matchDiacritics:r,matchWholeWords:s}=e;return function*(e,a){const o=t(e,(function*(t,o){for(const l of((t,e,n)=>{const{granularity:i="grapheme",sensitivity:r="base"}=n;return Intl?.Segmenter&&("grapheme"!==i||"variant"!==r&&"accent"!==r)?function*(t,e,n={}){const{locales:i="en",granularity:r="word",sensitivity:s="base"}=n;let a,o;try{a=new Intl.Segmenter(i,{usage:"search",granularity:r}),o=new Intl.Collator(i,{sensitivity:s})}catch(t){console.warn(t),a=new Intl.Segmenter("en",{usage:"search",granularity:r}),o=new Intl.Collator("en",{sensitivity:s})}const l=Array.from(a.segment(e)).length,c=[];let h=0,d=a.segment(t[h])[Symbol.iterator]();t:for(;h<t.length;){for(;c.length<l;){const{done:e,value:n}=d.next();if(e){if(h++,h<t.length){d=a.segment(t[h])[Symbol.iterator]();continue}break t}const{index:i,segment:r}=n;/[^\\p{Format}]/u.test(r)&&(/\\s/u.test(r)?/\\s/u.test(c[c.length-1]?.segment)||c.push({strIndex:h,index:i,segment:" "}):(n.strIndex=h,c.push(n)))}const n=c.map((t=>t.segment)).join("");if(0===o.compare(e,n)){const e=h,n=c[c.length-1],i=n.index+n.segment.length,r={startIndex:c[0].strIndex,startOffset:c[0].index,endIndex:e,endOffset:i};yield{range:r,excerpt:tt(t,r)}}c.shift()}}(t,e,n):function*(t,e,n={}){const{locales:i="en",sensitivity:r}=n,s="variant"===r,a=t.join(""),o=s?a:a.toLocaleLowerCase(i),l=s?e:e.toLocaleLowerCase(i),c=l.length;let h=-1,d=-1,u=0;do{if(h=o.indexOf(l,h+1),h>-1){for(;u<=h;)u+=t[++d].length;const e=d,n=h-(u-t[d].length),i=h+c;for(;u<=i;)u+=t[++d].length;const r={startIndex:e,startOffset:n,endIndex:d,endOffset:i-(u-t[d].length)};yield{range:r,excerpt:tt(t,r)}}}while(h>-1)}(t,e,n)})(t,a,{locales:e.body.lang||e.documentElement.lang||n||"en",granularity:s?"word":"grapheme",sensitivity:r&&i?"variant":r&&!i?"accent":!r&&i?"case":"base"})){const{startIndex:t,startOffset:e,endIndex:n,endOffset:i}=l.range;l.range=o(t,e,n,i),yield l}}));for(const t of o)yield t}})(O,{defaultLocale:this.language,...t}),r=null!=n?this.#Mt(i,e,n):this.#zt(i,e),s=[];this.#xt.set(n,s);for await(const t of r)if(t.subitems){const e=t.subitems.map((({cfi:t})=>({value:ht+t})));this.#xt.set(t.index,e);for(const t of e)this.addAnnotation(t);yield{label:this.#wt.getProgress(t.index)?.label??"",subitems:t.subitems}}else{if(t.cfi){const e={value:ht+t.cfi};s.push(e),this.addAnnotation(e)}yield t}yield"done"}clearSearch(){for(const t of this.#xt.values())for(const e of t)this.deleteAnnotation(e);this.#xt.clear()}async initTTS(){const t=this.renderer.getContents()[0].doc;this.tts&&this.tts.doc===t||(this.tts=new lt(t,O,(t=>this.renderer.scrollToAnchor(t,!0))))}startMediaOverlay(){const{index:t}=this.renderer.getContents()[0];return this.mediaOverlay.start(t)}}customElements.define("foliate-view",ut);var ft=Uint8Array,pt=Uint16Array,gt=Uint32Array,mt=new ft([0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0,0,0,0]),bt=new ft([0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,0,0]),wt=new ft([16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15]),yt=function(t,e){for(var n=new pt(31),i=0;i<31;++i)n[i]=e+=1<<t[i-1];var r=new gt(n[30]);for(i=1;i<30;++i)for(var s=n[i];s<n[i+1];++s)r[s]=s-n[i]<<5|i;return[n,r]},xt=yt(mt,2),vt=xt[0],kt=xt[1];vt[28]=258,kt[258]=28;for(var _t=yt(bt,0)[0],St=new pt(32768),At=0;At<32768;++At){var Lt=(43690&At)>>>1|(21845&At)<<1;Lt=(61680&(Lt=(52428&Lt)>>>2|(13107&Lt)<<2))>>>4|(3855&Lt)<<4,St[At]=((65280&Lt)>>>8|(255&Lt)<<8)>>>1}var Et=function(t,e,n){for(var i=t.length,r=0,s=new pt(e);r<i;++r)t[r]&&++s[t[r]-1];var a,o=new pt(e);for(r=0;r<e;++r)o[r]=o[r-1]+s[r-1]<<1;if(n){a=new pt(1<<e);var l=15-e;for(r=0;r<i;++r)if(t[r])for(var c=r<<4|t[r],h=e-t[r],d=o[t[r]-1]++<<h,u=d|(1<<h)-1;d<=u;++d)a[St[d]>>>l]=c}else for(a=new pt(i),r=0;r<i;++r)t[r]&&(a[r]=St[o[t[r]-1]++]>>>15-t[r]);return a},Tt=new ft(288);for(At=0;At<144;++At)Tt[At]=8;for(At=144;At<256;++At)Tt[At]=9;for(At=256;At<280;++At)Tt[At]=7;for(At=280;At<288;++At)Tt[At]=8;var Ct=new ft(32);for(At=0;At<32;++At)Ct[At]=5;var Rt=Et(Tt,9,1),It=Et(Ct,5,1),Mt=function(t){for(var e=t[0],n=1;n<t.length;++n)t[n]>e&&(e=t[n]);return e},zt=function(t,e,n){var i=e/8|0;return(t[i]|t[i+1]<<8)>>(7&e)&n},Ot=function(t,e){var n=e/8|0;return(t[n]|t[n+1]<<8|t[n+2]<<16)>>(7&e)},Nt=["unexpected EOF","invalid block type","invalid length/literal","invalid distance","stream finished","no stream handler",,"no callback","invalid UTF-8 data","extra field too long","date not in range 1980-2099","filename too long","stream finishing","invalid zip data"],Bt=function(t,e,n){var i=new Error(e||Nt[t]);if(i.code=t,Error.captureStackTrace&&Error.captureStackTrace(i,Bt),!n)throw i;return i},Ft=function(t,e,n){var i=t.length;if(!i||n&&n.f&&!n.l)return e||new ft(0);var r=!e||n,s=!n||n.i;n||(n={}),e||(e=new ft(3*i));var a=function(t){var n=e.length;if(t>n){var i=new ft(Math.max(2*n,t));i.set(e),e=i}},o=n.f||0,l=n.p||0,c=n.b||0,h=n.l,d=n.d,u=n.m,f=n.n,p=8*i;do{if(!h){o=zt(t,l,1);var g=zt(t,l+1,3);if(l+=3,!g){var m=t[(E=4+((l+7)/8|0))-4]|t[E-3]<<8,b=E+m;if(b>i){s&&Bt(0);break}r&&a(c+m),e.set(t.subarray(E,b),c),n.b=c+=m,n.p=l=8*b,n.f=o;continue}if(1==g)h=Rt,d=It,u=9,f=5;else if(2==g){var w=zt(t,l,31)+257,y=zt(t,l+10,15)+4,x=w+zt(t,l+5,31)+1;l+=14;for(var v=new ft(x),k=new ft(19),_=0;_<y;++_)k[wt[_]]=zt(t,l+3*_,7);l+=3*y;var S=Mt(k),A=(1<<S)-1,L=Et(k,S,1);for(_=0;_<x;){var E,T=L[zt(t,l,A)];if(l+=15&T,(E=T>>>4)<16)v[_++]=E;else{var C=0,R=0;for(16==E?(R=3+zt(t,l,3),l+=2,C=v[_-1]):17==E?(R=3+zt(t,l,7),l+=3):18==E&&(R=11+zt(t,l,127),l+=7);R--;)v[_++]=C}}var I=v.subarray(0,w),M=v.subarray(w);u=Mt(I),f=Mt(M),h=Et(I,u,1),d=Et(M,f,1)}else Bt(1);if(l>p){s&&Bt(0);break}}r&&a(c+131072);for(var z=(1<<u)-1,O=(1<<f)-1,N=l;;N=l){var B=(C=h[Ot(t,l)&z])>>>4;if((l+=15&C)>p){s&&Bt(0);break}if(C||Bt(2),B<256)e[c++]=B;else{if(256==B){N=l,h=null;break}var F=B-254;if(B>264){var U=mt[_=B-257];F=zt(t,l,(1<<U)-1)+vt[_],l+=U}var D=d[Ot(t,l)&O],P=D>>>4;if(D||Bt(3),l+=15&D,M=_t[P],P>3&&(U=bt[P],M+=Ot(t,l)&(1<<U)-1,l+=U),l>p){s&&Bt(0);break}r&&a(c+131072);for(var j=c+F;c<j;c+=4)e[c]=e[c-M],e[c+1]=e[c+1-M],e[c+2]=e[c+2-M],e[c+3]=e[c+3-M];c=j}}n.l=h,n.p=N,n.b=c,n.f=o,h&&(o=1,n.m=u,n.d=d,n.n=f)}while(!o);return c==e.length?e:function(t,e,n){(null==e||e<0)&&(e=0),(null==n||n>t.length)&&(n=t.length);var i=new(2==t.BYTES_PER_ELEMENT?pt:4==t.BYTES_PER_ELEMENT?gt:ft)(n-e);return i.set(t.subarray(e,n)),i}(e,0,c)},Ut=new ft(0);function Dt(t,e){return Ft(((8!=(15&(n=t)[0])||n[0]>>>4>7||(n[0]<<8|n[1])%31)&&Bt(6,"invalid zlib data"),32&n[1]&&Bt(6,"invalid zlib data: preset dictionaries not supported"),t.subarray(2,-4)),e);var n}var Pt="undefined"!=typeof TextDecoder&&new TextDecoder;try{Pt.decode(Ut,{stream:!0})}catch(ft){}const jt="http://www.idpf.org/2007/opf",Wt="http://www.idpf.org/2007/ops",\$t="http://purl.org/dc/elements/1.1/",Ht="http://www.w3.org/2001/04/xmlenc#",qt="http://www.w3.org/1999/xlink",Vt={XML:"application/xml",NCX:"application/x-dtbncx+xml",XHTML:"application/xhtml+xml",HTML:"text/html",CSS:"text/css",SVG:"image/svg+xml",JS:/\\/(x-)?(javascript|ecmascript)/},Xt=t=>t.toLowerCase().replace(/[-:](.)/g,((t,e)=>e.toUpperCase())),Gt=(t,e,n)=>n?n=>n.getAttribute(t)?.split(/\\s/)?.includes(e):"function"==typeof e?n=>e(n.getAttribute(t)):n=>n.getAttribute(t)===e,Kt=(...t)=>e=>e?Object.fromEntries(t.map((t=>[Xt(t),e.getAttribute(t)]))):null,Jt=t=>{return e=t?.textContent,e?e.replace(/[\\t\\n\\f\\r ]+/g," ").replace(/^[\\t\\n\\f\\r ]+/,"").replace(/[\\t\\n\\f\\r ]+\$/,""):"";var e},Yt=(t,e)=>{const n=t.lookupNamespaceURI(null)===e||t.lookupPrefix(e),i=n?(t,n)=>t=>t.namespaceURI===e&&t.localName===n:(t,e)=>t=>t.localName===e;return{\$:(t,e)=>[...t.children].find(i(t,e)),\$\$:(t,e)=>[...t.children].filter(i(t,e)),\$\$\$:n?(t,n)=>[...t.getElementsByTagNameNS(e,n)]:(t,n)=>[...t.getElementsByTagName(e,n)]}},Zt=(t,e)=>{try{if(e.includes(":"))return new URL(t,e);const n="https://invalid.invalid/",i=new URL(t,n+e);return i.search="",decodeURI(i.href.replace(n,""))}catch(e){return console.warn(e),t}},Qt=t=>/^(?!blob)\\w+:/i.test(t),te=async(t,e,n)=>{const i=[];t.replace(e,((...t)=>(i.push(t),null)));const r=[];for(const t of i)r.push(await n(...t));return t.replace(e,(()=>r.shift()))},ee=t=>t.replace(/[-/\\\\^\$*+?.()|[\\]{}]/g,"\\\\\$&"),ne={attrs:["dir","xml:lang"]},ie={name:"alternate-script",many:!0,...ne,props:["file-as"]},re={many:!0,...ne,props:[{name:"role",many:!0,attrs:["scheme"]},"file-as",ie],setLegacyAttrs:(t,e)=>{if(!t.role?.length){const n=e.getAttributeNS(jt,"role");n&&(t.role=[{value:n}])}t.fileAs??=e.getAttributeNS(jt,"file-as")}},se=[{name:"title",many:!0,...ne,props:["title-type","display-seq","file-as",ie]},{name:"identifier",many:!0,props:[{name:"identifier-type",attrs:["scheme"]}],setLegacyAttrs:(t,e)=>{if(!t.identifierType){const n=e.getAttributeNS(jt,"scheme");n&&(t.identifierType={value:n})}}},{name:"language",many:!0},{name:"creator",...re},{name:"contributor",...re},{name:"publisher",...ne,props:["file-as",ie]},{name:"description",...ne,props:[ie]},{name:"rights",...ne,props:[ie]},{name:"date"},{name:"dcterms:modified",type:"meta"},{name:"subject",many:!0,...ne,props:["term","authority",ie],setLegacyAttrs:(t,e)=>{t.term??=e.getAttributeNS(jt,"term"),t.authority??=e.getAttributeNS(jt,"authority")}},{name:"source",many:!0},{name:"belongs-to-collection",type:"meta",many:!0,...ne,props:["collection-type","group-position","dcterms:identifier","file-as",ie,{name:"belongs-to-collection",recursive:!0}]}],ae=(t,e=(t=>t))=>{const{\$:n,\$\$:i,\$\$\$:r}=Yt(t,"http://www.w3.org/1999/xhtml"),s=(t,r)=>t?i(t,"li").map((t=>i=>{const r=n(i,"a")??n(i,"span"),a=n(i,"ol"),o=(t=>t?decodeURI(e(t)):null)(r?.getAttribute("href")),l={label:Jt(r)||r?.getAttribute("title"),href:o,subitems:s(a)};return t&&(l.type=r?.getAttributeNS(Wt,"type")?.split(/\\s/)),l})(r)):null,a=(t,e)=>s(n(t,"ol"),e),o=r(t,"nav");let l=null,c=null,h=null,d=[];for(const t of o){const e=t.getAttributeNS(Wt,"type")?.split(/\\s/)??[];e.includes("toc")?l??=a(t):e.includes("page-list")?c??=a(t):e.includes("landmarks")?h??=a(t,!0):d.push({label:Jt(t.firstElementChild),type:e,list:a(t)})}return{toc:l,pageList:c,landmarks:h,others:d}},oe=t=>{if(!t)return;const e=t.split(":").map((t=>parseFloat(t)));if(3===e.length){const[t,n,i]=e;return 60*t*60+60*n+i}if(2===e.length){const[t,n]=e;return 60*t+n}const[n,i]=t.split(/(?=[^\\d.])/);return parseFloat(n)*("h"===i?3600:"min"===i?60:"ms"===i?.001:1)};class le extends EventTarget{#Ot;#Nt;#Bt;#Ft;#Ut;#Dt;#Pt=1;#jt=1;constructor(t,e){super(),this.book=t,this.loadXML=e}async#Wt(t){if(this.#Nt===t)return;const e=await this.loadXML(t.href),n=e=>e?Zt(e,t.href):null,{\$:i,\$\$\$:r}=Yt(e,"http://www.w3.org/ns/SMIL");this.#Ft=-1,this.#Ut=-1,this.#Ot=r(e,"par").reduce(((t,e)=>{const r=n(i(e,"text")?.getAttribute("src")),s=i(e,"audio");if(!r||!s)return t;const a=n(s.getAttribute("src")),o=oe(s.getAttribute("clipBegin")),l=oe(s.getAttribute("clipEnd")),c=t.at(-1);return c?.src===a?c.items.push({text:r,begin:o,end:l}):t.push({src:a,items:[{text:r,begin:o,end:l}]}),t}),[]),this.#Nt=t}get#\$t(){return this.#Ot[this.#Ft]}get#Ht(){return this.#\$t?.items?.[this.#Ut]}#qt(t){console.error(t),this.dispatchEvent(new CustomEvent("error",{detail:t}))}#Vt(){this.dispatchEvent(new CustomEvent("highlight",{detail:this.#Ht}))}#Xt(){this.dispatchEvent(new CustomEvent("unhighlight",{detail:this.#Ht}))}async#Gt(t,e){this.#Dt&&(this.#Dt.pause(),URL.revokeObjectURL(this.#Dt.src),this.#Dt=null),this.#Ft=t,this.#Ut=e;const n=this.#\$t?.src;if(!n||!this.#Ht)return this.start(this.#Bt+1);const i=URL.createObjectURL(await this.book.loadBlob(n)),r=new Audio(i);this.#Dt=r,r.addEventListener("timeupdate",(()=>{if(r.paused)return;const t=r.currentTime,{items:e}=this.#\$t;if(t>this.#Ht?.end&&(this.#Xt(),this.#Ut===e.length-1))return void this.#Gt(this.#Ft+1,0).catch((t=>this.#qt(t)));const n=this.#Ut;for(;e[this.#Ut+1]?.begin<=t;)this.#Ut++;this.#Ut!==n&&this.#Vt()})),r.addEventListener("error",(()=>this.#qt(new Error(\`Failed to load \${n}\`)))),r.addEventListener("playing",(()=>this.#Vt())),r.addEventListener("pause",(()=>this.#Xt())),r.addEventListener("ended",(()=>{this.#Xt(),URL.revokeObjectURL(i),this.#Dt=null,this.#Gt(t+1,0).catch((t=>this.#qt(t)))})),r.addEventListener("canplaythrough",(()=>{r.currentTime=this.#Ht.begin??0,r.volume=this.#Pt,r.playbackRate=this.#jt,r.play().catch((t=>this.#qt(t)))}))}async start(t,e=(()=>!0)){this.#Dt?.pause();const n=this.book.sections[t],i=n?.id;if(!i)return;const{mediaOverlay:r}=n;if(!r)return this.start(t+1);this.#Bt=t,await this.#Wt(r);for(let t=0;t<this.#Ot.length;t++){const{items:n}=this.#Ot[t];for(let r=0;r<n.length;r++)if(n[r].text.split("#")[0]===i&&e(n[r],r,n))return this.#Gt(t,r).catch((t=>this.#qt(t)))}}pause(){this.#Dt?.pause()}resume(){this.#Dt?.play().catch((t=>this.#qt(t)))}prev(){this.#Ut>0?this.#Gt(this.#Ft,this.#Ut-1):this.#Ft>0?this.#Gt(this.#Ft-1,this.#Ot[this.#Ft-1].items.length-1):this.#Bt>0&&this.start(this.#Bt-1,((t,e,n)=>e===n.length-1))}next(){this.#Gt(this.#Ft,this.#Ut+1)}setVolume(t){this.#Pt=t,this.#Dt&&(this.#Dt.volume=t)}setRate(t){this.#jt=t,this.#Dt&&(this.#Dt.playbackRate=t)}}const ce=/([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})/,he=t=>Jt(t.getElementById(t.documentElement.getAttribute("unique-identifier"))??t.getElementsByTagNameNS(\$t,"identifier")[0]),de=async(t,e,n)=>{const i=new Uint8Array(await n.slice(0,e).arrayBuffer());e=Math.min(e,i.length);for(var r=0;r<e;r++)i[r]=i[r]^t[r%t.length];return new Blob([i,n.slice(e)],{type:n.type})},ue=async t=>{const e=(new TextEncoder).encode(t),n=await globalThis.crypto.subtle.digest("SHA-1",e);return new Uint8Array(n)},fe=(t=ue)=>({"http://www.idpf.org/2008/embedding":{key:e=>t(he(e).replaceAll(/[\\u0020\\u0009\\u000d\\u000a]/g,"")),decode:(t,e)=>de(t,1040,e)},"http://ns.adobe.com/pdf/enc#RC":{key:t=>{const e=(t=>{for(const e of t.getElementsByTagNameNS(\$t,"identifier")){const[t]=Jt(e).split(":").slice(-1);if(ce.test(t))return t}return""})(t).replaceAll("-","");return Uint8Array.from({length:16},((t,n)=>parseInt(e.slice(2*n,2*n+2),16)))},decode:(t,e)=>de(t,1024,e)}});class pe{#Kt=new Map;#Jt=new Map;#Yt;constructor(t){this.#Yt=t}async init(t,e){if(!t)return;const n=Array.from(t.getElementsByTagNameNS(Ht,"EncryptedData"),(t=>({algorithm:t.getElementsByTagNameNS(Ht,"EncryptionMethod")[0]?.getAttribute("Algorithm"),uri:t.getElementsByTagNameNS(Ht,"CipherReference")[0]?.getAttribute("URI")})));for(const{algorithm:t,uri:i}of n){if(!this.#Jt.has(t)){const n=this.#Yt[t];if(!n){console.warn("Unknown encryption algorithm");continue}const i=await n.key(e);this.#Jt.set(t,(t=>n.decode(i,t)))}this.#Kt.set(i,t)}}getDecoder(t){return this.#Jt.get(this.#Kt.get(t))??(t=>t)}}class ge{constructor({opf:t,resolveHref:e}){this.opf=t;const{\$:n,\$\$:i,\$\$\$:r}=Yt(t,jt),s=n(t.documentElement,"manifest"),a=n(t.documentElement,"spine"),o=i(a,"itemref");this.manifest=i(s,"item").map(Kt("href","id","media-type","properties","media-overlay")).map((t=>(t.href=e(t.href),t.properties=t.properties?.split(/\\s/),t))),this.spine=o.map(Kt("idref","id","linear","properties")).map((t=>(t.properties=t.properties?.split(/\\s/),t))),this.pageProgressionDirection=a.getAttribute("page-progression-direction"),this.navPath=this.getItemByProperty("nav")?.href,this.ncxPath=(this.getItemByID(a.getAttribute("toc"))??this.manifest.find((t=>t.mediaType===Vt.NCX)))?.href;const l=n(t.documentElement,"guide");l&&(this.guide=i(l,"reference").map(Kt("type","title","href")).map((({type:t,title:n,href:i})=>({label:n,type:t.split(/\\s/),href:e(i)})))),this.cover=this.getItemByProperty("cover-image")??this.getItemByID(r(t,"meta").find(Gt("name","cover"))?.getAttribute("content"))??this.getItemByHref(this.guide?.find((t=>t.type.includes("cover")))?.href),this.cfis=(t=>{const e=[],{parentNode:n}=t[0],i=v(n);for(const[r,s]of y(n).entries()){const n=t[e.length];s===n&&e.push(p([i.concat({id:n.id,index:r})]))}return e})(o)}getItemByID(t){return this.manifest.find((e=>e.id===t))}getItemByHref(t){return this.manifest.find((e=>e.href===t))}getItemByProperty(t){return this.manifest.find((e=>e.properties?.includes(t)))}resolveCFI(t){const e=d(t),n=(e.parent??e).shift();let i=_(this.opf,n);i&&"idref"!==i.nodeName&&(n.at(-1).id=null,i=_(this.opf,n));const r=i?.getAttribute("idref");return{index:this.spine.findIndex((t=>t.idref===r)),anchor:t=>k(t,e)}}}class me{#Zt=new Map;#Qt=new Map;#te=new Map;allowScript=!1;constructor({loadText:t,loadBlob:e,resources:n}){this.loadText=t,this.loadBlob=e,this.manifest=n.manifest,this.assets=n.manifest}createURL(t,e,n,i){if(!e)return"";const r=URL.createObjectURL(new Blob([e],{type:n}));if(this.#Zt.set(t,r),this.#te.set(t,1),i){const e=this.#Qt.get(i);e?e.push(t):this.#Qt.set(i,[t])}return r}ref(t,e){const n=this.#Qt.get(e);return n?.includes(t)||(this.#te.set(t,this.#te.get(t)+1),n?n.push(t):this.#Qt.set(e,[t])),this.#Zt.get(t)}unref(t){if(!this.#te.has(t))return;const e=this.#te.get(t)-1;if(e<1){URL.revokeObjectURL(this.#Zt.get(t)),this.#Zt.delete(t),this.#te.delete(t);const e=this.#Qt.get(t);if(e)for(;e.length;)this.unref(e.pop());this.#Qt.delete(t)}else this.#te.set(t,e)}async loadItem(t,e=[]){if(!t)return null;const{href:n,mediaType:i}=t,r=Vt.JS.test(t.mediaType);if(r&&!this.allowScript)return null;const s=e.at(-1);if(this.#Zt.has(n))return this.ref(n,s);const a=(r||[Vt.XHTML,Vt.HTML,Vt.CSS,Vt.SVG].includes(i))&&e.every((t=>t!==n));return a?this.loadReplaced(t,e):this.createURL(n,await this.loadBlob(n),i,s)}async loadHref(t,e,n=[]){if(Qt(t))return t;const i=Zt(t,e),r=this.manifest.find((t=>t.href===i));return r?this.loadItem(r,n.concat(e)):t}async loadReplaced(t,e=[]){const{href:n,mediaType:i}=t,r=e.at(-1),s=await this.loadText(n);if(!s)return null;if([Vt.XHTML,Vt.HTML,Vt.SVG].includes(i)){let a=(new DOMParser).parseFromString(s,i);if(i===Vt.XHTML&&a.querySelector("parsererror")&&(console.warn(a.querySelector("parsererror").innerText),t.mediaType=Vt.HTML,a=(new DOMParser).parseFromString(s,t.mediaType)),[Vt.XHTML,Vt.SVG].includes(t.mediaType)){let t=a.firstChild;for(;t instanceof ProcessingInstruction;){if(t.data){const i=await te(t.data,/(?:^|\\s*)(href\\s*=\\s*['"])([^'"]*)(['"])/i,((t,i,r,s)=>this.loadHref(r,n,e).then((t=>\`\${i}\${t}\${s}\`))));t.replaceWith(a.createProcessingInstruction(t.target,i))}t=t.nextSibling}}const o=async(t,i)=>t.setAttribute(i,await this.loadHref(t.getAttribute(i),n,e));for(const t of a.querySelectorAll("link[href]"))await o(t,"href");for(const t of a.querySelectorAll("[src]"))await o(t,"src");for(const t of a.querySelectorAll("[poster]"))await o(t,"poster");for(const t of a.querySelectorAll("object[data]"))await o(t,"data");for(const t of a.querySelectorAll("[*|href]:not([href]"))t.setAttributeNS(qt,"href",await this.loadHref(t.getAttributeNS(qt,"href"),n,e));for(const t of a.querySelectorAll("style"))t.textContent&&(t.textContent=await this.replaceCSS(t.textContent,n,e));for(const t of a.querySelectorAll("[style]"))t.setAttribute("style",await this.replaceCSS(t.getAttribute("style"),n,e));const l=(new XMLSerializer).serializeToString(a);return this.createURL(n,l,t.mediaType,r)}const a=i===Vt.CSS?await this.replaceCSS(s,n,e):await this.replaceString(s,n,e);return this.createURL(n,a,i,r)}async replaceCSS(t,e,n=[]){const i=await te(t,/url\\(\\s*["']?([^'"\\n]*?)\\s*["']?\\s*\\)/gi,((t,i)=>this.loadHref(i,e,n).then((t=>\`url("\${t}")\`)))),r=await te(i,/@import\\s*["']([^"'\\n]*?)["']/gi,((t,i)=>this.loadHref(i,e,n).then((t=>\`@import "\${t}"\`)))),s=window?.innerWidth??800,a=window?.innerHeight??600;return r.replace(/([;\\s])-epub-/gi,"\$1").replace(/(\\d*\\.?\\d+)vw/gi,((t,e)=>parseFloat(e)*s/100+"px")).replace(/(\\d*\\.?\\d+)vh/gi,((t,e)=>parseFloat(e)*a/100+"px")).replace(/page-break-(after|before|inside)\\s*:/gi,((t,e)=>\`-webkit-column-break-\${e}:\`)).replace(/break-(after|before|inside)\\s*:\\s*(avoid-)?page/gi,((t,e,n)=>\`break-\${e}: \${n??""}column\`))}replaceString(t,e,n=[]){const i=new Map,r=this.assets.map((t=>{if(t.href===e)return;const n=((t,e)=>{if(!t)return e;const n=t.replace(/\\/\$/,"").split("/"),i=e.replace(/\\/\$/,"").split("/"),r=(n.length>i.length?n:i).findIndex(((t,e)=>n[e]!==i[e]));return r<0?"":Array(n.length-r).fill("..").concat(i.slice(r)).join("/")})((t=>t.slice(0,t.lastIndexOf("/")+1))(e),t.href),r=encodeURI(n),s="/"+t.href,a=encodeURI(s),o=new Set([n,r,s,a]);for(const e of o)i.set(e,t);return Array.from(o)})).flat().filter((t=>t));if(!r.length)return t;const s=new RegExp(r.map(ee).join("|"),"g");return te(t,s,(async t=>this.loadItem(i.get(t.replace(/^\\//,"")),n.concat(e))))}unloadItem(t){this.unref(t?.href)}destroy(){for(const t of this.#Zt.values())URL.revokeObjectURL(t)}}const be=t=>{for(const e of t){if("page-spread-left"===e||"rendition:page-spread-left"===e)return"left";if("page-spread-right"===e||"rendition:page-spread-right"===e)return"right";if("rendition:page-spread-center"===e)return"center"}};class we{parser=new DOMParser;#ee;#ne;constructor({loadText:t,loadBlob:e,getSize:n,sha1:i}){this.loadText=t,this.loadBlob=e,this.getSize=n,this.#ne=new pe(fe(i))}async#ie(t){const e=await this.loadText(t);if(!e)return null;const n=this.parser.parseFromString(e,Vt.XML);if(n.querySelector("parsererror"))throw new Error(\`XML parsing error: \${t}\\n\${n.querySelector("parsererror").innerText}\`);return n}async init(){const t=await this.#ie("META-INF/container.xml");if(!t)throw new Error("Failed to load container file");const e=Array.from(t.getElementsByTagNameNS("urn:oasis:names:tc:opendocument:xmlns:container","rootfile"),Kt("full-path","media-type")).filter((t=>"application/oebps-package+xml"===t.mediaType));if(!e.length)throw new Error("No package document defined in container");const n=e[0].fullPath,i=await this.#ie(n);if(!i)throw new Error("Failed to load package document");const r=await this.#ie("META-INF/encryption.xml");await this.#ne.init(r,i),this.resources=new ge({opf:i,resolveHref:t=>Zt(t,n)}),this.#ee=new me({loadText:this.loadText,loadBlob:t=>Promise.resolve(this.loadBlob(t)).then(this.#ne.getDecoder(t)),resources:this.resources}),this.sections=this.resources.spine.map(((t,e)=>{const{idref:n,linear:i,properties:r=[]}=t,s=this.resources.getItemByID(n);return s?{id:s.href,load:()=>this.#ee.loadItem(s),unload:()=>this.#ee.unloadItem(s),createDocument:()=>this.loadDocument(s),size:this.getSize(s.href),cfi:this.resources.cfis[e],linear:i,pageSpread:be(r),resolveHref:t=>Zt(t,s.href),mediaOverlay:s.mediaOverlay?this.resources.getItemByID(s.mediaOverlay):null}:(console.warn(\`Could not find item with ID "\${n}" in manifest\`),null)})).filter((t=>t));const{navPath:s,ncxPath:a}=this.resources;if(s)try{const t=t=>Zt(t,s),e=ae(await this.#ie(s),t);this.toc=e.toc,this.pageList=e.pageList,this.landmarks=e.landmarks}catch(t){console.warn(t)}if(!this.toc&&a)try{const t=t=>Zt(t,a),e=((t,e=(t=>t))=>{const{\$:n,\$\$:i}=Yt(t,"http://www.daisy.org/z3986/2005/ncx/"),r=t=>{const s=n(t,"navLabel"),a=n(t,"content"),o=Jt(s),l=(t=>t?decodeURI(e(t)):null)(a.getAttribute("src"));if("navPoint"===t.localName){const e=i(t,"navPoint");return{label:o,href:l,subitems:e.length?e.map(r):null}}return{label:o,href:l}},s=(t,e)=>i(t,e).map(r),a=(e,i)=>{const r=n(t.documentElement,e);return r?s(r,i):null};return{toc:a("navMap","navPoint"),pageList:a("pageList","pageTarget"),others:i(t.documentElement,"navList").map((t=>({label:Jt(n(t,"navLabel")),list:s(t,"navTarget")})))}})(await this.#ie(a),t);this.toc=e.toc,this.pageList=e.pageList}catch(t){console.warn(t)}this.landmarks??=this.resources.guide;const{metadata:o,rendition:l,media:c}=(t=>{const{\$:e,\$\$:n}=Yt(t,jt),i=e(t.documentElement,"metadata"),r=Array.from(i.children),s=(t,e)=>{if(!e)return null;const{props:n=[],attrs:i=[]}=t,a=Jt(e);if(!n.length&&!i.length)return a;const o=e.getAttribute("id"),l=o?r.filter(Gt("refines","#"+o)):[],c=Object.fromEntries([["value",a]].concat(n.map((e=>{const{many:n,recursive:i}=e,r="string"==typeof e?e:e.name,a=Gt("property",r),o=i?t:e;return[Xt(r),n?l.filter(a).map((t=>s(o,t))):s(o,l.find(a))]}))).concat(i.map((t=>[Xt(t),e.getAttribute(t)]))));return t.setLegacyAttrs?.(c,e),c},a=r.filter(Gt("refines",null)),o=Object.fromEntries(se.map((t=>{const{type:e,name:n,many:i}=t,r="meta"===e?t=>t.namespaceURI===jt&&t.getAttribute("property")===n:t=>t.namespaceURI===\$t&&t.localName===n;return[Xt(n),i?a.filter(r).map((e=>s(t,e))):s(t,a.find(r))]}))),l=n(i,"meta"),c=t=>l.filter(Gt("property",(e=>e?.startsWith(t)))).map((e=>[e.getAttribute("property").replace(t,""),e])),h=Object.fromEntries(c("rendition:").map((([t,e])=>[t,Jt(e)]))),d={narrator:[],duration:{}};for(const[t,e]of c("media:")){const n=Jt(e);"duration"===t?d.duration[e.getAttribute("refines")?.split("#")?.[1]??""]=oe(n):"active-class"===t?d.activeClass=n:"narrator"===t?d.narrator.push(n):"playback-active-class"===t&&(d.playbackActiveClass=n)}return{metadata:o,rendition:h,media:d}})(i);this.rendition=l,this.media=c,this.dir=this.resources.pageProgressionDirection,this.parsedMetadata=o;const h=o?.title?.[0];this.metadata={title:h?.value,subtitle:o?.title?.find((t=>"subtitle"===t.titleType))?.value,sortAs:h?.fileAs,language:o?.language,identifier:he(i),description:o?.description?.value,publisher:o?.publisher?.value,published:o?.date,modified:o?.dctermsModified,subject:o?.subject?.filter((({value:t,term:e})=>t||e))?.map((({value:t,term:e,authority:n})=>({name:t,code:e,scheme:n}))),rights:o?.rights?.value};const d={art:"artist",aut:"author",bkp:"producer",clr:"colorist",edt:"editor",ill:"illustrator",nrt:"narrator",trl:"translator",pbl:"publisher"},u=t=>e=>{const n=[...new Set(e.role?.map((({value:e,scheme:n})=>(n&&"marc:relators"!==n?null:d[e])??t)))],i={name:e.value,sortAs:e.fileAs};return[n?.length?n:[t],i]};return o?.creator?.map(u("author"))?.concat(o?.contributor?.map?.(u("contributor")))?.forEach((([t,e])=>t.forEach((t=>{this.metadata[t]?this.metadata[t].push(e):this.metadata[t]=[e]})))),this}async loadDocument(t){const e=await this.loadText(t.href);return this.parser.parseFromString(e,t.mediaType)}getMediaOverlay(){return new le(this,this.#ie.bind(this))}resolveCFI(t){return this.resources.resolveCFI(t)}resolveHref(t){const[e,n]=t.split("#"),i=this.resources.getItemByHref(decodeURI(e));return i?{index:this.resources.spine.findIndex((({idref:t})=>t===i.id)),anchor:n?t=>((t,e)=>t.getElementById(e)??t.querySelector(\`[name="\${CSS.escape(e)}"]\`))(t,n):()=>0}:null}splitTOCHref(t){return t?.split("#")??[]}getTOCFragment(t,e){return t.getElementById(e)??t.querySelector(\`[name="\${CSS.escape(e)}"]\`)}isExternal(t){return Qt(t)}async getCover(){const t=this.resources?.cover;return t?.href?new Blob([await this.loadBlob(t.href)],{type:t.mediaType}):null}async getCalibreBookmarks(){const t=await this.loadText("META-INF/calibre_bookmarks.txt");if(t?.startsWith("encoding=json+base64:")){const e=atob(t.slice(21));return JSON.parse(e)}}destroy(){this.#ee?.destroy()}}const ye=t=>t?t.replace(/[\\t\\n\\f\\r ]+/g," ").replace(/^[\\t\\n\\f\\r ]+/,"").replace(/[\\t\\n\\f\\r ]+\$/,""):"",xe=t=>ye(t?.textContent),ve={XLINK:"http://www.w3.org/1999/xlink",EPUB:"http://www.idpf.org/2007/ops"},ke="application/xml",_e="application/xhtml+xml",Se={strong:["strong","self"],emphasis:["em","self"],style:["span","self"],a:"anchor",strikethrough:["s","self"],sub:["sub","self"],sup:["sup","self"],code:["code","self"],image:"image"},Ae={epigraph:["blockquote"],subtitle:["h2",Se],"text-author":["p",Se],date:["p",Se],stanza:"stanza"},Le={title:["header",{p:["h1",Se],"empty-line":["br"]}],epigraph:["blockquote","self"],image:"image",annotation:["aside"],section:["section","self"],p:["p",Se],poem:["blockquote",Ae],subtitle:["h2",Se],cite:["blockquote","self"],"empty-line":["br"],table:["table",{tr:["tr",["align"]],th:["th",["colspan","rowspan","align","valign"]],td:["td",["colspan","rowspan","align","valign"]]}],"text-author":["p",Se]};Ae.epigraph.push(Le);const Ee={image:"image",title:["section",{p:["h1",Se],"empty-line":["br"]}],epigraph:["section",Le],section:["section",Le]},Te=t=>{const e=t.getAttributeNS(ve.XLINK,"href"),[,n]=e.split("#"),i=t.getRootNode().getElementById(n);return i?\`data:\${i.getAttribute("content-type")};base64,\${i.textContent}\`:e};class Ce{constructor(t){this.fb2=t,this.doc=document.implementation.createDocument(ve.XHTML,"html")}image(t){const e=this.doc.createElement("img");return e.alt=t.getAttribute("alt"),e.title=t.getAttribute("title"),e.setAttribute("src",Te(t)),e}anchor(t){const e=this.convert(t,{a:["a",Se]});return e.setAttribute("href",t.getAttributeNS(ve.XLINK,"href")),"note"===t.getAttribute("type")&&e.setAttributeNS(ve.EPUB,"epub:type","noteref"),e}stanza(t){const e=this.convert(t,{stanza:["p",{title:["header",{p:["strong",Se],"empty-line":["br"]}],subtitle:["p",Se]}]});for(const n of t.children)"v"===n.nodeName&&(e.append(this.doc.createTextNode(n.textContent)),e.append(this.doc.createElement("br")));return e}convert(t,e){if(3===t.nodeType)return this.doc.createTextNode(t.textContent);if(4===t.nodeType)return this.doc.createCDATASection(t.textContent);if(8===t.nodeType)return this.doc.createComment(t.textContent);const n=e?.[t.nodeName];if(!n)return null;if("string"==typeof n)return this[n](t);const[i,r]=n,s=this.doc.createElement(i);if(t.id&&(s.id=t.id),s.classList.add(t.nodeName),Array.isArray(r))for(const e of r)s.setAttribute(e,t.getAttribute(e));const a="self"===r?e:Array.isArray(r)?null:r;let o=t.firstChild;for(;o;){const t=this.convert(o,a);t&&s.append(t),o=o.nextSibling}return s}}const Re=URL.createObjectURL(new Blob(['\\n@namespace epub "http://www.idpf.org/2007/ops";\\nbody > img, section > img {\\n    display: block;\\n    margin: auto;\\n}\\n.title h1 {\\n    text-align: center;\\n}\\nbody > section > .title, body.notesBodyType > .title {\\n    margin: 3em 0;\\n}\\nbody.notesBodyType > section .title h1 {\\n    text-align: start;\\n}\\nbody.notesBodyType > section .title {\\n    margin: 1em 0;\\n}\\np {\\n    text-indent: 1em;\\n    margin: 0;\\n}\\n:not(p) + p, p:first-child {\\n    text-indent: 0;\\n}\\n.poem p {\\n    text-indent: 0;\\n    margin: 1em 0;\\n}\\n.text-author, .date {\\n    text-align: end;\\n}\\n.text-author:before {\\n    content: "—";\\n}\\ntable {\\n    border-collapse: collapse;\\n}\\ntd, th {\\n    padding: .25em;\\n}\\na[epub|type~="noteref"] {\\n    font-size: .75em;\\n    vertical-align: super;\\n}\\nbody:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {\\n    margin: 3em 0;\\n}\\n'],{type:"text/css"})),Ie="data-foliate-id",Me=async t=>{const e={},n=await(async t=>{const e=await t.arrayBuffer(),n=new TextDecoder("utf-8").decode(e),i=new DOMParser,r=i.parseFromString(n,ke),s=r.xmlEncoding||n.match(/^<\\?xml\\s+version\\s*=\\s*["']1.\\d+"\\s+encoding\\s*=\\s*["']([A-Za-z0-9._-]*)["']/)?.[1];if(s&&"utf-8"!==s.toLowerCase()){const t=new TextDecoder(s).decode(e);return i.parseFromString(t,ke)}return r})(t),i=new Ce(n),r=t=>n.querySelector(t),s=t=>[...n.querySelectorAll(t)],a=t=>{const e=xe(t.querySelector("nickname"));if(e)return e;const n=xe(t.querySelector("first-name")),i=xe(t.querySelector("middle-name")),r=xe(t.querySelector("last-name")),s=[n,i,r].filter((t=>t)).join(" "),a=r?[r,[n,i].filter((t=>t)).join(" ")].join(", "):null;return{name:s,sortAs:a}},o=t=>t?.getAttribute("value")??xe(t),l=r("title-info annotation");if(e.metadata={title:xe(r("title-info book-title")),identifier:xe(r("document-info id")),language:xe(r("title-info lang")),author:s("title-info author").map(a),translator:s("title-info translator").map(a),producer:s("document-info author").map(a).concat(s("document-info program-used").map(xe)),publisher:xe(r("publish-info publisher")),published:o(r("title-info date")),modified:o(r("document-info date")),description:l?i.convert(l,{annotation:["div",Le]}).innerHTML:null,subject:s("title-info genre").map(xe)},r("coverpage image")){const t=Te(r("coverpage image"));e.getCover=()=>fetch(t).then((t=>t.blob()))}else e.getCover=()=>null;const c=Array.from(n.querySelectorAll("body"),(t=>{const e=i.convert(t,{body:["body",Ee]});return[Array.from(e.children,(t=>{const e=[t,...t.querySelectorAll("[id]")].map((t=>t.id));return{el:t,ids:e}})),e]})),h=[],d=c[0][0].map((({el:t,ids:e})=>({ids:e,titles:Array.from(t.querySelectorAll(":scope > section > .title"),((t,e)=>(t.setAttribute(Ie,e),{title:xe(t),index:e}))),el:t}))).concat(c.slice(1).map((([t,e])=>{const n=t.map((t=>t.ids)).flat();return e.classList.add("notesBodyType"),{ids:n,el:e,linear:"no"}}))).map((({ids:t,titles:e,el:n,linear:i})=>{const r=(s=n.outerHTML,\`<?xml version="1.0" encoding="utf-8"?>\\n<html xmlns="http://www.w3.org/1999/xhtml">\\n    <head><link href="\${Re}" rel="stylesheet" type="text/css"/></head>\\n    <body>\${s}</body>\\n</html>\`);var s;const a=new Blob([r],{type:_e}),o=URL.createObjectURL(a);return h.push(o),{ids:t,title:ye(n.querySelector(".title, .subtitle, p")?.textContent??(n.classList.contains("title")?n.textContent:"")),titles:e,load:()=>o,createDocument:()=>(new DOMParser).parseFromString(r,_e),size:a.size-Array.from(n.querySelectorAll("[src]"),(t=>t.getAttribute("src")?.length??0)).reduce(((t,e)=>t+e),0),linear:i}})),u=new Map;return e.sections=d.map(((t,e)=>{const{ids:n,load:i,createDocument:r,size:s,linear:a}=t;for(const t of n)t&&u.set(t,e);return{id:e,load:i,createDocument:r,size:s,linear:a}})),e.toc=d.map((({title:t,titles:e},n)=>{const i=n.toString();return{label:t,href:i,subitems:e?.length?e.map((({title:t,index:e})=>({label:t,href:\`\${i}#\${e}\`}))):null}})).filter((t=>t)),e.resolveHref=t=>{const[e,n]=t.split("#");return e?{index:Number(e),anchor:t=>t.querySelector(\`[\${Ie}="\${n}"]\`)}:{index:u.get(n),anchor:t=>t.getElementById(n)}},e.splitTOCHref=t=>t?.split("#")?.map((t=>Number(t)))??[],e.getTOCFragment=(t,e)=>t.querySelector(\`[\${Ie}="\${e}"]\`),e.destroy=()=>{for(const t of h)URL.revokeObjectURL(t)},e},ze=t=>{if(!t)return"";const e=document.createElement("textarea");return e.innerHTML=t,e.value},Oe={XML:"application/xml",XHTML:"application/xhtml+xml",HTML:"text/html",CSS:"text/css",SVG:"image/svg+xml"},Ne={name:[0,32,"string"],type:[60,4,"string"],creator:[64,4,"string"],numRecords:[76,2,"uint"]},Be={compression:[0,2,"uint"],numTextRecords:[8,2,"uint"],recordSize:[10,2,"uint"],encryption:[12,2,"uint"]},Fe={magic:[16,4,"string"],length:[20,4,"uint"],type:[24,4,"uint"],encoding:[28,4,"uint"],uid:[32,4,"uint"],version:[36,4,"uint"],titleOffset:[84,4,"uint"],titleLength:[88,4,"uint"],localeRegion:[94,1,"uint"],localeLanguage:[95,1,"uint"],resourceStart:[108,4,"uint"],huffcdic:[112,4,"uint"],numHuffcdic:[116,4,"uint"],exthFlag:[128,4,"uint"],trailingFlags:[240,4,"uint"],indx:[244,4,"uint"]},Ue={resourceStart:[108,4,"uint"],fdst:[192,4,"uint"],numFdst:[196,4,"uint"],frag:[248,4,"uint"],skel:[252,4,"uint"],guide:[260,4,"uint"]},De={magic:[0,4,"string"],length:[4,4,"uint"],count:[8,4,"uint"]},Pe={magic:[0,4,"string"],length:[4,4,"uint"],type:[8,4,"uint"],idxt:[20,4,"uint"],numRecords:[24,4,"uint"],encoding:[28,4,"uint"],language:[32,4,"uint"],total:[36,4,"uint"],ordt:[40,4,"uint"],ligt:[44,4,"uint"],numLigt:[48,4,"uint"],numCncx:[52,4,"uint"]},je={magic:[0,4,"string"],length:[4,4,"uint"],numControlBytes:[8,4,"uint"]},We={magic:[0,4,"string"],offset1:[8,4,"uint"],offset2:[12,4,"uint"]},\$e={magic:[0,4,"string"],length:[4,4,"uint"],numEntries:[8,4,"uint"],codeLength:[12,4,"uint"]},He={magic:[0,4,"string"],numEntries:[8,4,"uint"]},qe={flags:[8,4,"uint"],dataStart:[12,4,"uint"],keyLength:[16,4,"uint"],keyStart:[20,4,"uint"]},Ve={1252:"windows-1252",65001:"utf-8"},Xe={100:["creator","string",!0],101:["publisher"],103:["description"],104:["isbn"],105:["subject","string",!0],106:["date"],108:["contributor","string",!0],109:["rights"],110:["subjectCode","string",!0],112:["source","string",!0],113:["asin"],121:["boundary","uint"],122:["fixedLayout"],125:["numResources","uint"],126:["originalResolution"],127:["zeroGutter"],128:["zeroMargin"],129:["coverURI"],132:["regionMagnification"],201:["coverOffset","uint"],202:["thumbnailOffset","uint"],503:["title"],524:["language","string",!0],527:["pageProgressionDirection"]},Ge={1:["ar","ar-SA","ar-IQ","ar-EG","ar-LY","ar-DZ","ar-MA","ar-TN","ar-OM","ar-YE","ar-SY","ar-JO","ar-LB","ar-KW","ar-AE","ar-BH","ar-QA"],2:["bg"],3:["ca"],4:["zh","zh-TW","zh-CN","zh-HK","zh-SG"],5:["cs"],6:["da"],7:["de","de-DE","de-CH","de-AT","de-LU","de-LI"],8:["el"],9:["en","en-US","en-GB","en-AU","en-CA","en-NZ","en-IE","en-ZA","en-JM",null,"en-BZ","en-TT","en-ZW","en-PH"],10:["es","es-ES","es-MX",null,"es-GT","es-CR","es-PA","es-DO","es-VE","es-CO","es-PE","es-AR","es-EC","es-CL","es-UY","es-PY","es-BO","es-SV","es-HN","es-NI","es-PR"],11:["fi"],12:["fr","fr-FR","fr-BE","fr-CA","fr-CH","fr-LU","fr-MC"],13:["he"],14:["hu"],15:["is"],16:["it","it-IT","it-CH"],17:["ja"],18:["ko"],19:["nl","nl-NL","nl-BE"],20:["no","nb","nn"],21:["pl"],22:["pt","pt-BR","pt-PT"],23:["rm"],24:["ro"],25:["ru"],26:["hr",null,"sr"],27:["sk"],28:["sq"],29:["sv","sv-SE","sv-FI"],30:["th"],31:["tr"],32:["ur"],33:["id"],34:["uk"],35:["be"],36:["sl"],37:["et"],38:["lv"],39:["lt"],41:["fa"],42:["vi"],43:["hy"],44:["az"],45:["eu"],46:["hsb"],47:["mk"],48:["st"],49:["ts"],50:["tn"],52:["xh"],53:["zu"],54:["af"],55:["ka"],56:["fo"],57:["hi"],58:["mt"],59:["se"],62:["ms"],63:["kk"],65:["sw"],67:["uz",null,"uz-UZ"],68:["tt"],69:["bn"],70:["pa"],71:["gu"],72:["or"],73:["ta"],74:["te"],75:["kn"],76:["ml"],77:["as"],78:["mr"],79:["sa"],82:["cy","cy-GB"],83:["gl","gl-ES"],87:["kok"],97:["ne"],98:["fy"]},Ke=(t,e)=>{const n=new t.constructor(t.length+e.length);return n.set(t),n.set(e,t.length),n},Je=(t,e,n)=>{const i=new t.constructor(t.length+e.length+n.length);return i.set(t),i.set(e,t.length),i.set(n,t.length+e.length),i},Ye=new TextDecoder,Ze=t=>Ye.decode(t),Qe=t=>{if(!t)return;const e=t.byteLength,n=4===e?"getUint32":2===e?"getUint16":"getUint8";return new DataView(t)[n](0)},tn=(t,e)=>Object.fromEntries(Array.from(Object.entries(t)).map((([t,[n,i,r]])=>[t,("string"===r?Ze:Qe)(e.slice(n,n+i))]))),en=t=>new TextDecoder(Ve[t]),nn=(t,e=0)=>{let n=0,i=0;for(const r of t.subarray(e,e+4))if(n=n<<7|(127&r)>>>0,i++,128&r)break;return{value:n,length:i}},rn=t=>{let e=0;for(const n of t.subarray(-4))128&n&&(e=0),e=e<<7|127&n;return e},sn=t=>{let e=0;for(;t>0;t>>=1)1==(1&t)&&e++;return e},an=t=>{let e=0;for(;0==(1&t);)t>>=1,e++;return e},on=t=>{let e=[];for(let n=0;n<t.length;n++){const i=t[n];if(0===i)e.push(0);else if(i<=8)for(const r of t.subarray(n+1,(n+=i)+1))e.push(r);else if(i<=127)e.push(i);else if(i<=191){const r=i<<8|t[1+n++],s=(16383&r)>>>3,a=3+(7&r);for(let t=0;t<a;t++)e.push(e[e.length-s])}else e.push(32,128^i)}return Uint8Array.from(e)},ln=(t,e)=>{const n=e+32,i=n>>3;let r=0n;for(let n=e>>3;n<=i;n++)r=r<<8n|BigInt(t[n]??0);return r>>8n-BigInt(7&n)&0xffffffffn},cn=async(t,e)=>{const n=await e(t),i=tn(Pe,n);if("INDX"!==i.magic)throw new Error("Invalid INDX record");const r=en(i.encoding),s=n.slice(i.length),a=tn(je,s);if("TAGX"!==a.magic)throw new Error("Invalid TAGX section");const o=(a.length-12)/4,l=Array.from({length:o},((t,e)=>new Uint8Array(s.slice(12+4*e,12+4*e+4)))),c={};let h=0;for(let n=0;n<i.numCncx;n++){const s=await e(t+i.numRecords+n+1),a=new Uint8Array(s);for(let t=0;t<a.byteLength;){const e=t,{value:n,length:i}=nn(a,t);t+=i;const o=s.slice(t,t+n);t+=n,c[h+e]=r.decode(o)}h+=65536}const d=[];for(let n=0;n<i.numRecords;n++){const i=await e(t+1+n),r=new Uint8Array(i),s=tn(Pe,i);if("INDX"!==s.magic)throw new Error("Invalid INDX record");for(let t=0;t<s.numRecords;t++){const e=s.idxt+4+2*t,n=Qe(i.slice(e,e+2)),o=Qe(i.slice(n,n+1)),c=Ze(i.slice(n+1,n+1+o)),h=[],u=n+1+o;let f=0,p=u+a.numControlBytes;for(const[t,e,n,s]of l){if(1&s){f++;continue}const a=u+f,o=Qe(i.slice(a,a+1))&n;if(o===n)if(sn(n)>1){const{value:n,length:i}=nn(r,p);h.push([t,null,n,e]),p+=i}else h.push([t,1,null,e]);else h.push([t,o>>an(n),null,e])}const g={};for(const[t,e,n,i]of h){const s=[];if(null!=e)for(let t=0;t<e*i;t++){const{value:t,length:e}=nn(r,p);s.push(t),p+=e}else{let t=0;for(;t<n;){const{value:e,length:n}=nn(r,p);s.push(e),p+=n,t+=n}}g[t]=s}d.push({name:c,tagMap:g})}}return{table:d,cncx:c}};class hn{#re;#se;pdb;async open(t){this.#re=t;const e=tn(Ne,await t.slice(0,78).arrayBuffer());this.pdb=e;const n=await t.slice(78,78+8*e.numRecords).arrayBuffer();this.#se=Array.from({length:e.numRecords},((t,e)=>Qe(n.slice(8*e,8*e+4)))).map(((t,e,n)=>[t,n[e+1]]))}loadRecord(t){const e=this.#se[t];if(!e)throw new RangeError("Record index out of bounds");return this.#re.slice(...e).arrayBuffer()}async loadMagic(t){const e=this.#se[t][0];return Ze(await this.#re.slice(e,e+4).arrayBuffer())}}class dn extends hn{#ae=0;#oe;#le;#ce;#he;#de;constructor({unzlib:t}){super(),this.unzlib=t}async open(t){await super.open(t),this.headers=this.#ue(await super.loadRecord(0)),this.#oe=this.headers.mobi.resourceStart;let e=this.headers.mobi.version>=8;if(!e){const t=this.headers.exth?.boundary;if(t<4294967295)try{this.headers=this.#ue(await super.loadRecord(t)),this.#ae=t,e=!0}catch(t){console.warn(t),console.warn("Failed to open KF8; falling back to MOBI")}}return await this.#fe(),e?new vn(this).init():new pn(this).init()}#ue(t){const e=tn(Be,t),n=tn(Fe,t);if("MOBI"!==n.magic)throw new Error("Missing MOBI header");const{titleOffset:i,titleLength:r,localeLanguage:s,localeRegion:a}=n;n.title=t.slice(i,i+r);const o=Ge[s];n.language=o?.[a>>2]??o?.[0];const l=64&n.exthFlag?((t,e)=>{const{magic:n,count:i}=tn(De,t);if("EXTH"!==n)throw new Error("Invalid EXTH header");const r=en(e),s={};let a=12;for(let e=0;e<i;e++){const e=Qe(t.slice(a,a+4)),n=Qe(t.slice(a+4,a+8));if(e in Xe){const[i,o,l]=Xe[e],c=t.slice(a+8,a+n),h="uint"===o?Qe(c):r.decode(c);l?(s[i]??=[],s[i].push(h)):s[i]=h}a+=n}return s})(t.slice(n.length+16),n.encoding):null;return{palmdoc:e,mobi:n,exth:l,kf8:n.version>=8?tn(Ue,t):null}}async#fe(){const{palmdoc:t,mobi:e}=this.headers;this.#le=en(e.encoding),this.#ce=new TextEncoder;const{compression:n}=t;if(this.#he=1===n?t=>t:2===n?on:17480===n?await(async(t,e)=>{const n=await e(t.huffcdic),{magic:i,offset1:r,offset2:s}=tn(We,n);if("HUFF"!==i)throw new Error("Invalid HUFF record");const a=Array.from({length:256},((t,e)=>r+4*e)).map((t=>Qe(n.slice(t,t+4)))).map((t=>[128&t,31&t,t>>>8])),o=[null].concat(Array.from({length:32},((t,e)=>s+8*e)).map((t=>[Qe(n.slice(t,t+4)),Qe(n.slice(t+4,t+8))]))),l=[];for(let n=1;n<t.numHuffcdic;n++){const i=await e(t.huffcdic+n),r=tn(\$e,i);if("CDIC"!==r.magic)throw new Error("Invalid CDIC record");const s=Math.min(1<<r.codeLength,r.numEntries-l.length),a=i.slice(r.length);for(let t=0;t<s;t++){const e=Qe(a.slice(2*t,2*t+2)),n=Qe(a.slice(e,e+2)),i=32767&n,r=32768&n,s=new Uint8Array(a.slice(e+2,e+2+i));l.push([s,r])}}const c=t=>{let e=new Uint8Array;const n=8*t.byteLength;for(let i=0;i<n;){const r=Number(ln(t,i));let[s,h,d]=a[r>>>24];if(!s){for(;r>>>32-h<o[h][0];)h+=1;d=o[h][1]}if((i+=h)>n)break;const u=d-(r>>>32-h);let[f,p]=l[u];p||(f=c(f),l[u]=[f,!0]),e=Ke(e,f)}return e};return c})(e,this.loadRecord.bind(this)):null,!this.#he)throw new Error("Unknown compression type");const{trailingFlags:i}=e,r=1&i,s=sn(i>>>1);this.#de=t=>{for(let e=0;e<s;e++){const e=rn(t);t=t.subarray(0,-e)}if(r){const e=1+(3&t[t.length-1]);t=t.subarray(0,-e)}return t}}decode(...t){return this.#le.decode(...t)}encode(...t){return this.#ce.encode(...t)}loadRecord(t){return super.loadRecord(this.#ae+t)}loadMagic(t){return super.loadMagic(this.#ae+t)}loadText(t){return this.loadRecord(t+1).then((t=>new Uint8Array(t))).then(this.#de).then(this.#he)}async loadResource(t){const e=await super.loadRecord(this.#oe+t),n=Ze(e.slice(0,4));return"FONT"===n?(async(t,e)=>{const{flags:n,dataStart:i,keyLength:r,keyStart:s}=tn(qe,t),a=new Uint8Array(t.slice(i));if(2&n){const e=16===r?1024:1040,n=new Uint8Array(t.slice(s,s+r)),i=Math.min(e,a.length);for(var o=0;o<i;o++)a[o]=a[o]^n[o%n.length]}if(1&n)try{return await e(a)}catch(t){console.warn(t),console.warn("Failed to decompress font")}return a})(e,this.unzlib):"VIDE"===n||"AUDI"===n?e.slice(12):e}getNCX(){const t=this.headers.mobi.indx;if(t<4294967295)return(async(t,e)=>{const{table:n,cncx:i}=await cn(t,e),r=n.map((({tagMap:t},e)=>({index:e,offset:t[1]?.[0],size:t[2]?.[0],label:i[t[3]]??"",headingLevel:t[4]?.[0],pos:t[6],parent:t[21]?.[0],firstChild:t[22]?.[0],lastChild:t[23]?.[0]}))),s=t=>(null==t.firstChild||(t.children=r.filter((e=>e.parent===t.index)).map(s)),t);return r.filter((t=>0===t.headingLevel)).map(s)})(t,this.loadRecord.bind(this))}getMetadata(){const{mobi:t,exth:e}=this.headers;return{identifier:t.uid.toString(),title:ze(e?.title||this.decode(t.title)),author:e?.creator?.map(ze),publisher:ze(e?.publisher),language:e?.language??t.language,published:e?.date,description:ze(e?.description),subject:e?.subject?.map(ze),rights:ze(e?.rights)}}async getCover(){const{exth:t}=this.headers,e=t?.coverOffset<4294967295?t?.coverOffset:t?.thumbnailOffset<4294967295?t?.thumbnailOffset:null;if(null!=e){const t=await this.loadResource(e);return new Blob([t])}}}const un=/<\\s*(?:mbp:)?pagebreak[^>]*>/gi,fn=/<[^<>]+filepos=['"]{0,1}(\\d+)[^<>]*>/gi;class pn{parser=new DOMParser;serializer=new XMLSerializer;#pe=new Map;#ge=new Map;#Zt=new Map;#me;#be=[];#we=Oe.HTML;constructor(t){this.mobi=t}async init(){let t=new Uint8Array;for(let e=0;e<this.mobi.headers.palmdoc.numTextRecords;e++)t=Ke(t,await this.mobi.loadText(e));const e=Array.from(new Uint8Array(t),(t=>String.fromCharCode(t))).join("");this.#me=[0].concat(Array.from(e.matchAll(un),(t=>t.index))).map(((t,n,i)=>e.slice(t,i[n+1]))).map((t=>Uint8Array.from(t,(t=>t.charCodeAt(0))))).map((t=>({book:this,raw:t}))).reduce(((t,e)=>{const n=t[t.length-1];return e.start=n?.end??0,e.end=e.start+e.raw.byteLength,t.concat(e)}),[]),this.sections=this.#me.map(((t,e)=>({id:e,load:()=>this.loadSection(t),createDocument:()=>this.createDocument(t),size:t.end-t.start})));try{this.landmarks=await this.getGuide();const t=this.landmarks.find((({type:t})=>t?.includes("toc")))?.href;if(t){const{index:e}=this.resolveHref(t),n=await this.sections[e].createDocument();let i,r=0,s=0;const a=new Map,o=new Map;this.toc=Array.from(n.querySelectorAll("a[filepos]")).reduce(((t,e)=>{const n=(t=>{let e=0;for(;t;){const n=t.parentElement;if(n){const t=n.tagName.toLowerCase();"p"===t?e+=1.5:"blockquote"===t&&(e+=2)}t=n}return e})(e),l={label:e.innerText?.trim(),href:\`filepos:\${e.getAttribute("filepos")}\`},c=n>s?r+1:n===s?r:a.get(n)??Math.max(0,r-1);if(c>r)i?(i.subitems??=[],i.subitems.push(l),o.set(c,i)):t.push(l);else{const e=o.get(c);e?e.subitems.push(l):t.push(l)}return i=l,r=c,s=n,a.set(n,c),t}),[])}}catch(t){console.warn(t)}return this.#be=[...new Set(Array.from(e.matchAll(fn),(t=>t[1])))].map((t=>({filepos:t,number:Number(t)}))).sort(((t,e)=>t.number-e.number)),this.metadata=this.mobi.getMetadata(),this.getCover=this.mobi.getCover.bind(this.mobi),this}async getGuide(){const t=await this.createDocument(this.#me[0]);return Array.from(t.getElementsByTagName("reference"),(t=>({label:t.getAttribute("title"),type:t.getAttribute("type")?.split(/\\s/),href:\`filepos:\${t.getAttribute("filepos")}\`})))}async loadResource(t){if(this.#pe.has(t))return this.#pe.get(t);const e=await this.mobi.loadResource(t),n=URL.createObjectURL(new Blob([e]));return this.#pe.set(t,n),n}async loadRecindex(t){return this.loadResource(Number(t)-1)}async replaceResources(t){for(const e of t.querySelectorAll("img[recindex]")){const t=e.getAttribute("recindex");try{e.src=await this.loadRecindex(t)}catch(e){console.warn(\`Failed to load image \${t}\`)}}for(const e of t.querySelectorAll("[mediarecindex]")){const t=e.getAttribute("mediarecindex"),n=e.getAttribute("recindex");try{e.src=await this.loadRecindex(t),n&&(e.poster=await this.loadRecindex(n))}catch(e){console.warn(\`Failed to load media \${t}\`)}}for(const e of t.querySelectorAll("[filepos]")){const t=e.getAttribute("filepos");e.href=\`filepos:\${t}\`}}async loadText(t){if(this.#ge.has(t))return this.#ge.get(t);const{raw:e}=t,n=this.#be.filter((({number:e})=>e>=t.start&&e<t.end)).map((e=>({...e,offset:e.number-t.start})));let i=e;n.length&&(i=e.subarray(0,n[0].offset),n.forEach((({filepos:t,offset:r},s)=>{const a=n[s+1],o=this.mobi.encode(\`<a id="filepos\${t}"></a>\`);i=Je(i,o,e.subarray(r,a?.offset))})));const r=this.mobi.decode(i).replaceAll(un,"");return this.#ge.set(t,r),r}async createDocument(t){const e=await this.loadText(t);return this.parser.parseFromString(e,this.#we)}async loadSection(t){if(this.#Zt.has(t))return this.#Zt.get(t);const e=await this.createDocument(t),n=e.createElement("style");e.head.append(n),n.append(e.createTextNode("blockquote {\\n            margin-block-start: 0;\\n            margin-block-end: 0;\\n            margin-inline-start: 1em;\\n            margin-inline-end: 0;\\n        }")),await this.replaceResources(e);const i=this.serializer.serializeToString(e),r=URL.createObjectURL(new Blob([i],{type:this.#we}));return this.#Zt.set(t,r),r}resolveHref(t){const e=t.match(/filepos:(.*)/)[1],n=Number(e);return{index:this.#me.findIndex((t=>t.end>n)),anchor:t=>t.getElementById(\`filepos\${e}\`)}}splitTOCHref(t){const e=t.match(/filepos:(.*)/)[1],n=Number(e);return[this.#me.findIndex((t=>t.end>n)),\`filepos\${e}\`]}getTOCFragment(t,e){return t.getElementById(e)}isExternal(t){return/^(?!blob|filepos)\\w+:/i.test(t)}destroy(){for(const t of this.#pe.values())URL.revokeObjectURL(t);for(const t of this.#Zt.values())URL.revokeObjectURL(t)}}const gn=/kindle:(flow|embed):(\\w+)(?:\\?mime=(\\w+\\/[-+.\\w]+))?/,mn=/kindle:pos:fid:(\\w+):off:(\\w+)/,bn=t=>{const[e,n]=t.match(mn).slice(1);return{fid:parseInt(e,32),off:parseInt(n,32)}},wn=(t=0,e=0)=>\`kindle:pos:fid:\${t.toString(32).toUpperCase().padStart(4,"0")}:off:\${e.toString(32).toUpperCase().padStart(10,"0")}\`,yn=t=>{const e=t.match(/\\s(id|name|aid)\\s*=\\s*['"]([^'"]*)['"]/i);if(!e)return;const[,n,i]=e;return\`[\${n}="\${CSS.escape(i)}"]\`},xn=t=>{for(const e of t){if("page-spread-left"===e||"rendition:page-spread-left"===e)return"left";if("page-spread-right"===e||"rendition:page-spread-right"===e)return"right";if("rendition:page-spread-center"===e)return"center"}};class vn{parser=new DOMParser;serializer=new XMLSerializer;#Zt=new Map;#ye=new Map;#xe=new Map;#ve={};#me;#ke;#_e=new Uint8Array;#Se=new Uint8Array;#Ae=-1;#Le=-1;#we=Oe.XHTML;#Ee=new Map;constructor(t){this.mobi=t}async init(){const t=this.mobi.loadRecord.bind(this.mobi),{kf8:e}=this.mobi.headers;try{const n=await t(e.fdst),i=tn(He,n);if("FDST"!==i.magic)throw new Error("Missing FDST record");const r=Array.from({length:i.numEntries},((t,e)=>12+8*e)).map((t=>[Qe(n.slice(t,t+4)),Qe(n.slice(t+4,t+8))]));this.#ve.fdstTable=r,this.#ke=r[r.length-1][1]}catch{}const n=(await cn(e.skel,t)).table.map((({name:t,tagMap:e},n)=>({index:n,name:t,numFrag:e[1][0],offset:e[6][0],length:e[6][1]}))),i=await cn(e.frag,t),r=i.table.map((({name:t,tagMap:e})=>({insertOffset:parseInt(t),selector:i.cncx[e[2][0]],index:e[4][0],offset:e[6][0],length:e[6][1]})));this.#ve.skelTable=n,this.#ve.fragTable=r,this.#me=n.reduce(((t,e)=>{const n=t[t.length-1],i=n?.fragEnd??0,s=i+e.numFrag,a=r.slice(i,s),o=e.length+a.map((t=>t.length)).reduce(((t,e)=>t+e)),l=(n?.totalLength??0)+o;return t.concat({skel:e,frags:a,fragEnd:s,length:o,totalLength:l})}),[]);const s=await this.getResourcesByMagic(["RESC","PAGE"]),a=new Map;if(s.RESC){const t=await this.mobi.loadRecord(s.RESC),e=this.mobi.decode(t.slice(16)).replace(/\\0/g,""),n=e.search(/\\?>/),i=\`<package>\${e.slice(n)}</package>\`,r=this.parser.parseFromString(i,Oe.XML);for(const t of r.querySelectorAll("spine > itemref")){const e=parseInt(t.getAttribute("skelid"));a.set(e,xn(t.getAttribute("properties")?.split(" ")??[]))}}this.sections=this.#me.map(((t,e)=>t.frags.length?{id:e,load:()=>this.loadSection(t),createDocument:()=>this.createDocument(t),size:t.length,pageSpread:a.get(e)}:{linear:"no"}));try{const t=await this.mobi.getNCX(),e=({label:t,pos:n,children:i})=>{const[r,s]=n,a=wn(r,s),o=this.#ye.get(r);return o?o.push(s):this.#ye.set(r,[s]),{label:ze(t),href:a,subitems:i?.map(e)}};this.toc=t?.map(e),this.landmarks=await this.getGuide()}catch(t){console.warn(t)}const{exth:o}=this.mobi.headers;return this.dir=o.pageProgressionDirection,this.rendition={layout:"true"===o.fixedLayout?"pre-paginated":"reflowable",viewport:Object.fromEntries(o.originalResolution?.split("x")?.slice(0,2)?.map(((t,e)=>[e?"height":"width",t]))??[])},this.metadata=this.mobi.getMetadata(),this.getCover=this.mobi.getCover.bind(this.mobi),this}async getResourcesByMagic(t){const e={},n=this.mobi.headers.kf8.resourceStart,i=this.mobi.pdb.numRecords;for(let r=n;r<i;r++)try{const n=await this.mobi.loadMagic(r),i=t.find((t=>t===n));i&&(e[i]=r)}catch{}return e}async getGuide(){const t=this.mobi.headers.kf8.guide;if(t<4294967295){const e=this.mobi.loadRecord.bind(this.mobi),{table:n,cncx:i}=await cn(t,e);return n.map((({name:t,tagMap:e})=>({label:i[e[1][0]]??"",type:t?.split(/\\s/),href:wn(e[6]?.[0]??e[3]?.[0])})))}}async loadResourceBlob(t){const{resourceType:e,id:n,type:i}=(t=>{const[e,n,i]=t.match(gn).slice(1);return{resourceType:e,id:parseInt(n,32),type:i}})(t),r="flow"===e?await this.loadFlow(n):await this.mobi.loadResource(n-1),s=[Oe.XHTML,Oe.HTML,Oe.CSS,Oe.SVG].includes(i)?await this.replaceResources(this.mobi.decode(r)):r,a=i===Oe.SVG?this.parser.parseFromString(s,i):null;return[new Blob([s],{type:i}),a?.getElementsByTagNameNS("http://www.w3.org/2000/svg","image")?.length?a.documentElement:null]}async loadResource(t){if(this.#Zt.has(t))return this.#Zt.get(t);const[e,n]=await this.loadResourceBlob(t),i=n?t:URL.createObjectURL(e);return n&&this.#Ee.set(i,n),this.#Zt.set(t,i),i}replaceResources(t){return(async(t,e,n)=>{const i=[];t.replace(e,((...t)=>(i.push(t),null)));const r=[];for(const t of i)r.push(await n(...t));return t.replace(e,(()=>r.shift()))})(t,new RegExp(gn,"g"),this.loadResource.bind(this))}async loadRaw(t,e){const n=e-this.#_e.length,i=null==this.#ke?1/0:this.#ke-this.#Se.length-t;if(n<0||n<i){for(;this.#_e.length<e;){const t=++this.#Ae,e=await this.mobi.loadText(t);this.#_e=Ke(this.#_e,e)}return this.#_e.slice(t,e)}for(;this.#ke-this.#Se.length>t;){const t=this.mobi.headers.palmdoc.numTextRecords-1-++this.#Le,e=await this.mobi.loadText(t);this.#Se=Ke(e,this.#Se)}const r=this.#ke-this.#Se.length;return this.#Se.slice(t-r,e-r)}loadFlow(t){if(t<4294967295)return this.loadRaw(...this.#ve.fdstTable[t])}async loadText(t){const{skel:e,frags:n,length:i}=t,r=await this.loadRaw(e.offset,e.offset+i);let s=r.slice(0,e.length);for(const t of n){const n=t.insertOffset-e.offset,i=e.length+t.offset,a=r.slice(i,i+t.length);s=Je(s.slice(0,n),a,s.slice(n));const o=this.#ye.get(t.index);if(o)for(const e of o){const n=this.mobi.decode(a).slice(e),i=yn(n);this.#Te(t.index,e,i)}}return this.mobi.decode(s)}async createDocument(t){const e=await this.loadText(t);return this.parser.parseFromString(e,this.#we)}async loadSection(t){if(this.#Zt.has(t))return this.#Zt.get(t);const e=await this.loadText(t),n=await this.replaceResources(e);let i=this.parser.parseFromString(n,this.#we);i.querySelector("parsererror")&&(this.#we=Oe.HTML,i=this.parser.parseFromString(n,this.#we));for(const[t,e]of this.#Ee)for(const n of i.querySelectorAll(\`img[src="\${t}"]\`))n.replaceWith(e);const r=URL.createObjectURL(new Blob([this.serializer.serializeToString(i)],{type:this.#we}));return this.#Zt.set(t,r),r}getIndexByFID(t){return this.#me.findIndex((e=>e.frags.some((e=>e.index===t))))}#Te(t,e,n){const i=this.#xe.get(t);if(i)i.set(e,n);else{const i=new Map;this.#xe.set(t,i),i.set(e,n)}}async resolveHref(t){const{fid:e,off:n}=bn(t),i=this.getIndexByFID(e);if(i<0)return;const r=this.#xe.get(e)?.get(n);if(r)return{index:i,anchor:t=>t.querySelector(r)};const{skel:s,frags:a}=this.#me[i],o=a.find((t=>t.index===e)),l=s.offset+s.length+o.offset,c=await this.loadRaw(l,l+o.length),h=this.mobi.decode(c).slice(n),d=yn(h);return this.#Te(e,n,d),{index:i,anchor:t=>t.querySelector(d)}}splitTOCHref(t){const e=bn(t);return[this.getIndexByFID(e.fid),e]}getTOCFragment(t,{fid:e,off:n}){const i=this.#xe.get(e)?.get(n);return t.querySelector(i)}isExternal(t){return/^(?!blob|kindle)\\w+:/i.test(t)}destroy(){for(const t of this.#Zt.values())URL.revokeObjectURL(t)}}function kn(t,e,n){var i;return i="undefined"==typeof DOMParser||n?XMLDOMParser:DOMParser,65279===t.charCodeAt(0)&&(t=t.slice(1)),(new i).parseFromString(t,e)}function _n(t){return["xml","opf","ncx"].indexOf(t)>-1}function Sn(){this.resolve=null,this.reject=null,this.id=function(){var t=(new Date).getTime(),e="xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,(function(e){var n=(t+16*Math.random())%16|0;return t=Math.floor(t/16),("x"==e?n:7&n|8).toString(16)}));return e}(),this.promise=new Promise(((t,e)=>{this.resolve=t,this.reject=e})),Object.freeze(this)}class An{constructor(t){var e;t.indexOf("://")>-1&&(t=new URL(t).pathname),e=this.parse(t),this.path=t,this.isDirectory(t)?this.directory=t:this.directory=e.dir+"/",this.filename=e.base,this.extension=e.ext.slice(1)}parse(t){return path.parse(t)}isAbsolute(t){return path.isAbsolute(t||this.path)}isDirectory(t){return"/"===t.charAt(t.length-1)}resolve(t){return path.resolve(this.directory,t)}relative(t){return t&&t.indexOf("://")>-1?t:path.relative(this.directory,t)}splitPath(t){return this.splitPathRe.exec(t).slice(1)}toString(){return this.path}}const Ln=async(t,e)=>{const n=devicePixelRatio,i=t.getViewport({scale:n}),r=document.createElement("canvas");r.height=i.height,r.width=i.width;const s=r.getContext("2d");await t.render({canvasContext:s,viewport:i}).promise;const a=await new Promise((t=>r.toBlob(t)));if(e)return a;const o=document.createElement("div");o.classList.add("textLayer"),await pdfjsLib.renderTextLayer({textContentSource:await t.getTextContent(),container:o,viewport:i}).promise;const l=document.createElement("div");l.classList.add("annotationLayer"),await new pdfjsLib.AnnotationLayer({page:t,viewport:i,div:l}).render({annotations:await t.getAnnotations(),linkService:{getDestinationHash:t=>JSON.stringify(t),addLinkAttributes:(t,e)=>t.href=e}});const c=URL.createObjectURL(a);return URL.createObjectURL(new Blob([\`\\n        <!DOCTYPE html>\\n        <meta charset="utf-8">\\n        <style>\\n        :root {\\n            --scale-factor: \${n};\\n        }\\n        html, body {\\n            margin: 0;\\n            padding: 0;\\n        }\\n        \\n/* Copyright 2014 Mozilla Foundation\\n *\\n * Licensed under the Apache License, Version 2.0 (the "License");\\n * you may not use this file except in compliance with the License.\\n * You may obtain a copy of the License at\\n *\\n *     http://www.apache.org/licenses/LICENSE-2.0\\n *\\n * Unless required by applicable law or agreed to in writing, software\\n * distributed under the License is distributed on an "AS IS" BASIS,\\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n * See the License for the specific language governing permissions and\\n * limitations under the License.\\n */\\n\\n:root {\\n  --highlight-bg-color: rgb(180 0 170);\\n  --highlight-selected-bg-color: rgb(0 100 0);\\n}\\n\\n@media screen and (forced-colors: active) {\\n  :root {\\n    --highlight-bg-color: Highlight;\\n    --highlight-selected-bg-color: ButtonText;\\n  }\\n}\\n\\n.textLayer {\\n  position: absolute;\\n  text-align: initial;\\n  inset: 0;\\n  overflow: hidden;\\n  opacity: 0.25;\\n  line-height: 1;\\n  text-size-adjust: none;\\n  forced-color-adjust: none;\\n  transform-origin: 0 0;\\n  z-index: 2;\\n}\\n\\n.textLayer :is(span, br) {\\n  color: transparent;\\n  position: absolute;\\n  white-space: pre;\\n  cursor: text;\\n  transform-origin: 0% 0%;\\n}\\n\\n/* Only necessary in Google Chrome, see issue 14205, and most unfortunately\\n * the problem doesn't show up in "text" reference tests. */\\n/*#if !MOZCENTRAL*/\\n.textLayer span.markedContent {\\n  top: 0;\\n  height: 0;\\n}\\n/*#endif*/\\n\\n.textLayer .highlight {\\n  margin: -1px;\\n  padding: 1px;\\n  background-color: var(--highlight-bg-color);\\n  border-radius: 4px;\\n}\\n\\n.textLayer .highlight.appended {\\n  position: initial;\\n}\\n\\n.textLayer .highlight.begin {\\n  border-radius: 4px 0 0 4px;\\n}\\n\\n.textLayer .highlight.end {\\n  border-radius: 0 4px 4px 0;\\n}\\n\\n.textLayer .highlight.middle {\\n  border-radius: 0;\\n}\\n\\n.textLayer .highlight.selected {\\n  background-color: var(--highlight-selected-bg-color);\\n}\\n\\n.textLayer ::selection {\\n  /*#if !MOZCENTRAL*/\\n  background: blue;\\n  /*#endif*/\\n  background: AccentColor; /* stylelint-disable-line declaration-block-no-duplicate-properties */\\n}\\n\\n/* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */\\n/*#if !MOZCENTRAL*/\\n.textLayer br::selection {\\n  background: transparent;\\n}\\n/*#endif*/\\n\\n.textLayer .endOfContent {\\n  display: block;\\n  position: absolute;\\n  inset: 100% 0 0;\\n  z-index: -1;\\n  cursor: default;\\n  user-select: none;\\n}\\n\\n.textLayer .endOfContent.active {\\n  top: 0;\\n}\\n\\n        \\n/* Copyright 2014 Mozilla Foundation\\n *\\n * Licensed under the Apache License, Version 2.0 (the "License");\\n * you may not use this file except in compliance with the License.\\n * You may obtain a copy of the License at\\n *\\n *     http://www.apache.org/licenses/LICENSE-2.0\\n *\\n * Unless required by applicable law or agreed to in writing, software\\n * distributed under the License is distributed on an "AS IS" BASIS,\\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\\n * See the License for the specific language governing permissions and\\n * limitations under the License.\\n */\\n\\n:root {\\n  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");\\n  --input-focus-border-color: Highlight;\\n  --input-focus-outline: 1px solid Canvas;\\n  --input-unfocused-border-color: transparent;\\n  --input-disabled-border-color: transparent;\\n  --input-hover-border-color: black;\\n  --link-outline: none;\\n}\\n\\n@media screen and (forced-colors: active) {\\n  :root {\\n    --input-focus-border-color: CanvasText;\\n    --input-unfocused-border-color: ActiveText;\\n    --input-disabled-border-color: GrayText;\\n    --input-hover-border-color: Highlight;\\n    --link-outline: 1.5px solid LinkText;\\n    --hcm-highligh-filter: invert(100%);\\n  }\\n  .annotationLayer .textWidgetAnnotation :is(input, textarea):required,\\n  .annotationLayer .choiceWidgetAnnotation select:required,\\n  .annotationLayer\\n    .buttonWidgetAnnotation:is(.checkBox, .radioButton)\\n    input:required {\\n    outline: 1.5px solid selectedItem;\\n  }\\n\\n  .annotationLayer .linkAnnotation:hover {\\n    backdrop-filter: var(--hcm-highligh-filter);\\n  }\\n\\n  .annotationLayer .linkAnnotation > a:hover {\\n    opacity: 0 !important;\\n    background: none !important;\\n    box-shadow: none;\\n  }\\n\\n  .annotationLayer .popupAnnotation .popup {\\n    outline: calc(1.5px * var(--scale-factor)) solid CanvasText !important;\\n    background-color: ButtonFace !important;\\n    color: ButtonText !important;\\n  }\\n\\n  .annotationLayer .highlightArea:hover::after {\\n    position: absolute;\\n    top: 0;\\n    left: 0;\\n    width: 100%;\\n    height: 100%;\\n    backdrop-filter: var(--hcm-highligh-filter);\\n    content: "";\\n    pointer-events: none;\\n  }\\n\\n  .annotationLayer .popupAnnotation.focused .popup {\\n    outline: calc(3px * var(--scale-factor)) solid Highlight !important;\\n  }\\n}\\n\\n.annotationLayer {\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n  pointer-events: none;\\n  transform-origin: 0 0;\\n  z-index: 3;\\n}\\n\\n.annotationLayer[data-main-rotation="90"] .norotate {\\n  transform: rotate(270deg) translateX(-100%);\\n}\\n.annotationLayer[data-main-rotation="180"] .norotate {\\n  transform: rotate(180deg) translate(-100%, -100%);\\n}\\n.annotationLayer[data-main-rotation="270"] .norotate {\\n  transform: rotate(90deg) translateY(-100%);\\n}\\n\\n.annotationLayer canvas {\\n  position: absolute;\\n  width: 100%;\\n  height: 100%;\\n  pointer-events: none;\\n}\\n\\n.annotationLayer section {\\n  position: absolute;\\n  text-align: initial;\\n  pointer-events: auto;\\n  box-sizing: border-box;\\n  transform-origin: 0 0;\\n}\\n\\n.annotationLayer .linkAnnotation {\\n  outline: var(--link-outline);\\n}\\n\\n.annotationLayer :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton) > a {\\n  position: absolute;\\n  font-size: 1em;\\n  top: 0;\\n  left: 0;\\n  width: 100%;\\n  height: 100%;\\n}\\n\\n.annotationLayer\\n  :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton):not(.hasBorder)\\n  > a:hover {\\n  opacity: 0.2;\\n  background-color: rgb(255 255 0);\\n  box-shadow: 0 2px 10px rgb(255 255 0);\\n}\\n\\n.annotationLayer .linkAnnotation.hasBorder:hover {\\n  background-color: rgb(255 255 0 / 0.2);\\n}\\n\\n.annotationLayer .hasBorder {\\n  background-size: 100% 100%;\\n}\\n\\n.annotationLayer .textAnnotation img {\\n  position: absolute;\\n  cursor: pointer;\\n  width: 100%;\\n  height: 100%;\\n  top: 0;\\n  left: 0;\\n}\\n\\n.annotationLayer .textWidgetAnnotation :is(input, textarea),\\n.annotationLayer .choiceWidgetAnnotation select,\\n.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {\\n  background-image: var(--annotation-unfocused-field-background);\\n  border: 2px solid var(--input-unfocused-border-color);\\n  box-sizing: border-box;\\n  font: calc(9px * var(--scale-factor)) sans-serif;\\n  height: 100%;\\n  margin: 0;\\n  vertical-align: top;\\n  width: 100%;\\n}\\n\\n.annotationLayer .textWidgetAnnotation :is(input, textarea):required,\\n.annotationLayer .choiceWidgetAnnotation select:required,\\n.annotationLayer\\n  .buttonWidgetAnnotation:is(.checkBox, .radioButton)\\n  input:required {\\n  outline: 1.5px solid red;\\n}\\n\\n.annotationLayer .choiceWidgetAnnotation select option {\\n  padding: 0;\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.radioButton input {\\n  border-radius: 50%;\\n}\\n\\n.annotationLayer .textWidgetAnnotation textarea {\\n  resize: none;\\n}\\n\\n.annotationLayer .textWidgetAnnotation :is(input, textarea)[disabled],\\n.annotationLayer .choiceWidgetAnnotation select[disabled],\\n.annotationLayer\\n  .buttonWidgetAnnotation:is(.checkBox, .radioButton)\\n  input[disabled] {\\n  background: none;\\n  border: 2px solid var(--input-disabled-border-color);\\n  cursor: not-allowed;\\n}\\n\\n.annotationLayer .textWidgetAnnotation :is(input, textarea):hover,\\n.annotationLayer .choiceWidgetAnnotation select:hover,\\n.annotationLayer\\n  .buttonWidgetAnnotation:is(.checkBox, .radioButton)\\n  input:hover {\\n  border: 2px solid var(--input-hover-border-color);\\n}\\n.annotationLayer .textWidgetAnnotation :is(input, textarea):hover,\\n.annotationLayer .choiceWidgetAnnotation select:hover,\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:hover {\\n  border-radius: 2px;\\n}\\n\\n.annotationLayer .textWidgetAnnotation :is(input, textarea):focus,\\n.annotationLayer .choiceWidgetAnnotation select:focus {\\n  background: none;\\n  border: 2px solid var(--input-focus-border-color);\\n  border-radius: 2px;\\n  outline: var(--input-focus-outline);\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) :focus {\\n  background-image: none;\\n  background-color: transparent;\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.checkBox :focus {\\n  border: 2px solid var(--input-focus-border-color);\\n  border-radius: 2px;\\n  outline: var(--input-focus-outline);\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.radioButton :focus {\\n  border: 2px solid var(--input-focus-border-color);\\n  outline: var(--input-focus-outline);\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after,\\n.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {\\n  background-color: CanvasText;\\n  content: "";\\n  display: block;\\n  position: absolute;\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {\\n  height: 80%;\\n  left: 45%;\\n  width: 1px;\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before {\\n  transform: rotate(45deg);\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {\\n  transform: rotate(-45deg);\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {\\n  border-radius: 50%;\\n  height: 50%;\\n  left: 30%;\\n  top: 20%;\\n  width: 50%;\\n}\\n\\n.annotationLayer .textWidgetAnnotation input.comb {\\n  font-family: monospace;\\n  padding-left: 2px;\\n  padding-right: 0;\\n}\\n\\n.annotationLayer .textWidgetAnnotation input.comb:focus {\\n  /*\\n   * Letter spacing is placed on the right side of each character. Hence, the\\n   * letter spacing of the last character may be placed outside the visible\\n   * area, causing horizontal scrolling. We avoid this by extending the width\\n   * when the element has focus and revert this when it loses focus.\\n   */\\n  width: 103%;\\n}\\n\\n.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {\\n  appearance: none;\\n}\\n\\n.annotationLayer .fileAttachmentAnnotation .popupTriggerArea {\\n  height: 100%;\\n  width: 100%;\\n}\\n\\n.annotationLayer .popupAnnotation {\\n  position: absolute;\\n  font-size: calc(9px * var(--scale-factor));\\n  pointer-events: none;\\n  width: max-content;\\n  max-width: 45%;\\n  height: auto;\\n}\\n\\n.annotationLayer .popup {\\n  background-color: rgb(255 255 153);\\n  box-shadow: 0 calc(2px * var(--scale-factor)) calc(5px * var(--scale-factor))\\n    rgb(136 136 136);\\n  border-radius: calc(2px * var(--scale-factor));\\n  outline: 1.5px solid rgb(255 255 74);\\n  padding: calc(6px * var(--scale-factor));\\n  cursor: pointer;\\n  font: message-box;\\n  white-space: normal;\\n  word-wrap: break-word;\\n  pointer-events: auto;\\n}\\n\\n.annotationLayer .popupAnnotation.focused .popup {\\n  outline-width: 3px;\\n}\\n\\n.annotationLayer .popup * {\\n  font-size: calc(9px * var(--scale-factor));\\n}\\n\\n.annotationLayer .popup > .header {\\n  display: inline-block;\\n}\\n\\n.annotationLayer .popup > .header h1 {\\n  display: inline;\\n}\\n\\n.annotationLayer .popup > .header .popupDate {\\n  display: inline-block;\\n  margin-left: calc(5px * var(--scale-factor));\\n  width: fit-content;\\n}\\n\\n.annotationLayer .popupContent {\\n  border-top: 1px solid rgb(51 51 51);\\n  margin-top: calc(2px * var(--scale-factor));\\n  padding-top: calc(2px * var(--scale-factor));\\n}\\n\\n.annotationLayer .richText > * {\\n  white-space: pre-wrap;\\n  font-size: calc(9px * var(--scale-factor));\\n}\\n\\n.annotationLayer .popupTriggerArea {\\n  cursor: pointer;\\n}\\n\\n.annotationLayer section svg {\\n  position: absolute;\\n  width: 100%;\\n  height: 100%;\\n  top: 0;\\n  left: 0;\\n}\\n\\n.annotationLayer .annotationTextContent {\\n  position: absolute;\\n  width: 100%;\\n  height: 100%;\\n  opacity: 0;\\n  color: transparent;\\n  user-select: none;\\n  pointer-events: none;\\n}\\n\\n.annotationLayer .annotationTextContent span {\\n  width: 100%;\\n  display: inline-block;\\n}\\n\\n.annotationLayer svg.quadrilateralsContainer {\\n  contain: strict;\\n  width: 0;\\n  height: 0;\\n  position: absolute;\\n  top: 0;\\n  left: 0;\\n  z-index: -1;\\n}\\n\\n        </style>\\n        <img src="\${c}">\\n        \${o.outerHTML}\\n        \${l.outerHTML}\\n    \`],{type:"text/html"}))},En=t=>({label:t.title,href:JSON.stringify(t.dest),subitems:t.items.length?t.items.map(En):null}),Tn=0,Cn=1,Rn=-2,In=-3,Mn=-4,zn=-5,On=[0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535],Nn=1440,Bn=[96,7,256,0,8,80,0,8,16,84,8,115,82,7,31,0,8,112,0,8,48,0,9,192,80,7,10,0,8,96,0,8,32,0,9,160,0,8,0,0,8,128,0,8,64,0,9,224,80,7,6,0,8,88,0,8,24,0,9,144,83,7,59,0,8,120,0,8,56,0,9,208,81,7,17,0,8,104,0,8,40,0,9,176,0,8,8,0,8,136,0,8,72,0,9,240,80,7,4,0,8,84,0,8,20,85,8,227,83,7,43,0,8,116,0,8,52,0,9,200,81,7,13,0,8,100,0,8,36,0,9,168,0,8,4,0,8,132,0,8,68,0,9,232,80,7,8,0,8,92,0,8,28,0,9,152,84,7,83,0,8,124,0,8,60,0,9,216,82,7,23,0,8,108,0,8,44,0,9,184,0,8,12,0,8,140,0,8,76,0,9,248,80,7,3,0,8,82,0,8,18,85,8,163,83,7,35,0,8,114,0,8,50,0,9,196,81,7,11,0,8,98,0,8,34,0,9,164,0,8,2,0,8,130,0,8,66,0,9,228,80,7,7,0,8,90,0,8,26,0,9,148,84,7,67,0,8,122,0,8,58,0,9,212,82,7,19,0,8,106,0,8,42,0,9,180,0,8,10,0,8,138,0,8,74,0,9,244,80,7,5,0,8,86,0,8,22,192,8,0,83,7,51,0,8,118,0,8,54,0,9,204,81,7,15,0,8,102,0,8,38,0,9,172,0,8,6,0,8,134,0,8,70,0,9,236,80,7,9,0,8,94,0,8,30,0,9,156,84,7,99,0,8,126,0,8,62,0,9,220,82,7,27,0,8,110,0,8,46,0,9,188,0,8,14,0,8,142,0,8,78,0,9,252,96,7,256,0,8,81,0,8,17,85,8,131,82,7,31,0,8,113,0,8,49,0,9,194,80,7,10,0,8,97,0,8,33,0,9,162,0,8,1,0,8,129,0,8,65,0,9,226,80,7,6,0,8,89,0,8,25,0,9,146,83,7,59,0,8,121,0,8,57,0,9,210,81,7,17,0,8,105,0,8,41,0,9,178,0,8,9,0,8,137,0,8,73,0,9,242,80,7,4,0,8,85,0,8,21,80,8,258,83,7,43,0,8,117,0,8,53,0,9,202,81,7,13,0,8,101,0,8,37,0,9,170,0,8,5,0,8,133,0,8,69,0,9,234,80,7,8,0,8,93,0,8,29,0,9,154,84,7,83,0,8,125,0,8,61,0,9,218,82,7,23,0,8,109,0,8,45,0,9,186,0,8,13,0,8,141,0,8,77,0,9,250,80,7,3,0,8,83,0,8,19,85,8,195,83,7,35,0,8,115,0,8,51,0,9,198,81,7,11,0,8,99,0,8,35,0,9,166,0,8,3,0,8,131,0,8,67,0,9,230,80,7,7,0,8,91,0,8,27,0,9,150,84,7,67,0,8,123,0,8,59,0,9,214,82,7,19,0,8,107,0,8,43,0,9,182,0,8,11,0,8,139,0,8,75,0,9,246,80,7,5,0,8,87,0,8,23,192,8,0,83,7,51,0,8,119,0,8,55,0,9,206,81,7,15,0,8,103,0,8,39,0,9,174,0,8,7,0,8,135,0,8,71,0,9,238,80,7,9,0,8,95,0,8,31,0,9,158,84,7,99,0,8,127,0,8,63,0,9,222,82,7,27,0,8,111,0,8,47,0,9,190,0,8,15,0,8,143,0,8,79,0,9,254,96,7,256,0,8,80,0,8,16,84,8,115,82,7,31,0,8,112,0,8,48,0,9,193,80,7,10,0,8,96,0,8,32,0,9,161,0,8,0,0,8,128,0,8,64,0,9,225,80,7,6,0,8,88,0,8,24,0,9,145,83,7,59,0,8,120,0,8,56,0,9,209,81,7,17,0,8,104,0,8,40,0,9,177,0,8,8,0,8,136,0,8,72,0,9,241,80,7,4,0,8,84,0,8,20,85,8,227,83,7,43,0,8,116,0,8,52,0,9,201,81,7,13,0,8,100,0,8,36,0,9,169,0,8,4,0,8,132,0,8,68,0,9,233,80,7,8,0,8,92,0,8,28,0,9,153,84,7,83,0,8,124,0,8,60,0,9,217,82,7,23,0,8,108,0,8,44,0,9,185,0,8,12,0,8,140,0,8,76,0,9,249,80,7,3,0,8,82,0,8,18,85,8,163,83,7,35,0,8,114,0,8,50,0,9,197,81,7,11,0,8,98,0,8,34,0,9,165,0,8,2,0,8,130,0,8,66,0,9,229,80,7,7,0,8,90,0,8,26,0,9,149,84,7,67,0,8,122,0,8,58,0,9,213,82,7,19,0,8,106,0,8,42,0,9,181,0,8,10,0,8,138,0,8,74,0,9,245,80,7,5,0,8,86,0,8,22,192,8,0,83,7,51,0,8,118,0,8,54,0,9,205,81,7,15,0,8,102,0,8,38,0,9,173,0,8,6,0,8,134,0,8,70,0,9,237,80,7,9,0,8,94,0,8,30,0,9,157,84,7,99,0,8,126,0,8,62,0,9,221,82,7,27,0,8,110,0,8,46,0,9,189,0,8,14,0,8,142,0,8,78,0,9,253,96,7,256,0,8,81,0,8,17,85,8,131,82,7,31,0,8,113,0,8,49,0,9,195,80,7,10,0,8,97,0,8,33,0,9,163,0,8,1,0,8,129,0,8,65,0,9,227,80,7,6,0,8,89,0,8,25,0,9,147,83,7,59,0,8,121,0,8,57,0,9,211,81,7,17,0,8,105,0,8,41,0,9,179,0,8,9,0,8,137,0,8,73,0,9,243,80,7,4,0,8,85,0,8,21,80,8,258,83,7,43,0,8,117,0,8,53,0,9,203,81,7,13,0,8,101,0,8,37,0,9,171,0,8,5,0,8,133,0,8,69,0,9,235,80,7,8,0,8,93,0,8,29,0,9,155,84,7,83,0,8,125,0,8,61,0,9,219,82,7,23,0,8,109,0,8,45,0,9,187,0,8,13,0,8,141,0,8,77,0,9,251,80,7,3,0,8,83,0,8,19,85,8,195,83,7,35,0,8,115,0,8,51,0,9,199,81,7,11,0,8,99,0,8,35,0,9,167,0,8,3,0,8,131,0,8,67,0,9,231,80,7,7,0,8,91,0,8,27,0,9,151,84,7,67,0,8,123,0,8,59,0,9,215,82,7,19,0,8,107,0,8,43,0,9,183,0,8,11,0,8,139,0,8,75,0,9,247,80,7,5,0,8,87,0,8,23,192,8,0,83,7,51,0,8,119,0,8,55,0,9,207,81,7,15,0,8,103,0,8,39,0,9,175,0,8,7,0,8,135,0,8,71,0,9,239,80,7,9,0,8,95,0,8,31,0,9,159,84,7,99,0,8,127,0,8,63,0,9,223,82,7,27,0,8,111,0,8,47,0,9,191,0,8,15,0,8,143,0,8,79,0,9,255],Fn=[80,5,1,87,5,257,83,5,17,91,5,4097,81,5,5,89,5,1025,85,5,65,93,5,16385,80,5,3,88,5,513,84,5,33,92,5,8193,82,5,9,90,5,2049,86,5,129,192,5,24577,80,5,2,87,5,385,83,5,25,91,5,6145,81,5,7,89,5,1537,85,5,97,93,5,24577,80,5,4,88,5,769,84,5,49,92,5,12289,82,5,13,90,5,3073,86,5,193,192,5,24577],Un=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258,0,0],Dn=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0,112,112],Pn=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577],jn=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13],Wn=15;function \$n(){let t,e,n,i,r,s;function a(t,e,a,o,l,c,h,d,u,f,p){let g,m,b,w,y,x,v,k,_,S,A,L,E,T,C;S=0,y=a;do{n[t[e+S]]++,S++,y--}while(0!==y);if(n[0]==a)return h[0]=-1,d[0]=0,Tn;for(k=d[0],x=1;x<=Wn&&0===n[x];x++);for(v=x,k<x&&(k=x),y=Wn;0!==y&&0===n[y];y--);for(b=y,k>y&&(k=y),d[0]=k,T=1<<x;x<y;x++,T<<=1)if((T-=n[x])<0)return In;if((T-=n[y])<0)return In;for(n[y]+=T,s[1]=x=0,S=1,E=2;0!=--y;)s[E]=x+=n[S],E++,S++;y=0,S=0;do{0!==(x=t[e+S])&&(p[s[x]++]=y),S++}while(++y<a);for(a=s[b],s[0]=y=0,S=0,w=-1,L=-k,r[0]=0,A=0,C=0;v<=b;v++)for(g=n[v];0!=g--;){for(;v>L+k;){if(w++,L+=k,C=b-L,C=C>k?k:C,(m=1<<(x=v-L))>g+1&&(m-=g+1,E=v,x<C))for(;++x<C&&!((m<<=1)<=n[++E]);)m-=n[E];if(C=1<<x,f[0]+C>Nn)return In;r[w]=A=f[0],f[0]+=C,0!==w?(s[w]=y,i[0]=x,i[1]=k,x=y>>>L-k,i[2]=A-r[w-1]-x,u.set(i,3*(r[w-1]+x))):h[0]=A}for(i[1]=v-L,S>=a?i[0]=192:p[S]<o?(i[0]=p[S]<256?0:96,i[2]=p[S++]):(i[0]=c[p[S]-o]+16+64,i[2]=l[p[S++]-o]),m=1<<v-L,x=y>>>L;x<C;x+=m)u.set(i,3*(A+x));for(x=1<<v-1;0!=(y&x);x>>>=1)y^=x;for(y^=x,_=(1<<L)-1;(y&_)!=s[w];)w--,L-=k,_=(1<<L)-1}return 0!==T&&1!=b?zn:Tn}function o(a){let o;for(t||(t=[],e=[],n=new Int32Array(Wn+1),i=[],r=new Int32Array(Wn),s=new Int32Array(Wn+1)),e.length<a&&(e=[]),o=0;o<a;o++)e[o]=0;for(o=0;o<Wn+1;o++)n[o]=0;for(o=0;o<3;o++)i[o]=0;r.set(n.subarray(0,Wn),0),s.set(n.subarray(0,Wn+1),0)}this.inflate_trees_bits=function(n,i,r,s,l){let c;return o(19),t[0]=0,c=a(n,0,19,19,null,null,r,i,s,t,e),c==In?l.msg="oversubscribed dynamic bit lengths tree":c!=zn&&0!==i[0]||(l.msg="incomplete dynamic bit lengths tree",c=In),c},this.inflate_trees_dynamic=function(n,i,r,s,l,c,h,d,u){let f;return o(288),t[0]=0,f=a(r,0,n,257,Un,Dn,c,s,d,t,e),f!=Tn||0===s[0]?(f==In?u.msg="oversubscribed literal/length tree":f!=Mn&&(u.msg="incomplete literal/length tree",f=In),f):(o(288),f=a(r,n,i,0,Pn,jn,h,l,d,t,e),f!=Tn||0===l[0]&&n>257?(f==In?u.msg="oversubscribed distance tree":f==zn?(u.msg="incomplete distance tree",f=In):f!=Mn&&(u.msg="empty distance tree with lengths",f=In),f):Tn)}}\$n.inflate_trees_fixed=function(t,e,n,i){return t[0]=9,e[0]=5,n[0]=Bn,i[0]=Fn,Tn};const Hn=0,qn=1,Vn=2,Xn=3,Gn=4,Kn=5,Jn=6,Yn=7,Zn=8,Qn=9;function ti(){const t=this;let e,n,i,r,s=0,a=0,o=0,l=0,c=0,h=0,d=0,u=0,f=0,p=0;function g(t,e,n,i,r,s,a,o){let l,c,h,d,u,f,p,g,m,b,w,y,x,v,k,_;p=o.next_in_index,g=o.avail_in,u=a.bitb,f=a.bitk,m=a.write,b=m<a.read?a.read-m-1:a.end-m,w=On[t],y=On[e];do{for(;f<20;)g--,u|=(255&o.read_byte(p++))<<f,f+=8;if(l=u&w,c=n,h=i,_=3*(h+l),0!==(d=c[_]))for(;;){if(u>>=c[_+1],f-=c[_+1],0!=(16&d)){for(d&=15,x=c[_+2]+(u&On[d]),u>>=d,f-=d;f<15;)g--,u|=(255&o.read_byte(p++))<<f,f+=8;for(l=u&y,c=r,h=s,_=3*(h+l),d=c[_];;){if(u>>=c[_+1],f-=c[_+1],0!=(16&d)){for(d&=15;f<d;)g--,u|=(255&o.read_byte(p++))<<f,f+=8;if(v=c[_+2]+(u&On[d]),u>>=d,f-=d,b-=x,m>=v)k=m-v,m-k>0&&2>m-k?(a.win[m++]=a.win[k++],a.win[m++]=a.win[k++],x-=2):(a.win.set(a.win.subarray(k,k+2),m),m+=2,k+=2,x-=2);else{k=m-v;do{k+=a.end}while(k<0);if(d=a.end-k,x>d){if(x-=d,m-k>0&&d>m-k)do{a.win[m++]=a.win[k++]}while(0!=--d);else a.win.set(a.win.subarray(k,k+d),m),m+=d,k+=d,d=0;k=0}}if(m-k>0&&x>m-k)do{a.win[m++]=a.win[k++]}while(0!=--x);else a.win.set(a.win.subarray(k,k+x),m),m+=x,k+=x,x=0;break}if(0!=(64&d))return o.msg="invalid distance code",x=o.avail_in-g,x=f>>3<x?f>>3:x,g+=x,p-=x,f-=x<<3,a.bitb=u,a.bitk=f,o.avail_in=g,o.total_in+=p-o.next_in_index,o.next_in_index=p,a.write=m,In;l+=c[_+2],l+=u&On[d],_=3*(h+l),d=c[_]}break}if(0!=(64&d))return 0!=(32&d)?(x=o.avail_in-g,x=f>>3<x?f>>3:x,g+=x,p-=x,f-=x<<3,a.bitb=u,a.bitk=f,o.avail_in=g,o.total_in+=p-o.next_in_index,o.next_in_index=p,a.write=m,Cn):(o.msg="invalid literal/length code",x=o.avail_in-g,x=f>>3<x?f>>3:x,g+=x,p-=x,f-=x<<3,a.bitb=u,a.bitk=f,o.avail_in=g,o.total_in+=p-o.next_in_index,o.next_in_index=p,a.write=m,In);if(l+=c[_+2],l+=u&On[d],_=3*(h+l),0===(d=c[_])){u>>=c[_+1],f-=c[_+1],a.win[m++]=c[_+2],b--;break}}else u>>=c[_+1],f-=c[_+1],a.win[m++]=c[_+2],b--}while(b>=258&&g>=10);return x=o.avail_in-g,x=f>>3<x?f>>3:x,g+=x,p-=x,f-=x<<3,a.bitb=u,a.bitk=f,o.avail_in=g,o.total_in+=p-o.next_in_index,o.next_in_index=p,a.write=m,Tn}t.init=function(t,s,a,o,l,c){e=Hn,d=t,u=s,i=a,f=o,r=l,p=c,n=null},t.proc=function(t,m,b){let w,y,x,v,k,_,S,A=0,L=0,E=0;for(E=m.next_in_index,v=m.avail_in,A=t.bitb,L=t.bitk,k=t.write,_=k<t.read?t.read-k-1:t.end-k;;)switch(e){case Hn:if(_>=258&&v>=10&&(t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,b=g(d,u,i,f,r,p,t,m),E=m.next_in_index,v=m.avail_in,A=t.bitb,L=t.bitk,k=t.write,_=k<t.read?t.read-k-1:t.end-k,b!=Tn)){e=b==Cn?Yn:Qn;break}o=d,n=i,a=f,e=qn;case qn:for(w=o;L<w;){if(0===v)return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);b=Tn,v--,A|=(255&m.read_byte(E++))<<L,L+=8}if(y=3*(a+(A&On[w])),A>>>=n[y+1],L-=n[y+1],x=n[y],0===x){l=n[y+2],e=Jn;break}if(0!=(16&x)){c=15&x,s=n[y+2],e=Vn;break}if(0==(64&x)){o=x,a=y/3+n[y+2];break}if(0!=(32&x)){e=Yn;break}return e=Qn,m.msg="invalid literal/length code",b=In,t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);case Vn:for(w=c;L<w;){if(0===v)return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);b=Tn,v--,A|=(255&m.read_byte(E++))<<L,L+=8}s+=A&On[w],A>>=w,L-=w,o=u,n=r,a=p,e=Xn;case Xn:for(w=o;L<w;){if(0===v)return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);b=Tn,v--,A|=(255&m.read_byte(E++))<<L,L+=8}if(y=3*(a+(A&On[w])),A>>=n[y+1],L-=n[y+1],x=n[y],0!=(16&x)){c=15&x,h=n[y+2],e=Gn;break}if(0==(64&x)){o=x,a=y/3+n[y+2];break}return e=Qn,m.msg="invalid distance code",b=In,t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);case Gn:for(w=c;L<w;){if(0===v)return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);b=Tn,v--,A|=(255&m.read_byte(E++))<<L,L+=8}h+=A&On[w],A>>=w,L-=w,e=Kn;case Kn:for(S=k-h;S<0;)S+=t.end;for(;0!==s;){if(0===_&&(k==t.end&&0!==t.read&&(k=0,_=k<t.read?t.read-k-1:t.end-k),0===_&&(t.write=k,b=t.inflate_flush(m,b),k=t.write,_=k<t.read?t.read-k-1:t.end-k,k==t.end&&0!==t.read&&(k=0,_=k<t.read?t.read-k-1:t.end-k),0===_)))return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);t.win[k++]=t.win[S++],_--,S==t.end&&(S=0),s--}e=Hn;break;case Jn:if(0===_&&(k==t.end&&0!==t.read&&(k=0,_=k<t.read?t.read-k-1:t.end-k),0===_&&(t.write=k,b=t.inflate_flush(m,b),k=t.write,_=k<t.read?t.read-k-1:t.end-k,k==t.end&&0!==t.read&&(k=0,_=k<t.read?t.read-k-1:t.end-k),0===_)))return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);b=Tn,t.win[k++]=l,_--,e=Hn;break;case Yn:if(L>7&&(L-=8,v++,E--),t.write=k,b=t.inflate_flush(m,b),k=t.write,_=k<t.read?t.read-k-1:t.end-k,t.read!=t.write)return t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);e=Zn;case Zn:return b=Cn,t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);case Qn:return b=In,t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b);default:return b=Rn,t.bitb=A,t.bitk=L,m.avail_in=v,m.total_in+=E-m.next_in_index,m.next_in_index=E,t.write=k,t.inflate_flush(m,b)}},t.free=function(){}}const ei=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15],ni=0,ii=1,ri=2,si=3,ai=4,oi=5,li=6,ci=7,hi=8,di=9;function ui(t,e){const n=this;let i,r=ni,s=0,a=0,o=0;const l=[0],c=[0],h=new ti;let d=0,u=new Int32Array(3*Nn);const f=new \$n;n.bitk=0,n.bitb=0,n.win=new Uint8Array(e),n.end=e,n.read=0,n.write=0,n.reset=function(t,e){e&&(e[0]=0),r==li&&h.free(t),r=ni,n.bitk=0,n.bitb=0,n.read=n.write=0},n.reset(t,null),n.inflate_flush=function(t,e){let i,r,s;return r=t.next_out_index,s=n.read,i=(s<=n.write?n.write:n.end)-s,i>t.avail_out&&(i=t.avail_out),0!==i&&e==zn&&(e=Tn),t.avail_out-=i,t.total_out+=i,t.next_out.set(n.win.subarray(s,s+i),r),r+=i,s+=i,s==n.end&&(s=0,n.write==n.end&&(n.write=0),i=n.write-s,i>t.avail_out&&(i=t.avail_out),0!==i&&e==zn&&(e=Tn),t.avail_out-=i,t.total_out+=i,t.next_out.set(n.win.subarray(s,s+i),r),r+=i,s+=i),t.next_out_index=r,n.read=s,e},n.proc=function(t,e){let p,g,m,b,w,y,x,v;for(b=t.next_in_index,w=t.avail_in,g=n.bitb,m=n.bitk,y=n.write,x=y<n.read?n.read-y-1:n.end-y;;){let k,_,S,A,L,E,T,C;switch(r){case ni:for(;m<3;){if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);e=Tn,w--,g|=(255&t.read_byte(b++))<<m,m+=8}switch(p=7&g,d=1&p,p>>>1){case 0:g>>>=3,m-=3,p=7&m,g>>>=p,m-=p,r=ii;break;case 1:k=[],_=[],S=[[]],A=[[]],\$n.inflate_trees_fixed(k,_,S,A),h.init(k[0],_[0],S[0],0,A[0],0),g>>>=3,m-=3,r=li;break;case 2:g>>>=3,m-=3,r=si;break;case 3:return g>>>=3,m-=3,r=di,t.msg="invalid block type",e=In,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e)}break;case ii:for(;m<32;){if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);e=Tn,w--,g|=(255&t.read_byte(b++))<<m,m+=8}if((~g>>>16&65535)!=(65535&g))return r=di,t.msg="invalid stored block lengths",e=In,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);s=65535&g,g=m=0,r=0!==s?ri:0!==d?ci:ni;break;case ri:if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);if(0===x&&(y==n.end&&0!==n.read&&(y=0,x=y<n.read?n.read-y-1:n.end-y),0===x&&(n.write=y,e=n.inflate_flush(t,e),y=n.write,x=y<n.read?n.read-y-1:n.end-y,y==n.end&&0!==n.read&&(y=0,x=y<n.read?n.read-y-1:n.end-y),0===x)))return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);if(e=Tn,p=s,p>w&&(p=w),p>x&&(p=x),n.win.set(t.read_buf(b,p),y),b+=p,w-=p,y+=p,x-=p,0!=(s-=p))break;r=0!==d?ci:ni;break;case si:for(;m<14;){if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);e=Tn,w--,g|=(255&t.read_byte(b++))<<m,m+=8}if(a=p=16383&g,(31&p)>29||(p>>5&31)>29)return r=di,t.msg="too many length or distance symbols",e=In,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);if(p=258+(31&p)+(p>>5&31),!i||i.length<p)i=[];else for(v=0;v<p;v++)i[v]=0;g>>>=14,m-=14,o=0,r=ai;case ai:for(;o<4+(a>>>10);){for(;m<3;){if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);e=Tn,w--,g|=(255&t.read_byte(b++))<<m,m+=8}i[ei[o++]]=7&g,g>>>=3,m-=3}for(;o<19;)i[ei[o++]]=0;if(l[0]=7,p=f.inflate_trees_bits(i,l,c,u,t),p!=Tn)return(e=p)==In&&(i=null,r=di),n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);o=0,r=oi;case oi:for(;p=a,!(o>=258+(31&p)+(p>>5&31));){let s,h;for(p=l[0];m<p;){if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);e=Tn,w--,g|=(255&t.read_byte(b++))<<m,m+=8}if(p=u[3*(c[0]+(g&On[p]))+1],h=u[3*(c[0]+(g&On[p]))+2],h<16)g>>>=p,m-=p,i[o++]=h;else{for(v=18==h?7:h-14,s=18==h?11:3;m<p+v;){if(0===w)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);e=Tn,w--,g|=(255&t.read_byte(b++))<<m,m+=8}if(g>>>=p,m-=p,s+=g&On[v],g>>>=v,m-=v,v=o,p=a,v+s>258+(31&p)+(p>>5&31)||16==h&&v<1)return i=null,r=di,t.msg="invalid bit length repeat",e=In,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);h=16==h?i[v-1]:0;do{i[v++]=h}while(0!=--s);o=v}}if(c[0]=-1,L=[],E=[],T=[],C=[],L[0]=9,E[0]=6,p=a,p=f.inflate_trees_dynamic(257+(31&p),1+(p>>5&31),i,L,E,T,C,u,t),p!=Tn)return p==In&&(i=null,r=di),e=p,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);h.init(L[0],E[0],u,T[0],u,C[0]),r=li;case li:if(n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,(e=h.proc(n,t,e))!=Cn)return n.inflate_flush(t,e);if(e=Tn,h.free(t),b=t.next_in_index,w=t.avail_in,g=n.bitb,m=n.bitk,y=n.write,x=y<n.read?n.read-y-1:n.end-y,0===d){r=ni;break}r=ci;case ci:if(n.write=y,e=n.inflate_flush(t,e),y=n.write,x=y<n.read?n.read-y-1:n.end-y,n.read!=n.write)return n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);r=hi;case hi:return e=Cn,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);case di:return e=In,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e);default:return e=Rn,n.bitb=g,n.bitk=m,t.avail_in=w,t.total_in+=b-t.next_in_index,t.next_in_index=b,n.write=y,n.inflate_flush(t,e)}}},n.free=function(t){n.reset(t,null),n.win=null,u=null},n.set_dictionary=function(t,e,i){n.win.set(t.subarray(e,e+i),0),n.read=n.write=i},n.sync_point=function(){return r==ii?1:0}}const fi=13,pi=[0,0,255,255];function gi(){const t=this;function e(t){return t&&t.istate?(t.total_in=t.total_out=0,t.msg=null,t.istate.mode=7,t.istate.blocks.reset(t,null),Tn):Rn}t.mode=0,t.method=0,t.was=[0],t.need=0,t.marker=0,t.wbits=0,t.inflateEnd=function(e){return t.blocks&&t.blocks.free(e),t.blocks=null,Tn},t.inflateInit=function(n,i){return n.msg=null,t.blocks=null,i<8||i>15?(t.inflateEnd(n),Rn):(t.wbits=i,n.istate.blocks=new ui(n,1<<i),e(n),Tn)},t.inflate=function(t,e){let n,i;if(!t||!t.istate||!t.next_in)return Rn;const r=t.istate;for(e=4==e?zn:Tn,n=zn;;)switch(r.mode){case 0:if(0===t.avail_in)return n;if(n=e,t.avail_in--,t.total_in++,8!=(15&(r.method=t.read_byte(t.next_in_index++)))){r.mode=fi,t.msg="unknown compression method",r.marker=5;break}if(8+(r.method>>4)>r.wbits){r.mode=fi,t.msg="invalid win size",r.marker=5;break}r.mode=1;case 1:if(0===t.avail_in)return n;if(n=e,t.avail_in--,t.total_in++,i=255&t.read_byte(t.next_in_index++),((r.method<<8)+i)%31!=0){r.mode=fi,t.msg="incorrect header check",r.marker=5;break}if(0==(32&i)){r.mode=7;break}r.mode=2;case 2:if(0===t.avail_in)return n;n=e,t.avail_in--,t.total_in++,r.need=(255&t.read_byte(t.next_in_index++))<<24&4278190080,r.mode=3;case 3:if(0===t.avail_in)return n;n=e,t.avail_in--,t.total_in++,r.need+=(255&t.read_byte(t.next_in_index++))<<16&16711680,r.mode=4;case 4:if(0===t.avail_in)return n;n=e,t.avail_in--,t.total_in++,r.need+=(255&t.read_byte(t.next_in_index++))<<8&65280,r.mode=5;case 5:return 0===t.avail_in?n:(n=e,t.avail_in--,t.total_in++,r.need+=255&t.read_byte(t.next_in_index++),r.mode=6,2);case 6:return r.mode=fi,t.msg="need dictionary",r.marker=0,Rn;case 7:if(n=r.blocks.proc(t,n),n==In){r.mode=fi,r.marker=0;break}if(n==Tn&&(n=e),n!=Cn)return n;n=e,r.blocks.reset(t,r.was),r.mode=12;case 12:return t.avail_in=0,Cn;case fi:return In;default:return Rn}},t.inflateSetDictionary=function(t,e,n){let i=0,r=n;if(!t||!t.istate||6!=t.istate.mode)return Rn;const s=t.istate;return r>=1<<s.wbits&&(r=(1<<s.wbits)-1,i=n-r),s.blocks.set_dictionary(e,i,r),s.mode=7,Tn},t.inflateSync=function(t){let n,i,r,s,a;if(!t||!t.istate)return Rn;const o=t.istate;if(o.mode!=fi&&(o.mode=fi,o.marker=0),0===(n=t.avail_in))return zn;for(i=t.next_in_index,r=o.marker;0!==n&&r<4;)t.read_byte(i)==pi[r]?r++:r=0!==t.read_byte(i)?0:4-r,i++,n--;return t.total_in+=i-t.next_in_index,t.next_in_index=i,t.avail_in=n,o.marker=r,4!=r?In:(s=t.total_in,a=t.total_out,e(t),t.total_in=s,t.total_out=a,o.mode=7,Tn)},t.inflateSyncPoint=function(t){return t&&t.istate&&t.istate.blocks?t.istate.blocks.sync_point():Rn}}function mi(){}mi.prototype={inflateInit(t){const e=this;return e.istate=new gi,t||(t=15),e.istate.inflateInit(e,t)},inflate(t){const e=this;return e.istate?e.istate.inflate(e,t):Rn},inflateEnd(){const t=this;if(!t.istate)return Rn;const e=t.istate.inflateEnd(t);return t.istate=null,e},inflateSync(){const t=this;return t.istate?t.istate.inflateSync(t):Rn},inflateSetDictionary(t,e){const n=this;return n.istate?n.istate.inflateSetDictionary(n,t,e):Rn},read_byte(t){return this.next_in[t]},read_buf(t,e){return this.next_in.subarray(t,t+e)}};const bi=4294967295,wi=65535,yi=33639248,xi=101075792,vi=void 0,ki="undefined",_i="function";class Si{constructor(t){return class extends TransformStream{constructor(e,n){const i=new t(n);super({transform(t,e){e.enqueue(i.append(t))},flush(t){const e=i.flush();e&&t.enqueue(e)}})}}}}let Ai=2;try{typeof navigator!=ki&&navigator.hardwareConcurrency&&(Ai=navigator.hardwareConcurrency)}catch(pt){}const Li={chunkSize:524288,maxWorkers:Ai,terminateWorkerTimeout:5e3,useWebWorkers:!0,useCompressionStream:!0,workerScripts:vi,CompressionStreamNative:typeof CompressionStream!=ki&&CompressionStream,DecompressionStreamNative:typeof DecompressionStream!=ki&&DecompressionStream},Ei=Object.assign({},Li);function Ti(t){const{baseURL:e,chunkSize:n,maxWorkers:i,terminateWorkerTimeout:r,useCompressionStream:s,useWebWorkers:a,Deflate:o,Inflate:l,CompressionStream:c,DecompressionStream:h,workerScripts:d}=t;if(Ci("baseURL",e),Ci("chunkSize",n),Ci("maxWorkers",i),Ci("terminateWorkerTimeout",r),Ci("useCompressionStream",s),Ci("useWebWorkers",a),o&&(Ei.CompressionStream=new Si(o)),l&&(Ei.DecompressionStream=new Si(l)),Ci("CompressionStream",c),Ci("DecompressionStream",h),d!==vi){const{deflate:t,inflate:e}=d;if((t||e)&&(Ei.workerScripts||(Ei.workerScripts={})),t){if(!Array.isArray(t))throw new Error("workerScripts.deflate must be an array");Ei.workerScripts.deflate=t}if(e){if(!Array.isArray(e))throw new Error("workerScripts.inflate must be an array");Ei.workerScripts.inflate=e}}}function Ci(t,e){e!==vi&&(Ei[t]=e)}const Ri=[];for(let t=0;t<256;t++){let e=t;for(let t=0;t<8;t++)1&e?e=e>>>1^3988292384:e>>>=1;Ri[t]=e}class Ii{constructor(t){this.crc=t||-1}append(t){let e=0|this.crc;for(let n=0,i=0|t.length;n<i;n++)e=e>>>8^Ri[255&(e^t[n])];this.crc=e}get(){return~this.crc}}class Mi extends TransformStream{constructor(){let t;const e=new Ii;super({transform(t,n){e.append(t),n.enqueue(t)},flush(){const n=new Uint8Array(4);new DataView(n.buffer).setUint32(0,e.get()),t.value=n}}),t=this}}const zi={concat(t,e){if(0===t.length||0===e.length)return t.concat(e);const n=t[t.length-1],i=zi.getPartial(n);return 32===i?t.concat(e):zi._shiftRight(e,i,0|n,t.slice(0,t.length-1))},bitLength(t){const e=t.length;if(0===e)return 0;const n=t[e-1];return 32*(e-1)+zi.getPartial(n)},clamp(t,e){if(32*t.length<e)return t;const n=(t=t.slice(0,Math.ceil(e/32))).length;return e&=31,n>0&&e&&(t[n-1]=zi.partial(e,t[n-1]&2147483648>>e-1,1)),t},partial:(t,e,n)=>32===t?e:(n?0|e:e<<32-t)+1099511627776*t,getPartial:t=>Math.round(t/1099511627776)||32,_shiftRight(t,e,n,i){for(void 0===i&&(i=[]);e>=32;e-=32)i.push(n),n=0;if(0===e)return i.concat(t);for(let r=0;r<t.length;r++)i.push(n|t[r]>>>e),n=t[r]<<32-e;const r=t.length?t[t.length-1]:0,s=zi.getPartial(r);return i.push(zi.partial(e+s&31,e+s>32?n:i.pop(),1)),i}},Oi={bytes:{fromBits(t){const e=zi.bitLength(t)/8,n=new Uint8Array(e);let i;for(let r=0;r<e;r++)0==(3&r)&&(i=t[r/4]),n[r]=i>>>24,i<<=8;return n},toBits(t){const e=[];let n,i=0;for(n=0;n<t.length;n++)i=i<<8|t[n],3==(3&n)&&(e.push(i),i=0);return 3&n&&e.push(zi.partial(8*(3&n),i)),e}}},Ni=class{constructor(t){const e=this;e.blockSize=512,e._init=[1732584193,4023233417,2562383102,271733878,3285377520],e._key=[1518500249,1859775393,2400959708,3395469782],t?(e._h=t._h.slice(0),e._buffer=t._buffer.slice(0),e._length=t._length):e.reset()}reset(){const t=this;return t._h=t._init.slice(0),t._buffer=[],t._length=0,t}update(t){const e=this;"string"==typeof t&&(t=Oi.utf8String.toBits(t));const n=e._buffer=zi.concat(e._buffer,t),i=e._length,r=e._length=i+zi.bitLength(t);if(r>9007199254740991)throw new Error("Cannot hash more than 2^53 - 1 bits");const s=new Uint32Array(n);let a=0;for(let t=e.blockSize+i-(e.blockSize+i&e.blockSize-1);t<=r;t+=e.blockSize)e._block(s.subarray(16*a,16*(a+1))),a+=1;return n.splice(0,16*a),e}finalize(){const t=this;let e=t._buffer;const n=t._h;e=zi.concat(e,[zi.partial(1,1)]);for(let t=e.length+2;15&t;t++)e.push(0);for(e.push(Math.floor(t._length/4294967296)),e.push(0|t._length);e.length;)t._block(e.splice(0,16));return t.reset(),n}_f(t,e,n,i){return t<=19?e&n|~e&i:t<=39?e^n^i:t<=59?e&n|e&i|n&i:t<=79?e^n^i:void 0}_S(t,e){return e<<t|e>>>32-t}_block(t){const e=this,n=e._h,i=Array(80);for(let e=0;e<16;e++)i[e]=t[e];let r=n[0],s=n[1],a=n[2],o=n[3],l=n[4];for(let t=0;t<=79;t++){t>=16&&(i[t]=e._S(1,i[t-3]^i[t-8]^i[t-14]^i[t-16]));const n=e._S(5,r)+e._f(t,s,a,o)+l+i[t]+e._key[Math.floor(t/20)]|0;l=o,o=a,a=e._S(30,s),s=r,r=n}n[0]=n[0]+r|0,n[1]=n[1]+s|0,n[2]=n[2]+a|0,n[3]=n[3]+o|0,n[4]=n[4]+l|0}},Bi={getRandomValues(t){const e=new Uint32Array(t.buffer),n=t=>{let e=987654321;const n=4294967295;return function(){return e=36969*(65535&e)+(e>>16)&n,(((e<<16)+(t=18e3*(65535&t)+(t>>16)&n)&n)/4294967296+.5)*(Math.random()>.5?1:-1)}};for(let i,r=0;r<t.length;r+=4){const t=n(4294967296*(i||Math.random()));i=987654071*t(),e[r/4]=4294967296*t()|0}return t}},Fi={importKey:t=>new Fi.hmacSha1(Oi.bytes.toBits(t)),pbkdf2(t,e,n,i){if(n=n||1e4,i<0||n<0)throw new Error("invalid params to pbkdf2");const r=1+(i>>5)<<2;let s,a,o,l,c;const h=new ArrayBuffer(r),d=new DataView(h);let u=0;const f=zi;for(e=Oi.bytes.toBits(e),c=1;u<(r||1);c++){for(s=a=t.encrypt(f.concat(e,[c])),o=1;o<n;o++)for(a=t.encrypt(a),l=0;l<a.length;l++)s[l]^=a[l];for(o=0;u<(r||1)&&o<s.length;o++)d.setInt32(u,s[o]),u+=4}return h.slice(0,i/8)},hmacSha1:class{constructor(t){const e=this,n=e._hash=Ni,i=[[],[]];e._baseHash=[new n,new n];const r=e._baseHash[0].blockSize/32;t.length>r&&(t=(new n).update(t).finalize());for(let e=0;e<r;e++)i[0][e]=909522486^t[e],i[1][e]=1549556828^t[e];e._baseHash[0].update(i[0]),e._baseHash[1].update(i[1]),e._resultHash=new n(e._baseHash[0])}reset(){const t=this;t._resultHash=new t._hash(t._baseHash[0]),t._updated=!1}update(t){this._updated=!0,this._resultHash.update(t)}digest(){const t=this,e=t._resultHash.finalize(),n=new t._hash(t._baseHash[1]).update(e).finalize();return t.reset(),n}encrypt(t){if(this._updated)throw new Error("encrypt on already updated hmac called!");return this.update(t),this.digest(t)}}},Ui="undefined"!=typeof crypto&&"function"==typeof crypto.getRandomValues,Di="Invalid password",Pi="Invalid signature",ji="zipjs-abort-check-password";function Wi(t){return Ui?crypto.getRandomValues(t):Bi.getRandomValues(t)}const \$i=16,Hi={name:"PBKDF2"},qi=Object.assign({hash:{name:"HMAC"}},Hi),Vi=Object.assign({iterations:1e3,hash:{name:"SHA-1"}},Hi),Xi=["deriveBits"],Gi=[8,12,16],Ki=[16,24,32],Ji=10,Yi=[0,0,0,0],Zi="undefined",Qi="function",tr=typeof crypto!=Zi,er=tr&&crypto.subtle,nr=tr&&typeof er!=Zi,ir=Oi.bytes,rr=class{constructor(t){const e=this;e._tables=[[[],[],[],[],[]],[[],[],[],[],[]]],e._tables[0][0][0]||e._precompute();const n=e._tables[0][4],i=e._tables[1],r=t.length;let s,a,o,l=1;if(4!==r&&6!==r&&8!==r)throw new Error("invalid aes key size");for(e._key=[a=t.slice(0),o=[]],s=r;s<4*r+28;s++){let t=a[s-1];(s%r==0||8===r&&s%r==4)&&(t=n[t>>>24]<<24^n[t>>16&255]<<16^n[t>>8&255]<<8^n[255&t],s%r==0&&(t=t<<8^t>>>24^l<<24,l=l<<1^283*(l>>7))),a[s]=a[s-r]^t}for(let t=0;s;t++,s--){const e=a[3&t?s:s-4];o[t]=s<=4||t<4?e:i[0][n[e>>>24]]^i[1][n[e>>16&255]]^i[2][n[e>>8&255]]^i[3][n[255&e]]}}encrypt(t){return this._crypt(t,0)}decrypt(t){return this._crypt(t,1)}_precompute(){const t=this._tables[0],e=this._tables[1],n=t[4],i=e[4],r=[],s=[];let a,o,l,c;for(let t=0;t<256;t++)s[(r[t]=t<<1^283*(t>>7))^t]=t;for(let h=a=0;!n[h];h^=o||1,a=s[a]||1){let s=a^a<<1^a<<2^a<<3^a<<4;s=s>>8^255&s^99,n[h]=s,i[s]=h,c=r[l=r[o=r[h]]];let d=16843009*c^65537*l^257*o^16843008*h,u=257*r[s]^16843008*s;for(let n=0;n<4;n++)t[n][h]=u=u<<24^u>>>8,e[n][s]=d=d<<24^d>>>8}for(let n=0;n<5;n++)t[n]=t[n].slice(0),e[n]=e[n].slice(0)}_crypt(t,e){if(4!==t.length)throw new Error("invalid aes block size");const n=this._key[e],i=n.length/4-2,r=[0,0,0,0],s=this._tables[e],a=s[0],o=s[1],l=s[2],c=s[3],h=s[4];let d,u,f,p=t[0]^n[0],g=t[e?3:1]^n[1],m=t[2]^n[2],b=t[e?1:3]^n[3],w=4;for(let t=0;t<i;t++)d=a[p>>>24]^o[g>>16&255]^l[m>>8&255]^c[255&b]^n[w],u=a[g>>>24]^o[m>>16&255]^l[b>>8&255]^c[255&p]^n[w+1],f=a[m>>>24]^o[b>>16&255]^l[p>>8&255]^c[255&g]^n[w+2],b=a[b>>>24]^o[p>>16&255]^l[g>>8&255]^c[255&m]^n[w+3],w+=4,p=d,g=u,m=f;for(let t=0;t<4;t++)r[e?3&-t:t]=h[p>>>24]<<24^h[g>>16&255]<<16^h[m>>8&255]<<8^h[255&b]^n[w++],d=p,p=g,g=m,m=b,b=d;return r}},sr=class{constructor(t,e){this._prf=t,this._initIv=e,this._iv=e}reset(){this._iv=this._initIv}update(t){return this.calculate(this._prf,t,this._iv)}incWord(t){if(255==(t>>24&255)){let e=t>>16&255,n=t>>8&255,i=255&t;255===e?(e=0,255===n?(n=0,255===i?i=0:++i):++n):++e,t=0,t+=e<<16,t+=n<<8,t+=i}else t+=1<<24;return t}incCounter(t){0===(t[0]=this.incWord(t[0]))&&(t[1]=this.incWord(t[1]))}calculate(t,e,n){let i;if(!(i=e.length))return[];const r=zi.bitLength(e);for(let r=0;r<i;r+=4){this.incCounter(n);const i=t.encrypt(n);e[r]^=i[0],e[r+1]^=i[1],e[r+2]^=i[2],e[r+3]^=i[3]}return zi.clamp(e,r)}},ar=Fi.hmacSha1;let or=tr&&nr&&typeof er.importKey==Qi,lr=tr&&nr&&typeof er.deriveBits==Qi;class cr extends TransformStream{constructor({password:t,signed:e,encryptionStrength:n,checkPasswordOnly:i}){super({start(){Object.assign(this,{ready:new Promise((t=>this.resolveReady=t)),password:t,signed:e,strength:n-1,pending:new Uint8Array})},async transform(t,e){const n=this,{password:r,strength:s,resolveReady:a,ready:o}=n;r?(await async function(t,e,n,i){const r=await ur(t,e,n,pr(i,0,Gi[e])),s=pr(i,Gi[e]);if(r[0]!=s[0]||r[1]!=s[1])throw new Error(Di)}(n,s,r,pr(t,0,Gi[s]+2)),t=pr(t,Gi[s]+2),i?e.error(new Error(ji)):a()):await o;const l=new Uint8Array(t.length-Ji-(t.length-Ji)%\$i);e.enqueue(dr(n,t,l,0,Ji,!0))},async flush(t){const{signed:e,ctr:n,hmac:i,pending:r,ready:s}=this;if(i&&n){await s;const a=pr(r,0,r.length-Ji),o=pr(r,r.length-Ji);let l=new Uint8Array;if(a.length){const t=mr(ir,a);i.update(t);const e=n.update(t);l=gr(ir,e)}if(e){const t=pr(gr(ir,i.digest()),0,Ji);for(let e=0;e<Ji;e++)if(t[e]!=o[e])throw new Error(Pi)}t.enqueue(l)}}})}}class hr extends TransformStream{constructor({password:t,encryptionStrength:e}){let n;super({start(){Object.assign(this,{ready:new Promise((t=>this.resolveReady=t)),password:t,strength:e-1,pending:new Uint8Array})},async transform(t,e){const n=this,{password:i,strength:r,resolveReady:s,ready:a}=n;let o=new Uint8Array;i?(o=await async function(t,e,n){const i=Wi(new Uint8Array(Gi[e]));return fr(i,await ur(t,e,n,i))}(n,r,i),s()):await a;const l=new Uint8Array(o.length+t.length-t.length%\$i);l.set(o,0),e.enqueue(dr(n,t,l,o.length,0))},async flush(t){const{ctr:e,hmac:i,pending:r,ready:s}=this;if(i&&e){await s;let a=new Uint8Array;if(r.length){const t=e.update(mr(ir,r));i.update(t),a=gr(ir,t)}n.signature=gr(ir,i.digest()).slice(0,Ji),t.enqueue(fr(a,n.signature))}}}),n=this}}function dr(t,e,n,i,r,s){const{ctr:a,hmac:o,pending:l}=t,c=e.length-r;let h;for(l.length&&(e=fr(l,e),n=function(t,e){if(e&&e>t.length){const n=t;(t=new Uint8Array(e)).set(n,0)}return t}(n,c-c%\$i)),h=0;h<=c-\$i;h+=\$i){const t=mr(ir,pr(e,h,h+\$i));s&&o.update(t);const r=a.update(t);s||o.update(r),n.set(gr(ir,r),h+i)}return t.pending=pr(e,h),n}async function ur(t,e,n,i){t.password=null;const r=function(t){if("undefined"==typeof TextEncoder){t=unescape(encodeURIComponent(t));const e=new Uint8Array(t.length);for(let n=0;n<e.length;n++)e[n]=t.charCodeAt(n);return e}return(new TextEncoder).encode(t)}(n),s=await async function(t,e,n,i,r){if(!or)return Fi.importKey(e);try{return await er.importKey("raw",e,n,!1,r)}catch(t){return or=!1,Fi.importKey(e)}}(0,r,qi,0,Xi),a=await async function(t,e,n){if(!lr)return Fi.pbkdf2(e,t.salt,Vi.iterations,n);try{return await er.deriveBits(t,e,n)}catch(i){return lr=!1,Fi.pbkdf2(e,t.salt,Vi.iterations,n)}}(Object.assign({salt:i},Vi),s,8*(2*Ki[e]+2)),o=new Uint8Array(a),l=mr(ir,pr(o,0,Ki[e])),c=mr(ir,pr(o,Ki[e],2*Ki[e])),h=pr(o,2*Ki[e]);return Object.assign(t,{keys:{key:l,authentication:c,passwordVerification:h},ctr:new sr(new rr(l),Array.from(Yi)),hmac:new ar(c)}),h}function fr(t,e){let n=t;return t.length+e.length&&(n=new Uint8Array(t.length+e.length),n.set(t,0),n.set(e,t.length)),n}function pr(t,e,n){return t.subarray(e,n)}function gr(t,e){return t.fromBits(e)}function mr(t,e){return t.toBits(e)}class br extends TransformStream{constructor({password:t,passwordVerification:e,checkPasswordOnly:n}){super({start(){Object.assign(this,{password:t,passwordVerification:e}),vr(this,t)},transform(t,e){const i=this;if(i.password){const e=yr(i,t.subarray(0,12));if(i.password=null,e[11]!=i.passwordVerification)throw new Error(Di);t=t.subarray(12)}n?e.error(new Error(ji)):e.enqueue(yr(i,t))}})}}class wr extends TransformStream{constructor({password:t,passwordVerification:e}){super({start(){Object.assign(this,{password:t,passwordVerification:e}),vr(this,t)},transform(t,e){const n=this;let i,r;if(n.password){n.password=null;const e=Wi(new Uint8Array(12));e[11]=n.passwordVerification,i=new Uint8Array(t.length+e.length),i.set(xr(n,e),0),r=12}else i=new Uint8Array(t.length),r=0;i.set(xr(n,t),r),e.enqueue(i)}})}}function yr(t,e){const n=new Uint8Array(e.length);for(let i=0;i<e.length;i++)n[i]=_r(t)^e[i],kr(t,n[i]);return n}function xr(t,e){const n=new Uint8Array(e.length);for(let i=0;i<e.length;i++)n[i]=_r(t)^e[i],kr(t,e[i]);return n}function vr(t,e){const n=[305419896,591751049,878082192];Object.assign(t,{keys:n,crcKey0:new Ii(n[0]),crcKey2:new Ii(n[2])});for(let n=0;n<e.length;n++)kr(t,e.charCodeAt(n))}function kr(t,e){let[n,i,r]=t.keys;t.crcKey0.append([e]),n=~t.crcKey0.get(),i=Ar(Math.imul(Ar(i+Sr(n)),134775813)+1),t.crcKey2.append([i>>>24]),r=~t.crcKey2.get(),t.keys=[n,i,r]}function _r(t){const e=2|t.keys[2];return Sr(Math.imul(e,1^e)>>>8)}function Sr(t){return 255&t}function Ar(t){return 4294967295&t}const Lr="deflate-raw";class Er extends TransformStream{constructor(t,{chunkSize:e,CompressionStream:n,CompressionStreamNative:i}){super({});const{compressed:r,encrypted:s,useCompressionStream:a,zipCrypto:o,signed:l,level:c}=t,h=this;let d,u,f=Cr(super.readable);s&&!o||!l||(d=new Mi,f=Mr(f,d)),r&&(f=Ir(f,a,{level:c,chunkSize:e},i,n)),s&&(o?f=Mr(f,new wr(t)):(u=new hr(t),f=Mr(f,u))),Rr(h,f,(()=>{let t;s&&!o&&(t=u.signature),s&&!o||!l||(t=new DataView(d.value.buffer).getUint32(0)),h.signature=t}))}}class Tr extends TransformStream{constructor(t,{chunkSize:e,DecompressionStream:n,DecompressionStreamNative:i}){super({});const{zipCrypto:r,encrypted:s,signed:a,signature:o,compressed:l,useCompressionStream:c}=t;let h,d,u=Cr(super.readable);s&&(r?u=Mr(u,new br(t)):(d=new cr(t),u=Mr(u,d))),l&&(u=Ir(u,c,{chunkSize:e},i,n)),s&&!r||!a||(h=new Mi,u=Mr(u,h)),Rr(this,u,(()=>{if((!s||r)&&a){const t=new DataView(h.value.buffer);if(o!=t.getUint32(0,!1))throw new Error(Pi)}}))}}function Cr(t){return Mr(t,new TransformStream({transform(t,e){t&&t.length&&e.enqueue(t)}}))}function Rr(t,e,n){e=Mr(e,new TransformStream({flush:n})),Object.defineProperty(t,"readable",{get:()=>e})}function Ir(t,e,n,i,r){try{t=Mr(t,new(e&&i?i:r)(Lr,n))}catch(i){if(!e)throw i;t=Mr(t,new r(Lr,n))}return t}function Mr(t,e){return t.pipeThrough(e)}const zr="message",Or="pull",Nr="data",Br="ack",Fr="close",Ur="inflate";class Dr extends TransformStream{constructor(t,e){super({});const n=this,{codecType:i}=t;let r;i.startsWith("deflate")?r=Er:i.startsWith(Ur)&&(r=Tr);let s=0;const a=new r(t,e),o=super.readable,l=new TransformStream({transform(t,e){t&&t.length&&(s+=t.length,e.enqueue(t))},flush(){const{signature:t}=a;Object.assign(n,{signature:t,size:s})}});Object.defineProperty(n,"readable",{get:()=>o.pipeThrough(a).pipeThrough(l)})}}const Pr=typeof Worker!=ki;class jr{constructor(t,{readable:e,writable:n},{options:i,config:r,streamOptions:s,useWebWorkers:a,transferStreams:o,scripts:l},c){const{signal:h}=s;return Object.assign(t,{busy:!0,readable:e.pipeThrough(new Wr(e,s,r),{signal:h}),writable:n,options:Object.assign({},i),scripts:l,transferStreams:o,terminate(){const{worker:e,busy:n}=t;e&&!n&&(e.terminate(),t.interface=null)},onTaskFinished(){t.busy=!1,c(t)}}),(a&&Pr?qr:Hr)(t,r)}}class Wr extends TransformStream{constructor(t,{onstart:e,onprogress:n,size:i,onend:r},{chunkSize:s}){let a=0;super({start(){e&&\$r(e,i)},async transform(t,e){a+=t.length,n&&await \$r(n,a,i),e.enqueue(t)},flush(){t.size=a,r&&\$r(r,a)}},{highWaterMark:1,size:()=>s})}}async function \$r(t,...e){try{await t(...e)}catch(t){}}function Hr(t,e){return{run:()=>async function({options:t,readable:e,writable:n,onTaskFinished:i},r){const s=new Dr(t,r);try{await e.pipeThrough(s).pipeTo(n,{preventClose:!0,preventAbort:!0});const{signature:t,size:i}=s;return{signature:t,size:i}}finally{i()}}(t,e)}}function qr(t,{baseURL:e,chunkSize:n}){return t.interface||Object.assign(t,{worker:Gr(t.scripts[0],e,t),interface:{run:()=>async function(t,e){let n,i;const r=new Promise(((t,e)=>{n=t,i=e}));Object.assign(t,{reader:null,writer:null,resolveResult:n,rejectResult:i,result:r});const{readable:s,options:a,scripts:o}=t,{writable:l,closed:c}=function(t){const e=t.getWriter();let n;const i=new Promise((t=>n=t)),r=new WritableStream({async write(t){await e.ready,await e.write(t)},close(){e.releaseLock(),n()},abort:t=>e.abort(t)});return{writable:r,closed:i}}(t.writable);Kr({type:"start",scripts:o.slice(1),options:a,config:e,readable:s,writable:l},t)||Object.assign(t,{reader:s.getReader(),writer:l.getWriter()});const h=await r;try{await l.getWriter().close()}catch(t){}return await c,h}(t,{chunkSize:n})}}),t.interface}let Vr=!0,Xr=!0;function Gr(t,e,n){const i={type:"module"};let r,s;typeof t==_i&&(t=t());try{r=new URL(t,e)}catch(e){r=t}if(Vr)try{s=new Worker(r)}catch(t){Vr=!1,s=new Worker(r,i)}else s=new Worker(r,i);return s.addEventListener(zr,(t=>async function({data:t},e){const{type:n,value:i,messageId:r,result:s,error:a}=t,{reader:o,writer:l,resolveResult:c,rejectResult:h,onTaskFinished:d}=e;try{if(a){const{message:t,stack:e,code:n,name:i}=a,r=new Error(t);Object.assign(r,{stack:e,code:n,name:i}),u(r)}else{if(n==Or){const{value:t,done:n}=await o.read();Kr({type:Nr,value:t,done:n,messageId:r},e)}n==Nr&&(await l.ready,await l.write(new Uint8Array(i)),Kr({type:Br,messageId:r},e)),n==Fr&&u(null,s)}}catch(a){u(a)}function u(t,e){t?h(t):c(e),l&&l.releaseLock(),d()}}(t,n))),s}function Kr(t,{worker:e,writer:n,onTaskFinished:i,transferStreams:r}){try{let{value:i,readable:s,writable:a}=t;const o=[];if(i&&(t.value=i.buffer,o.push(t.value)),r&&Xr?(s&&o.push(s),a&&o.push(a)):t.readable=t.writable=null,o.length)try{return e.postMessage(t,o),!0}catch(n){Xr=!1,t.readable=t.writable=null,e.postMessage(t)}else e.postMessage(t)}catch(t){throw n&&n.releaseLock(),i(),t}}let Jr=[];const Yr=[];let Zr=0;function Qr(t){const{terminateTimeout:e}=t;e&&(clearTimeout(e),t.terminateTimeout=null)}const ts=65536,es="writable";class ns{constructor(){this.size=0}init(){this.initialized=!0}}class is extends ns{get readable(){const t=this,{chunkSize:e=ts}=t,n=new ReadableStream({start(){this.chunkOffset=0},async pull(i){const{offset:r=0,size:s,diskNumberStart:a}=n,{chunkOffset:o}=this;i.enqueue(await ds(t,r+o,Math.min(e,s-o),a)),o+e>s?i.close():this.chunkOffset+=e}});return n}}class rs extends is{constructor(t){super(),Object.assign(this,{blob:t,size:t.size})}async readUint8Array(t,e){const n=this,i=t+e,r=t||i<n.size?n.blob.slice(t,i):n.blob;let s=await r.arrayBuffer();return s.byteLength>e&&(s=s.slice(t,i)),new Uint8Array(s)}}class ss extends ns{constructor(t){super();const e=new TransformStream,n=[];t&&n.push(["Content-Type",t]),Object.defineProperty(this,es,{get:()=>e.writable}),this.blob=new Response(e.readable,{headers:n}).blob()}getData(){return this.blob}}class as extends ss{constructor(t){super(t),Object.assign(this,{encoding:t,utf8:!t||"utf-8"==t.toLowerCase()})}async getData(){const{encoding:t,utf8:e}=this,n=await super.getData();if(n.text&&e)return n.text();{const e=new FileReader;return new Promise(((i,r)=>{Object.assign(e,{onload:({target:t})=>i(t.result),onerror:()=>r(e.error)}),e.readAsText(n,t)}))}}}class os extends is{constructor(t){super(),this.readers=t}async init(){const t=this,{readers:e}=t;t.lastDiskNumber=0,t.lastDiskOffset=0,await Promise.all(e.map((async(n,i)=>{await n.init(),i!=e.length-1&&(t.lastDiskOffset+=n.size),t.size+=n.size}))),super.init()}async readUint8Array(t,e,n=0){const i=this,{readers:r}=this;let s,a=n;-1==a&&(a=r.length-1);let o=t;for(;o>=r[a].size;)o-=r[a].size,a++;const l=r[a],c=l.size;if(o+e<=c)s=await ds(l,o,e);else{const r=c-o;s=new Uint8Array(e),s.set(await ds(l,o,r)),s.set(await i.readUint8Array(t+r,e-r,n),r)}return i.lastDiskNumber=Math.max(a,i.lastDiskNumber),s}}class ls extends ns{constructor(t,e=4294967295){super();const n=this;let i,r,s;Object.assign(n,{diskNumber:0,diskOffset:0,size:0,maxSize:e,availableSize:e});const a=new WritableStream({async write(e){const{availableSize:a}=n;if(s)e.length>=a?(await o(e.slice(0,a)),await l(),n.diskOffset+=i.size,n.diskNumber++,s=null,await this.write(e.slice(a))):await o(e);else{const{value:a,done:o}=await t.next();if(o&&!a)throw new Error("Writer iterator completed too soon");i=a,i.size=0,i.maxSize&&(n.maxSize=i.maxSize),n.availableSize=n.maxSize,await cs(i),r=a.writable,s=r.getWriter(),await this.write(e)}},async close(){await s.ready,await l()}});async function o(t){const e=t.length;e&&(await s.ready,await s.write(t),i.size+=e,n.size+=e,n.availableSize-=e)}async function l(){r.size=i.size,await s.close()}Object.defineProperty(n,es,{get:()=>a})}}async function cs(t,e){t.init&&!t.initialized&&await t.init(e)}function hs(t){return Array.isArray(t)&&(t=new os(t)),t instanceof ReadableStream&&(t={readable:t}),t}function ds(t,e,n,i){return t.readUint8Array(e,n,i)}const us="\\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\\"#\$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ".split(""),fs=256==us.length;function ps(t,e){return e&&"cp437"==e.trim().toLowerCase()?function(t){if(fs){let e="";for(let n=0;n<t.length;n++)e+=us[t[n]];return e}return(new TextDecoder).decode(t)}(t):new TextDecoder(e).decode(t)}const gs="filename",ms="rawFilename",bs="comment",ws="rawComment",ys="uncompressedSize",xs="compressedSize",vs="offset",ks="diskNumberStart",_s="lastModDate",Ss="rawLastModDate",As="lastAccessDate",Ls="creationDate",Es=[gs,ms,xs,ys,_s,Ss,bs,ws,As,Ls,vs,ks,ks,"internalFileAttribute","externalFileAttribute","msDosCompatible","zip64","directory","bitFlag","encrypted","signature","filenameUTF8","commentUTF8","compressionMethod","version","versionMadeBy","extraField","rawExtraField","extraFieldZip64","extraFieldUnicodePath","extraFieldUnicodeComment","extraFieldAES","extraFieldNTFS","extraFieldExtendedTimestamp"];class Ts{constructor(t){Es.forEach((e=>this[e]=t[e]))}}const Cs="File format is not recognized",Rs="Compression method not supported",Is="Split zip file",Ms="utf-8",zs="cp437",Os=[[ys,bi],[xs,bi],[vs,bi],[ks,wi]],Ns={[wi]:{getValue:Vs,bytes:4},[bi]:{getValue:Xs,bytes:8}};class Bs{constructor(t,e={}){Object.assign(this,{reader:hs(t),options:e,config:Ei})}async*getEntriesGenerator(t={}){const e=this;let{reader:n}=e;const{config:i}=e;if(await cs(n),n.size!==vi&&n.readUint8Array||(n=new rs(await new Response(n.readable).blob()),await cs(n)),n.size<22)throw new Error(Cs);n.chunkSize=function(t){return Math.max(t.chunkSize,64)}(i);const r=await async function(t,e,n,i,r){const s=new Uint8Array(4);return function(t,e,n){t.setUint32(0,101010256,!0)}(Gs(s)),await a(22)||await a(Math.min(1048582,n));async function a(e){const i=n-e,r=await ds(t,i,e);for(let t=r.length-22;t>=0;t--)if(r[t]==s[0]&&r[t+1]==s[1]&&r[t+2]==s[2]&&r[t+3]==s[3])return{offset:i+t,buffer:r.slice(t,t+22).buffer}}}(n,0,n.size);if(!r)throw 134695760==Vs(Gs(await ds(n,0,4)))?new Error(Is):new Error("End of central directory not found");const s=Gs(r);let a=Vs(s,12),o=Vs(s,16);const l=r.offset,c=qs(s,20),h=l+22+c;let d=qs(s,4);const u=n.lastDiskNumber||0;let f=qs(s,6),p=qs(s,8),g=0,m=0;if(o==bi||a==bi||p==wi||f==wi){const t=Gs(await ds(n,r.offset-20,20));if(117853008!=Vs(t,0))throw new Error("End of Zip64 central directory not found");o=Xs(t,8);let e=await ds(n,o,56,-1),i=Gs(e);const s=r.offset-20-56;if(Vs(i,0)!=xi&&o!=s){const t=o;o=s,g=o-t,e=await ds(n,o,56,-1),i=Gs(e)}if(Vs(i,0)!=xi)throw new Error("End of Zip64 central directory locator not found");d==wi&&(d=Vs(i,16)),f==wi&&(f=Vs(i,20)),p==wi&&(p=Xs(i,32)),a==bi&&(a=Xs(i,40)),o-=a}if(u!=d)throw new Error(Is);if(o<0||o>=n.size)throw new Error(Cs);let b=0,w=await ds(n,o,a,f),y=Gs(w);if(a){const t=r.offset-a;if(Vs(y,b)!=yi&&o!=t){const e=o;o=t,g=o-e,w=await ds(n,o,a,f),y=Gs(w)}}const x=r.offset-o-(n.lastDiskOffset||0);if(a!=x&&x>=0&&(a=x,w=await ds(n,o,a,f),y=Gs(w)),o<0||o>=n.size)throw new Error(Cs);const v=js(e,t,"filenameEncoding"),k=js(e,t,"commentEncoding");for(let r=0;r<p;r++){const s=new Fs(n,i,e.options);if(Vs(y,b)!=yi)throw new Error("Central directory header not found");Us(s,y,b+6);const a=Boolean(s.bitFlag.languageEncodingFlag),o=b+46,l=o+s.filenameLength,c=l+s.extraFieldLength,h=qs(y,b+4),d=0==(0&h),u=w.subarray(o,l),f=qs(y,b+32),x=c+f,_=w.subarray(c,x),S=a,A=a,L=d&&16==(16&Hs(y,b+38)),E=Vs(y,b+42)+g;Object.assign(s,{versionMadeBy:h,msDosCompatible:d,compressedSize:0,uncompressedSize:0,commentLength:f,directory:L,offset:E,diskNumberStart:qs(y,b+34),internalFileAttribute:qs(y,b+36),externalFileAttribute:Vs(y,b+38),rawFilename:u,filenameUTF8:S,commentUTF8:A,rawExtraField:w.subarray(l,c)});const[T,C]=await Promise.all([ps(u,S?Ms:v||zs),ps(_,A?Ms:k||zs)]);Object.assign(s,{rawComment:_,filename:T,comment:C,directory:L||T.endsWith("/")}),m=Math.max(E,m),await Ds(s,s,y,b+6);const R=new Ts(s);R.getData=(t,e)=>s.getData(t,R,e),b=x;const{onprogress:I}=t;if(I)try{await I(r+1,p,new Ts(s))}catch(t){}yield R}const _=js(e,t,"extractPrependedData"),S=js(e,t,"extractAppendedData");return _&&(e.prependedData=m>0?await ds(n,0,m):new Uint8Array),e.comment=c?await ds(n,l+22,c):new Uint8Array,S&&(e.appendedData=h<n.size?await ds(n,h,n.size-h):new Uint8Array),!0}async getEntries(t={}){const e=[];for await(const n of this.getEntriesGenerator(t))e.push(n);return e}async close(){}}class Fs{constructor(t,e,n){Object.assign(this,{reader:t,config:e,options:n})}async getData(t,e,n={}){const i=this,{reader:r,offset:s,diskNumberStart:a,extraFieldAES:o,compressionMethod:l,config:c,bitFlag:h,signature:d,rawLastModDate:u,uncompressedSize:f,compressedSize:p}=i,g=e.localDirectory={},m=Gs(await ds(r,s,30,a));let b=js(i,n,"password");if(b=b&&b.length&&b,o&&99!=o.originalCompressionMethod)throw new Error(Rs);if(0!=l&&8!=l)throw new Error(Rs);if(67324752!=Vs(m,0))throw new Error("Local file header not found");Us(g,m,4),g.rawExtraField=g.extraFieldLength?await ds(r,s+30+g.filenameLength,g.extraFieldLength,a):new Uint8Array,await Ds(i,g,m,4,!0),Object.assign(e,{lastAccessDate:g.lastAccessDate,creationDate:g.creationDate});const w=i.encrypted&&g.encrypted,y=w&&!o;if(w){if(!y&&o.strength===vi)throw new Error("Encryption method not supported");if(!b)throw new Error("File contains encrypted entry")}const x=s+30+g.filenameLength+g.extraFieldLength,v=p,k=r.readable;Object.assign(k,{diskNumberStart:a,offset:x,size:v});const _=js(i,n,"signal"),S=js(i,n,"checkPasswordOnly");S&&(t=new WritableStream),t=function(t){t.writable===vi&&typeof t.next==_i&&(t=new ls(t)),t instanceof WritableStream&&(t={writable:t});const{writable:e}=t;return e.size===vi&&(e.size=0),t instanceof ls||Object.assign(t,{diskNumber:0,diskOffset:0,availableSize:1/0,maxSize:1/0}),t}(t),await cs(t,f);const{writable:A}=t,{onstart:L,onprogress:E,onend:T}=n,C={options:{codecType:Ur,password:b,zipCrypto:y,encryptionStrength:o&&o.strength,signed:js(i,n,"checkSignature"),passwordVerification:y&&(h.dataDescriptor?u>>>8&255:d>>>24&255),signature:d,compressed:0!=l,encrypted:w,useWebWorkers:js(i,n,"useWebWorkers"),useCompressionStream:js(i,n,"useCompressionStream"),transferStreams:js(i,n,"transferStreams"),checkPasswordOnly:S},config:c,streamOptions:{signal:_,size:v,onstart:L,onprogress:E,onend:T}};let R=0;try{({outputSize:R}=await async function(t,e){const{options:n,config:i}=e,{transferStreams:r,useWebWorkers:s,useCompressionStream:a,codecType:o,compressed:l,signed:c,encrypted:h}=n,{workerScripts:d,maxWorkers:u,terminateWorkerTimeout:f}=i;e.transferStreams=r||r===vi;const p=!(l||c||h||e.transferStreams);let g;e.useWebWorkers=!p&&(s||s===vi&&i.useWebWorkers),e.scripts=e.useWebWorkers&&d?d[o]:[],n.useCompressionStream=a||a===vi&&i.useCompressionStream;const m=Jr.find((t=>!t.busy));if(m)Qr(m),g=new jr(m,t,e,b);else if(Jr.length<u){const n={indexWorker:Zr};Zr++,Jr.push(n),g=new jr(n,t,e,b)}else g=await new Promise((n=>Yr.push({resolve:n,stream:t,workerOptions:e})));return g.run();function b(t){if(Yr.length){const[{resolve:e,stream:n,workerOptions:i}]=Yr.splice(0,1);e(new jr(t,n,i,b))}else t.worker?(Qr(t),Number.isFinite(f)&&f>=0&&(t.terminateTimeout=setTimeout((()=>{Jr=Jr.filter((e=>e!=t)),t.terminate()}),f))):Jr=Jr.filter((e=>e!=t))}}({readable:k,writable:A},C))}catch(t){if(!S||t.message!=ji)throw t}finally{const t=js(i,n,"preventClose");A.size+=R,t||A.locked||await A.getWriter().close()}return S?void 0:t.getData?t.getData():A}}function Us(t,e,n){const i=t.rawBitFlag=qs(e,n+2),r=1==(1&i),s=Vs(e,n+6);Object.assign(t,{encrypted:r,version:qs(e,n),bitFlag:{level:(6&i)>>1,dataDescriptor:8==(8&i),languageEncodingFlag:2048==(2048&i)},rawLastModDate:s,lastModDate:Ws(s),filenameLength:qs(e,n+22),extraFieldLength:qs(e,n+24)})}async function Ds(t,e,n,i,r){const{rawExtraField:s}=e,a=e.extraField=new Map,o=Gs(new Uint8Array(s));let l=0;try{for(;l<s.length;){const t=qs(o,l),e=qs(o,l+2);a.set(t,{type:t,data:s.slice(l+4,l+4+e)}),l+=4+e}}catch(t){}const c=qs(n,i+4);Object.assign(e,{signature:Vs(n,i+10),uncompressedSize:Vs(n,i+18),compressedSize:Vs(n,i+14)});const h=a.get(1);h&&(function(t,e){e.zip64=!0;const n=Gs(t.data),i=Os.filter((([t,n])=>e[t]==n));for(let r=0,s=0;r<i.length;r++){const[a,o]=i[r];if(e[a]==o){const i=Ns[o];e[a]=t[a]=i.getValue(n,s),s+=i.bytes}else if(t[a])throw new Error("Zip64 extra field not found")}}(h,e),e.extraFieldZip64=h);const d=a.get(28789);d&&(await Ps(d,gs,ms,e,t),e.extraFieldUnicodePath=d);const u=a.get(25461);u&&(await Ps(u,bs,ws,e,t),e.extraFieldUnicodeComment=u);const f=a.get(39169);f?(function(t,e,n){const i=Gs(t.data),r=Hs(i,4);Object.assign(t,{vendorVersion:Hs(i,0),vendorId:Hs(i,2),strength:r,originalCompressionMethod:n,compressionMethod:qs(i,5)}),e.compressionMethod=t.compressionMethod}(f,e,c),e.extraFieldAES=f):e.compressionMethod=c;const p=a.get(10);p&&(function(t,e){const n=Gs(t.data);let i,r=4;try{for(;r<t.data.length&&!i;){const e=qs(n,r),s=qs(n,r+2);1==e&&(i=t.data.slice(r+4,r+4+s)),r+=4+s}}catch(t){}try{if(i&&24==i.length){const n=Gs(i),r=n.getBigUint64(0,!0),s=n.getBigUint64(8,!0),a=n.getBigUint64(16,!0);Object.assign(t,{rawLastModDate:r,rawLastAccessDate:s,rawCreationDate:a});const o={lastModDate:\$s(r),lastAccessDate:\$s(s),creationDate:\$s(a)};Object.assign(t,o),Object.assign(e,o)}}catch(t){}}(p,e),e.extraFieldNTFS=p);const g=a.get(21589);g&&(function(t,e,n){const i=Gs(t.data),r=Hs(i,0),s=[],a=[];n?(1==(1&r)&&(s.push(_s),a.push(Ss)),2==(2&r)&&(s.push(As),a.push("rawLastAccessDate")),4==(4&r)&&(s.push(Ls),a.push("rawCreationDate"))):t.data.length>=5&&(s.push(_s),a.push(Ss));let o=1;s.forEach(((n,r)=>{if(t.data.length>=o+4){const s=Vs(i,o);e[n]=t[n]=new Date(1e3*s);const l=a[r];t[l]=s}o+=4}))}(g,e,r),e.extraFieldExtendedTimestamp=g);const m=a.get(6534);m&&(e.extraFieldUSDZ=m)}async function Ps(t,e,n,i,r){const s=Gs(t.data),a=new Ii;a.append(r[n]);const o=Gs(new Uint8Array(4));o.setUint32(0,a.get(),!0);const l=Vs(s,1);Object.assign(t,{version:Hs(s,0),[e]:ps(t.data.subarray(5)),valid:!r.bitFlag.languageEncodingFlag&&l==Vs(o,0)}),t.valid&&(i[e]=t[e],i[e+"UTF8"]=!0)}function js(t,e,n){return e[n]===vi?t.options[n]:e[n]}function Ws(t){const e=(4294901760&t)>>16,n=65535&t;try{return new Date(1980+((65024&e)>>9),((480&e)>>5)-1,31&e,(63488&n)>>11,(2016&n)>>5,2*(31&n),0)}catch(t){}}function \$s(t){return new Date(Number(t/BigInt(1e4)-BigInt(116444736e5)))}function Hs(t,e){return t.getUint8(e)}function qs(t,e){return t.getUint16(e,!0)}function Vs(t,e){return t.getUint32(e,!0)}function Xs(t,e){return Number(t.getBigUint64(e,!0))}function Gs(t){return new DataView(t.buffer)}Ti({Inflate:function(t){const e=new mi,n=t&&t.chunkSize?Math.floor(2*t.chunkSize):131072,i=new Uint8Array(n);let r=!1;e.inflateInit(),e.next_out=i,this.append=function(t,s){const a=[];let o,l,c=0,h=0,d=0;if(0!==t.length){e.next_in_index=0,e.next_in=t,e.avail_in=t.length;do{if(e.next_out_index=0,e.avail_out=n,0!==e.avail_in||r||(e.next_in_index=0,r=!0),o=e.inflate(0),r&&o===zn){if(0!==e.avail_in)throw new Error("inflating: bad input")}else if(o!==Tn&&o!==Cn)throw new Error("inflating: "+e.msg);if((r||o===Cn)&&e.avail_in===t.length)throw new Error("inflating: bad input");e.next_out_index&&(e.next_out_index===n?a.push(new Uint8Array(i)):a.push(i.subarray(0,e.next_out_index))),d+=e.next_out_index,s&&e.next_in_index>0&&e.next_in_index!=c&&(s(e.next_in_index),c=e.next_in_index)}while(e.avail_in>0||0===e.avail_out);return a.length>1?(l=new Uint8Array(d),a.forEach((function(t){l.set(t,h),h+=t.length}))):l=a[0]?new Uint8Array(a[0]):new Uint8Array,l}},this.flush=function(){e.inflateEnd()}}});const Ks=(t,e)=>\`\${t} of \${e}\`,Js=(t,e)=>e?\`Page \${t} of \${e}\`:\`Page \${t}\`,Ys=t=>{window.ReactNativeWebView.postMessage(JSON.stringify(t))},Zs=async t=>{const e=new Uint8Array(await t.slice(0,5).arrayBuffer());return 37===e[0]&&80===e[1]&&68===e[2]&&70===e[3]&&45===e[4]},Qs=async t=>{if(!t.size)return Ys({type:"onDisplayError",reason:"book-error-not-found"}),void ct("GETVIEW ERROR not founds");let e;if(await(async t=>{const e=new Uint8Array(await t.slice(0,4).arrayBuffer());return 80===e[0]&&75===e[1]&&3===e[2]&&4===e[3]})(t)){const n=await(async t=>{try{Ti({useWebWorkers:!1});const e=new Bs(new rs(t)),n=await e.getEntries(),i=new Map(n.map((t=>[t.filename,t]))),r=t=>(e,...n)=>i.has(e)?t(i.get(e),...n):null;return{entries:n,loadText:r((t=>t.getData(new as))),loadBlob:r(((t,e)=>t.getData(new ss(e)))),getSize:t=>i.get(t)?.uncompressedSize??0}}catch(t){ct("[makeZipLoader] "+t)}})(t);if((({name:t,type:e})=>"application/vnd.comicbook+zip"===e||t.endsWith(".cbz"))(t))ct("[GETVIEW] Making cbz"),e=(({entries:t,loadBlob:e,getSize:n},i)=>{const r=new Map,s=new Map,a=[".jpg",".jpeg",".png",".gif",".bmp",".webp",".svg"],o=t.map((t=>t.filename)).filter((t=>a.some((e=>t.endsWith(e))))).sort(),l={getCover:()=>e(o[0])};return l.metadata={title:i.name},l.sections=o.map((t=>({id:t,load:()=>(async t=>{if(r.has(t))return r.get(t);const n=URL.createObjectURL(await e(t)),i=URL.createObjectURL(new Blob([\`<img src="\${n}">\`],{type:"text/html"}));return s.set(t,[n,i]),r.set(t,i),i})(t),unload:()=>(t=>{s.get(t)?.forEach?.((t=>URL.revokeObjectURL(t))),s.delete(t),r.delete(t)})(t),size:n(t)}))),l.toc=o.map((t=>({label:t,href:t}))),l.rendition={layout:"pre-paginated"},l.resolveHref=t=>({index:l.sections.findIndex((e=>e.id===t))}),l.splitTOCHref=t=>[t,null],l.getTOCFragment=t=>t.documentElement,l.destroy=()=>{for(const t of s.values())for(const e of t)URL.revokeObjectURL(e)},l})(n,t);else if((({name:t,type:e})=>"application/x-zip-compressed-fb2"===e||t.endsWith(".fb2.zip")||t.endsWith(".fbz"))(t)){ct("[GETVIEW] Making fbz");const{entries:t}=n,i=t.find((t=>t.filename.endsWith(".fb2"))),r=await n.loadBlob((i??t[0]).filename);e=await Me(r)}else ct("[GETVIEW] Making epub"),e=await new we(n).init()}else await Zs(t)?e=await(async t=>{const e=new Uint8Array(await t.arrayBuffer()),n=await pdfjsLib.getDocument({data:e}).promise,i={rendition:{layout:"pre-paginated"}},r=(await n.getMetadata())?.info;i.metadata={title:r?.Title,author:r?.Author};const s=await n.getOutline();i.toc=s?.map(En);const a=new Map;return i.sections=Array.from({length:n.numPages}).map(((t,e)=>({id:e,load:async()=>{const t=a.get(e);if(t)return t;const i=await Ln(await n.getPage(e+1));return a.set(e,i),i},size:1e3}))),i.isExternal=t=>/^\\w+:/i.test(t),i.resolveHref=async t=>{const e=JSON.parse(t),i="string"==typeof e?await n.getDestination(e):e;return{index:await n.getPageIndex(i[0])}},i.splitTOCHref=async t=>{const e=JSON.parse(t),i="string"==typeof e?await n.getDestination(e):e;return[await n.getPageIndex(i[0]),null]},i.getTOCFragment=t=>t.documentElement,i.getCover=async()=>Ln(await n.getPage(1),!0),i})(t):await(async t=>"BOOKMOBI"===Ze(await t.slice(60,68).arrayBuffer()))(t)?(ct("[GETVIEW] Making mobi"),e=await new dn({unzlib:Dt}).open(t),ct("[GETVIEW] DONE MAKING MOBI")):(({name:t,type:e})=>"application/x-fictionbook+xml"===e||t.endsWith(".fb2"))(t)&&(ct("[GETVIEW] Making fb2"),e=await Me(t));return e||(Ys({type:"onDisplayError",reason:"unsupported-type"}),void ct("GETVIEW ERROR"))},ta=t=>{const e=t.getSelection();if(!e.rangeCount)return;const n=e.getRangeAt(0);return n.collapsed?void 0:n},ea=(t,e,n=1,i=1)=>({left:n*e.left+t.left,right:n*e.right+t.left,top:i*e.top+t.top,bottom:i*e.bottom+t.top}),na=({x:t,y:e})=>t>0&&e>0&&t<window.innerWidth&&e<window.innerHeight,ia=t=>{const e=(t.getRootNode?.()??t?.endContainer?.getRootNode?.())?.defaultView?.frameElement,n=(e?getComputedStyle(e).transform:"").match(/matrix\\((.+)\\)/),[i,,,r]=n?.[1]?.split(/\\s*,\\s*/)?.map((t=>parseFloat(t)))??[],s=e?.getBoundingClientRect()??{top:0,left:0},a=Array.from(t.getClientRects()),o=ea(s,a[0],i,r),l=ea(s,a.at(-1),i,r),c={point:{x:(o.left+o.right)/2,y:o.top},dir:"up"},h={point:{x:(l.left+l.right)/2,y:l.bottom},dir:"down"},d=na(c.point),u=na(h.point);return d||u?d?u?c.point.y>window.innerHeight-h.point.y?c:h:c:h:{point:{x:0,y:0}}},ra=t=>t.lang||t?.getAttributeNS?.("http://www.w3.org/XML/1998/namespace","lang")||(t.parentElement?ra(t.parentElement):void 0),sa=class{annotations=new Map;annotationsByValue=new Map;style={};isPdf;highlight_color="yellow";#Ce;constructor(t,e){this.initLocation=e,t&&this.getBookBlob(t).catch((e=>{var n=new Error("Cannot load book at "+t);ct(\`[READER] ERROR \${JSON.stringify(n)} or \${e}\`)}))}init=async()=>{this.view=document.createElement("foliate-view"),this.pageTotal=this.book.pageList,await this.view.open(this.book),document.body.append(this.view),this.#Re(),this.isPdf?this.initLocation?await this.view.goTo(Number(this.initLocation)):this.view.renderer.next():this.initLocation?await this.view.goTo(this.initLocation):this.view.renderer.next(),this.sectionFractions=this.view.getSectionFractions(),await this.getCover();const t={metadata:this.book.metadata,toc:this.book.toc,sectionFractions:this.view.getSectionFractions()};Ys({type:"onReady",book:t})};setTheme=({style:t,layout:e})=>{Object.assign(this.style,t);const{theme:n}=t,i=document.documentElement.style;i.setProperty("--bg",n.bg),i.setProperty("--fg",n.fg);const r=this.view?.renderer;r&&(r.setAttribute("flow",e.flow?"scrolled":"paginated"),r.setAttribute("gap",100*e.gap+"%"),r.setAttribute("max-inline-size",e.maxInlineSize+"px"),r.setAttribute("max-block-size",e.maxBlockSize+"px"),r.setAttribute("max-column-count",e.maxColumnCount),r.setStyles?.((({lineHeight:t,justify:e,hyphenate:n,theme:i,fontSize:r})=>\`\\n@namespace epub "http://www.idpf.org/2007/ops";\\n@media print {\\n    html {\\n        column-width: auto !important;\\n        height: auto !important;\\n        width: auto !important;\\n    }\\n}\\nhtml, body {\\n  background: none !important;\\n  color: \${i.fg};\\n  font-size: \${r}%;\\n}\\nbody *{\\n  background-color: \${i.bg} !important;\\n  color: inherit !important;\\n}\\nhtml, body, p, li, blockquote, dd {\\n    line-height: \${t};\\n    text-align: \${e?"justify":"start"};\\n    -webkit-hyphens: \${n?"auto":"manual"};\\n    hyphens: \${n?"auto":"manual"};\\n    -webkit-hyphenate-limit-before: 3;\\n    -webkit-hyphenate-limit-after: 2;\\n    -webkit-hyphenate-limit-lines: 2;\\n    hanging-punctuation: allow-end last;\\n    widows: 2;\\n}\\n/* prevent the above from overriding the align attribute */\\n[align="left"] { text-align: left; }\\n[align="right"] { text-align: right; }\\n[align="center"] { text-align: center; }\\n[align="justify"] { text-align: justify; }\\n\\npre {\\n    white-space: pre-wrap !important;\\n}\\naside[epub|type~="endnote"],\\naside[epub|type~="footnote"],\\naside[epub|type~="note"],\\naside[epub|type~="rearnote"] {\\n    display: none;\\n}\\n\`)(this.style))),"light"!==n.name?i.setProperty("--mode","screen"):i.setProperty("--mode","multiply")};#Re=()=>{this.view.addEventListener("relocate",(t=>{if(this.#Ce===t.detail.fraction)return;const{heads:e,feet:n}=this.view.renderer;if(e){const{tocItem:n}=t.detail;e.at(-1).innerText=n?.label??"",e.length>1&&(e[0].innerText=this.book.metadata.title)}if(n){const{pageItem:e,location:{current:i,next:r,total:s}}=t.detail;if(e)n.at(-1).innerText=Js(e.label,this.pageTotal),n.length>1&&(n[0].innerText=Ks(i+1,s));else if(n[0].innerText=Ks(i+1,s),n.length>1){const t=1-1/n.length,e=Math.floor((1-t)*i+t*r);n.at(-1).innerText=Ks(e+1,s)}}Ys({type:"onLocationChange",...t.detail}),this.#Ce=t.detail.fraction})),this.view.addEventListener("create-overlay",(t=>{const{index:e}=t.detail,n=this.annotations.get(e);if(n)for(const t of n)this.view.addAnnotation(t)})),this.view.addEventListener("show-annotation",(t=>{const{value:e,index:n,range:i}=t.detail,r=ia(i),s=this.annotationsByValue.get(e);s&&(s.range=i,this.currentlySelected=s,Ys({type:"annotationClick",index:n,range:i,value:e,pos:r}))})),this.view.addEventListener("draw-annotation",(t=>{const{draw:e,annotation:n,doc:i,range:r}=t.detail,{color:s}=n;if(["underline","squiggly","strikethrough"].includes(s)){const{defaultView:t}=i,n=r.startContainer,a=1===n.nodeType?n:n.parentElement,{writingMode:o}=t.getComputedStyle(a);e(C[s],{writingMode:o,color:this.highlight_color})}else e(C.highlight,{color:this.highlight_color})})),this.view.addEventListener("external-link",(t=>{t.preventDefault()})),this.view.addEventListener("load",(t=>this.#Lt(t)))};#Lt=t=>{const{doc:e,index:n}=t.detail;let i,r,s=!1;e.addEventListener("selectionchange",(()=>{const t=ta(e);if(!t)return;s=!0,this.view.renderer.pause=!0;const i=ia(t),r=this.view.getCFI(n,t),a=ra(t.commonAncestorContainer);this.doc=e,this.currentlySelected={index:n,range:t,lang:a,value:r,pos:i,created:(new Date).toISOString(),text:t.toString()}})),e.addEventListener("touchstart",(t=>{i=(new Date).getTime(),r={x:t.touches[0].screenX,y:t.touches[0].screenY},t.preventDefault()})),e.addEventListener("touchend",(t=>{var a=(new Date).getTime()-i;s||Ys({type:"pressEvent",touch:JSON.stringify({x:t.changedTouches[0].screenX,y:t.changedTouches[0].screenY}),isSelecting:s,duration:a,touchStart:r}),this.view.renderer.pause=!1,s=!1;const o=ta(e);if(!o)return;const l=ia(o),c=this.view.getCFI(n,o),h=ra(o.commonAncestorContainer);this.doc=e,this.currentlySelected={index:n,range:o,lang:h,value:c,pos:l,created:(new Date).toISOString(),text:o.toString()}}))};onSelectedResponse=({action:t})=>{switch(t){case"highlight":case"strikethrough":case"squiggly":case"underline":this.addAnnotation(t);break;case"copy":const e=this.currentlySelected.range.toString();Ys({type:"copyAction",value:e})}};addAnnotation=t=>{if(this.currentlySelected)return this.view.addAnnotation({value:this.currentlySelected.value,color:t||this.highlight_color},!1),this.currentlySelected.color=t||this.highlight_color,this.annotationsByValue.set(this.currentlySelected.value,this.currentlySelected),Ys({type:"newAnnotation",annotation:this.currentlySelected}),this.currentlySelected=null,this.doc?.getSelection().removeAllRanges(),!0};setAnnotations=t=>{t.forEach((t=>{this.view.addAnnotation(t);const e=this.annotations.get(t.index);e?e.push(t):this.annotations.set(t.index,[t]),this.annotationsByValue.set(t.value,t)}))};speakFromHere=()=>{};startTTS=()=>{};resumeTTS=()=>{};nextTTS=()=>{};showNext=t=>{Ys({type:"showNext",show:t.detail.show,label:null})};showPrevious=t=>{Ys({type:"showPrevious",show:t.detail.show,label:null})};async getCover(){try{const t=await(this.book.getCover?.()),e=t?await(t=>new Promise((e=>{const n=new FileReader;n.readAsDataURL(t),n.onloadend=()=>e(n.result.split(",")[1])})))(t):null;Ys({type:"cover",cover:e})}catch(t){return console.warn(t),console.warn("Failed to load cover"),null}}getBookBlob=t=>{var e;return e=function(t,e,n,i){var r,s="undefined"!=typeof window&&window.URL,a=s?"blob":"arraybuffer",o=new Sn,l=new XMLHttpRequest,c=XMLHttpRequest.prototype;for(r in"overrideMimeType"in c||Object.defineProperty(c,"overrideMimeType",{value:function(){}}),l.onreadystatechange=function(){if(this.readyState===XMLHttpRequest.DONE){var t=!1;if(""!==this.responseType&&"document"!==this.responseType||(t=this.responseXML),200===this.status||0===this.status||t){var n;if(!this.response&&!t)return o.reject({status:this.status,message:"Empty Response",stack:(new Error).stack}),o.promise;if(403===this.status)return o.reject({status:this.status,response:this.response,message:"Forbidden",stack:(new Error).stack}),o.promise;n=t?this.responseXML:_n(e)?kn(this.response,"text/xml"):"xhtml"==e?kn(this.response,"application/xhtml+xml"):"html"==e||"htm"==e?kn(this.response,"text/html"):"json"==e?JSON.parse(this.response):"blob"==e?s?this.response:new Blob([this.response]):this.response,o.resolve(n)}else o.reject({status:this.status,message:this.response,stack:(new Error).stack})}},l.onerror=function(t){o.reject(t)},l.open("GET",t,!0),i)l.setRequestHeader(r,i[r]);return"json"==e&&l.setRequestHeader("Accept","application/json"),e||(e=new An(t).extension),"blob"==e&&(l.responseType=a),_n(e)&&l.overrideMimeType("text/xml"),"binary"==e&&(l.responseType="arraybuffer"),l.send(),o.promise}(t,"binary").then(this.openEpub.bind(this)),e};openEpub=async(t,e)=>{var n=new Blob([t]),i=new File([n],this.path);this.isPdf=await Zs(i),this.book=await Qs(i),await this.init()}};return e.default})()));
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["foliate"] = factory();
+	else
+		root["foliate"] = factory();
+})(self, () => {
+return /******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	// The require scope
+/******/ 	var __webpack_require__ = {};
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (/* binding */ main)
+});
+
+;// CONCATENATED MODULE: ./foliate-js/epubcfi.js
+const findIndices = (arr, f) => arr.map((x, i, a) => f(x, i, a) ? i : null).filter(x => x != null);
+const splitAt = (arr, is) => [-1, ...is, arr.length].reduce(({
+  xs,
+  a
+}, b) => ({
+  xs: xs?.concat([arr.slice(a + 1, b)]) ?? [],
+  a: b
+}), {}).xs;
+const concatArrays = (a, b) => a.slice(0, -1).concat([a[a.length - 1].concat(b[0])]).concat(b.slice(1));
+const isNumber = /\\d/;
+const isCFI = /^epubcfi\\((.*)\\)\$/;
+const escapeCFI = str => str.replace(/[\\^[\\](),;=]/g, '^\$&');
+const wrap = x => isCFI.test(x) ? x : \`epubcfi(\${x})\`;
+const unwrap = x => x.match(isCFI)?.[1] ?? x;
+const lift = f => (...xs) => \`epubcfi(\${f(...xs.map(x => x.match(isCFI)?.[1] ?? x))})\`;
+const joinIndir = lift((...xs) => xs.join('!'));
+const tokenizer = str => {
+  const tokens = [];
+  let state,
+    escape,
+    value = '';
+  const push = x => (tokens.push(x), state = null, value = '');
+  const cat = x => (value += x, escape = false);
+  for (const char of Array.from(str.trim()).concat('')) {
+    if (char === '^' && !escape) {
+      escape = true;
+      continue;
+    }
+    if (state === '!') push(['!']);else if (state === ',') push([',']);else if (state === '/' || state === ':') {
+      if (isNumber.test(char)) {
+        cat(char);
+        continue;
+      } else push([state, parseInt(value)]);
+    } else if (state === '~') {
+      if (isNumber.test(char) || char === '.') {
+        cat(char);
+        continue;
+      } else push(['~', parseFloat(value)]);
+    } else if (state === '@') {
+      if (char === ':') {
+        push(['@', parseFloat(value)]);
+        state = '@';
+        continue;
+      }
+      if (isNumber.test(char) || char === '.') {
+        cat(char);
+        continue;
+      } else push(['@', parseFloat(value)]);
+    } else if (state === '[') {
+      if (char === ';' && !escape) {
+        push(['[', value]);
+        state = ';';
+      } else if (char === ',' && !escape) {
+        push(['[', value]);
+        state = '[';
+      } else if (char === ']' && !escape) push(['[', value]);else cat(char);
+      continue;
+    } else if (state?.startsWith(';')) {
+      if (char === '=' && !escape) {
+        state = \`;\${value}\`;
+        value = '';
+      } else if (char === ';' && !escape) {
+        push([state, value]);
+        state = ';';
+      } else if (char === ']' && !escape) push([state, value]);else cat(char);
+      continue;
+    }
+    if (char === '/' || char === ':' || char === '~' || char === '@' || char === '[' || char === '!' || char === ',') state = char;
+  }
+  return tokens;
+};
+const findTokens = (tokens, x) => findIndices(tokens, ([t]) => t === x);
+const parser = tokens => {
+  const parts = [];
+  let state;
+  for (const [type, val] of tokens) {
+    if (type === '/') parts.push({
+      index: val
+    });else {
+      const last = parts[parts.length - 1];
+      if (type === ':') last.offset = val;else if (type === '~') last.temporal = val;else if (type === '@') last.spatial = (last.spatial ?? []).concat(val);else if (type === ';s') last.side = val;else if (type === '[') {
+        if (state === '/' && val) last.id = val;else {
+          last.text = (last.text ?? []).concat(val);
+          continue;
+        }
+      }
+    }
+    state = type;
+  }
+  return parts;
+};
+
+// split at step indirections, then parse each part
+const parserIndir = tokens => splitAt(tokens, findTokens(tokens, '!')).map(parser);
+const parse = cfi => {
+  const tokens = tokenizer(unwrap(cfi));
+  const commas = findTokens(tokens, ',');
+  if (!commas.length) return parserIndir(tokens);
+  const [parent, start, end] = splitAt(tokens, commas).map(parserIndir);
+  return {
+    parent,
+    start,
+    end
+  };
+};
+const partToString = ({
+  index,
+  id,
+  offset,
+  temporal,
+  spatial,
+  text,
+  side
+}) => {
+  const param = side ? \`;s=\${side}\` : '';
+  return \`/\${index}\` + (id ? \`[\${escapeCFI(id)}\${param}]\` : '')
+  // "CFI expressions [..] SHOULD include an explicit character offset"
+  + (offset != null && index % 2 ? \`:\${offset}\` : '') + (temporal ? \`~\${temporal}\` : '') + (spatial ? \`@\${spatial.join(':')}\` : '') + (text || !id && side ? '[' + (text?.map(escapeCFI)?.join(',') ?? '') + param + ']' : '');
+};
+const toInnerString = parsed => parsed.parent ? [parsed.parent, parsed.start, parsed.end].map(toInnerString).join(',') : parsed.map(parts => parts.map(partToString).join('')).join('!');
+const epubcfi_toString = parsed => wrap(toInnerString(parsed));
+const collapse = (x, toEnd) => typeof x === 'string' ? epubcfi_toString(collapse(parse(x), toEnd)) : x.parent ? concatArrays(x.parent, x[toEnd ? 'end' : 'start']) : x;
+
+// create range CFI from two CFIs
+const buildRange = (from, to) => {
+  if (typeof from === 'string') from = parse(from);
+  if (typeof to === 'string') to = parse(to);
+  from = collapse(from);
+  to = collapse(to, true);
+  // ranges across multiple documents are not allowed; handle local paths only
+  const localFrom = from[from.length - 1],
+    localTo = to[to.length - 1];
+  const localParent = [],
+    localStart = [],
+    localEnd = [];
+  let pushToParent = true;
+  const len = Math.max(localFrom.length, localTo.length);
+  for (let i = 0; i < len; i++) {
+    const a = localFrom[i],
+      b = localTo[i];
+    pushToParent &&= a?.index === b?.index && !a?.offset && !b?.offset;
+    if (pushToParent) localParent.push(a);else {
+      if (a) localStart.push(a);
+      if (b) localEnd.push(b);
+    }
+  }
+  // copy non-local paths from \`from\`
+  const parent = from.slice(0, -1).concat([localParent]);
+  return epubcfi_toString({
+    parent,
+    start: [localStart],
+    end: [localEnd]
+  });
+};
+const compare = (a, b) => {
+  if (typeof a === 'string') a = parse(a);
+  if (typeof b === 'string') b = parse(b);
+  if (a.start || b.start) return compare(collapse(a), collapse(b)) || compare(collapse(a, true), collapse(b, true));
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const p = a[i],
+      q = b[i];
+    const maxIndex = Math.max(p.length, q.length) - 1;
+    for (let i = 0; i <= maxIndex; i++) {
+      const x = p[i],
+        y = q[i];
+      if (!x) return -1;
+      if (!y) return 1;
+      if (x.index > y.index) return 1;
+      if (x.index < y.index) return -1;
+      if (i === maxIndex) {
+        // TODO: compare temporal & spatial offsets
+        if (x.offset > y.offset) return 1;
+        if (x.offset < y.offset) return -1;
+      }
+    }
+  }
+  return 0;
+};
+const isTextNode = ({
+  nodeType
+}) => nodeType === 3 || nodeType === 4;
+const isElementNode = ({
+  nodeType
+}) => nodeType === 1;
+const getChildNodes = (node, filter) => {
+  const nodes = Array.from(node.childNodes)
+  // "content other than element and character data is ignored"
+  .filter(node => isTextNode(node) || isElementNode(node));
+  return filter ? nodes.map(node => {
+    const accept = filter(node);
+    if (accept === NodeFilter.FILTER_REJECT) return null;else if (accept === NodeFilter.FILTER_SKIP) return getChildNodes(node, filter);else return node;
+  }).flat().filter(x => x) : nodes;
+};
+
+// child nodes are organized such that the result is always
+//     [element, text, element, text, ..., element],
+// regardless of the actual structure in the document;
+// so multiple text nodes need to be combined, and nonexistent ones counted;
+// see "Step Reference to Child Element or Character Data (/)" in EPUB CFI spec
+const indexChildNodes = (node, filter) => {
+  const nodes = getChildNodes(node, filter).reduce((arr, node) => {
+    let last = arr[arr.length - 1];
+    if (!last) arr.push(node);
+    // "there is one chunk between each pair of child elements"
+    else if (isTextNode(node)) {
+      if (Array.isArray(last)) last.push(node);else if (isTextNode(last)) arr[arr.length - 1] = [last, node];else arr.push(node);
+    } else {
+      if (isElementNode(last)) arr.push(null, node);else arr.push(node);
+    }
+    return arr;
+  }, []);
+  // "the first chunk is located before the first child element"
+  if (isElementNode(nodes[0])) nodes.unshift('first');
+  // "the last chunk is located after the last child element"
+  if (isElementNode(nodes[nodes.length - 1])) nodes.push('last');
+  // "'virtual' elements"
+  nodes.unshift('before'); // "0 is a valid index"
+  nodes.push('after'); // "n+2 is a valid index"
+  return nodes;
+};
+const partsToNode = (node, parts, filter) => {
+  const {
+    id
+  } = parts[parts.length - 1];
+  if (id) {
+    const el = node.ownerDocument.getElementById(id);
+    if (el) return {
+      node: el,
+      offset: 0
+    };
+  }
+  for (const {
+    index
+  } of parts) {
+    const newNode = node ? indexChildNodes(node, filter)[index] : null;
+    // handle non-existent nodes
+    if (newNode === 'first') return {
+      node: node.firstChild ?? node
+    };
+    if (newNode === 'last') return {
+      node: node.lastChild ?? node
+    };
+    if (newNode === 'before') return {
+      node,
+      before: true
+    };
+    if (newNode === 'after') return {
+      node,
+      after: true
+    };
+    node = newNode;
+  }
+  const {
+    offset
+  } = parts[parts.length - 1];
+  if (!Array.isArray(node)) return {
+    node,
+    offset
+  };
+  // get underlying text node and offset from the chunk
+  let sum = 0;
+  for (const n of node) {
+    const {
+      length
+    } = n.nodeValue;
+    if (sum + length >= offset) return {
+      node: n,
+      offset: offset - sum
+    };
+    sum += length;
+  }
+};
+const nodeToParts = (node, offset, filter) => {
+  const {
+    parentNode,
+    id
+  } = node;
+  const indexed = indexChildNodes(parentNode, filter);
+  const index = indexed.findIndex(x => Array.isArray(x) ? x.some(x => x === node) : x === node);
+  // adjust offset as if merging the text nodes in the chunk
+  const chunk = indexed[index];
+  if (Array.isArray(chunk)) {
+    let sum = 0;
+    for (const x of chunk) {
+      if (x === node) {
+        sum += offset;
+        break;
+      } else sum += x.nodeValue.length;
+    }
+    offset = sum;
+  }
+  const part = {
+    id,
+    index,
+    offset
+  };
+  return (parentNode !== node.ownerDocument.documentElement ? nodeToParts(parentNode, null, filter).concat(part) : [part]
+  // remove ignored nodes
+  ).filter(x => x.index !== -1);
+};
+const fromRange = (range, filter) => {
+  const {
+    startContainer,
+    startOffset,
+    endContainer,
+    endOffset
+  } = range;
+  const start = nodeToParts(startContainer, startOffset, filter);
+  if (range.collapsed) return epubcfi_toString([start]);
+  const end = nodeToParts(endContainer, endOffset, filter);
+  return buildRange([start], [end]);
+};
+const toRange = (doc, parts, filter) => {
+  const startParts = collapse(parts);
+  const endParts = collapse(parts, true);
+  const root = doc.documentElement;
+  const start = partsToNode(root, startParts[0], filter);
+  const end = partsToNode(root, endParts[0], filter);
+  const range = doc.createRange();
+  if (start.before) range.setStartBefore(start.node);else if (start.after) range.setStartAfter(start.node);else range.setStart(start.node, start.offset);
+  if (end.before) range.setEndBefore(end.node);else if (end.after) range.setEndAfter(end.node);else range.setEnd(end.node, end.offset);
+  return range;
+};
+
+// faster way of getting CFIs for sorted elements in a single parent
+const fromElements = elements => {
+  const results = [];
+  const {
+    parentNode
+  } = elements[0];
+  const parts = nodeToParts(parentNode);
+  for (const [index, node] of indexChildNodes(parentNode).entries()) {
+    const el = elements[results.length];
+    if (node === el) results.push(epubcfi_toString([parts.concat({
+      id: el.id,
+      index
+    })]));
+  }
+  return results;
+};
+const toElement = (doc, parts) => partsToNode(doc.documentElement, collapse(parts)).node;
+
+// turn indices into standard CFIs when you don't have an actual package document
+const fake = {
+  fromIndex: index => wrap(\`/6/\${(index + 1) * 2}\`),
+  toIndex: parts => parts?.at(-1).index / 2 - 1
+};
+
+// get CFI from Calibre bookmarks
+// see https://github.com/johnfactotum/foliate/issues/849
+const fromCalibrePos = pos => {
+  const [parts] = parse(pos);
+  const item = parts.shift();
+  parts.shift();
+  return epubcfi_toString([[{
+    index: 6
+  }, item], parts]);
+};
+const fromCalibreHighlight = ({
+  spine_index,
+  start_cfi,
+  end_cfi
+}) => {
+  const pre = fake.fromIndex(spine_index) + '!';
+  return buildRange(pre + start_cfi.slice(2), pre + end_cfi.slice(2));
+};
+;// CONCATENATED MODULE: ./foliate-js/progress.js
+// assign a unique ID for each TOC item
+const assignIDs = toc => {
+  let id = 0;
+  const assignID = item => {
+    item.id = id++;
+    if (item.subitems) for (const subitem of item.subitems) assignID(subitem);
+  };
+  for (const item of toc) assignID(item);
+  return toc;
+};
+const flatten = items => items.map(item => item.subitems?.length ? [item, flatten(item.subitems)].flat() : item).flat();
+class TOCProgress {
+  async init({
+    toc,
+    ids,
+    splitHref,
+    getFragment
+  }) {
+    assignIDs(toc);
+    const items = flatten(toc);
+    const grouped = new Map();
+    for (const [i, item] of items.entries()) {
+      const [id, fragment] = (await splitHref(item?.href)) ?? [];
+      const value = {
+        fragment,
+        item
+      };
+      if (grouped.has(id)) grouped.get(id).items.push(value);else grouped.set(id, {
+        prev: items[i - 1],
+        items: [value]
+      });
+    }
+    const map = new Map();
+    for (const [i, id] of ids.entries()) {
+      if (grouped.has(id)) map.set(id, grouped.get(id));else map.set(id, map.get(ids[i - 1]));
+    }
+    this.ids = ids;
+    this.map = map;
+    this.getFragment = getFragment;
+  }
+  getProgress(index, range) {
+    if (!this.ids) return;
+    const id = this.ids[index];
+    const obj = this.map.get(id);
+    if (!obj) return null;
+    const {
+      prev,
+      items
+    } = obj;
+    if (!items) return prev;
+    if (!range || items.length === 1 && !items[0].fragment) return items[0].item;
+    const doc = range.startContainer.getRootNode();
+    for (const [i, {
+      fragment
+    }] of items.entries()) {
+      const el = this.getFragment(doc, fragment);
+      if (!el) continue;
+      if (range.comparePoint(el, 0) > 0) return items[i - 1]?.item ?? prev;
+    }
+    return items[items.length - 1].item;
+  }
+}
+class SectionProgress {
+  constructor(sections, sizePerLoc, sizePerTimeUnit) {
+    this.sizes = sections.map(s => s.linear != 'no' && s.size > 0 ? s.size : 0);
+    this.sizePerLoc = sizePerLoc;
+    this.sizePerTimeUnit = sizePerTimeUnit;
+    this.sizeTotal = this.sizes.reduce((a, b) => a + b, 0);
+    this.sectionFractions = this.#getSectionFractions();
+  }
+  #getSectionFractions() {
+    const {
+      sizeTotal
+    } = this;
+    const results = [0];
+    let sum = 0;
+    for (const size of this.sizes) results.push((sum += size) / sizeTotal);
+    return results;
+  }
+  // get progress given index of and fractions within a section
+  getProgress(index, fractionInSection, pageFraction = 0) {
+    const {
+      sizes,
+      sizePerLoc,
+      sizePerTimeUnit,
+      sizeTotal
+    } = this;
+    const sizeInSection = sizes[index] ?? 0;
+    const sizeBefore = sizes.slice(0, index).reduce((a, b) => a + b, 0);
+    const size = sizeBefore + fractionInSection * sizeInSection;
+    const nextSize = size + pageFraction * sizeInSection;
+    const remainingTotal = sizeTotal - size;
+    const remainingSection = (1 - fractionInSection) * sizeInSection;
+    return {
+      fraction: nextSize / sizeTotal,
+      section: {
+        current: index,
+        total: sizes.length
+      },
+      location: {
+        current: Math.floor(size / sizePerLoc),
+        next: Math.floor(nextSize / sizePerLoc),
+        total: Math.ceil(sizeTotal / sizePerLoc)
+      },
+      time: {
+        section: remainingSection / sizePerTimeUnit,
+        total: remainingTotal / sizePerTimeUnit
+      }
+    };
+  }
+  // the inverse of \`getProgress\`
+  // get index of and fraction in section based on total fraction
+  getSection(fraction) {
+    if (fraction <= 0) return [0, 0];
+    if (fraction >= 1) return [this.sizes.length - 1, 1];
+    fraction = fraction + Number.EPSILON;
+    const {
+      sizeTotal
+    } = this;
+    let index = this.sectionFractions.findIndex(x => x > fraction) - 1;
+    if (index < 0) return [0, 0];
+    while (!this.sizes[index]) index++;
+    const fractionInSection = (fraction - this.sectionFractions[index]) / (this.sizes[index] / sizeTotal);
+    return [index, fractionInSection];
+  }
+}
+;// CONCATENATED MODULE: ./foliate-js/overlayer.js
+const createSVGElement = tag => document.createElementNS('http://www.w3.org/2000/svg', tag);
+class Overlayer {
+  #svg = createSVGElement('svg');
+  #map = new Map();
+  constructor() {
+    Object.assign(this.#svg.style, {
+      position: 'absolute',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none'
+    });
+  }
+  get element() {
+    return this.#svg;
+  }
+  add(key, range, draw, options) {
+    if (this.#map.has(key)) this.remove(key);
+    if (typeof range === 'function') range = range(this.#svg.getRootNode());
+    const rects = range.getClientRects();
+    const element = draw(rects, options);
+    this.#svg.append(element);
+    this.#map.set(key, {
+      range,
+      draw,
+      options,
+      element,
+      rects
+    });
+  }
+  remove(key) {
+    if (!this.#map.has(key)) return;
+    this.#svg.removeChild(this.#map.get(key).element);
+    this.#map.delete(key);
+  }
+  redraw() {
+    for (const obj of this.#map.values()) {
+      const {
+        range,
+        draw,
+        options,
+        element
+      } = obj;
+      this.#svg.removeChild(element);
+      const rects = range.getClientRects();
+      const el = draw(rects, options);
+      this.#svg.append(el);
+      obj.element = el;
+      obj.rects = rects;
+    }
+  }
+  hitTest({
+    x,
+    y
+  }) {
+    const arr = Array.from(this.#map.entries());
+    // loop in reverse to hit more recently added items first
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const [key, obj] = arr[i];
+      for (const {
+        left,
+        top,
+        right,
+        bottom
+      } of obj.rects) if (top <= y && left <= x && bottom > y && right > x) return [key, obj.range];
+    }
+    return [];
+  }
+  static underline(rects, options = {}) {
+    const {
+      color = 'red',
+      width: strokeWidth = 2,
+      writingMode
+    } = options;
+    const g = createSVGElement('g');
+    g.setAttribute('fill', color);
+    if (writingMode === 'vertical-rl' || writingMode === 'vertical-lr') for (const {
+      right,
+      top,
+      height
+    } of rects) {
+      const el = createSVGElement('rect');
+      el.setAttribute('x', right - strokeWidth);
+      el.setAttribute('y', top);
+      el.setAttribute('height', height);
+      el.setAttribute('width', strokeWidth);
+      g.append(el);
+    } else for (const {
+      left,
+      bottom,
+      width
+    } of rects) {
+      const el = createSVGElement('rect');
+      el.setAttribute('x', left);
+      el.setAttribute('y', bottom - strokeWidth);
+      el.setAttribute('height', strokeWidth);
+      el.setAttribute('width', width);
+      g.append(el);
+    }
+    return g;
+  }
+  static strikethrough(rects, options = {}) {
+    const {
+      color = 'red',
+      width: strokeWidth = 2,
+      writingMode
+    } = options;
+    const g = createSVGElement('g');
+    g.setAttribute('fill', color);
+    if (writingMode === 'vertical-rl' || writingMode === 'vertical-lr') for (const {
+      right,
+      left,
+      top,
+      height
+    } of rects) {
+      const el = createSVGElement('rect');
+      el.setAttribute('x', (right + left) / 2);
+      el.setAttribute('y', top);
+      el.setAttribute('height', height);
+      el.setAttribute('width', strokeWidth);
+      g.append(el);
+    } else for (const {
+      left,
+      top,
+      bottom,
+      width
+    } of rects) {
+      const el = createSVGElement('rect');
+      el.setAttribute('x', left);
+      el.setAttribute('y', (top + bottom) / 2);
+      el.setAttribute('height', strokeWidth);
+      el.setAttribute('width', width);
+      g.append(el);
+    }
+    return g;
+  }
+  static squiggly(rects, options = {}) {
+    const {
+      color = 'red',
+      width: strokeWidth = 2,
+      writingMode
+    } = options;
+    const g = createSVGElement('g');
+    g.setAttribute('fill', 'none');
+    g.setAttribute('stroke', color);
+    g.setAttribute('stroke-width', strokeWidth);
+    const block = strokeWidth * 1.5;
+    if (writingMode === 'vertical-rl' || writingMode === 'vertical-lr') for (const {
+      right,
+      top,
+      height
+    } of rects) {
+      const el = createSVGElement('path');
+      const n = Math.round(height / block / 1.5);
+      const inline = height / n;
+      const ls = Array.from({
+        length: n
+      }, (_, i) => \`l\${i % 2 ? -block : block} \${inline}\`).join('');
+      el.setAttribute('d', \`M\${right} \${top}\${ls}\`);
+      g.append(el);
+    } else for (const {
+      left,
+      bottom,
+      width
+    } of rects) {
+      const el = createSVGElement('path');
+      const n = Math.round(width / block / 1.5);
+      const inline = width / n;
+      const ls = Array.from({
+        length: n
+      }, (_, i) => \`l\${inline} \${i % 2 ? block : -block}\`).join('');
+      el.setAttribute('d', \`M\${left} \${bottom}\${ls}\`);
+      g.append(el);
+    }
+    return g;
+  }
+  static highlight(rects, options = {}) {
+    const {
+      color = 'red'
+    } = options;
+    const g = createSVGElement('g');
+    g.setAttribute('fill', color);
+    g.style.opacity = 'var(--overlayer-highlight-opacity, .3)';
+    g.style.mixBlendMode = 'var(--overlayer-highlight-blend-mode, normal)';
+    for (const {
+      left,
+      top,
+      height,
+      width
+    } of rects) {
+      const el = createSVGElement('rect');
+      el.setAttribute('x', left);
+      el.setAttribute('y', top);
+      el.setAttribute('height', height);
+      el.setAttribute('width', width);
+      g.append(el);
+    }
+    return g;
+  }
+  static outline(rects, options = {}) {
+    const {
+      color = 'red',
+      width: strokeWidth = 3,
+      radius = 3
+    } = options;
+    const g = createSVGElement('g');
+    g.setAttribute('fill', 'none');
+    g.setAttribute('stroke', color);
+    g.setAttribute('stroke-width', strokeWidth);
+    for (const {
+      left,
+      top,
+      height,
+      width
+    } of rects) {
+      const el = createSVGElement('rect');
+      el.setAttribute('x', left);
+      el.setAttribute('y', top);
+      el.setAttribute('height', height);
+      el.setAttribute('width', width);
+      el.setAttribute('rx', radius);
+      g.append(el);
+    }
+    return g;
+  }
+  // make an exact copy of an image in the overlay
+  // one can then apply filters to the entire element, without affecting them;
+  // it's a bit silly and probably better to just invert images twice
+  // (though the color will be off in that case if you do heu-rotate)
+  static copyImage([rect], options = {}) {
+    const {
+      src
+    } = options;
+    const image = createSVGElement('image');
+    const {
+      left,
+      top,
+      height,
+      width
+    } = rect;
+    image.setAttribute('href', src);
+    image.setAttribute('x', left);
+    image.setAttribute('y', top);
+    image.setAttribute('height', height);
+    image.setAttribute('width', width);
+    return image;
+  }
+}
+;// CONCATENATED MODULE: ./foliate-js/text-walker.js
+const walkRange = (range, walker) => {
+  const nodes = [];
+  for (let node = walker.currentNode; node; node = walker.nextNode()) {
+    const compare = range.comparePoint(node, 0);
+    if (compare === 0) nodes.push(node);else if (compare > 0) break;
+  }
+  return nodes;
+};
+const walkDocument = (_, walker) => {
+  const nodes = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
+  return nodes;
+};
+const filter = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_CDATA_SECTION;
+const acceptNode = node => {
+  if (node.nodeType === 1) {
+    const name = node.tagName.toLowerCase();
+    if (name === 'script' || name === 'style') return NodeFilter.FILTER_REJECT;
+    return NodeFilter.FILTER_SKIP;
+  }
+  return NodeFilter.FILTER_ACCEPT;
+};
+const textWalker = function* (x, func) {
+  const root = x.commonAncestorContainer ?? x.body ?? x;
+  const walker = document.createTreeWalker(root, filter, {
+    acceptNode
+  });
+  const walk = x.commonAncestorContainer ? walkRange : walkDocument;
+  const nodes = walk(x, walker);
+  const strs = nodes.map(node => node.nodeValue);
+  const makeRange = (startIndex, startOffset, endIndex, endOffset) => {
+    const range = document.createRange();
+    range.setStart(nodes[startIndex], startOffset);
+    range.setEnd(nodes[endIndex], endOffset);
+    return range;
+  };
+  for (const match of func(strs, makeRange)) yield match;
+};
+;// CONCATENATED MODULE: ./foliate-js/fixed-layout.js
+const parseViewport = str => str?.split(/[,;\\s]/) // NOTE: technically, only the comma is valid
+?.filter(x => x)?.map(x => x.split('=').map(x => x.trim()));
+const getViewport = (doc, viewport) => {
+  // use \`viewBox\` for SVG
+  if (doc.documentElement.localName === 'svg') {
+    const [,, width, height] = doc.documentElement.getAttribute('viewBox')?.split(/\\s/) ?? [];
+    return {
+      width,
+      height
+    };
+  }
+
+  // get \`viewport\` \`meta\` element
+  const meta = parseViewport(doc.querySelector('meta[name="viewport"]')?.getAttribute('content'));
+  if (meta) return Object.fromEntries(meta);
+
+  // fallback to book's viewport
+  if (typeof viewport === 'string') return parseViewport(viewport);
+  if (viewport) return viewport;
+
+  // if no viewport (possibly with image directly in spine), get image size
+  const img = doc.querySelector('img');
+  if (img) return {
+    width: img.naturalWidth,
+    height: img.naturalHeight
+  };
+
+  // just show *something*, i guess...
+  console.warn(new Error('Missing viewport properties'));
+  return {
+    width: 1000,
+    height: 2000
+  };
+};
+class FixedLayout extends HTMLElement {
+  #root = this.attachShadow({
+    mode: 'closed'
+  });
+  #observer = new ResizeObserver(() => this.#render());
+  #spreads;
+  #index = -1;
+  defaultViewport;
+  spread;
+  #portrait = false;
+  #left;
+  #right;
+  #center;
+  #side;
+  constructor() {
+    super();
+    const sheet = new CSSStyleSheet();
+    this.#root.adoptedStyleSheets = [sheet];
+    sheet.replaceSync(\`:host {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }\`);
+    this.#observer.observe(this);
+  }
+  async #createFrame({
+    index,
+    src
+  }) {
+    const element = document.createElement('div');
+    const iframe = document.createElement('iframe');
+    element.append(iframe);
+    Object.assign(iframe.style, {
+      border: '0',
+      display: 'none',
+      overflow: 'hidden'
+    });
+    // \`allow-scripts\` is needed for events because of WebKit bug
+    // https://bugs.webkit.org/show_bug.cgi?id=218086
+    iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
+    iframe.setAttribute('scrolling', 'no');
+    iframe.setAttribute('part', 'filter');
+    this.#root.append(element);
+    if (!src) return {
+      blank: true,
+      element,
+      iframe
+    };
+    return new Promise(resolve => {
+      const onload = () => {
+        iframe.removeEventListener('load', onload);
+        const doc = iframe.contentDocument;
+        this.dispatchEvent(new CustomEvent('load', {
+          detail: {
+            doc,
+            index
+          }
+        }));
+        const {
+          width,
+          height
+        } = getViewport(doc, this.defaultViewport);
+        resolve({
+          element,
+          iframe,
+          width: parseFloat(width),
+          height: parseFloat(height)
+        });
+      };
+      iframe.addEventListener('load', onload);
+      iframe.src = src;
+    });
+  }
+  #render(side = this.#side) {
+    if (!side) return;
+    const left = this.#left ?? {};
+    const right = this.#center ?? this.#right;
+    const target = side === 'left' ? left : right;
+    let {
+      width,
+      height
+    } = this.getBoundingClientRect();
+    var _width = window.innerWidth > 0 ? window.innerWidth : screen.width;
+    width = width === 0 ? _width : width;
+    const portrait = this.spread !== 'both' && this.spread !== 'portrait' && height > width;
+    this.#portrait = portrait;
+    const blankWidth = left.width ?? right.width;
+    const blankHeight = left.height ?? right.height;
+    const scale = portrait || this.#center ? Math.min(width / (target.width ?? blankWidth), height / (target.height ?? blankHeight)) : Math.min(width / ((left.width ?? blankWidth) + (right.width ?? blankWidth)), height / Math.max(left.height ?? blankHeight, right.height ?? blankHeight));
+    const transform = frame => {
+      const {
+        element,
+        iframe,
+        width,
+        height,
+        blank
+      } = frame;
+      Object.assign(iframe.style, {
+        width: \`\${width}px\`,
+        height: \`\${height}px\`,
+        transform: \`scale(\${scale})\`,
+        transformOrigin: 'top left',
+        display: blank ? 'none' : 'block'
+      });
+      Object.assign(element.style, {
+        width: \`\${(width ?? blankWidth) * scale}px\`,
+        height: \`\${(height ?? blankHeight) * scale}px\`,
+        overflow: 'hidden',
+        display: 'block'
+      });
+      if (portrait && frame !== target) {
+        element.style.display = 'none';
+      }
+    };
+    if (this.#center) {
+      transform(this.#center);
+    } else {
+      transform(left);
+      transform(right);
+    }
+  }
+  async #showSpread({
+    left,
+    right,
+    center,
+    side
+  }) {
+    this.#root.replaceChildren();
+    this.#left = null;
+    this.#right = null;
+    this.#center = null;
+    if (center) {
+      this.#center = await this.#createFrame(center);
+      this.#side = 'center';
+      this.#render();
+    } else {
+      this.#left = await this.#createFrame(left);
+      this.#right = await this.#createFrame(right);
+      this.#side = this.#left.blank ? 'right' : this.#right.blank ? 'left' : side;
+      this.#render();
+    }
+  }
+  #goLeft() {
+    if (this.#center || this.#left?.blank) return;
+    if (this.#portrait && this.#left?.element?.style?.display === 'none') {
+      this.#right.element.style.display = 'none';
+      this.#left.element.style.display = 'block';
+      this.#side = 'left';
+      return true;
+    }
+  }
+  #goRight() {
+    if (this.#center || this.#right?.blank) return;
+    if (this.#portrait && this.#right?.element?.style?.display === 'none') {
+      this.#left.element.style.display = 'none';
+      this.#right.element.style.display = 'block';
+      this.#side = 'right';
+      return true;
+    }
+  }
+  open(book) {
+    this.book = book;
+    const {
+      rendition
+    } = book;
+    this.spread = rendition?.spread;
+    this.defaultViewport = rendition?.viewport;
+    const rtl = book.dir === 'rtl';
+    const ltr = !rtl;
+    this.rtl = rtl;
+    if (rendition?.spread === 'none') this.#spreads = book.sections.map(section => ({
+      center: section
+    }));else this.#spreads = book.sections.reduce((arr, section) => {
+      const last = arr[arr.length - 1];
+      const {
+        linear,
+        pageSpread
+      } = section;
+      if (linear === 'no') return arr;
+      const newSpread = () => {
+        const spread = {};
+        arr.push(spread);
+        return spread;
+      };
+      if (pageSpread === 'center') {
+        const spread = last.left || last.right ? newSpread() : last;
+        spread.center = section;
+      } else if (pageSpread === 'left') {
+        const spread = last.center || last.left || ltr ? newSpread() : last;
+        spread.left = section;
+      } else if (pageSpread === 'right') {
+        const spread = last.center || last.right || rtl ? newSpread() : last;
+        spread.right = section;
+      } else if (ltr) {
+        if (last.center || last.right) newSpread().left = section;else if (last.left) last.right = section;else last.left = section;
+      } else {
+        if (last.center || last.left) newSpread().right = section;else if (last.right) last.left = section;else last.right = section;
+      }
+      return arr;
+    }, [{}]);
+  }
+  get index() {
+    const spread = this.#spreads[this.#index];
+    const section = spread?.center ?? (this.side === 'left' ? spread.left ?? spread.right : spread.right ?? spread.left);
+    return this.book.sections.indexOf(section);
+  }
+  #reportLocation(reason) {
+    this.dispatchEvent(new CustomEvent('relocate', {
+      detail: {
+        reason,
+        range: null,
+        index: this.index,
+        fraction: 0,
+        size: 1
+      }
+    }));
+  }
+  getSpreadOf(section) {
+    const spreads = this.#spreads;
+    for (let index = 0; index < spreads.length; index++) {
+      const {
+        left,
+        right,
+        center
+      } = spreads[index];
+      if (left === section) return {
+        index,
+        side: 'left'
+      };
+      if (right === section) return {
+        index,
+        side: 'right'
+      };
+      if (center === section) return {
+        index,
+        side: 'center'
+      };
+    }
+  }
+  async goToSpread(index, side, reason) {
+    if (index < 0 || index > this.#spreads.length - 1) return;
+    if (index === this.#index) {
+      this.#render(side);
+      return;
+    }
+    this.#index = index;
+    const spread = this.#spreads[index];
+    if (spread.center) {
+      const index = this.book.sections.indexOf(spread.center);
+      const src = await spread.center?.load?.();
+      await this.#showSpread({
+        center: {
+          index,
+          src
+        }
+      });
+    } else {
+      const indexL = this.book.sections.indexOf(spread.left);
+      const indexR = this.book.sections.indexOf(spread.right);
+      const srcL = await spread.left?.load?.();
+      const srcR = await spread.right?.load?.();
+      const left = {
+        index: indexL,
+        src: srcL
+      };
+      const right = {
+        index: indexR,
+        src: srcR
+      };
+      await this.#showSpread({
+        left,
+        right,
+        side
+      });
+    }
+    this.#reportLocation(reason);
+  }
+  async select(target) {
+    await this.goTo(target);
+    // TODO
+  }
+
+  async goTo(target) {
+    const {
+      book
+    } = this;
+    const resolved = await target;
+    const section = book.sections[resolved.index];
+    if (!section) return;
+    const {
+      index,
+      side
+    } = this.getSpreadOf(section);
+    await this.goToSpread(index, side);
+  }
+  async next() {
+    const s = this.rtl ? this.#goLeft() : this.#goRight();
+    if (s) this.#reportLocation('page');else return this.goToSpread(this.#index + 1, this.rtl ? 'right' : 'left', 'page');
+  }
+  async prev() {
+    const s = this.rtl ? this.#goRight() : this.#goLeft();
+    if (s) this.#reportLocation('page');else return this.goToSpread(this.#index - 1, this.rtl ? 'left' : 'right', 'page');
+  }
+  getContents() {
+    return Array.from(this.#root.querySelectorAll('iframe'), frame => ({
+      doc: frame.contentDocument
+      // TODO: index, overlayer
+    }));
+  }
+
+  destroy() {
+    this.#observer.unobserve(this);
+  }
+}
+customElements.define('foliate-fxl', FixedLayout);
+;// CONCATENATED MODULE: ./foliate-js/paginator.js
+const debugMessage = m => {
+  if (typeof window.ReactNativeWebView != 'undefined') {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'epubjs',
+      message: m
+    }));
+  } else {
+    console.log(m);
+  }
+};
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+const debounce = (f, wait, immediate) => {
+  let timeout;
+  return (...args) => {
+    const later = () => {
+      timeout = null;
+      if (!immediate) f(...args);
+    };
+    const callNow = immediate && !timeout;
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) f(...args);
+  };
+};
+const lerp = (min, max, x) => x * (max - min) + min;
+const easeOutQuad = x => 1 - (1 - x) * (1 - x);
+const animate = (a, b, duration, ease, render) => new Promise(resolve => {
+  let start;
+  const step = now => {
+    start ??= now;
+    const fraction = Math.min(1, (now - start) / duration);
+    render(lerp(a, b, ease(fraction)));
+    if (fraction < 1) requestAnimationFrame(step);else resolve();
+  };
+  requestAnimationFrame(step);
+});
+
+// collapsed range doesn't return client rects sometimes (or always?)
+// try make get a non-collapsed range or element
+const uncollapse = range => {
+  if (!range?.collapsed) return range;
+  const {
+    endOffset,
+    endContainer
+  } = range;
+  if (endContainer.nodeType === 1) return endContainer;
+  if (endOffset + 1 < endContainer.length) range.setEnd(endContainer, endOffset + 1);else if (endOffset > 1) range.setStart(endContainer, endOffset - 1);else return endContainer.parentNode;
+  return range;
+};
+const makeRange = (doc, node, start, end = start) => {
+  const range = doc.createRange();
+  range.setStart(node, start);
+  range.setEnd(node, end);
+  return range;
+};
+
+// use binary search to find an offset value in a text node
+const bisectNode = (doc, node, cb, start = 0, end = node.nodeValue.length) => {
+  if (end - start === 1) {
+    const result = cb(makeRange(doc, node, start), makeRange(doc, node, end));
+    return result < 0 ? start : end;
+  }
+  const mid = Math.floor(start + (end - start) / 2);
+  const result = cb(makeRange(doc, node, start, mid), makeRange(doc, node, mid, end));
+  return result < 0 ? bisectNode(doc, node, cb, start, mid) : result > 0 ? bisectNode(doc, node, cb, mid, end) : mid;
+};
+const {
+  SHOW_ELEMENT,
+  SHOW_TEXT,
+  SHOW_CDATA_SECTION,
+  FILTER_ACCEPT,
+  FILTER_REJECT,
+  FILTER_SKIP
+} = NodeFilter;
+const paginator_filter = SHOW_ELEMENT | SHOW_TEXT | SHOW_CDATA_SECTION;
+const getVisibleRange = (doc, start, end, mapRect) => {
+  // first get all visible nodes
+  const acceptNode = node => {
+    const name = node.localName?.toLowerCase();
+    // ignore all scripts, styles, and their children
+    if (name === 'script' || name === 'style') return FILTER_REJECT;
+    if (node.nodeType === 1) {
+      const {
+        left,
+        right
+      } = mapRect(node.getBoundingClientRect());
+      // no need to check child nodes if it's completely out of view
+      if (right < start || left > end) return FILTER_REJECT;
+      // elements must be completely in view to be considered visible
+      // because you can't specify offsets for elements
+      if (left >= start && right <= end) return FILTER_ACCEPT;
+      // TODO: it should probably allow elements that do not contain text
+      // because they can exceed the whole viewport in both directions
+      // especially in scrolled mode
+    } else {
+      // ignore empty text nodes
+      if (!node.nodeValue?.trim()) return FILTER_SKIP;
+      // create range to get rect
+      const range = doc.createRange();
+      range.selectNodeContents(node);
+      const {
+        left,
+        right
+      } = mapRect(range.getBoundingClientRect());
+      // it's visible if any part of it is in view
+      if (right >= start && left <= end) return FILTER_ACCEPT;
+    }
+    return FILTER_SKIP;
+  };
+  const walker = doc.createTreeWalker(doc.body, paginator_filter, {
+    acceptNode
+  });
+  const nodes = [];
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
+
+  // we're only interested in the first and last visible nodes
+  const from = nodes[0] ?? doc.body;
+  const to = nodes[nodes.length - 1] ?? from;
+
+  // find the offset at which visibility changes
+  const startOffset = from.nodeType === 1 ? 0 : bisectNode(doc, from, (a, b) => {
+    const p = mapRect(a.getBoundingClientRect());
+    const q = mapRect(b.getBoundingClientRect());
+    if (p.right < start && q.left > start) return 0;
+    return q.left > start ? -1 : 1;
+  });
+  const endOffset = to.nodeType === 1 ? 0 : bisectNode(doc, to, (a, b) => {
+    const p = mapRect(a.getBoundingClientRect());
+    const q = mapRect(b.getBoundingClientRect());
+    if (p.right < end && q.left > end) return 0;
+    return q.left > end ? -1 : 1;
+  });
+  const range = doc.createRange();
+  range.setStart(from, startOffset);
+  range.setEnd(to, endOffset);
+  return range;
+};
+const getDirection = doc => {
+  const {
+    defaultView
+  } = doc;
+  const {
+    writingMode,
+    direction
+  } = defaultView.getComputedStyle(doc.body);
+  const vertical = writingMode === 'vertical-rl' || writingMode === 'vertical-lr';
+  const rtl = doc.body.dir === 'rtl' || direction === 'rtl' || doc.documentElement.dir === 'rtl';
+  return {
+    vertical,
+    rtl
+  };
+};
+const getBackground = doc => {
+  const bodyStyle = doc.defaultView.getComputedStyle(doc.body);
+  return bodyStyle.backgroundColor === 'rgba(0, 0, 0, 0)' && bodyStyle.backgroundImage === 'none' ? doc.defaultView.getComputedStyle(doc.documentElement).background : bodyStyle.background;
+};
+const makeMarginals = (length, part) => Array.from({
+  length
+}, () => {
+  const div = document.createElement('div');
+  const child = document.createElement('div');
+  div.append(child);
+  child.setAttribute('part', part);
+  return div;
+});
+const setStylesImportant = (el, styles) => {
+  const {
+    style
+  } = el;
+  for (const [k, v] of Object.entries(styles)) style.setProperty(k, v, 'important');
+};
+class View {
+  #observer = new ResizeObserver(() => this.expand());
+  #element = document.createElement('div');
+  #iframe = document.createElement('iframe');
+  #contentRange = document.createRange();
+  #overlayer;
+  #vertical = false;
+  #rtl = false;
+  #column = true;
+  #size;
+  #layout = {};
+  constructor({
+    container,
+    onExpand
+  }) {
+    this.container = container;
+    this.onExpand = onExpand;
+    this.#iframe.setAttribute('part', 'filter');
+    this.#element.append(this.#iframe);
+    Object.assign(this.#element.style, {
+      boxSizing: 'content-box',
+      position: 'relative',
+      overflow: 'hidden',
+      flex: '0 0 auto',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
+    });
+    Object.assign(this.#iframe.style, {
+      overflow: 'hidden',
+      border: '0',
+      display: 'none',
+      width: '100%',
+      height: '100%'
+    });
+    // \`allow-scripts\` is needed for events because of WebKit bug
+    // https://bugs.webkit.org/show_bug.cgi?id=218086
+    this.#iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
+    this.#iframe.setAttribute('scrolling', 'no');
+  }
+  get element() {
+    return this.#element;
+  }
+  get document() {
+    return this.#iframe.contentDocument;
+  }
+  async load(src, afterLoad, beforeRender) {
+    if (typeof src !== 'string') throw new Error(\`\${src} is not string\`);
+    return new Promise(resolve => {
+      this.#iframe.addEventListener('load', () => {
+        const doc = this.document;
+        afterLoad?.(doc);
+
+        // it needs to be visible for Firefox to get computed style
+        this.#iframe.style.display = 'block';
+        const {
+          vertical,
+          rtl
+        } = getDirection(doc);
+        const background = getBackground(doc);
+        this.#iframe.style.display = 'none';
+        this.#vertical = vertical;
+        this.#rtl = rtl;
+        this.#contentRange.selectNodeContents(doc.body);
+        const layout = beforeRender?.({
+          vertical,
+          rtl,
+          background
+        });
+        this.#iframe.style.display = 'block';
+        this.render(layout);
+        this.#observer.observe(doc.body);
+
+        // the resize observer above doesn't work in Firefox
+        // (see https://bugzilla.mozilla.org/show_bug.cgi?id=1832939)
+        // until the bug is fixed we can at least account for font load
+        doc.fonts.ready.then(() => this.expand());
+        resolve();
+      }, {
+        once: true
+      });
+      this.#iframe.src = src;
+    });
+  }
+  render(layout) {
+    if (!layout) return;
+    this.#column = layout.flow !== 'scrolled';
+    this.#layout = layout;
+    if (this.#column) this.columnize(layout);else this.scrolled(layout);
+  }
+  scrolled({
+    gap,
+    columnWidth
+  }) {
+    // debugMessage('[SCROLLED] SCROLLED...')
+    const vertical = this.#vertical;
+    const doc = this.document;
+    setStylesImportant(doc.documentElement, {
+      'box-sizing': 'border-box',
+      'padding': vertical ? \`\${gap}px 0\` : \`0 \${gap}px\`,
+      'column-width': 'auto',
+      'height': 'auto',
+      'width': 'auto'
+    });
+    setStylesImportant(doc.body, {
+      [vertical ? 'max-height' : 'max-width']: \`\${columnWidth}px\`,
+      'margin': 'auto'
+    });
+    this.setImageSize();
+    this.expand();
+  }
+  columnize({
+    width,
+    height,
+    gap,
+    columnWidth
+  }) {
+    // debugMessage('[COLUMNIZE] COLUMNIZING...')
+    const vertical = this.#vertical;
+    this.#size = vertical ? height : width;
+    const doc = this.document;
+    setStylesImportant(doc.documentElement, {
+      'box-sizing': 'border-box',
+      'column-width': \`\${Math.trunc(columnWidth)}px\`,
+      'column-gap': \`\${gap}px\`,
+      'column-fill': 'auto',
+      ...(vertical ? {
+        'width': \`\${width}px\`
+      } : {
+        'height': \`\${height}px\`
+      }),
+      'padding': vertical ? \`\${gap / 2}px 0\` : \`0 \${gap / 2}px\`,
+      'overflow': 'hidden',
+      // force wrap long words
+      'overflow-wrap': 'anywhere',
+      // reset some potentially problematic props
+      'position': 'static',
+      'border': '0',
+      'margin': '0',
+      'max-height': 'none',
+      'max-width': 'none',
+      'min-height': 'none',
+      'min-width': 'none',
+      // fix glyph clipping in WebKit
+      '-webkit-line-box-contain': 'block glyphs replaced'
+    });
+    setStylesImportant(doc.body, {
+      'max-height': 'none',
+      'max-width': 'none',
+      'margin': '0'
+    });
+    this.setImageSize();
+    this.expand();
+  }
+  setImageSize() {
+    const {
+      width,
+      height,
+      margin
+    } = this.#layout;
+    const vertical = this.#vertical;
+    const doc = this.document;
+    for (const el of doc.body.querySelectorAll('img, svg, video')) {
+      // preserve max size if they are already set
+      const {
+        maxHeight,
+        maxWidth
+      } = doc.defaultView.getComputedStyle(el);
+      setStylesImportant(el, {
+        'max-height': vertical ? maxHeight !== 'none' && maxHeight !== '0px' ? maxHeight : '100%' : \`\${height - margin * 2}px\`,
+        'max-width': vertical ? \`\${width - margin * 2}px\` : maxWidth !== 'none' && maxWidth !== '0px' ? maxWidth : '100%',
+        'object-fit': 'contain',
+        'page-break-inside': 'avoid',
+        'break-inside': 'avoid',
+        'box-sizing': 'border-box'
+      });
+    }
+  }
+  expand() {
+    // debugMessage('[EXPAND] EXPANDING...')
+    if (this.#column) {
+      // debugMessage('[EXPAND] COLUMN')
+      const side = this.#vertical ? 'height' : 'width';
+      const otherSide = this.#vertical ? 'width' : 'height';
+      const contentSize = this.#contentRange.getBoundingClientRect()[side];
+      const pageCount = Math.ceil(contentSize / this.#size);
+      const expandedSize = pageCount * this.#size;
+      this.#element.style.padding = '0';
+      this.#iframe.style[side] = \`\${expandedSize}px\`;
+      this.#element.style[side] = \`\${expandedSize + this.#size * 2}px\`;
+      this.#iframe.style[otherSide] = '100%';
+      this.#element.style[otherSide] = '100%';
+      if (this.document) this.document.documentElement.style[side] = \`\${this.#size}px\`;
+      if (this.#overlayer) {
+        this.#overlayer.element.style.margin = '0';
+        this.#overlayer.element.style.left = this.#vertical ? '0' : \`\${this.#size}px\`;
+        this.#overlayer.element.style.top = this.#vertical ? \`\${this.#size}px\` : '0';
+        this.#overlayer.element.style[side] = \`\${expandedSize}px\`;
+        this.#overlayer.redraw();
+      }
+    } else {
+      // debugMessage('[EXPAND] ELSE')
+      const side = this.#vertical ? 'width' : 'height';
+      const otherSide = this.#vertical ? 'height' : 'width';
+      const doc = this.document;
+      const contentSize = doc?.documentElement?.getBoundingClientRect()?.[side];
+      const expandedSize = contentSize < this.container.clientHeight ? this.container.clientHeight : contentSize;
+      const {
+        margin
+      } = this.#layout;
+      const padding = this.#vertical ? \`0 \${margin}px\` : \`\${margin}px 0\`;
+      this.#element.style.padding = padding;
+      this.#iframe.style[side] = \`\${expandedSize}px\`;
+      this.#element.style[side] = \`\${expandedSize}px\`;
+      this.#iframe.style[otherSide] = '100%';
+      this.#element.style[otherSide] = '100%';
+      if (this.#overlayer) {
+        this.#overlayer.element.style.margin = padding;
+        this.#overlayer.element.style.left = '0';
+        this.#overlayer.element.style.top = '0';
+        this.#overlayer.element.style[side] = \`\${expandedSize}px\`;
+        this.#overlayer.redraw();
+      }
+    }
+    this.onExpand();
+  }
+  set overlayer(overlayer) {
+    this.#overlayer = overlayer;
+    this.#element.append(overlayer.element);
+  }
+  get overlayer() {
+    return this.#overlayer;
+  }
+  destroy() {
+    if (this.document) this.#observer.unobserve(this.document.body);
+  }
+}
+
+// NOTE: everything here assumes the so-called "negative scroll type" for RTL
+class Paginator extends HTMLElement {
+  static observedAttributes = ['flow', 'gap', 'margin', 'max-inline-size', 'max-block-size', 'max-column-count'];
+  #root = this.attachShadow({
+    mode: 'open'
+  });
+  #observer = new ResizeObserver(() => this.render());
+  #background;
+  #container;
+  #header;
+  #footer;
+  #view;
+  #vertical = false;
+  #rtl = false;
+  #margin = 0;
+  #index = -1;
+  #anchor = 0; // anchor view to a fraction (0-1), Range, or Element
+  #justAnchored = false;
+  #locked = false; // while true, prevent any further navigation
+  #styles;
+  #styleMap = new WeakMap();
+  #mediaQuery = matchMedia('(prefers-color-scheme: dark)');
+  #mediaQueryListener;
+  #scrollBounds;
+  #touchState;
+  #touchScrolled;
+  pageAnimation = true;
+  // #canGoToNextSection = false
+  // #canGoToPrevSection = false
+  // #goingNext = false
+  // #goingPrev = false
+  pause = false;
+  constructor() {
+    super();
+    this.#root.innerHTML = \`<style>
+        :host {
+            --_gap: 7%;
+            --_margin: 48px;
+            --_max-inline-size: 720px;
+            --_max-block-size: 1440px;
+            --_max-column-count: 2;
+            --_vertical: 0;
+            --_half-gap: calc(var(--_gap) / 2);
+            --_max-width: calc(
+                var(--_vertical) * var(--_max-block-size)
+                + (1 - var(--_vertical)) * var(--_max-inline-size) * var(--_max-column-count)
+            );
+            --_max-height: calc(
+                var(--_vertical) * var(--_max-inline-size) * var(--_max-column-count)
+                + (1 - var(--_vertical)) * var(--_max-block-size)
+            );
+            display: grid;
+            grid-template-columns:
+                minmax(var(--_half-gap), 1fr)
+                minmax(0, var(--_max-width))
+                minmax(var(--_half-gap), 1fr);
+            grid-template-rows:
+                minmax(var(--_margin), 1fr)
+                minmax(0, var(--_max-height))
+                minmax(var(--_margin), 1fr);
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+        #background {
+            grid-column-start: 1;
+            grid-column-end: 4;
+            grid-row-start: 1;
+            grid-row-end: 4;
+        }
+        #container {
+            grid-column-start: 2;
+            grid-row-start: 2;
+            overflow: hidden;
+        }
+        :host([flow="scrolled"]) #container {
+            grid-column-start: 1;
+            grid-column-end: 4;
+            grid-row-start: 1;
+            grid-row-end: 4;
+            overflow: auto;
+        }
+        #header {
+            grid-column-start: 2;
+            grid-row-start: 1;
+        }
+        #footer {
+            grid-column-start: 2;
+            grid-row-start: 3;
+            align-self: end;
+        }
+        #header, #footer {
+            display: grid;
+            height: var(--_margin);
+        }
+        :is(#header, #footer) > * {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+        }
+        :is(#header, #footer) > * > * {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            text-align: center;
+            font-size: .75em;
+            opacity: .6;
+        }
+        </style>
+        <div id="background" part="filter"></div>
+        <div id="header"></div>
+        <div id="container"></div>
+        <div id="footer"></div>
+        \`;
+    this.#background = this.#root.getElementById('background');
+    this.#container = this.#root.getElementById('container');
+    this.#header = this.#root.getElementById('header');
+    this.#footer = this.#root.getElementById('footer');
+    this.#observer.observe(this.#container);
+    this.#container.addEventListener('scroll', debounce(() => {
+      if (this.scrolled) {
+        if (this.#justAnchored) this.#justAnchored = false;else this.#afterScroll('scroll');
+      }
+    }, 250));
+    const opts = {
+      passive: false
+    };
+    this.addEventListener('touchstart', this.#onTouchStart.bind(this), opts);
+    this.addEventListener('touchmove', this.#onTouchMove.bind(this), opts);
+    this.addEventListener('touchend', this.#onTouchEnd.bind(this));
+    this.addEventListener('load', ({
+      detail: {
+        doc
+      }
+    }) => {
+      doc.addEventListener('touchstart', this.#onTouchStart.bind(this), opts);
+      doc.addEventListener('touchmove', this.#onTouchMove.bind(this), opts);
+      doc.addEventListener('touchend', this.#onTouchEnd.bind(this));
+    });
+    this.#mediaQueryListener = () => {
+      if (!this.#view) return;
+      this.#background.style.background = getBackground(this.#view.document);
+    };
+    this.#mediaQuery.addEventListener('change', this.#mediaQueryListener);
+  }
+  attributeChangedCallback(name, _, value) {
+    switch (name) {
+      case 'flow':
+        this.render();
+        break;
+      case 'gap':
+      case 'margin':
+      case 'max-block-size':
+      case 'max-column-count':
+        this.style.setProperty('--_' + name, value);
+        break;
+      case 'max-inline-size':
+        // needs explicit \`render()\` as it doesn't necessarily resize
+        this.style.setProperty('--_' + name, value);
+        this.render();
+        break;
+    }
+  }
+  open(book) {
+    this.bookDir = book.dir;
+    this.sections = book.sections;
+  }
+  #createView() {
+    if (this.#view) this.#container.removeChild(this.#view.element);
+    this.#view = new View({
+      container: this,
+      onExpand: () => this.scrollToAnchor(this.#anchor)
+    });
+    this.#container.append(this.#view.element);
+    return this.#view;
+  }
+  #beforeRender({
+    vertical,
+    rtl,
+    background
+  }) {
+    this.#vertical = vertical;
+    this.#rtl = rtl;
+    this.style.setProperty('--_vertical', vertical ? 1 : 0);
+
+    // set background to \`doc\` background
+    // this is needed because the iframe does not fill the whole element
+    this.#background.style.background = background;
+    const {
+      width,
+      height
+    } = this.#container.getBoundingClientRect();
+    const size = vertical ? height : width;
+    const style = getComputedStyle(this);
+    const maxInlineSize = parseFloat(style.getPropertyValue('--_max-inline-size'));
+    const maxColumnCount = parseInt(style.getPropertyValue('--_max-column-count'));
+    const margin = parseFloat(style.getPropertyValue('--_margin'));
+    this.#margin = margin;
+    const g = parseFloat(style.getPropertyValue('--_gap')) / 100;
+    // The gap will be a percentage of the #container, not the whole view.
+    // This means the outer padding will be bigger than the column gap. Let
+    // \`a\` be the gap percentage. The actual percentage for the column gap
+    // will be (1 - a) * a. Let us call this \`b\`.
+    //
+    // To make them the same, we start by shrinking the outer padding
+    // setting to \`b\`, but keep the column gap setting the same at \`a\`. Then
+    // the actual size for the column gap will be (1 - b) * a. Repeating the
+    // process again and again, we get the sequence
+    //     x₁ = (1 - b) * a
+    //     x₂ = (1 - x₁) * a
+    //     ...
+    // which converges to x = (1 - x) * a. Solving for x, x = a / (1 + a).
+    // So to make the spacing even, we must shrink the outer padding with
+    //     f(x) = x / (1 + x).
+    // But we want to keep the outer padding, and make the inner gap bigger.
+    // So we apply the inverse, f⁻¹ = -x / (x - 1) to the column gap.
+    const gap = -g / (g - 1) * size;
+    const flow = this.getAttribute('flow');
+    if (flow === 'scrolled') {
+      // FIXME: vertical-rl only, not -lr
+      this.setAttribute('dir', vertical ? 'rtl' : 'ltr');
+      this.style.padding = '0';
+      const columnWidth = maxInlineSize;
+      this.heads = null;
+      this.feet = null;
+      this.#header.replaceChildren();
+      this.#footer.replaceChildren();
+      return {
+        flow,
+        margin,
+        gap,
+        columnWidth
+      };
+    }
+    const divisor = Math.min(maxColumnCount, Math.ceil(size / maxInlineSize));
+    const columnWidth = size / divisor - gap;
+    this.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+    const marginalDivisor = vertical ? Math.min(2, Math.ceil(width / maxInlineSize)) : divisor;
+    const marginalStyle = {
+      gridTemplateColumns: \`repeat(\${marginalDivisor}, 1fr)\`,
+      gap: \`\${gap}px\`,
+      padding: vertical ? '0' : \`0 \${gap / 2}px\`,
+      direction: this.bookDir === 'rtl' ? 'rtl' : 'ltr'
+    };
+    Object.assign(this.#header.style, marginalStyle);
+    Object.assign(this.#footer.style, marginalStyle);
+    const heads = makeMarginals(marginalDivisor, 'head');
+    const feet = makeMarginals(marginalDivisor, 'foot');
+    this.heads = heads.map(el => el.children[0]);
+    this.feet = feet.map(el => el.children[0]);
+    this.#header.replaceChildren(...heads);
+    this.#footer.replaceChildren(...feet);
+    return {
+      height,
+      width,
+      margin,
+      gap,
+      columnWidth
+    };
+  }
+  render() {
+    if (!this.#view) return;
+    // debugMessage('[RENDER]')
+    this.#view.render(this.#beforeRender({
+      vertical: this.#vertical,
+      rtl: this.#rtl
+    }));
+    this.scrollToAnchor(this.#anchor);
+  }
+  get scrolled() {
+    return this.getAttribute('flow') === 'scrolled';
+  }
+  get scrollProp() {
+    const {
+      scrolled
+    } = this;
+    return this.#vertical ? scrolled ? 'scrollLeft' : 'scrollTop' : scrolled ? 'scrollTop' : 'scrollLeft';
+  }
+  get sideProp() {
+    const {
+      scrolled
+    } = this;
+    return this.#vertical ? scrolled ? 'width' : 'height' : scrolled ? 'height' : 'width';
+  }
+  get size() {
+    return this.#container.getBoundingClientRect()[this.sideProp];
+  }
+  get viewSize() {
+    return this.#view.element.getBoundingClientRect()[this.sideProp];
+  }
+  get start() {
+    return Math.abs(this.#container[this.scrollProp]);
+  }
+  get end() {
+    return this.start + this.size;
+  }
+  get page() {
+    return Math.floor((this.start + this.end) / 2 / this.size);
+  }
+  get pages() {
+    return Math.round(this.viewSize / this.size);
+  }
+  scrollBy(dx, dy) {
+    const delta = this.#vertical ? dy : dx;
+    const element = this.#container;
+    const {
+      scrollProp
+    } = this;
+    const [offset, a, b] = this.#scrollBounds;
+    const rtl = this.#rtl;
+    const min = rtl ? offset - b : offset - a;
+    const max = rtl ? offset + a : offset + b;
+    element[scrollProp] = Math.max(min, Math.min(max, element[scrollProp] + delta));
+  }
+  snap(vx, vy) {
+    const velocity = this.#vertical ? vy : vx;
+    const [offset, a, b] = this.#scrollBounds;
+    const {
+      start,
+      end,
+      pages,
+      size
+    } = this;
+    const min = Math.abs(offset) - a;
+    const max = Math.abs(offset) + b;
+    const d = velocity * (this.#rtl ? -size : size);
+    const page = Math.floor(Math.max(min, Math.min(max, (start + end) / 2 + (isNaN(d) ? 0 : d))) / size);
+    const dir = page <= 0 ? -1 : page >= pages - 1 ? 1 : null;
+    if (dir) {
+      if (this.lastCalled) {
+        this.now = Date.now();
+        const elapsed = this.now - this.lastCalled;
+        this.lastCalled = null;
+        if (elapsed < 325) {
+          return;
+        }
+      }
+      this.lastCalled = Date.now();
+    }
+    this.#scrollToPage(page, 'snap').then(() => {
+      if (dir) return this.#goTo({
+        index: this.#adjacentIndex(dir),
+        anchor: dir < 0 ? () => 1 : () => 0
+      });
+    });
+  }
+  #onTouchStart(e) {
+    const touch = e.changedTouches[0];
+    this.#touchState = {
+      x: touch?.screenX,
+      y: touch?.screenY,
+      t: e.timeStamp,
+      vx: 0,
+      xy: 0
+    };
+  }
+  #onTouchMove(e) {
+    if (this.pause) return;
+    const state = this.#touchState;
+    if (state.pinched) return;
+    state.pinched = globalThis.visualViewport.scale > 1;
+    // if (this.scrolled || state.pinched) {
+    //     if (this.hasChecked && this.scrolled) {
+    //         this.hasChecked = false
+    //         this.#check()
+    //     } else {
+    //         this.hasChecked = true
+    //     }
+    //     return
+    // }
+    if (e.touches.length > 1) {
+      if (this.#touchScrolled) e.preventDefault();
+      return;
+    }
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const x = touch.screenX,
+      y = touch.screenY;
+    const dx = state.x - x,
+      dy = state.y - y;
+    const dt = e.timeStamp - state.t;
+    state.x = x;
+    state.y = y;
+    state.t = e.timeStamp;
+    state.vx = dx / dt;
+    state.vy = dy / dt;
+    this.#touchScrolled = true;
+    this.scrollBy(dx, dy);
+  }
+  #onTouchEnd() {
+    this.#touchScrolled = false;
+    if (this.scrolled) {
+      // if (this.#canGoToNextSection) {
+      //     this.nextSection().then(() => {
+      //         this.#goingNext = true
+      //     })
+      //     this.dispatchEvent(new CustomEvent('next', {detail: {show: false}}))
+      // }
+
+      // if (this.#canGoToPrevSection) {
+      //     this.prevSection().then(() => {
+      //         this.#goingPrev = true
+      //     })
+      //     this.dispatchEvent(new CustomEvent('previous', {detail: {show: false}}))
+
+      // }
+
+      // this.#canGoToPrevSection = false
+      // this.#canGoToNextSection = false
+
+      return;
+    }
+
+    // XXX: Firefox seems to report scale as 1... sometimes...?
+    // at this point I'm basically throwing \`requestAnimationFrame\` at
+    // anything that doesn't work
+    requestAnimationFrame(() => {
+      if (globalThis.visualViewport.scale === 1) this.snap(this.#touchState.vx, this.#touchState.vy);
+    });
+  }
+  // #check() {
+  //     if (this.scrolled) {
+  //         const scrollTop = this.#container.scrollTop
+  //         const scrollheight = this.#container.scrollHeight
+
+  //         const start = scrollTop
+  //         const end = this.end - scrollheight
+
+  //         if (end > 50) {
+  //             if (this.atEnd || this.#canGoToPrevSection || this.#canGoToNextSection) return
+  //             this.#canGoToNextSection = true
+  //             this.dispatchEvent(new CustomEvent('next', {detail: {show: true}}))
+  //             return
+  //         }
+  //         if (start < -50) {
+  //             if (this.atStart || this.#canGoToNextSection || this.#canGoToPrevSection) return
+  //             this.#canGoToPrevSection = true
+  //             this.dispatchEvent(new CustomEvent('previous', {detail: {show: true}}))
+  //             return
+  //         }
+
+  //         this.#canGoToPrevSection = false
+  //         this.#canGoToNextSection = false
+
+  //         if (this.sentEvent && (this.#canGoToPrevSection || this.#canGoToPrevSection)) {
+  //             this.sentEvent = false
+  //             this.dispatchEvent(new CustomEvent('next', { detail: { show: false } }))
+  //             this.dispatchEvent(new CustomEvent('previous', { detail: { show: false } }))
+  //         } else {
+  //             this.sentEvent = true
+  //         }
+  //     }
+  // }
+  // allows one to process rects as if they were LTR and horizontal
+  #getRectMapper() {
+    if (this.scrolled) {
+      const size = this.viewSize;
+      const margin = this.#margin;
+      return this.#vertical ? ({
+        left,
+        right
+      }) => ({
+        left: size - right - margin,
+        right: size - left - margin
+      }) : ({
+        top,
+        bottom
+      }) => ({
+        left: top + margin,
+        right: bottom + margin
+      });
+    }
+    const pxSize = this.pages * this.size;
+    return this.#rtl ? ({
+      left,
+      right
+    }) => ({
+      left: pxSize - right,
+      right: pxSize - left
+    }) : this.#vertical ? ({
+      top,
+      bottom
+    }) => ({
+      left: top,
+      right: bottom
+    }) : f => f;
+  }
+  async #scrollToRect(rect, reason) {
+    if (this.scrolled) {
+      const offset = this.#getRectMapper()(rect).left - this.#margin;
+      return this.#scrollTo(offset, reason);
+    }
+    const offset = this.#getRectMapper()(rect).left + this.#margin / 2;
+    return this.#scrollToPage(Math.floor(offset / this.size) + (this.#rtl ? -1 : 1), reason);
+  }
+  async #scrollTo(offset, reason, smooth) {
+    const element = this.#container;
+    const {
+      scrollProp,
+      size
+    } = this;
+    if (element[scrollProp] === offset) {
+      this.#scrollBounds = [offset, this.atStart ? 0 : size, this.atEnd ? 0 : size];
+      this.#afterScroll(reason);
+      return;
+    }
+    // FIXME: vertical-rl only, not -lr
+    if (this.scrolled && this.#vertical) offset = -offset;
+    if (reason === 'snap' || smooth && this.pageAnimation) return animate(element[scrollProp], offset, 300, easeOutQuad, x => element[scrollProp] = x).then(() => {
+      this.#scrollBounds = [offset, this.atStart ? 0 : size, this.atEnd ? 0 : size];
+      this.#afterScroll(reason);
+    });else {
+      element[scrollProp] = offset;
+      this.#scrollBounds = [offset, this.atStart ? 0 : size, this.atEnd ? 0 : size];
+      this.#afterScroll(reason);
+    }
+  }
+  async #scrollToPage(page, reason, smooth) {
+    const offset = this.size * (this.#rtl ? -page : page);
+    return this.#scrollTo(offset, reason, smooth);
+  }
+  async scrollToAnchor(anchor, select) {
+    this.#anchor = anchor;
+    const rects = uncollapse(anchor)?.getClientRects?.();
+    // if anchor is an element or a range
+    if (rects) {
+      // when the start of the range is immediately after a hyphen in the
+      // previous column, there is an extra zero width rect in that column
+      const rect = Array.from(rects).find(r => r.width > 0 && r.height > 0) || rects[0];
+      if (!rect) return;
+      await this.#scrollToRect(rect, 'anchor');
+      if (select) this.#selectAnchor();
+      return;
+    }
+    // if anchor is a fraction
+    if (this.scrolled) {
+      // if (this.#goingPrev || this.#goingNext) {
+      //     if (this.#goingPrev) {
+      //         await this.#scrollTo(this.viewSize, 'anchor')
+      //         this.#goingPrev = false
+      //         return
+      //     } else {
+      //         await this.#scrollTo(0, 'anchor')
+      //         this.#goingNext = false
+      //         return
+      //     }
+      // }
+      // // idk what this.#anchor is ????
+      // this.#anchor &&
+      //   debugMessage(
+      //       \`[SCROLLTOANCHOR] anchor \${JSON.stringify(this.#anchor)} \${
+      //           this.#anchor
+      //       }\`,
+      //   )
+      await this.#scrollTo(this.#anchor * this.viewSize, 'anchor');
+      return;
+    }
+    const {
+      pages
+    } = this;
+    if (!pages) return;
+    const textPages = pages - 2;
+    const newPage = Math.round(anchor * (textPages - 1));
+    await this.#scrollToPage(newPage + 1, 'anchor');
+  }
+  #selectAnchor() {
+    const {
+      defaultView
+    } = this.#view.document;
+    if (this.#anchor.startContainer) {
+      const sel = defaultView.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(this.#anchor);
+    }
+  }
+  #getVisibleRange() {
+    if (this.scrolled) return getVisibleRange(this.#view.document, this.start + this.#margin, this.end - this.#margin, this.#getRectMapper());
+    const size = this.#rtl ? -this.size : this.size;
+    return getVisibleRange(this.#view.document, this.start - size, this.end - size, this.#getRectMapper());
+  }
+  #afterScroll(reason) {
+    const range = this.#getVisibleRange();
+    // don't set new anchor if relocation was to scroll to anchor
+    if (reason !== 'anchor') this.#anchor = range;else this.#justAnchored = true;
+    const index = this.#index;
+    const detail = {
+      reason,
+      range,
+      index
+    };
+    if (this.scrolled) detail.fraction = this.start / this.viewSize;else if (this.pages > 0) {
+      const {
+        page,
+        pages
+      } = this;
+      this.#header.style.visibility = page > 1 ? 'visible' : 'hidden';
+      detail.fraction = (page - 1) / (pages - 2);
+      detail.size = 1 / (pages - 2);
+    }
+    this.dispatchEvent(new CustomEvent('relocate', {
+      detail
+    }));
+  }
+  async #display(promise) {
+    const {
+      index,
+      src,
+      anchor,
+      onLoad,
+      select
+    } = await promise;
+    this.#index = index;
+    if (src) {
+      const view = this.#createView();
+      const afterLoad = doc => {
+        if (doc.head) {
+          const \$styleBefore = doc.createElement('style');
+          doc.head.prepend(\$styleBefore);
+          const \$style = doc.createElement('style');
+          doc.head.append(\$style);
+          this.#styleMap.set(doc, [\$styleBefore, \$style]);
+        }
+        onLoad?.({
+          doc,
+          index
+        });
+      };
+      const beforeRender = this.#beforeRender.bind(this);
+      await view.load(src, afterLoad, beforeRender);
+      this.dispatchEvent(new CustomEvent('create-overlayer', {
+        detail: {
+          doc: view.document,
+          index,
+          attach: overlayer => view.overlayer = overlayer
+        }
+      }));
+      this.#view = view;
+    }
+    await this.scrollToAnchor((typeof anchor === 'function' ? anchor(this.#view.document) : anchor) ?? 0, select);
+  }
+  #canGoToIndex(index) {
+    return index >= 0 && index <= this.sections.length - 1;
+  }
+  async #goTo({
+    index,
+    anchor,
+    select
+  }) {
+    if (index === this.#index) await this.#display({
+      index,
+      anchor,
+      select
+    });else {
+      const oldIndex = this.#index;
+      const onLoad = detail => {
+        this.sections[oldIndex]?.unload?.();
+        this.setStyles(this.#styles);
+        this.dispatchEvent(new CustomEvent('load', {
+          detail
+        }));
+      };
+      await this.#display(Promise.resolve(this.sections[index].load()).then(src => ({
+        index,
+        src,
+        anchor,
+        onLoad,
+        select
+      })).catch(e => {
+        console.warn(e);
+        console.warn(new Error(\`Failed to load section \${index}\`));
+        return {};
+      }));
+    }
+  }
+  async goTo(target) {
+    if (this.#locked) return;
+    const resolved = await target;
+    if (this.#canGoToIndex(resolved.index)) return this.#goTo(resolved);
+  }
+  #scrollPrev(distance) {
+    if (!this.#view) return true;
+    if (this.scrolled) {
+      if (this.start > 0) return this.#scrollTo(Math.max(0, this.start - (distance ?? this.size)), null, true);
+      return true;
+    }
+    if (this.atStart) return;
+    const page = this.page - 1;
+    return this.#scrollToPage(page, 'page', true).then(() => page <= 0);
+  }
+  #scrollNext(distance) {
+    if (!this.#view) return true;
+    if (this.scrolled) {
+      if (this.viewSize - this.end > 2) return this.#scrollTo(Math.min(this.viewSize, distance ? this.start + distance : this.end), null, true);
+      return true;
+    }
+    if (this.atEnd) return;
+    const page = this.page + 1;
+    const pages = this.pages;
+    return this.#scrollToPage(page, 'page', true).then(() => page >= pages - 1);
+  }
+  get atStart() {
+    return this.#adjacentIndex(-1) == null && this.page <= 1;
+  }
+  get atEnd() {
+    return this.#adjacentIndex(1) == null && this.page >= this.pages - 2;
+  }
+  #adjacentIndex(dir) {
+    for (let index = this.#index + dir; this.#canGoToIndex(index); index += dir) if (this.sections[index]?.linear !== 'no') return index;
+  }
+  async #turnPage(dir, distance) {
+    if (this.#locked) return;
+    this.#locked = true;
+    const prev = dir === -1;
+    const shouldGo = await (prev ? this.#scrollPrev(distance) : this.#scrollNext(distance));
+    if (shouldGo) await this.#goTo({
+      index: this.#adjacentIndex(dir),
+      anchor: prev ? () => 1 : () => 0
+    });
+    if (shouldGo || !this.pageAnimation) await wait(100);
+    this.#locked = false;
+  }
+  prev(distance) {
+    return this.#turnPage(-1, distance);
+  }
+  next(distance) {
+    return this.#turnPage(1, distance);
+  }
+  prevSection() {
+    return this.goTo({
+      index: this.#adjacentIndex(-1)
+    });
+  }
+  nextSection() {
+    return this.goTo({
+      index: this.#adjacentIndex(1)
+    });
+  }
+  firstSection() {
+    const index = this.sections.findIndex(section => section.linear !== 'no');
+    return this.goTo({
+      index
+    });
+  }
+  lastSection() {
+    const index = this.sections.findLastIndex(section => section.linear !== 'no');
+    return this.goTo({
+      index
+    });
+  }
+  getContents() {
+    if (this.#view) return [{
+      index: this.#index,
+      overlayer: this.#view.overlayer,
+      doc: this.#view.document
+    }];
+    return [];
+  }
+  setStyles(styles) {
+    this.#styles = styles;
+    const \$\$styles = this.#styleMap.get(this.#view?.document);
+    if (!\$\$styles) return;
+    const [\$beforeStyle, \$style] = \$\$styles;
+    if (Array.isArray(styles)) {
+      const [beforeStyle, style] = styles;
+      \$beforeStyle.textContent = beforeStyle;
+      \$style.textContent = style;
+    } else \$style.textContent = styles;
+    this.#background.style.background = getBackground(this.#view.document);
+
+    // needed because the resize observer doesn't work in Firefox
+    this.#view?.document?.fonts?.ready?.then(() => this.#view.expand());
+  }
+  destroy() {
+    this.#observer.unobserve(this);
+    this.#view.destroy();
+    this.#view = null;
+    this.sections[this.#index]?.unload?.();
+    this.#mediaQuery.removeEventListener('change', this.#mediaQueryListener);
+  }
+}
+customElements.define('foliate-paginator', Paginator);
+;// CONCATENATED MODULE: ./foliate-js/search.js
+// length for context in excerpts
+const CONTEXT_LENGTH = 50;
+const normalizeWhitespace = str => str.replace(/\\s+/g, ' ');
+const makeExcerpt = (strs, {
+  startIndex,
+  startOffset,
+  endIndex,
+  endOffset
+}) => {
+  const start = strs[startIndex];
+  const end = strs[endIndex];
+  const match = start === end ? start.slice(startOffset, endOffset) : start.slice(startOffset) + strs.slice(start + 1, end).join('') + end.slice(0, endOffset);
+  const trimmedStart = normalizeWhitespace(start.slice(0, startOffset)).trimStart();
+  const trimmedEnd = normalizeWhitespace(end.slice(endOffset)).trimEnd();
+  const ellipsisPre = trimmedStart.length < CONTEXT_LENGTH ? '' : '…';
+  const ellipsisPost = trimmedEnd.length < CONTEXT_LENGTH ? '' : '…';
+  const pre = \`\${ellipsisPre}\${trimmedStart.slice(-CONTEXT_LENGTH)}\`;
+  const post = \`\${trimmedEnd.slice(0, CONTEXT_LENGTH)}\${ellipsisPost}\`;
+  return {
+    pre,
+    match,
+    post
+  };
+};
+const simpleSearch = function* (strs, query, options = {}) {
+  const {
+    locales = 'en',
+    sensitivity
+  } = options;
+  const matchCase = sensitivity === 'variant';
+  const haystack = strs.join('');
+  const lowerHaystack = matchCase ? haystack : haystack.toLocaleLowerCase(locales);
+  const needle = matchCase ? query : query.toLocaleLowerCase(locales);
+  const needleLength = needle.length;
+  let index = -1;
+  let strIndex = -1;
+  let sum = 0;
+  do {
+    index = lowerHaystack.indexOf(needle, index + 1);
+    if (index > -1) {
+      while (sum <= index) sum += strs[++strIndex].length;
+      const startIndex = strIndex;
+      const startOffset = index - (sum - strs[strIndex].length);
+      const end = index + needleLength;
+      while (sum <= end) sum += strs[++strIndex].length;
+      const endIndex = strIndex;
+      const endOffset = end - (sum - strs[strIndex].length);
+      const range = {
+        startIndex,
+        startOffset,
+        endIndex,
+        endOffset
+      };
+      yield {
+        range,
+        excerpt: makeExcerpt(strs, range)
+      };
+    }
+  } while (index > -1);
+};
+const segmenterSearch = function* (strs, query, options = {}) {
+  const {
+    locales = 'en',
+    granularity = 'word',
+    sensitivity = 'base'
+  } = options;
+  let segmenter, collator;
+  try {
+    segmenter = new Intl.Segmenter(locales, {
+      usage: 'search',
+      granularity
+    });
+    collator = new Intl.Collator(locales, {
+      sensitivity
+    });
+  } catch (e) {
+    console.warn(e);
+    segmenter = new Intl.Segmenter('en', {
+      usage: 'search',
+      granularity
+    });
+    collator = new Intl.Collator('en', {
+      sensitivity
+    });
+  }
+  const queryLength = Array.from(segmenter.segment(query)).length;
+  const substrArr = [];
+  let strIndex = 0;
+  let segments = segmenter.segment(strs[strIndex])[Symbol.iterator]();
+  main: while (strIndex < strs.length) {
+    while (substrArr.length < queryLength) {
+      const {
+        done,
+        value
+      } = segments.next();
+      if (done) {
+        // the current string is exhausted
+        // move on to the next string
+        strIndex++;
+        if (strIndex < strs.length) {
+          segments = segmenter.segment(strs[strIndex])[Symbol.iterator]();
+          continue;
+        } else break main;
+      }
+      const {
+        index,
+        segment
+      } = value;
+      // ignore formatting characters
+      if (!/[^\\p{Format}]/u.test(segment)) continue;
+      // normalize whitespace
+      if (/\\s/u.test(segment)) {
+        if (!/\\s/u.test(substrArr[substrArr.length - 1]?.segment)) substrArr.push({
+          strIndex,
+          index,
+          segment: ' '
+        });
+        continue;
+      }
+      value.strIndex = strIndex;
+      substrArr.push(value);
+    }
+    const substr = substrArr.map(x => x.segment).join('');
+    if (collator.compare(query, substr) === 0) {
+      const endIndex = strIndex;
+      const lastSeg = substrArr[substrArr.length - 1];
+      const endOffset = lastSeg.index + lastSeg.segment.length;
+      const startIndex = substrArr[0].strIndex;
+      const startOffset = substrArr[0].index;
+      const range = {
+        startIndex,
+        startOffset,
+        endIndex,
+        endOffset
+      };
+      yield {
+        range,
+        excerpt: makeExcerpt(strs, range)
+      };
+    }
+    substrArr.shift();
+  }
+};
+const search = (strs, query, options) => {
+  const {
+    granularity = 'grapheme',
+    sensitivity = 'base'
+  } = options;
+  if (!Intl?.Segmenter || granularity === 'grapheme' && (sensitivity === 'variant' || sensitivity === 'accent')) return simpleSearch(strs, query, options);
+  return segmenterSearch(strs, query, options);
+};
+const searchMatcher = (textWalker, opts) => {
+  const {
+    defalutLocale,
+    matchCase,
+    matchDiacritics,
+    matchWholeWords
+  } = opts;
+  return function* (doc, query) {
+    const iter = textWalker(doc, function* (strs, makeRange) {
+      for (const result of search(strs, query, {
+        locales: doc.body.lang || doc.documentElement.lang || defalutLocale || 'en',
+        granularity: matchWholeWords ? 'word' : 'grapheme',
+        sensitivity: matchDiacritics && matchCase ? 'variant' : matchDiacritics && !matchCase ? 'accent' : !matchDiacritics && matchCase ? 'case' : 'base'
+      })) {
+        const {
+          startIndex,
+          startOffset,
+          endIndex,
+          endOffset
+        } = result.range;
+        result.range = makeRange(startIndex, startOffset, endIndex, endOffset);
+        yield result;
+      }
+    });
+    for (const result of iter) yield result;
+  };
+};
+;// CONCATENATED MODULE: ./foliate-js/tts.js
+const NS = {
+  XML: 'http://www.w3.org/XML/1998/namespace',
+  SSML: 'http://www.w3.org/2001/10/synthesis'
+};
+const blockTags = new Set(['article', 'aside', 'audio', 'blockquote', 'caption', 'details', 'dialog', 'div', 'dl', 'dt', 'dd', 'figure', 'footer', 'form', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li', 'main', 'math', 'nav', 'ol', 'p', 'pre', 'section', 'tr']);
+const getLang = el => {
+  const x = el.lang || el?.getAttributeNS?.(NS.XML, 'lang');
+  return x ? x : el.parentElement ? getLang(el.parentElement) : null;
+};
+const getAlphabet = el => {
+  const x = el?.getAttributeNS?.(NS.XML, 'lang');
+  return x ? x : el.parentElement ? getAlphabet(el.parentElement) : null;
+};
+const getSegmenter = (lang = 'en', granularity = 'word') => {
+  const segmenter = new Intl.Segmenter(lang, {
+    granularity
+  });
+  const granularityIsWord = granularity === 'word';
+  return function* (strs, makeRange) {
+    const str = strs.join('');
+    let name = 0;
+    let strIndex = -1;
+    let sum = 0;
+    for (const {
+      index,
+      segment,
+      isWordLike
+    } of segmenter.segment(str)) {
+      if (granularityIsWord && !isWordLike) continue;
+      while (sum <= index) sum += strs[++strIndex].length;
+      const startIndex = strIndex;
+      const startOffset = index - (sum - strs[strIndex].length);
+      const end = index + segment.length;
+      if (end < str.length) while (sum <= end) sum += strs[++strIndex].length;
+      const endIndex = strIndex;
+      const endOffset = end - (sum - strs[strIndex].length);
+      yield [(name++).toString(), makeRange(startIndex, startOffset, endIndex, endOffset)];
+    }
+  };
+};
+const fragmentToSSML = (fragment, inherited) => {
+  const ssml = document.implementation.createDocument(NS.SSML, 'speak');
+  const {
+    lang
+  } = inherited;
+  if (lang) ssml.documentElement.setAttributeNS(NS.XML, 'lang', lang);
+  const convert = (node, parent, inheritedAlphabet) => {
+    if (!node) return;
+    if (node.nodeType === 3) return ssml.createTextNode(node.textContent);
+    if (node.nodeType === 4) return ssml.createCDATASection(node.textContent);
+    if (node.nodeType !== 1) return;
+    let el;
+    const nodeName = node.nodeName.toLowerCase();
+    if (nodeName === 'foliate-mark') {
+      el = ssml.createElementNS(NS.SSML, 'mark');
+      el.setAttribute('name', node.dataset.name);
+    } else if (nodeName === 'br') el = ssml.createElementNS(NS.SSML, 'break');else if (nodeName === 'em' || nodeName === 'strong') el = ssml.createElementNS(NS.SSML, 'emphasis');
+    const lang = node.lang || node.getAttributeNS(NS.XML, 'lang');
+    if (lang) {
+      if (!el) el = ssml.createElementNS(NS.SSML, 'lang');
+      el.setAttributeNS(NS.XML, 'lang', lang);
+    }
+    const alphabet = node.getAttributeNS(NS.SSML, 'alphabet') || inheritedAlphabet;
+    if (!el) {
+      const ph = node.getAttributeNS(NS.SSML, 'ph');
+      if (ph) {
+        el = ssml.createElementNS(NS.SSML, 'phoneme');
+        if (alphabet) el.setAttribute('alphabet', alphabet);
+        el.setAttribute('ph', ph);
+      }
+    }
+    if (!el) el = parent;
+    let child = node.firstChild;
+    while (child) {
+      const childEl = convert(child, el, alphabet);
+      if (childEl && el !== childEl) el.append(childEl);
+      child = child.nextSibling;
+    }
+    return el;
+  };
+  convert(fragment.firstChild, ssml.documentElement, inherited.alphabet);
+  return ssml;
+};
+const getFragmentWithMarks = (range, textWalker, granularity) => {
+  const lang = getLang(range.commonAncestorContainer);
+  const alphabet = getAlphabet(range.commonAncestorContainer);
+  const segmenter = getSegmenter(lang, granularity);
+  const fragment = range.cloneContents();
+
+  // we need ranges on both the original document (for highlighting)
+  // and the document fragment (for inserting marks)
+  // so unfortunately need to do it twice, as you can't copy the ranges
+  const entries = [...textWalker(range, segmenter)];
+  const fragmentEntries = [...textWalker(fragment, segmenter)];
+  for (const [name, range] of fragmentEntries) {
+    const mark = document.createElement('foliate-mark');
+    mark.dataset.name = name;
+    range.insertNode(mark);
+  }
+  const ssml = fragmentToSSML(fragment, {
+    lang,
+    alphabet
+  });
+  return {
+    entries,
+    ssml
+  };
+};
+const rangeIsEmpty = range => !range.toString().trim();
+function* getBlocks(doc) {
+  let last;
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const name = node.tagName.toLowerCase();
+    if (blockTags.has(name)) {
+      if (last) {
+        last.setEndBefore(node);
+        if (!rangeIsEmpty(last)) yield last;
+      }
+      last = doc.createRange();
+      last.setStart(node, 0);
+    }
+  }
+  if (!last) {
+    last = doc.createRange();
+    last.setStart(doc.body.firstChild ?? doc.body, 0);
+  }
+  last.setEndAfter(doc.body.lastChild ?? doc.body);
+  if (!rangeIsEmpty(last)) yield last;
+}
+class ListIterator {
+  #arr = [];
+  #iter;
+  #index = -1;
+  #f;
+  constructor(iter, f = x => x) {
+    this.#iter = iter;
+    this.#f = f;
+  }
+  current() {
+    if (this.#arr[this.#index]) return this.#f(this.#arr[this.#index]);
+  }
+  first() {
+    const newIndex = 0;
+    if (this.#arr[newIndex]) {
+      this.#index = newIndex;
+      return this.#f(this.#arr[newIndex]);
+    }
+  }
+  prev() {
+    const newIndex = this.#index - 1;
+    if (this.#arr[newIndex]) {
+      this.#index = newIndex;
+      return this.#f(this.#arr[newIndex]);
+    }
+  }
+  next() {
+    const newIndex = this.#index + 1;
+    if (this.#arr[newIndex]) {
+      this.#index = newIndex;
+      return this.#f(this.#arr[newIndex]);
+    }
+    while (true) {
+      const {
+        done,
+        value
+      } = this.#iter.next();
+      if (done) break;
+      this.#arr.push(value);
+      if (this.#arr[newIndex]) {
+        this.#index = newIndex;
+        return this.#f(this.#arr[newIndex]);
+      }
+    }
+  }
+  find(f) {
+    const index = this.#arr.findIndex(x => f(x));
+    if (index > -1) {
+      this.#index = index;
+      return this.#f(this.#arr[index]);
+    }
+    while (true) {
+      const {
+        done,
+        value
+      } = this.#iter.next();
+      if (done) break;
+      this.#arr.push(value);
+      if (f(value)) {
+        this.#index = this.#arr.length - 1;
+        return this.#f(value);
+      }
+    }
+  }
+}
+class TTS {
+  #list;
+  #ranges;
+  #lastMark;
+  #serializer = new XMLSerializer();
+  constructor(doc, textWalker, highlight) {
+    this.doc = doc;
+    this.highlight = highlight;
+    this.#list = new ListIterator(getBlocks(doc), range => {
+      const {
+        entries,
+        ssml
+      } = getFragmentWithMarks(range, textWalker);
+      this.#ranges = new Map(entries);
+      return [ssml, range];
+    });
+  }
+  #getMarkElement(doc, mark) {
+    if (!mark) return null;
+    return doc.querySelector(\`mark[name="\${CSS.escape(mark)}"\`);
+  }
+  #speak(doc, getNode) {
+    if (!doc) return;
+    if (!getNode) return this.#serializer.serializeToString(doc);
+    const ssml = document.implementation.createDocument(NS.SSML, 'speak');
+    ssml.documentElement.replaceWith(ssml.importNode(doc.documentElement, true));
+    let node = getNode(ssml)?.previousSibling;
+    while (node) {
+      const next = node.previousSibling ?? node.parentNode?.previousSibling;
+      node.parentNode.removeChild(node);
+      node = next;
+    }
+    return this.#serializer.serializeToString(ssml);
+  }
+  start() {
+    this.#lastMark = null;
+    const [doc] = this.#list.first() ?? [];
+    if (!doc) return this.next();
+    return this.#speak(doc, ssml => this.#getMarkElement(ssml, this.#lastMark));
+  }
+  resume() {
+    const [doc] = this.#list.current() ?? [];
+    if (!doc) return this.next();
+    return this.#speak(doc, ssml => this.#getMarkElement(ssml, this.#lastMark));
+  }
+  prev(paused) {
+    this.#lastMark = null;
+    const [doc, range] = this.#list.prev() ?? [];
+    if (paused && range) this.highlight(range.cloneRange());
+    return this.#speak(doc);
+  }
+  next(paused) {
+    this.#lastMark = null;
+    const [doc, range] = this.#list.next() ?? [];
+    if (paused && range) this.highlight(range.cloneRange());
+    return this.#speak(doc);
+  }
+  from(range) {
+    this.#lastMark = null;
+    const [doc] = this.#list.find(range_ => range.compareBoundaryPoints(Range.END_TO_START, range_) <= 0);
+    let mark;
+    for (const [name, range_] of this.#ranges.entries()) if (range.compareBoundaryPoints(Range.START_TO_START, range_) <= 0) {
+      mark = name;
+      break;
+    }
+    return this.#speak(doc, ssml => this.#getMarkElement(ssml, mark));
+  }
+  setMark(mark) {
+    const range = this.#ranges.get(mark);
+    if (range) {
+      this.#lastMark = mark;
+      this.highlight(range.cloneRange());
+    }
+  }
+}
+;// CONCATENATED MODULE: ./foliate-js/debug.js
+const debug_debugMessage = m => {
+  if (typeof window.ReactNativeWebView != 'undefined') {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      type: 'epubjs',
+      message: m
+    }));
+  } else {
+    console.log(m);
+  }
+};
+/* harmony default export */ const debug = (debug_debugMessage);
+;// CONCATENATED MODULE: ./foliate-js/view.js
+
+
+
+
+
+
+
+
+
+const SEARCH_PREFIX = 'foliate-search:';
+class History extends EventTarget {
+  #arr = [];
+  #index = -1;
+  pushState(x) {
+    const last = this.#arr[this.#index];
+    if (last === x || last?.fraction && last.fraction === x.fraction) return;
+    this.#arr[++this.#index] = x;
+    this.#arr.length = this.#index + 1;
+    this.dispatchEvent(new Event('index-change'));
+  }
+  replaceState(x) {
+    const index = this.#index;
+    this.#arr[index] = x;
+  }
+  back() {
+    const index = this.#index;
+    if (index <= 0) return;
+    const detail = {
+      state: this.#arr[index - 1]
+    };
+    this.#index = index - 1;
+    this.dispatchEvent(new CustomEvent('popstate', {
+      detail
+    }));
+    this.dispatchEvent(new Event('index-change'));
+  }
+  forward() {
+    const index = this.#index;
+    if (index >= this.#arr.length - 1) return;
+    const detail = {
+      state: this.#arr[index + 1]
+    };
+    this.#index = index + 1;
+    this.dispatchEvent(new CustomEvent('popstate', {
+      detail
+    }));
+    this.dispatchEvent(new Event('index-change'));
+  }
+  get canGoBack() {
+    return this.#index > 0;
+  }
+  get canGoForward() {
+    return this.#index < this.#arr.length - 1;
+  }
+  clear() {
+    this.#arr = [];
+    this.#index = -1;
+  }
+}
+const languageInfo = lang => {
+  if (!lang) return {};
+  try {
+    const canonical = Intl.getCanonicalLocales(lang)[0];
+    const locale = new Intl.Locale(canonical);
+    const isCJK = ['zh', 'ja', 'kr'].includes(locale.language);
+    const direction = (locale.getTextInfo?.() ?? locale.textInfo)?.direction;
+    return {
+      canonical,
+      locale,
+      isCJK,
+      direction
+    };
+  } catch (e) {
+    console.warn(e);
+    return {};
+  }
+};
+class view_View extends HTMLElement {
+  #root = this.attachShadow({
+    mode: 'closed'
+  });
+  #sectionProgress;
+  #tocProgress;
+  #pageProgress;
+  #searchResults = new Map();
+  #ssml;
+  #speechDoc;
+  #speechRanges;
+  #speechGranularity;
+  #lastSpeechMark;
+  isFixedLayout = false;
+  lastLocation;
+  history = new History();
+  constructor() {
+    super();
+    this.history.addEventListener('popstate', ({
+      detail
+    }) => {
+      const resolved = this.resolveNavigation(detail.state);
+      this.renderer.goTo(resolved);
+    });
+  }
+  async open(book) {
+    this.book = book;
+    this.language = languageInfo(book.metadata?.language);
+    if (book.splitTOCHref && book.getTOCFragment) {
+      const ids = book.sections.map(s => s.id);
+      this.#sectionProgress = new SectionProgress(book.sections, 1500, 1600);
+      const splitHref = book.splitTOCHref.bind(book);
+      const getFragment = book.getTOCFragment.bind(book);
+      this.#tocProgress = new TOCProgress();
+      await this.#tocProgress.init({
+        toc: book.toc ?? [],
+        ids,
+        splitHref,
+        getFragment
+      });
+      this.#pageProgress = new TOCProgress();
+      await this.#pageProgress.init({
+        toc: book.pageList ?? [],
+        ids,
+        splitHref,
+        getFragment
+      });
+    }
+    this.isFixedLayout = this.book.rendition?.layout === 'pre-paginated';
+    if (this.isFixedLayout) {
+      this.renderer = document.createElement('foliate-fxl');
+    } else {
+      this.renderer = document.createElement('foliate-paginator');
+    }
+    this.renderer.setAttribute('exportparts', 'head,foot,filter');
+    this.renderer.addEventListener('load', e => this.#onLoad(e.detail));
+    this.renderer.addEventListener('relocate', e => this.#onRelocate(e.detail));
+    this.renderer.addEventListener('create-overlayer', e => e.detail.attach(this.#createOverlayer(e.detail)));
+    try {
+      this.renderer.open(book);
+    } catch (err) {
+      debug('[VIEW_OPEN] ' + err);
+      return;
+    }
+    this.#root.append(this.renderer);
+    if (book.sections.some(section => section.mediaOverlay)) {
+      book.media.activeClass ||= '-epub-media-overlay-active';
+      const activeClass = book.media.activeClass;
+      this.mediaOverlay = book.getMediaOverlay();
+      let lastActive;
+      this.mediaOverlay.addEventListener('highlight', e => {
+        const resolved = this.resolveNavigation(e.detail.text);
+        this.renderer.goTo(resolved).then(() => {
+          const {
+            doc
+          } = this.renderer.getContents().find(x => x.index = resolved.index);
+          const el = resolved.anchor(doc);
+          el.classList.add(activeClass);
+          lastActive = new WeakRef(el);
+        });
+      });
+      this.mediaOverlay.addEventListener('unhighlight', () => {
+        lastActive?.deref()?.classList?.remove(activeClass);
+      });
+    }
+  }
+  close() {
+    this.renderer?.destroy();
+    this.renderer?.remove();
+    this.#sectionProgress = null;
+    this.#tocProgress = null;
+    this.#pageProgress = null;
+    this.#searchResults = new Map();
+    this.lastLocation = null;
+    this.history.clear();
+    this.tts = null;
+    this.mediaOverlay = null;
+  }
+  goToTextStart() {
+    return this.goTo(this.book.landmarks?.find(m => m.type.includes('bodymatter') || m.type.includes('text'))?.href ?? this.book.sections.findIndex(s => s.linear !== 'no'));
+  }
+  async init({
+    lastLocation,
+    showTextStart
+  }) {
+    const resolved = lastLocation ? this.resolveNavigation(lastLocation) : null;
+    if (resolved) {
+      await this.renderer.goTo(resolved);
+      this.history.pushState(lastLocation);
+    } else if (showTextStart) await this.goToTextStart();else {
+      this.history.pushState(0);
+      await this.next();
+    }
+  }
+  #emit(name, detail, cancelable) {
+    return this.dispatchEvent(new CustomEvent(name, {
+      detail,
+      cancelable
+    }));
+  }
+  #onRelocate({
+    reason,
+    range,
+    index,
+    fraction,
+    size
+  }) {
+    const progress = this.#sectionProgress?.getProgress(index, fraction, size) ?? {};
+    const tocItem = this.#tocProgress?.getProgress(index, range);
+    const pageItem = this.#pageProgress?.getProgress(index, range);
+    const cfi = this.getCFI(index, range);
+    this.lastLocation = {
+      ...progress,
+      tocItem,
+      pageItem,
+      cfi,
+      range
+    };
+    if (reason === 'snap' || reason === 'page' || reason === 'scroll') this.history.replaceState(cfi);
+    this.#emit('relocate', this.lastLocation);
+  }
+  #onLoad({
+    doc,
+    index
+  }) {
+    // set language and dir if not already set
+    doc.documentElement.lang ||= this.language.canonical ?? '';
+    if (!this.language.isCJK) doc.documentElement.dir ||= this.language.direction ?? '';
+    this.#handleLinks(doc, index);
+    this.#emit('load', {
+      doc,
+      index
+    });
+  }
+  #handleLinks(doc, index) {
+    const {
+      book
+    } = this;
+    const section = book.sections[index];
+    for (const a of doc.querySelectorAll('a[href]')) a.addEventListener('click', e => {
+      e.preventDefault();
+      const href_ = a.getAttribute('href');
+      const href = section?.resolveHref?.(href_) ?? href_;
+      if (book?.isExternal?.(href)) Promise.resolve(this.#emit('external-link', {
+        a,
+        href
+      }, true)).then(x => x ? globalThis.open(href, '_blank') : null).catch(e => console.error(e));else Promise.resolve(this.#emit('link', {
+        a,
+        href
+      }, true)).then(x => x ? this.goTo(href) : null).catch(e => console.error(e));
+    });
+  }
+  async addAnnotation(annotation, remove) {
+    const {
+      value
+    } = annotation;
+    if (value.startsWith(SEARCH_PREFIX)) {
+      const cfi = value.replace(SEARCH_PREFIX, '');
+      const {
+        index,
+        anchor
+      } = await this.resolveNavigation(cfi);
+      const obj = this.#getOverlayer(index);
+      if (obj) {
+        const {
+          overlayer,
+          doc
+        } = obj;
+        if (remove) {
+          overlayer.remove(value);
+          return;
+        }
+        const range = doc ? anchor(doc) : anchor;
+        overlayer.add(value, range, Overlayer.outline);
+      }
+      return;
+    }
+    const {
+      index,
+      anchor
+    } = await this.resolveNavigation(value);
+    const obj = this.#getOverlayer(index);
+    if (obj) {
+      const {
+        overlayer,
+        doc
+      } = obj;
+      overlayer.remove(value);
+      if (!remove) {
+        const range = doc ? anchor(doc) : anchor;
+        const draw = (func, opts) => overlayer.add(value, range, func, opts);
+        this.#emit('draw-annotation', {
+          draw,
+          annotation,
+          doc,
+          range
+        });
+      }
+    }
+    const label = this.#tocProgress.getProgress(index)?.label ?? '';
+    return {
+      index,
+      label
+    };
+  }
+  deleteAnnotation(annotation) {
+    return this.addAnnotation(annotation, true);
+  }
+  #getOverlayer(index) {
+    return this.renderer.getContents().find(x => x.index === index && x.overlayer);
+  }
+  #createOverlayer({
+    doc,
+    index
+  }) {
+    const overlayer = new Overlayer();
+    doc.addEventListener('click', e => {
+      const [value, range] = overlayer.hitTest(e);
+      if (value && !value.startsWith(SEARCH_PREFIX)) {
+        this.#emit('show-annotation', {
+          value,
+          index,
+          range
+        });
+      }
+    }, false);
+    const list = this.#searchResults.get(index);
+    if (list) for (const item of list) this.addAnnotation(item);
+    this.#emit('create-overlay', {
+      index
+    });
+    return overlayer;
+  }
+  async showAnnotation(annotation) {
+    const {
+      value
+    } = annotation;
+    const resolved = await this.goTo(value);
+    if (resolved) {
+      const {
+        index,
+        anchor
+      } = resolved;
+      const {
+        doc
+      } = this.#getOverlayer(index);
+      const range = anchor(doc);
+      this.#emit('show-annotation', {
+        value,
+        index,
+        range
+      });
+    }
+  }
+  getCFI(index, range) {
+    const baseCFI = this.book.sections[index].cfi ?? fake.fromIndex(index);
+    if (!range) return baseCFI;
+    return joinIndir(baseCFI, fromRange(range));
+  }
+  resolveCFI(cfi) {
+    if (this.book.resolveCFI) return this.book.resolveCFI(cfi);else {
+      const parts = parse(cfi);
+      const index = fake.toIndex((parts.parent ?? parts).shift());
+      const anchor = doc => toRange(doc, parts);
+      return {
+        index,
+        anchor
+      };
+    }
+  }
+  resolveNavigation(target) {
+    try {
+      if (typeof target === 'number') return {
+        index: target
+      };
+      if (typeof target.fraction === 'number') {
+        const [index, anchor] = this.#sectionProgress.getSection(target.fraction);
+        return {
+          index,
+          anchor
+        };
+      }
+      if (isCFI.test(target)) return this.resolveCFI(target);
+      return this.book.resolveHref(target);
+    } catch (e) {
+      console.error(e);
+      console.error(\`Could not resolve target \${target}\`);
+    }
+  }
+  async goTo(target) {
+    const resolved = this.resolveNavigation(target);
+    try {
+      await this.renderer.goTo(resolved);
+      this.history.pushState(target);
+      return resolved;
+    } catch (e) {
+      console.error(e);
+      console.error(\`Could not go to \${target}\`);
+    }
+  }
+  async goToFraction(frac) {
+    const [index, anchor] = this.#sectionProgress.getSection(frac);
+    await this.renderer.goTo({
+      index,
+      anchor
+    });
+    this.history.pushState({
+      fraction: frac
+    });
+  }
+  async select(target) {
+    try {
+      const obj = await this.resolveNavigation(target);
+      await this.renderer.goTo({
+        ...obj,
+        select: true
+      });
+      this.history.pushState(target);
+    } catch (e) {
+      console.error(e);
+      console.error(\`Could not go to \${target}\`);
+    }
+  }
+  deselect() {
+    for (const {
+      doc
+    } of this.renderer.getContents()) doc.defaultView.getSelection().removeAllRanges();
+  }
+  getSectionFractions() {
+    return (this.#sectionProgress?.sectionFractions ?? []).map(x => x + Number.EPSILON);
+  }
+  getProgressOf(index, range) {
+    const tocItem = this.#tocProgress?.getProgress(index, range);
+    const pageItem = this.#pageProgress?.getProgress(index, range);
+    return {
+      tocItem,
+      pageItem
+    };
+  }
+  async getTOCItemOf(target) {
+    try {
+      const {
+        index,
+        anchor
+      } = await this.resolveNavigation(target);
+      const doc = await this.book.sections[index].createDocument();
+      const frag = anchor(doc);
+      const isRange = frag instanceof Range;
+      const range = isRange ? frag : doc.createRange();
+      if (!isRange) range.selectNodeContents(frag);
+      return this.#tocProgress.getProgress(index, range);
+    } catch (e) {
+      console.error(e);
+      console.error(\`Could not get \${target}\`);
+    }
+  }
+  async prev(distance) {
+    await this.renderer.prev(distance);
+  }
+  async next(distance) {
+    await this.renderer.next(distance);
+  }
+  goLeft() {
+    return this.book.dir === 'rtl' ? this.next() : this.prev();
+  }
+  goRight() {
+    return this.book.dir === 'rtl' ? this.prev() : this.next();
+  }
+  async *#searchSection(matcher, query, index) {
+    const doc = await this.book.sections[index].createDocument();
+    for (const {
+      range,
+      excerpt
+    } of matcher(doc, query)) yield {
+      cfi: this.getCFI(index, range),
+      excerpt
+    };
+  }
+  async *#searchBook(matcher, query) {
+    const {
+      sections
+    } = this.book;
+    for (const [index, {
+      createDocument
+    }] of sections.entries()) {
+      if (!createDocument) continue;
+      const doc = await createDocument();
+      const subitems = Array.from(matcher(doc, query), ({
+        range,
+        excerpt
+      }) => ({
+        cfi: this.getCFI(index, range),
+        excerpt
+      }));
+      const progress = (index + 1) / sections.length;
+      yield {
+        progress
+      };
+      if (subitems.length) yield {
+        index,
+        subitems
+      };
+    }
+  }
+  async *search(opts) {
+    this.clearSearch();
+    const {
+      query,
+      index
+    } = opts;
+    const matcher = searchMatcher(textWalker, {
+      defaultLocale: this.language,
+      ...opts
+    });
+    const iter = index != null ? this.#searchSection(matcher, query, index) : this.#searchBook(matcher, query);
+    const list = [];
+    this.#searchResults.set(index, list);
+    for await (const result of iter) {
+      if (result.subitems) {
+        const list = result.subitems.map(({
+          cfi
+        }) => ({
+          value: SEARCH_PREFIX + cfi
+        }));
+        this.#searchResults.set(result.index, list);
+        for (const item of list) this.addAnnotation(item);
+        yield {
+          label: this.#tocProgress.getProgress(result.index)?.label ?? '',
+          subitems: result.subitems
+        };
+      } else {
+        if (result.cfi) {
+          const item = {
+            value: SEARCH_PREFIX + result.cfi
+          };
+          list.push(item);
+          this.addAnnotation(item);
+        }
+        yield result;
+      }
+    }
+    yield 'done';
+  }
+  clearSearch() {
+    for (const list of this.#searchResults.values()) for (const item of list) this.deleteAnnotation(item);
+    this.#searchResults.clear();
+  }
+  async initTTS() {
+    const doc = this.renderer.getContents()[0].doc;
+    if (this.tts && this.tts.doc === doc) return;
+    this.tts = new TTS(doc, textWalker, range => this.renderer.scrollToAnchor(range, true));
+  }
+  startMediaOverlay() {
+    const {
+      index
+    } = this.renderer.getContents()[0];
+    return this.mediaOverlay.start(index);
+  }
+}
+customElements.define('foliate-view', view_View);
+;// CONCATENATED MODULE: ./foliate-js/vendor/fflate.js
+var r = Uint8Array,
+  e = Uint16Array,
+  a = Uint32Array,
+  n = new r([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0, 0]),
+  t = new r([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 0, 0]),
+  i = new r([16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]),
+  f = function (r, n) {
+    for (var t = new e(31), i = 0; i < 31; ++i) t[i] = n += 1 << r[i - 1];
+    var f = new a(t[30]);
+    for (i = 1; i < 30; ++i) for (var o = t[i]; o < t[i + 1]; ++o) f[o] = o - t[i] << 5 | i;
+    return [t, f];
+  },
+  o = f(n, 2),
+  v = o[0],
+  l = o[1];
+v[28] = 258, l[258] = 28;
+for (var u = f(t, 0)[0], c = new e(32768), d = 0; d < 32768; ++d) {
+  var s = (43690 & d) >>> 1 | (21845 & d) << 1;
+  s = (61680 & (s = (52428 & s) >>> 2 | (13107 & s) << 2)) >>> 4 | (3855 & s) << 4, c[d] = ((65280 & s) >>> 8 | (255 & s) << 8) >>> 1;
+}
+var w = function (r, a, n) {
+    for (var t = r.length, i = 0, f = new e(a); i < t; ++i) r[i] && ++f[r[i] - 1];
+    var o,
+      v = new e(a);
+    for (i = 0; i < a; ++i) v[i] = v[i - 1] + f[i - 1] << 1;
+    if (n) {
+      o = new e(1 << a);
+      var l = 15 - a;
+      for (i = 0; i < t; ++i) if (r[i]) for (var u = i << 4 | r[i], d = a - r[i], s = v[r[i] - 1]++ << d, w = s | (1 << d) - 1; s <= w; ++s) o[c[s] >>> l] = u;
+    } else for (o = new e(t), i = 0; i < t; ++i) r[i] && (o[i] = c[v[r[i] - 1]++] >>> 15 - r[i]);
+    return o;
+  },
+  b = new r(288);
+for (d = 0; d < 144; ++d) b[d] = 8;
+for (d = 144; d < 256; ++d) b[d] = 9;
+for (d = 256; d < 280; ++d) b[d] = 7;
+for (d = 280; d < 288; ++d) b[d] = 8;
+var h = new r(32);
+for (d = 0; d < 32; ++d) h[d] = 5;
+var E = w(b, 9, 1),
+  p = w(h, 5, 1),
+  g = function (r) {
+    for (var e = r[0], a = 1; a < r.length; ++a) r[a] > e && (e = r[a]);
+    return e;
+  },
+  y = function (r, e, a) {
+    var n = e / 8 | 0;
+    return (r[n] | r[n + 1] << 8) >> (7 & e) & a;
+  },
+  k = function (r, e) {
+    var a = e / 8 | 0;
+    return (r[a] | r[a + 1] << 8 | r[a + 2] << 16) >> (7 & e);
+  },
+  T = ["unexpected EOF", "invalid block type", "invalid length/literal", "invalid distance", "stream finished", "no stream handler",, "no callback", "invalid UTF-8 data", "extra field too long", "date not in range 1980-2099", "filename too long", "stream finishing", "invalid zip data"],
+  m = function (r, e, a) {
+    var n = new Error(e || T[r]);
+    if (n.code = r, Error.captureStackTrace && Error.captureStackTrace(n, m), !a) throw n;
+    return n;
+  },
+  x = function (f, o, l) {
+    var c = f.length;
+    if (!c || l && l.f && !l.l) return o || new r(0);
+    var d = !o || l,
+      s = !l || l.i;
+    l || (l = {}), o || (o = new r(3 * c));
+    var b = function (e) {
+        var a = o.length;
+        if (e > a) {
+          var n = new r(Math.max(2 * a, e));
+          n.set(o), o = n;
+        }
+      },
+      h = l.f || 0,
+      T = l.p || 0,
+      x = l.b || 0,
+      S = l.l,
+      U = l.d,
+      _ = l.m,
+      z = l.n,
+      A = 8 * c;
+    do {
+      if (!S) {
+        h = y(f, T, 1);
+        var M = y(f, T + 1, 3);
+        if (T += 3, !M) {
+          var B = f[(C = 4 + ((T + 7) / 8 | 0)) - 4] | f[C - 3] << 8,
+            D = C + B;
+          if (D > c) {
+            s && m(0);
+            break;
+          }
+          d && b(x + B), o.set(f.subarray(C, D), x), l.b = x += B, l.p = T = 8 * D, l.f = h;
+          continue;
+        }
+        if (1 == M) S = E, U = p, _ = 9, z = 5;else if (2 == M) {
+          var F = y(f, T, 31) + 257,
+            L = y(f, T + 10, 15) + 4,
+            N = F + y(f, T + 5, 31) + 1;
+          T += 14;
+          for (var P = new r(N), R = new r(19), Y = 0; Y < L; ++Y) R[i[Y]] = y(f, T + 3 * Y, 7);
+          T += 3 * L;
+          var O = g(R),
+            j = (1 << O) - 1,
+            q = w(R, O, 1);
+          for (Y = 0; Y < N;) {
+            var C,
+              G = q[y(f, T, j)];
+            if (T += 15 & G, (C = G >>> 4) < 16) P[Y++] = C;else {
+              var H = 0,
+                I = 0;
+              for (16 == C ? (I = 3 + y(f, T, 3), T += 2, H = P[Y - 1]) : 17 == C ? (I = 3 + y(f, T, 7), T += 3) : 18 == C && (I = 11 + y(f, T, 127), T += 7); I--;) P[Y++] = H;
+            }
+          }
+          var J = P.subarray(0, F),
+            K = P.subarray(F);
+          _ = g(J), z = g(K), S = w(J, _, 1), U = w(K, z, 1);
+        } else m(1);
+        if (T > A) {
+          s && m(0);
+          break;
+        }
+      }
+      d && b(x + 131072);
+      for (var Q = (1 << _) - 1, V = (1 << z) - 1, W = T;; W = T) {
+        var X = (H = S[k(f, T) & Q]) >>> 4;
+        if ((T += 15 & H) > A) {
+          s && m(0);
+          break;
+        }
+        if (H || m(2), X < 256) o[x++] = X;else {
+          if (256 == X) {
+            W = T, S = null;
+            break;
+          }
+          var Z = X - 254;
+          if (X > 264) {
+            var \$ = n[Y = X - 257];
+            Z = y(f, T, (1 << \$) - 1) + v[Y], T += \$;
+          }
+          var rr = U[k(f, T) & V],
+            er = rr >>> 4;
+          rr || m(3), T += 15 & rr;
+          K = u[er];
+          if (er > 3) {
+            \$ = t[er];
+            K += k(f, T) & (1 << \$) - 1, T += \$;
+          }
+          if (T > A) {
+            s && m(0);
+            break;
+          }
+          d && b(x + 131072);
+          for (var ar = x + Z; x < ar; x += 4) o[x] = o[x - K], o[x + 1] = o[x + 1 - K], o[x + 2] = o[x + 2 - K], o[x + 3] = o[x + 3 - K];
+          x = ar;
+        }
+      }
+      l.l = S, l.p = W, l.b = x, l.f = h, S && (h = 1, l.m = _, l.d = U, l.n = z);
+    } while (!h);
+    return x == o.length ? o : function (n, t, i) {
+      (null == t || t < 0) && (t = 0), (null == i || i > n.length) && (i = n.length);
+      var f = new (2 == n.BYTES_PER_ELEMENT ? e : 4 == n.BYTES_PER_ELEMENT ? a : r)(i - t);
+      return f.set(n.subarray(t, i)), f;
+    }(o, 0, x);
+  },
+  S = new r(0);
+function U(r, e) {
+  return x(((8 != (15 & (a = r)[0]) || a[0] >>> 4 > 7 || (a[0] << 8 | a[1]) % 31) && m(6, "invalid zlib data"), 32 & a[1] && m(6, "invalid zlib data: preset dictionaries not supported"), r.subarray(2, -4)), e);
+  var a;
+}
+var _ = "undefined" != typeof TextDecoder && new TextDecoder();
+try {
+  _.decode(S, {
+    stream: !0
+  }), 1;
+} catch (r) {}
+
+;// CONCATENATED MODULE: ./foliate-js/epub.js
+
+const epub_NS = {
+  CONTAINER: 'urn:oasis:names:tc:opendocument:xmlns:container',
+  XHTML: 'http://www.w3.org/1999/xhtml',
+  OPF: 'http://www.idpf.org/2007/opf',
+  EPUB: 'http://www.idpf.org/2007/ops',
+  DC: 'http://purl.org/dc/elements/1.1/',
+  DCTERMS: 'http://purl.org/dc/terms/',
+  ENC: 'http://www.w3.org/2001/04/xmlenc#',
+  NCX: 'http://www.daisy.org/z3986/2005/ncx/',
+  XLINK: 'http://www.w3.org/1999/xlink',
+  SMIL: 'http://www.w3.org/ns/SMIL'
+};
+const MIME = {
+  XML: 'application/xml',
+  NCX: 'application/x-dtbncx+xml',
+  XHTML: 'application/xhtml+xml',
+  HTML: 'text/html',
+  CSS: 'text/css',
+  SVG: 'image/svg+xml',
+  JS: /\\/(x-)?(javascript|ecmascript)/
+};
+
+// convert to camel case
+const camel = x => x.toLowerCase().replace(/[-:](.)/g, (_, g) => g.toUpperCase());
+
+// strip and collapse ASCII whitespace
+// https://infra.spec.whatwg.org/#strip-and-collapse-ascii-whitespace
+const epub_normalizeWhitespace = str => str ? str.replace(/[\\t\\n\\f\\r ]+/g, ' ').replace(/^[\\t\\n\\f\\r ]+/, '').replace(/[\\t\\n\\f\\r ]+\$/, '') : '';
+const filterAttribute = (attr, value, isList) => isList ? el => el.getAttribute(attr)?.split(/\\s/)?.includes(value) : typeof value === 'function' ? el => value(el.getAttribute(attr)) : el => el.getAttribute(attr) === value;
+const getAttributes = (...xs) => el => el ? Object.fromEntries(xs.map(x => [camel(x), el.getAttribute(x)])) : null;
+const getElementText = el => epub_normalizeWhitespace(el?.textContent);
+const childGetter = (doc, ns) => {
+  // ignore the namespace if it doesn't appear in document at all
+  const useNS = doc.lookupNamespaceURI(null) === ns || doc.lookupPrefix(ns);
+  const f = useNS ? (el, name) => el => el.namespaceURI === ns && el.localName === name : (el, name) => el => el.localName === name;
+  return {
+    \$: (el, name) => [...el.children].find(f(el, name)),
+    \$\$: (el, name) => [...el.children].filter(f(el, name)),
+    \$\$\$: useNS ? (el, name) => [...el.getElementsByTagNameNS(ns, name)] : (el, name) => [...el.getElementsByTagName(ns, name)]
+  };
+};
+const resolveURL = (url, relativeTo) => {
+  try {
+    if (relativeTo.includes(':')) return new URL(url, relativeTo);
+    // the base needs to be a valid URL, so set a base URL and then remove it
+    const root = 'https://invalid.invalid/';
+    const obj = new URL(url, root + relativeTo);
+    obj.search = '';
+    return decodeURI(obj.href.replace(root, ''));
+  } catch (e) {
+    console.warn(e);
+    return url;
+  }
+};
+const isExternal = uri => /^(?!blob)\\w+:/i.test(uri);
+
+// like \`path.relative()\` in Node.js
+const pathRelative = (from, to) => {
+  if (!from) return to;
+  const as = from.replace(/\\/\$/, '').split('/');
+  const bs = to.replace(/\\/\$/, '').split('/');
+  const i = (as.length > bs.length ? as : bs).findIndex((_, i) => as[i] !== bs[i]);
+  return i < 0 ? '' : Array(as.length - i).fill('..').concat(bs.slice(i)).join('/');
+};
+const pathDirname = str => str.slice(0, str.lastIndexOf('/') + 1);
+
+// replace asynchronously and sequentially
+// same techinque as https://stackoverflow.com/a/48032528
+const replaceSeries = async (str, regex, f) => {
+  const matches = [];
+  str.replace(regex, (...args) => (matches.push(args), null));
+  const results = [];
+  for (const args of matches) results.push(await f(...args));
+  return str.replace(regex, () => results.shift());
+};
+const regexEscape = str => str.replace(/[-/\\\\^\$*+?.()|[\\]{}]/g, '\\\\\$&');
+const LANGS = {
+  attrs: ['dir', 'xml:lang']
+};
+const ALTS = {
+  name: 'alternate-script',
+  many: true,
+  ...LANGS,
+  props: ['file-as']
+};
+const CONTRIB = {
+  many: true,
+  ...LANGS,
+  props: [{
+    name: 'role',
+    many: true,
+    attrs: ['scheme']
+  }, 'file-as', ALTS],
+  setLegacyAttrs: (obj, el) => {
+    if (!obj.role?.length) {
+      const value = el.getAttributeNS(epub_NS.OPF, 'role');
+      if (value) obj.role = [{
+        value
+      }];
+    }
+    obj.fileAs ??= el.getAttributeNS(epub_NS.OPF, 'file-as');
+  }
+};
+const METADATA = [{
+  name: 'title',
+  many: true,
+  ...LANGS,
+  props: ['title-type', 'display-seq', 'file-as', ALTS]
+}, {
+  name: 'identifier',
+  many: true,
+  props: [{
+    name: 'identifier-type',
+    attrs: ['scheme']
+  }],
+  setLegacyAttrs: (obj, el) => {
+    if (!obj.identifierType) {
+      const value = el.getAttributeNS(epub_NS.OPF, 'scheme');
+      if (value) obj.identifierType = {
+        value
+      };
+    }
+  }
+}, {
+  name: 'language',
+  many: true
+}, {
+  name: 'creator',
+  ...CONTRIB
+}, {
+  name: 'contributor',
+  ...CONTRIB
+}, {
+  name: 'publisher',
+  ...LANGS,
+  props: ['file-as', ALTS]
+}, {
+  name: 'description',
+  ...LANGS,
+  props: [ALTS]
+}, {
+  name: 'rights',
+  ...LANGS,
+  props: [ALTS]
+}, {
+  name: 'date'
+}, {
+  name: 'dcterms:modified',
+  type: 'meta'
+}, {
+  name: 'subject',
+  many: true,
+  ...LANGS,
+  props: ['term', 'authority', ALTS],
+  setLegacyAttrs: (obj, el) => {
+    obj.term ??= el.getAttributeNS(epub_NS.OPF, 'term');
+    obj.authority ??= el.getAttributeNS(epub_NS.OPF, 'authority');
+  }
+}, {
+  name: 'source',
+  many: true
+}, {
+  name: 'belongs-to-collection',
+  type: 'meta',
+  many: true,
+  ...LANGS,
+  props: ['collection-type', 'group-position', 'dcterms:identifier', 'file-as', ALTS, {
+    name: 'belongs-to-collection',
+    recursive: true
+  }]
+}];
+const getMetadata = opf => {
+  const {
+    \$,
+    \$\$
+  } = childGetter(opf, epub_NS.OPF);
+  const \$metadata = \$(opf.documentElement, 'metadata');
+  const els = Array.from(\$metadata.children);
+  const getValue = (obj, el) => {
+    if (!el) return null;
+    const {
+      props = [],
+      attrs = []
+    } = obj;
+    const value = getElementText(el);
+    if (!props.length && !attrs.length) return value;
+    const id = el.getAttribute('id');
+    const refines = id ? els.filter(filterAttribute('refines', '#' + id)) : [];
+    const result = Object.fromEntries([['value', value]].concat(props.map(prop => {
+      const {
+        many,
+        recursive
+      } = prop;
+      const name = typeof prop === 'string' ? prop : prop.name;
+      const filter = filterAttribute('property', name);
+      const subobj = recursive ? obj : prop;
+      return [camel(name), many ? refines.filter(filter).map(el => getValue(subobj, el)) : getValue(subobj, refines.find(filter))];
+    })).concat(attrs.map(attr => [camel(attr), el.getAttribute(attr)])));
+    obj.setLegacyAttrs?.(result, el);
+    return result;
+  };
+  const arr = els.filter(filterAttribute('refines', null));
+  const metadata = Object.fromEntries(METADATA.map(obj => {
+    const {
+      type,
+      name,
+      many
+    } = obj;
+    const filter = type === 'meta' ? el => el.namespaceURI === epub_NS.OPF && el.getAttribute('property') === name : el => el.namespaceURI === epub_NS.DC && el.localName === name;
+    return [camel(name), many ? arr.filter(filter).map(el => getValue(obj, el)) : getValue(obj, arr.find(filter))];
+  }));
+  const \$\$meta = \$\$(\$metadata, 'meta');
+  const getMetasByPrefix = prefix => \$\$meta.filter(filterAttribute('property', x => x?.startsWith(prefix))).map(el => [el.getAttribute('property').replace(prefix, ''), el]);
+  const rendition = Object.fromEntries(getMetasByPrefix('rendition:').map(([k, el]) => [k, getElementText(el)]));
+  const media = {
+    narrator: [],
+    duration: {}
+  };
+  for (const [k, el] of getMetasByPrefix('media:')) {
+    const v = getElementText(el);
+    if (k === 'duration') media.duration[el.getAttribute('refines')?.split('#')?.[1] ?? ''] = parseClock(v);else if (k === 'active-class') media.activeClass = v;else if (k === 'narrator') media.narrator.push(v);else if (k === 'playback-active-class') media.playbackActiveClass = v;
+  }
+  return {
+    metadata,
+    rendition,
+    media
+  };
+};
+const parseNav = (doc, resolve = f => f) => {
+  const {
+    \$,
+    \$\$,
+    \$\$\$
+  } = childGetter(doc, epub_NS.XHTML);
+  const resolveHref = href => href ? decodeURI(resolve(href)) : null;
+  const parseLI = getType => \$li => {
+    const \$a = \$(\$li, 'a') ?? \$(\$li, 'span');
+    const \$ol = \$(\$li, 'ol');
+    const href = resolveHref(\$a?.getAttribute('href'));
+    const label = getElementText(\$a) || \$a?.getAttribute('title');
+    // TODO: get and concat alt/title texts in content
+    const result = {
+      label,
+      href,
+      subitems: parseOL(\$ol)
+    };
+    if (getType) result.type = \$a?.getAttributeNS(epub_NS.EPUB, 'type')?.split(/\\s/);
+    return result;
+  };
+  const parseOL = (\$ol, getType) => \$ol ? \$\$(\$ol, 'li').map(parseLI(getType)) : null;
+  const parseNav = (\$nav, getType) => parseOL(\$(\$nav, 'ol'), getType);
+  const \$\$nav = \$\$\$(doc, 'nav');
+  let toc = null,
+    pageList = null,
+    landmarks = null,
+    others = [];
+  for (const \$nav of \$\$nav) {
+    const type = \$nav.getAttributeNS(epub_NS.EPUB, 'type')?.split(/\\s/) ?? [];
+    if (type.includes('toc')) toc ??= parseNav(\$nav);else if (type.includes('page-list')) pageList ??= parseNav(\$nav);else if (type.includes('landmarks')) landmarks ??= parseNav(\$nav, true);else others.push({
+      label: getElementText(\$nav.firstElementChild),
+      type,
+      list: parseNav(\$nav)
+    });
+  }
+  return {
+    toc,
+    pageList,
+    landmarks,
+    others
+  };
+};
+const parseNCX = (doc, resolve = f => f) => {
+  const {
+    \$,
+    \$\$
+  } = childGetter(doc, epub_NS.NCX);
+  const resolveHref = href => href ? decodeURI(resolve(href)) : null;
+  const parseItem = el => {
+    const \$label = \$(el, 'navLabel');
+    const \$content = \$(el, 'content');
+    const label = getElementText(\$label);
+    const href = resolveHref(\$content.getAttribute('src'));
+    if (el.localName === 'navPoint') {
+      const els = \$\$(el, 'navPoint');
+      return {
+        label,
+        href,
+        subitems: els.length ? els.map(parseItem) : null
+      };
+    }
+    return {
+      label,
+      href
+    };
+  };
+  const parseList = (el, itemName) => \$\$(el, itemName).map(parseItem);
+  const getSingle = (container, itemName) => {
+    const \$container = \$(doc.documentElement, container);
+    return \$container ? parseList(\$container, itemName) : null;
+  };
+  return {
+    toc: getSingle('navMap', 'navPoint'),
+    pageList: getSingle('pageList', 'pageTarget'),
+    others: \$\$(doc.documentElement, 'navList').map(el => ({
+      label: getElementText(\$(el, 'navLabel')),
+      list: parseList(el, 'navTarget')
+    }))
+  };
+};
+const parseClock = str => {
+  if (!str) return;
+  const parts = str.split(':').map(x => parseFloat(x));
+  if (parts.length === 3) {
+    const [h, m, s] = parts;
+    return h * 60 * 60 + m * 60 + s;
+  }
+  if (parts.length === 2) {
+    const [m, s] = parts;
+    return m * 60 + s;
+  }
+  const [x, unit] = str.split(/(?=[^\\d.])/);
+  const n = parseFloat(x);
+  const f = unit === 'h' ? 60 * 60 : unit === 'min' ? 60 : unit === 'ms' ? .001 : 1;
+  return n * f;
+};
+class MediaOverlay extends EventTarget {
+  #entries;
+  #lastMediaOverlayItem;
+  #sectionIndex;
+  #audioIndex;
+  #itemIndex;
+  #audio;
+  #volume = 1;
+  #rate = 1;
+  constructor(book, loadXML) {
+    super();
+    this.book = book;
+    this.loadXML = loadXML;
+  }
+  async #loadSMIL(item) {
+    if (this.#lastMediaOverlayItem === item) return;
+    const doc = await this.loadXML(item.href);
+    const resolve = href => href ? resolveURL(href, item.href) : null;
+    const {
+      \$,
+      \$\$\$
+    } = childGetter(doc, epub_NS.SMIL);
+    this.#audioIndex = -1;
+    this.#itemIndex = -1;
+    this.#entries = \$\$\$(doc, 'par').reduce((arr, \$par) => {
+      const text = resolve(\$(\$par, 'text')?.getAttribute('src'));
+      const \$audio = \$(\$par, 'audio');
+      if (!text || !\$audio) return arr;
+      const src = resolve(\$audio.getAttribute('src'));
+      const begin = parseClock(\$audio.getAttribute('clipBegin'));
+      const end = parseClock(\$audio.getAttribute('clipEnd'));
+      const last = arr.at(-1);
+      if (last?.src === src) last.items.push({
+        text,
+        begin,
+        end
+      });else arr.push({
+        src,
+        items: [{
+          text,
+          begin,
+          end
+        }]
+      });
+      return arr;
+    }, []);
+    this.#lastMediaOverlayItem = item;
+  }
+  get #activeAudio() {
+    return this.#entries[this.#audioIndex];
+  }
+  get #activeItem() {
+    return this.#activeAudio?.items?.[this.#itemIndex];
+  }
+  #error(e) {
+    console.error(e);
+    this.dispatchEvent(new CustomEvent('error', {
+      detail: e
+    }));
+  }
+  #highlight() {
+    this.dispatchEvent(new CustomEvent('highlight', {
+      detail: this.#activeItem
+    }));
+  }
+  #unhighlight() {
+    this.dispatchEvent(new CustomEvent('unhighlight', {
+      detail: this.#activeItem
+    }));
+  }
+  async #play(audioIndex, itemIndex) {
+    if (this.#audio) {
+      this.#audio.pause();
+      URL.revokeObjectURL(this.#audio.src);
+      this.#audio = null;
+    }
+    this.#audioIndex = audioIndex;
+    this.#itemIndex = itemIndex;
+    const src = this.#activeAudio?.src;
+    if (!src || !this.#activeItem) return this.start(this.#sectionIndex + 1);
+    const url = URL.createObjectURL(await this.book.loadBlob(src));
+    const audio = new Audio(url);
+    this.#audio = audio;
+    audio.addEventListener('timeupdate', () => {
+      if (audio.paused) return;
+      const t = audio.currentTime;
+      const {
+        items
+      } = this.#activeAudio;
+      if (t > this.#activeItem?.end) {
+        this.#unhighlight();
+        if (this.#itemIndex === items.length - 1) {
+          this.#play(this.#audioIndex + 1, 0).catch(e => this.#error(e));
+          return;
+        }
+      }
+      const oldIndex = this.#itemIndex;
+      while (items[this.#itemIndex + 1]?.begin <= t) this.#itemIndex++;
+      if (this.#itemIndex !== oldIndex) this.#highlight();
+    });
+    audio.addEventListener('error', () => this.#error(new Error(\`Failed to load \${src}\`)));
+    audio.addEventListener('playing', () => this.#highlight());
+    audio.addEventListener('pause', () => this.#unhighlight());
+    audio.addEventListener('ended', () => {
+      this.#unhighlight();
+      URL.revokeObjectURL(url);
+      this.#audio = null;
+      this.#play(audioIndex + 1, 0).catch(e => this.#error(e));
+    });
+    audio.addEventListener('canplaythrough', () => {
+      audio.currentTime = this.#activeItem.begin ?? 0;
+      audio.volume = this.#volume;
+      audio.playbackRate = this.#rate;
+      audio.play().catch(e => this.#error(e));
+    });
+  }
+  async start(sectionIndex, filter = () => true) {
+    this.#audio?.pause();
+    const section = this.book.sections[sectionIndex];
+    const href = section?.id;
+    if (!href) return;
+    const {
+      mediaOverlay
+    } = section;
+    if (!mediaOverlay) return this.start(sectionIndex + 1);
+    this.#sectionIndex = sectionIndex;
+    await this.#loadSMIL(mediaOverlay);
+    for (let i = 0; i < this.#entries.length; i++) {
+      const {
+        items
+      } = this.#entries[i];
+      for (let j = 0; j < items.length; j++) {
+        if (items[j].text.split('#')[0] === href && filter(items[j], j, items)) return this.#play(i, j).catch(e => this.#error(e));
+      }
+    }
+  }
+  pause() {
+    this.#audio?.pause();
+  }
+  resume() {
+    this.#audio?.play().catch(e => this.#error(e));
+  }
+  prev() {
+    if (this.#itemIndex > 0) this.#play(this.#audioIndex, this.#itemIndex - 1);else if (this.#audioIndex > 0) this.#play(this.#audioIndex - 1, this.#entries[this.#audioIndex - 1].items.length - 1);else if (this.#sectionIndex > 0) this.start(this.#sectionIndex - 1, (_, i, items) => i === items.length - 1);
+  }
+  next() {
+    this.#play(this.#audioIndex, this.#itemIndex + 1);
+  }
+  setVolume(volume) {
+    this.#volume = volume;
+    if (this.#audio) this.#audio.volume = volume;
+  }
+  setRate(rate) {
+    this.#rate = rate;
+    if (this.#audio) this.#audio.playbackRate = rate;
+  }
+}
+const isUUID = /([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})/;
+const getUUID = opf => {
+  for (const el of opf.getElementsByTagNameNS(epub_NS.DC, 'identifier')) {
+    const [id] = getElementText(el).split(':').slice(-1);
+    if (isUUID.test(id)) return id;
+  }
+  return '';
+};
+const getIdentifier = opf => getElementText(opf.getElementById(opf.documentElement.getAttribute('unique-identifier')) ?? opf.getElementsByTagNameNS(epub_NS.DC, 'identifier')[0]);
+
+// https://www.w3.org/publishing/epub32/epub-ocf.html#sec-resource-obfuscation
+const deobfuscate = async (key, length, blob) => {
+  const array = new Uint8Array(await blob.slice(0, length).arrayBuffer());
+  length = Math.min(length, array.length);
+  for (var i = 0; i < length; i++) array[i] = array[i] ^ key[i % key.length];
+  return new Blob([array, blob.slice(length)], {
+    type: blob.type
+  });
+};
+const WebCryptoSHA1 = async str => {
+  const data = new TextEncoder().encode(str);
+  const buffer = await globalThis.crypto.subtle.digest('SHA-1', data);
+  return new Uint8Array(buffer);
+};
+const deobfuscators = (sha1 = WebCryptoSHA1) => ({
+  'http://www.idpf.org/2008/embedding': {
+    key: opf => sha1(getIdentifier(opf)
+    // eslint-disable-next-line no-control-regex
+    .replaceAll(/[\\u0020\\u0009\\u000d\\u000a]/g, '')),
+    decode: (key, blob) => deobfuscate(key, 1040, blob)
+  },
+  'http://ns.adobe.com/pdf/enc#RC': {
+    key: opf => {
+      const uuid = getUUID(opf).replaceAll('-', '');
+      return Uint8Array.from({
+        length: 16
+      }, (_, i) => parseInt(uuid.slice(i * 2, i * 2 + 2), 16));
+    },
+    decode: (key, blob) => deobfuscate(key, 1024, blob)
+  }
+});
+class Encryption {
+  #uris = new Map();
+  #decoders = new Map();
+  #algorithms;
+  constructor(algorithms) {
+    this.#algorithms = algorithms;
+  }
+  async init(encryption, opf) {
+    if (!encryption) return;
+    const data = Array.from(encryption.getElementsByTagNameNS(epub_NS.ENC, 'EncryptedData'), el => ({
+      algorithm: el.getElementsByTagNameNS(epub_NS.ENC, 'EncryptionMethod')[0]?.getAttribute('Algorithm'),
+      uri: el.getElementsByTagNameNS(epub_NS.ENC, 'CipherReference')[0]?.getAttribute('URI')
+    }));
+    for (const {
+      algorithm,
+      uri
+    } of data) {
+      if (!this.#decoders.has(algorithm)) {
+        const algo = this.#algorithms[algorithm];
+        if (!algo) {
+          console.warn('Unknown encryption algorithm');
+          continue;
+        }
+        const key = await algo.key(opf);
+        this.#decoders.set(algorithm, blob => algo.decode(key, blob));
+      }
+      this.#uris.set(uri, algorithm);
+    }
+  }
+  getDecoder(uri) {
+    return this.#decoders.get(this.#uris.get(uri)) ?? (x => x);
+  }
+}
+class Resources {
+  constructor({
+    opf,
+    resolveHref
+  }) {
+    this.opf = opf;
+    const {
+      \$,
+      \$\$,
+      \$\$\$
+    } = childGetter(opf, epub_NS.OPF);
+    const \$manifest = \$(opf.documentElement, 'manifest');
+    const \$spine = \$(opf.documentElement, 'spine');
+    const \$\$itemref = \$\$(\$spine, 'itemref');
+    this.manifest = \$\$(\$manifest, 'item').map(getAttributes('href', 'id', 'media-type', 'properties', 'media-overlay')).map(item => {
+      item.href = resolveHref(item.href);
+      item.properties = item.properties?.split(/\\s/);
+      return item;
+    });
+    this.spine = \$\$itemref.map(getAttributes('idref', 'id', 'linear', 'properties')).map(item => (item.properties = item.properties?.split(/\\s/), item));
+    this.pageProgressionDirection = \$spine.getAttribute('page-progression-direction');
+    this.navPath = this.getItemByProperty('nav')?.href;
+    this.ncxPath = (this.getItemByID(\$spine.getAttribute('toc')) ?? this.manifest.find(item => item.mediaType === MIME.NCX))?.href;
+    const \$guide = \$(opf.documentElement, 'guide');
+    if (\$guide) this.guide = \$\$(\$guide, 'reference').map(getAttributes('type', 'title', 'href')).map(({
+      type,
+      title,
+      href
+    }) => ({
+      label: title,
+      type: type.split(/\\s/),
+      href: resolveHref(href)
+    }));
+    this.cover = this.getItemByProperty('cover-image')
+    // EPUB 2 compat
+    ?? this.getItemByID(\$\$\$(opf, 'meta').find(filterAttribute('name', 'cover'))?.getAttribute('content')) ?? this.getItemByHref(this.guide?.find(ref => ref.type.includes('cover'))?.href);
+    this.cfis = fromElements(\$\$itemref);
+  }
+  getItemByID(id) {
+    return this.manifest.find(item => item.id === id);
+  }
+  getItemByHref(href) {
+    return this.manifest.find(item => item.href === href);
+  }
+  getItemByProperty(prop) {
+    return this.manifest.find(item => item.properties?.includes(prop));
+  }
+  resolveCFI(cfi) {
+    const parts = parse(cfi);
+    const top = (parts.parent ?? parts).shift();
+    let \$itemref = toElement(this.opf, top);
+    // make sure it's an idref; if not, try again without the ID assertion
+    // mainly because Epub.js used to generate wrong ID assertions
+    // https://github.com/futurepress/epub.js/issues/1236
+    if (\$itemref && \$itemref.nodeName !== 'idref') {
+      top.at(-1).id = null;
+      \$itemref = toElement(this.opf, top);
+    }
+    const idref = \$itemref?.getAttribute('idref');
+    const index = this.spine.findIndex(item => item.idref === idref);
+    const anchor = doc => toRange(doc, parts);
+    return {
+      index,
+      anchor
+    };
+  }
+}
+class Loader {
+  #cache = new Map();
+  #children = new Map();
+  #refCount = new Map();
+  allowScript = false;
+  constructor({
+    loadText,
+    loadBlob,
+    resources
+  }) {
+    this.loadText = loadText;
+    this.loadBlob = loadBlob;
+    this.manifest = resources.manifest;
+    this.assets = resources.manifest;
+    // needed only when replacing in (X)HTML w/o parsing (see below)
+    //.filter(({ mediaType }) => ![MIME.XHTML, MIME.HTML].includes(mediaType))
+  }
+
+  createURL(href, data, type, parent) {
+    if (!data) return '';
+    const url = URL.createObjectURL(new Blob([data], {
+      type
+    }));
+    this.#cache.set(href, url);
+    this.#refCount.set(href, 1);
+    if (parent) {
+      const childList = this.#children.get(parent);
+      if (childList) childList.push(href);else this.#children.set(parent, [href]);
+    }
+    return url;
+  }
+  ref(href, parent) {
+    const childList = this.#children.get(parent);
+    if (!childList?.includes(href)) {
+      this.#refCount.set(href, this.#refCount.get(href) + 1);
+      //console.log(\`referencing \${href}, now \${this.#refCount.get(href)}\`)
+      if (childList) childList.push(href);else this.#children.set(parent, [href]);
+    }
+    return this.#cache.get(href);
+  }
+  unref(href) {
+    if (!this.#refCount.has(href)) return;
+    const count = this.#refCount.get(href) - 1;
+    //console.log(\`unreferencing \${href}, now \${count}\`)
+    if (count < 1) {
+      //console.log(\`unloading \${href}\`)
+      URL.revokeObjectURL(this.#cache.get(href));
+      this.#cache.delete(href);
+      this.#refCount.delete(href);
+      // unref children
+      const childList = this.#children.get(href);
+      if (childList) while (childList.length) this.unref(childList.pop());
+      this.#children.delete(href);
+    } else this.#refCount.set(href, count);
+  }
+  // load manifest item, recursively loading all resources as needed
+  async loadItem(item, parents = []) {
+    if (!item) return null;
+    const {
+      href,
+      mediaType
+    } = item;
+    const isScript = MIME.JS.test(item.mediaType);
+    if (isScript && !this.allowScript) return null;
+    const parent = parents.at(-1);
+    if (this.#cache.has(href)) return this.ref(href, parent);
+    const shouldReplace = (isScript || [MIME.XHTML, MIME.HTML, MIME.CSS, MIME.SVG].includes(mediaType)
+    // prevent circular references
+    ) && parents.every(p => p !== href);
+    if (shouldReplace) return this.loadReplaced(item, parents);
+    return this.createURL(href, await this.loadBlob(href), mediaType, parent);
+  }
+  async loadHref(href, base, parents = []) {
+    if (isExternal(href)) return href;
+    const path = resolveURL(href, base);
+    const item = this.manifest.find(item => item.href === path);
+    if (!item) return href;
+    return this.loadItem(item, parents.concat(base));
+  }
+  async loadReplaced(item, parents = []) {
+    const {
+      href,
+      mediaType
+    } = item;
+    const parent = parents.at(-1);
+    const str = await this.loadText(href);
+    if (!str) return null;
+
+    // note that one can also just use \`replaceString\` for everything:
+    // \`\`\`
+    // const replaced = await this.replaceString(str, href, parents)
+    // return this.createURL(href, replaced, mediaType, parent)
+    // \`\`\`
+    // which is basically what Epub.js does, which is simpler, but will
+    // break things like iframes (because you don't want to replace links)
+    // or text that just happen to be paths
+
+    // parse and replace in HTML
+    if ([MIME.XHTML, MIME.HTML, MIME.SVG].includes(mediaType)) {
+      let doc = new DOMParser().parseFromString(str, mediaType);
+      // change to HTML if it's not valid XHTML
+      if (mediaType === MIME.XHTML && doc.querySelector('parsererror')) {
+        console.warn(doc.querySelector('parsererror').innerText);
+        item.mediaType = MIME.HTML;
+        doc = new DOMParser().parseFromString(str, item.mediaType);
+      }
+      // replace hrefs in XML processing instructions
+      // this is mainly for SVGs that use xml-stylesheet
+      if ([MIME.XHTML, MIME.SVG].includes(item.mediaType)) {
+        let child = doc.firstChild;
+        while (child instanceof ProcessingInstruction) {
+          if (child.data) {
+            const replacedData = await replaceSeries(child.data, /(?:^|\\s*)(href\\s*=\\s*['"])([^'"]*)(['"])/i, (_, p1, p2, p3) => this.loadHref(p2, href, parents).then(p2 => \`\${p1}\${p2}\${p3}\`));
+            child.replaceWith(doc.createProcessingInstruction(child.target, replacedData));
+          }
+          child = child.nextSibling;
+        }
+      }
+      // replace hrefs (excluding anchors)
+      // TODO: srcset?
+      const replace = async (el, attr) => el.setAttribute(attr, await this.loadHref(el.getAttribute(attr), href, parents));
+      for (const el of doc.querySelectorAll('link[href]')) await replace(el, 'href');
+      for (const el of doc.querySelectorAll('[src]')) await replace(el, 'src');
+      for (const el of doc.querySelectorAll('[poster]')) await replace(el, 'poster');
+      for (const el of doc.querySelectorAll('object[data]')) await replace(el, 'data');
+      for (const el of doc.querySelectorAll('[*|href]:not([href]')) el.setAttributeNS(epub_NS.XLINK, 'href', await this.loadHref(el.getAttributeNS(epub_NS.XLINK, 'href'), href, parents));
+      // replace inline styles
+      for (const el of doc.querySelectorAll('style')) if (el.textContent) el.textContent = await this.replaceCSS(el.textContent, href, parents);
+      for (const el of doc.querySelectorAll('[style]')) el.setAttribute('style', await this.replaceCSS(el.getAttribute('style'), href, parents));
+      // TODO: replace inline scripts? probably not worth the trouble
+      const result = new XMLSerializer().serializeToString(doc);
+      return this.createURL(href, result, item.mediaType, parent);
+    }
+    const result = mediaType === MIME.CSS ? await this.replaceCSS(str, href, parents) : await this.replaceString(str, href, parents);
+    return this.createURL(href, result, mediaType, parent);
+  }
+  async replaceCSS(str, href, parents = []) {
+    const replacedUrls = await replaceSeries(str, /url\\(\\s*["']?([^'"\\n]*?)\\s*["']?\\s*\\)/gi, (_, url) => this.loadHref(url, href, parents).then(url => \`url("\${url}")\`));
+    // apart from \`url()\`, strings can be used for \`@import\` (but why?!)
+    const replacedImports = await replaceSeries(replacedUrls, /@import\\s*["']([^"'\\n]*?)["']/gi, (_, url) => this.loadHref(url, href, parents).then(url => \`@import "\${url}"\`));
+    const w = window?.innerWidth ?? 800;
+    const h = window?.innerHeight ?? 600;
+    return replacedImports
+    // unprefix as most of the props are (only) supported unprefixed
+    // .replace(/(?<=[{\\s;])-epub-/gi, '') // Errors on ios // chatgpt: JavaScript regular expressions allow you to use named capture groups,
+    // but you're using an older syntax that is not supported in JavaScript.
+    // This is likely causing the error.
+    // not sure if its correct but it works now :/
+    .replace(/([;\\s])-epub-/gi, '\$1') // chatgpt replacement
+    // replace vw and vh as they cause problems with layout
+    .replace(/(\\d*\\.?\\d+)vw/gi, (_, d) => parseFloat(d) * w / 100 + 'px').replace(/(\\d*\\.?\\d+)vh/gi, (_, d) => parseFloat(d) * h / 100 + 'px')
+    // \`page-break-*\` unsupported in columns; replace with \`column-break-*\`
+    .replace(/page-break-(after|before|inside)\\s*:/gi, (_, x) => \`-webkit-column-break-\${x}:\`).replace(/break-(after|before|inside)\\s*:\\s*(avoid-)?page/gi, (_, x, y) => \`break-\${x}: \${y ?? ''}column\`);
+  }
+  // find & replace all possible relative paths for all assets without parsing
+  replaceString(str, href, parents = []) {
+    const assetMap = new Map();
+    const urls = this.assets.map(asset => {
+      // do not replace references to the file itself
+      if (asset.href === href) return;
+      // href was decoded and resolved when parsing the manifest
+      const relative = pathRelative(pathDirname(href), asset.href);
+      const relativeEnc = encodeURI(relative);
+      const rootRelative = '/' + asset.href;
+      const rootRelativeEnc = encodeURI(rootRelative);
+      const set = new Set([relative, relativeEnc, rootRelative, rootRelativeEnc]);
+      for (const url of set) assetMap.set(url, asset);
+      return Array.from(set);
+    }).flat().filter(x => x);
+    if (!urls.length) return str;
+    const regex = new RegExp(urls.map(regexEscape).join('|'), 'g');
+    return replaceSeries(str, regex, async match => this.loadItem(assetMap.get(match.replace(/^\\//, '')), parents.concat(href)));
+  }
+  unloadItem(item) {
+    this.unref(item?.href);
+  }
+  destroy() {
+    for (const url of this.#cache.values()) URL.revokeObjectURL(url);
+  }
+}
+const getHTMLFragment = (doc, id) => doc.getElementById(id) ?? doc.querySelector(\`[name="\${CSS.escape(id)}"]\`);
+const getPageSpread = properties => {
+  for (const p of properties) {
+    if (p === 'page-spread-left' || p === 'rendition:page-spread-left') return 'left';
+    if (p === 'page-spread-right' || p === 'rendition:page-spread-right') return 'right';
+    if (p === 'rendition:page-spread-center') return 'center';
+  }
+};
+class EPUB {
+  parser = new DOMParser();
+  #loader;
+  #encryption;
+  constructor({
+    loadText,
+    loadBlob,
+    getSize,
+    sha1
+  }) {
+    this.loadText = loadText;
+    this.loadBlob = loadBlob;
+    this.getSize = getSize;
+    this.#encryption = new Encryption(deobfuscators(sha1));
+  }
+  async #loadXML(uri) {
+    const str = await this.loadText(uri);
+    if (!str) return null;
+    const doc = this.parser.parseFromString(str, MIME.XML);
+    if (doc.querySelector('parsererror')) throw new Error(\`XML parsing error: \${uri}
+\${doc.querySelector('parsererror').innerText}\`);
+    return doc;
+  }
+  async init() {
+    const \$container = await this.#loadXML('META-INF/container.xml');
+    if (!\$container) throw new Error('Failed to load container file');
+    const opfs = Array.from(\$container.getElementsByTagNameNS(epub_NS.CONTAINER, 'rootfile'), getAttributes('full-path', 'media-type')).filter(file => file.mediaType === 'application/oebps-package+xml');
+    if (!opfs.length) throw new Error('No package document defined in container');
+    const opfPath = opfs[0].fullPath;
+    const opf = await this.#loadXML(opfPath);
+    if (!opf) throw new Error('Failed to load package document');
+    const \$encryption = await this.#loadXML('META-INF/encryption.xml');
+    await this.#encryption.init(\$encryption, opf);
+    this.resources = new Resources({
+      opf,
+      resolveHref: url => resolveURL(url, opfPath)
+    });
+    this.#loader = new Loader({
+      loadText: this.loadText,
+      loadBlob: uri => Promise.resolve(this.loadBlob(uri)).then(this.#encryption.getDecoder(uri)),
+      resources: this.resources
+    });
+    this.sections = this.resources.spine.map((spineItem, index) => {
+      const {
+        idref,
+        linear,
+        properties = []
+      } = spineItem;
+      const item = this.resources.getItemByID(idref);
+      if (!item) {
+        console.warn(\`Could not find item with ID "\${idref}" in manifest\`);
+        return null;
+      }
+      return {
+        id: item.href,
+        load: () => this.#loader.loadItem(item),
+        unload: () => this.#loader.unloadItem(item),
+        createDocument: () => this.loadDocument(item),
+        size: this.getSize(item.href),
+        cfi: this.resources.cfis[index],
+        linear,
+        pageSpread: getPageSpread(properties),
+        resolveHref: href => resolveURL(href, item.href),
+        mediaOverlay: item.mediaOverlay ? this.resources.getItemByID(item.mediaOverlay) : null
+      };
+    }).filter(s => s);
+    const {
+      navPath,
+      ncxPath
+    } = this.resources;
+    if (navPath) try {
+      const resolve = url => resolveURL(url, navPath);
+      const nav = parseNav(await this.#loadXML(navPath), resolve);
+      this.toc = nav.toc;
+      this.pageList = nav.pageList;
+      this.landmarks = nav.landmarks;
+    } catch (e) {
+      console.warn(e);
+    }
+    if (!this.toc && ncxPath) try {
+      const resolve = url => resolveURL(url, ncxPath);
+      const ncx = parseNCX(await this.#loadXML(ncxPath), resolve);
+      this.toc = ncx.toc;
+      this.pageList = ncx.pageList;
+    } catch (e) {
+      console.warn(e);
+    }
+    this.landmarks ??= this.resources.guide;
+    const {
+      metadata,
+      rendition,
+      media
+    } = getMetadata(opf);
+    this.rendition = rendition;
+    this.media = media;
+    this.dir = this.resources.pageProgressionDirection;
+    this.parsedMetadata = metadata; // for debugging or advanced use cases
+    const title = metadata?.title?.[0];
+    this.metadata = {
+      title: title?.value,
+      subtitle: metadata?.title?.find(x => x.titleType === 'subtitle')?.value,
+      sortAs: title?.fileAs,
+      language: metadata?.language,
+      identifier: getIdentifier(opf),
+      description: metadata?.description?.value,
+      publisher: metadata?.publisher?.value,
+      published: metadata?.date,
+      modified: metadata?.dctermsModified,
+      subject: metadata?.subject?.filter(({
+        value,
+        term
+      }) => value || term)?.map(({
+        value,
+        term,
+        authority
+      }) => ({
+        name: value,
+        code: term,
+        scheme: authority
+      })),
+      rights: metadata?.rights?.value
+    };
+    const relators = {
+      art: 'artist',
+      aut: 'author',
+      bkp: 'producer',
+      clr: 'colorist',
+      edt: 'editor',
+      ill: 'illustrator',
+      nrt: 'narrator',
+      trl: 'translator',
+      pbl: 'publisher'
+    };
+    const mapContributor = defaultKey => obj => {
+      const keys = [...new Set(obj.role?.map(({
+        value,
+        scheme
+      }) => (!scheme || scheme === 'marc:relators' ? relators[value] : null) ?? defaultKey))];
+      const value = {
+        name: obj.value,
+        sortAs: obj.fileAs
+      };
+      return [keys?.length ? keys : [defaultKey], value];
+    };
+    metadata?.creator?.map(mapContributor('author'))?.concat(metadata?.contributor?.map?.(mapContributor('contributor')))?.forEach(([keys, value]) => keys.forEach(key => {
+      if (this.metadata[key]) this.metadata[key].push(value);else this.metadata[key] = [value];
+    }));
+    return this;
+  }
+  async loadDocument(item) {
+    const str = await this.loadText(item.href);
+    return this.parser.parseFromString(str, item.mediaType);
+  }
+  getMediaOverlay() {
+    return new MediaOverlay(this, this.#loadXML.bind(this));
+  }
+  resolveCFI(cfi) {
+    return this.resources.resolveCFI(cfi);
+  }
+  resolveHref(href) {
+    const [path, hash] = href.split('#');
+    const item = this.resources.getItemByHref(decodeURI(path));
+    if (!item) return null;
+    const index = this.resources.spine.findIndex(({
+      idref
+    }) => idref === item.id);
+    const anchor = hash ? doc => getHTMLFragment(doc, hash) : () => 0;
+    return {
+      index,
+      anchor
+    };
+  }
+  splitTOCHref(href) {
+    return href?.split('#') ?? [];
+  }
+  getTOCFragment(doc, id) {
+    return doc.getElementById(id) ?? doc.querySelector(\`[name="\${CSS.escape(id)}"]\`);
+  }
+  isExternal(uri) {
+    return isExternal(uri);
+  }
+  async getCover() {
+    const cover = this.resources?.cover;
+    return cover?.href ? new Blob([await this.loadBlob(cover.href)], {
+      type: cover.mediaType
+    }) : null;
+  }
+  async getCalibreBookmarks() {
+    const txt = await this.loadText('META-INF/calibre_bookmarks.txt');
+    const magic = 'encoding=json+base64:';
+    if (txt?.startsWith(magic)) {
+      const json = atob(txt.slice(magic.length));
+      return JSON.parse(json);
+    }
+  }
+  destroy() {
+    this.#loader?.destroy();
+  }
+}
+;// CONCATENATED MODULE: ./foliate-js/fb2.js
+const fb2_normalizeWhitespace = str => str ? str.replace(/[\\t\\n\\f\\r ]+/g, ' ').replace(/^[\\t\\n\\f\\r ]+/, '').replace(/[\\t\\n\\f\\r ]+\$/, '') : '';
+const fb2_getElementText = el => fb2_normalizeWhitespace(el?.textContent);
+const fb2_NS = {
+  XLINK: 'http://www.w3.org/1999/xlink',
+  EPUB: 'http://www.idpf.org/2007/ops'
+};
+const fb2_MIME = {
+  XML: 'application/xml',
+  XHTML: 'application/xhtml+xml'
+};
+const STYLE = {
+  'strong': ['strong', 'self'],
+  'emphasis': ['em', 'self'],
+  'style': ['span', 'self'],
+  'a': 'anchor',
+  'strikethrough': ['s', 'self'],
+  'sub': ['sub', 'self'],
+  'sup': ['sup', 'self'],
+  'code': ['code', 'self'],
+  'image': 'image'
+};
+const TABLE = {
+  'tr': ['tr', ['align']],
+  'th': ['th', ['colspan', 'rowspan', 'align', 'valign']],
+  'td': ['td', ['colspan', 'rowspan', 'align', 'valign']]
+};
+const POEM = {
+  'epigraph': ['blockquote'],
+  'subtitle': ['h2', STYLE],
+  'text-author': ['p', STYLE],
+  'date': ['p', STYLE],
+  'stanza': 'stanza'
+};
+const SECTION = {
+  'title': ['header', {
+    'p': ['h1', STYLE],
+    'empty-line': ['br']
+  }],
+  'epigraph': ['blockquote', 'self'],
+  'image': 'image',
+  'annotation': ['aside'],
+  'section': ['section', 'self'],
+  'p': ['p', STYLE],
+  'poem': ['blockquote', POEM],
+  'subtitle': ['h2', STYLE],
+  'cite': ['blockquote', 'self'],
+  'empty-line': ['br'],
+  'table': ['table', TABLE],
+  'text-author': ['p', STYLE]
+};
+POEM['epigraph'].push(SECTION);
+const BODY = {
+  'image': 'image',
+  'title': ['section', {
+    'p': ['h1', STYLE],
+    'empty-line': ['br']
+  }],
+  'epigraph': ['section', SECTION],
+  'section': ['section', SECTION]
+};
+const getImageSrc = el => {
+  const href = el.getAttributeNS(fb2_NS.XLINK, 'href');
+  const [, id] = href.split('#');
+  const bin = el.getRootNode().getElementById(id);
+  return bin ? \`data:\${bin.getAttribute('content-type')};base64,\${bin.textContent}\` : href;
+};
+class FB2Converter {
+  constructor(fb2) {
+    this.fb2 = fb2;
+    this.doc = document.implementation.createDocument(fb2_NS.XHTML, 'html');
+  }
+  image(node) {
+    const el = this.doc.createElement('img');
+    el.alt = node.getAttribute('alt');
+    el.title = node.getAttribute('title');
+    el.setAttribute('src', getImageSrc(node));
+    return el;
+  }
+  anchor(node) {
+    const el = this.convert(node, {
+      'a': ['a', STYLE]
+    });
+    el.setAttribute('href', node.getAttributeNS(fb2_NS.XLINK, 'href'));
+    if (node.getAttribute('type') === 'note') el.setAttributeNS(fb2_NS.EPUB, 'epub:type', 'noteref');
+    return el;
+  }
+  stanza(node) {
+    const el = this.convert(node, {
+      'stanza': ['p', {
+        'title': ['header', {
+          'p': ['strong', STYLE],
+          'empty-line': ['br']
+        }],
+        'subtitle': ['p', STYLE]
+      }]
+    });
+    for (const child of node.children) if (child.nodeName === 'v') {
+      el.append(this.doc.createTextNode(child.textContent));
+      el.append(this.doc.createElement('br'));
+    }
+    return el;
+  }
+  convert(node, def) {
+    // not an element; return text content
+    if (node.nodeType === 3) return this.doc.createTextNode(node.textContent);
+    if (node.nodeType === 4) return this.doc.createCDATASection(node.textContent);
+    if (node.nodeType === 8) return this.doc.createComment(node.textContent);
+    const d = def?.[node.nodeName];
+    if (!d) return null;
+    if (typeof d === 'string') return this[d](node);
+    const [name, opts] = d;
+    const el = this.doc.createElement(name);
+
+    // copy the ID, and set class name from original element name
+    if (node.id) el.id = node.id;
+    el.classList.add(node.nodeName);
+
+    // copy attributes
+    if (Array.isArray(opts)) for (const attr of opts) el.setAttribute(attr, node.getAttribute(attr));
+
+    // process child elements recursively
+    const childDef = opts === 'self' ? def : Array.isArray(opts) ? null : opts;
+    let child = node.firstChild;
+    while (child) {
+      const childEl = this.convert(child, childDef);
+      if (childEl) el.append(childEl);
+      child = child.nextSibling;
+    }
+    return el;
+  }
+}
+const parseXML = async blob => {
+  const buffer = await blob.arrayBuffer();
+  const str = new TextDecoder('utf-8').decode(buffer);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(str, fb2_MIME.XML);
+  const encoding = doc.xmlEncoding
+  // \`Document.xmlEncoding\` is deprecated, and already removed in Firefox
+  // so parse the XML declaration manually
+  || str.match(/^<\\?xml\\s+version\\s*=\\s*["']1.\\d+"\\s+encoding\\s*=\\s*["']([A-Za-z0-9._-]*)["']/)?.[1];
+  if (encoding && encoding.toLowerCase() !== 'utf-8') {
+    const str = new TextDecoder(encoding).decode(buffer);
+    return parser.parseFromString(str, fb2_MIME.XML);
+  }
+  return doc;
+};
+const style = URL.createObjectURL(new Blob([\`
+@namespace epub "http://www.idpf.org/2007/ops";
+body > img, section > img {
+    display: block;
+    margin: auto;
+}
+.title h1 {
+    text-align: center;
+}
+body > section > .title, body.notesBodyType > .title {
+    margin: 3em 0;
+}
+body.notesBodyType > section .title h1 {
+    text-align: start;
+}
+body.notesBodyType > section .title {
+    margin: 1em 0;
+}
+p {
+    text-indent: 1em;
+    margin: 0;
+}
+:not(p) + p, p:first-child {
+    text-indent: 0;
+}
+.poem p {
+    text-indent: 0;
+    margin: 1em 0;
+}
+.text-author, .date {
+    text-align: end;
+}
+.text-author:before {
+    content: "—";
+}
+table {
+    border-collapse: collapse;
+}
+td, th {
+    padding: .25em;
+}
+a[epub|type~="noteref"] {
+    font-size: .75em;
+    vertical-align: super;
+}
+body:not(.notesBodyType) > .title, body:not(.notesBodyType) > .epigraph {
+    margin: 3em 0;
+}
+\`], {
+  type: 'text/css'
+}));
+const template = html => \`<?xml version="1.0" encoding="utf-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head><link href="\${style}" rel="stylesheet" type="text/css"/></head>
+    <body>\${html}</body>
+</html>\`;
+
+// name of custom ID attribute for TOC items
+const dataID = 'data-foliate-id';
+const makeFB2 = async blob => {
+  const book = {};
+  const doc = await parseXML(blob);
+  const converter = new FB2Converter(doc);
+  const \$ = x => doc.querySelector(x);
+  const \$\$ = x => [...doc.querySelectorAll(x)];
+  const getPerson = el => {
+    const nick = fb2_getElementText(el.querySelector('nickname'));
+    if (nick) return nick;
+    const first = fb2_getElementText(el.querySelector('first-name'));
+    const middle = fb2_getElementText(el.querySelector('middle-name'));
+    const last = fb2_getElementText(el.querySelector('last-name'));
+    const name = [first, middle, last].filter(x => x).join(' ');
+    const sortAs = last ? [last, [first, middle].filter(x => x).join(' ')].join(', ') : null;
+    return {
+      name,
+      sortAs
+    };
+  };
+  const getDate = el => el?.getAttribute('value') ?? fb2_getElementText(el);
+  const annotation = \$('title-info annotation');
+  book.metadata = {
+    title: fb2_getElementText(\$('title-info book-title')),
+    identifier: fb2_getElementText(\$('document-info id')),
+    language: fb2_getElementText(\$('title-info lang')),
+    author: \$\$('title-info author').map(getPerson),
+    translator: \$\$('title-info translator').map(getPerson),
+    producer: \$\$('document-info author').map(getPerson).concat(\$\$('document-info program-used').map(fb2_getElementText)),
+    publisher: fb2_getElementText(\$('publish-info publisher')),
+    published: getDate(\$('title-info date')),
+    modified: getDate(\$('document-info date')),
+    description: annotation ? converter.convert(annotation, {
+      annotation: ['div', SECTION]
+    }).innerHTML : null,
+    subject: \$\$('title-info genre').map(fb2_getElementText)
+  };
+  if (\$('coverpage image')) {
+    const src = getImageSrc(\$('coverpage image'));
+    book.getCover = () => fetch(src).then(res => res.blob());
+  } else book.getCover = () => null;
+
+  // get convert each body
+  const bodyData = Array.from(doc.querySelectorAll('body'), body => {
+    const converted = converter.convert(body, {
+      body: ['body', BODY]
+    });
+    return [Array.from(converted.children, el => {
+      // get list of IDs in the section
+      const ids = [el, ...el.querySelectorAll('[id]')].map(el => el.id);
+      return {
+        el,
+        ids
+      };
+    }), converted];
+  });
+  const urls = [];
+  const sectionData = bodyData[0][0]
+  // make a separate section for each section in the first body
+  .map(({
+    el,
+    ids
+  }) => {
+    // set up titles for TOC
+    const titles = Array.from(el.querySelectorAll(':scope > section > .title'), (el, index) => {
+      el.setAttribute(dataID, index);
+      return {
+        title: fb2_getElementText(el),
+        index
+      };
+    });
+    return {
+      ids,
+      titles,
+      el
+    };
+  })
+  // for additional bodies, only make one section for each body
+  .concat(bodyData.slice(1).map(([sections, body]) => {
+    const ids = sections.map(s => s.ids).flat();
+    body.classList.add('notesBodyType');
+    return {
+      ids,
+      el: body,
+      linear: 'no'
+    };
+  })).map(({
+    ids,
+    titles,
+    el,
+    linear
+  }) => {
+    const str = template(el.outerHTML);
+    const blob = new Blob([str], {
+      type: fb2_MIME.XHTML
+    });
+    const url = URL.createObjectURL(blob);
+    urls.push(url);
+    const title = fb2_normalizeWhitespace(el.querySelector('.title, .subtitle, p')?.textContent ?? (el.classList.contains('title') ? el.textContent : ''));
+    return {
+      ids,
+      title,
+      titles,
+      load: () => url,
+      createDocument: () => new DOMParser().parseFromString(str, fb2_MIME.XHTML),
+      // doo't count image data as it'd skew the size too much
+      size: blob.size - Array.from(el.querySelectorAll('[src]'), el => el.getAttribute('src')?.length ?? 0).reduce((a, b) => a + b, 0),
+      linear
+    };
+  });
+  const idMap = new Map();
+  book.sections = sectionData.map((section, index) => {
+    const {
+      ids,
+      load,
+      createDocument,
+      size,
+      linear
+    } = section;
+    for (const id of ids) if (id) idMap.set(id, index);
+    return {
+      id: index,
+      load,
+      createDocument,
+      size,
+      linear
+    };
+  });
+  book.toc = sectionData.map(({
+    title,
+    titles
+  }, index) => {
+    const id = index.toString();
+    return {
+      label: title,
+      href: id,
+      subitems: titles?.length ? titles.map(({
+        title,
+        index
+      }) => ({
+        label: title,
+        href: \`\${id}#\${index}\`
+      })) : null
+    };
+  }).filter(item => item);
+  book.resolveHref = href => {
+    const [a, b] = href.split('#');
+    return a
+    // the link is from the TOC
+    ? {
+      index: Number(a),
+      anchor: doc => doc.querySelector(\`[\${dataID}="\${b}"]\`)
+    }
+    // link from within the page
+    : {
+      index: idMap.get(b),
+      anchor: doc => doc.getElementById(b)
+    };
+  };
+  book.splitTOCHref = href => href?.split('#')?.map(x => Number(x)) ?? [];
+  book.getTOCFragment = (doc, id) => doc.querySelector(\`[\${dataID}="\${id}"]\`);
+  book.destroy = () => {
+    for (const url of urls) URL.revokeObjectURL(url);
+  };
+  return book;
+};
+;// CONCATENATED MODULE: ./foliate-js/comic-book.js
+const makeComicBook = ({
+  entries,
+  loadBlob,
+  getSize
+}, file) => {
+  const cache = new Map();
+  const urls = new Map();
+  const load = async name => {
+    if (cache.has(name)) return cache.get(name);
+    const src = URL.createObjectURL(await loadBlob(name));
+    const page = URL.createObjectURL(new Blob([\`<img src="\${src}">\`], {
+      type: 'text/html'
+    }));
+    urls.set(name, [src, page]);
+    cache.set(name, page);
+    return page;
+  };
+  const unload = name => {
+    urls.get(name)?.forEach?.(url => URL.revokeObjectURL(url));
+    urls.delete(name);
+    cache.delete(name);
+  };
+  const exts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+  const files = entries.map(entry => entry.filename).filter(name => exts.some(ext => name.endsWith(ext))).sort();
+  const book = {};
+  book.getCover = () => loadBlob(files[0]);
+  book.metadata = {
+    title: file.name
+  };
+  book.sections = files.map(name => ({
+    id: name,
+    load: () => load(name),
+    unload: () => unload(name),
+    size: getSize(name)
+  }));
+  book.toc = files.map(name => ({
+    label: name,
+    href: name
+  }));
+  book.rendition = {
+    layout: 'pre-paginated'
+  };
+  book.resolveHref = href => ({
+    index: book.sections.findIndex(s => s.id === href)
+  });
+  book.splitTOCHref = href => [href, null];
+  book.getTOCFragment = doc => doc.documentElement;
+  book.destroy = () => {
+    for (const arr of urls.values()) for (const url of arr) URL.revokeObjectURL(url);
+  };
+  return book;
+};
+;// CONCATENATED MODULE: ./foliate-js/mobi.js
+const unescapeHTML = str => {
+  if (!str) return '';
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = str;
+  return textarea.value;
+};
+const mobi_MIME = {
+  XML: 'application/xml',
+  XHTML: 'application/xhtml+xml',
+  HTML: 'text/html',
+  CSS: 'text/css',
+  SVG: 'image/svg+xml'
+};
+const PDB_HEADER = {
+  name: [0, 32, 'string'],
+  type: [60, 4, 'string'],
+  creator: [64, 4, 'string'],
+  numRecords: [76, 2, 'uint']
+};
+const PALMDOC_HEADER = {
+  compression: [0, 2, 'uint'],
+  numTextRecords: [8, 2, 'uint'],
+  recordSize: [10, 2, 'uint'],
+  encryption: [12, 2, 'uint']
+};
+const MOBI_HEADER = {
+  magic: [16, 4, 'string'],
+  length: [20, 4, 'uint'],
+  type: [24, 4, 'uint'],
+  encoding: [28, 4, 'uint'],
+  uid: [32, 4, 'uint'],
+  version: [36, 4, 'uint'],
+  titleOffset: [84, 4, 'uint'],
+  titleLength: [88, 4, 'uint'],
+  localeRegion: [94, 1, 'uint'],
+  localeLanguage: [95, 1, 'uint'],
+  resourceStart: [108, 4, 'uint'],
+  huffcdic: [112, 4, 'uint'],
+  numHuffcdic: [116, 4, 'uint'],
+  exthFlag: [128, 4, 'uint'],
+  trailingFlags: [240, 4, 'uint'],
+  indx: [244, 4, 'uint']
+};
+const KF8_HEADER = {
+  resourceStart: [108, 4, 'uint'],
+  fdst: [192, 4, 'uint'],
+  numFdst: [196, 4, 'uint'],
+  frag: [248, 4, 'uint'],
+  skel: [252, 4, 'uint'],
+  guide: [260, 4, 'uint']
+};
+const EXTH_HEADER = {
+  magic: [0, 4, 'string'],
+  length: [4, 4, 'uint'],
+  count: [8, 4, 'uint']
+};
+const INDX_HEADER = {
+  magic: [0, 4, 'string'],
+  length: [4, 4, 'uint'],
+  type: [8, 4, 'uint'],
+  idxt: [20, 4, 'uint'],
+  numRecords: [24, 4, 'uint'],
+  encoding: [28, 4, 'uint'],
+  language: [32, 4, 'uint'],
+  total: [36, 4, 'uint'],
+  ordt: [40, 4, 'uint'],
+  ligt: [44, 4, 'uint'],
+  numLigt: [48, 4, 'uint'],
+  numCncx: [52, 4, 'uint']
+};
+const TAGX_HEADER = {
+  magic: [0, 4, 'string'],
+  length: [4, 4, 'uint'],
+  numControlBytes: [8, 4, 'uint']
+};
+const HUFF_HEADER = {
+  magic: [0, 4, 'string'],
+  offset1: [8, 4, 'uint'],
+  offset2: [12, 4, 'uint']
+};
+const CDIC_HEADER = {
+  magic: [0, 4, 'string'],
+  length: [4, 4, 'uint'],
+  numEntries: [8, 4, 'uint'],
+  codeLength: [12, 4, 'uint']
+};
+const FDST_HEADER = {
+  magic: [0, 4, 'string'],
+  numEntries: [8, 4, 'uint']
+};
+const FONT_HEADER = {
+  flags: [8, 4, 'uint'],
+  dataStart: [12, 4, 'uint'],
+  keyLength: [16, 4, 'uint'],
+  keyStart: [20, 4, 'uint']
+};
+const MOBI_ENCODING = {
+  1252: 'windows-1252',
+  65001: 'utf-8'
+};
+const EXTH_RECORD_TYPE = {
+  100: ['creator', 'string', true],
+  101: ['publisher'],
+  103: ['description'],
+  104: ['isbn'],
+  105: ['subject', 'string', true],
+  106: ['date'],
+  108: ['contributor', 'string', true],
+  109: ['rights'],
+  110: ['subjectCode', 'string', true],
+  112: ['source', 'string', true],
+  113: ['asin'],
+  121: ['boundary', 'uint'],
+  122: ['fixedLayout'],
+  125: ['numResources', 'uint'],
+  126: ['originalResolution'],
+  127: ['zeroGutter'],
+  128: ['zeroMargin'],
+  129: ['coverURI'],
+  132: ['regionMagnification'],
+  201: ['coverOffset', 'uint'],
+  202: ['thumbnailOffset', 'uint'],
+  503: ['title'],
+  524: ['language', 'string', true],
+  527: ['pageProgressionDirection']
+};
+const MOBI_LANG = {
+  1: ['ar', 'ar-SA', 'ar-IQ', 'ar-EG', 'ar-LY', 'ar-DZ', 'ar-MA', 'ar-TN', 'ar-OM', 'ar-YE', 'ar-SY', 'ar-JO', 'ar-LB', 'ar-KW', 'ar-AE', 'ar-BH', 'ar-QA'],
+  2: ['bg'],
+  3: ['ca'],
+  4: ['zh', 'zh-TW', 'zh-CN', 'zh-HK', 'zh-SG'],
+  5: ['cs'],
+  6: ['da'],
+  7: ['de', 'de-DE', 'de-CH', 'de-AT', 'de-LU', 'de-LI'],
+  8: ['el'],
+  9: ['en', 'en-US', 'en-GB', 'en-AU', 'en-CA', 'en-NZ', 'en-IE', 'en-ZA', 'en-JM', null, 'en-BZ', 'en-TT', 'en-ZW', 'en-PH'],
+  10: ['es', 'es-ES', 'es-MX', null, 'es-GT', 'es-CR', 'es-PA', 'es-DO', 'es-VE', 'es-CO', 'es-PE', 'es-AR', 'es-EC', 'es-CL', 'es-UY', 'es-PY', 'es-BO', 'es-SV', 'es-HN', 'es-NI', 'es-PR'],
+  11: ['fi'],
+  12: ['fr', 'fr-FR', 'fr-BE', 'fr-CA', 'fr-CH', 'fr-LU', 'fr-MC'],
+  13: ['he'],
+  14: ['hu'],
+  15: ['is'],
+  16: ['it', 'it-IT', 'it-CH'],
+  17: ['ja'],
+  18: ['ko'],
+  19: ['nl', 'nl-NL', 'nl-BE'],
+  20: ['no', 'nb', 'nn'],
+  21: ['pl'],
+  22: ['pt', 'pt-BR', 'pt-PT'],
+  23: ['rm'],
+  24: ['ro'],
+  25: ['ru'],
+  26: ['hr', null, 'sr'],
+  27: ['sk'],
+  28: ['sq'],
+  29: ['sv', 'sv-SE', 'sv-FI'],
+  30: ['th'],
+  31: ['tr'],
+  32: ['ur'],
+  33: ['id'],
+  34: ['uk'],
+  35: ['be'],
+  36: ['sl'],
+  37: ['et'],
+  38: ['lv'],
+  39: ['lt'],
+  41: ['fa'],
+  42: ['vi'],
+  43: ['hy'],
+  44: ['az'],
+  45: ['eu'],
+  46: ['hsb'],
+  47: ['mk'],
+  48: ['st'],
+  49: ['ts'],
+  50: ['tn'],
+  52: ['xh'],
+  53: ['zu'],
+  54: ['af'],
+  55: ['ka'],
+  56: ['fo'],
+  57: ['hi'],
+  58: ['mt'],
+  59: ['se'],
+  62: ['ms'],
+  63: ['kk'],
+  65: ['sw'],
+  67: ['uz', null, 'uz-UZ'],
+  68: ['tt'],
+  69: ['bn'],
+  70: ['pa'],
+  71: ['gu'],
+  72: ['or'],
+  73: ['ta'],
+  74: ['te'],
+  75: ['kn'],
+  76: ['ml'],
+  77: ['as'],
+  78: ['mr'],
+  79: ['sa'],
+  82: ['cy', 'cy-GB'],
+  83: ['gl', 'gl-ES'],
+  87: ['kok'],
+  97: ['ne'],
+  98: ['fy']
+};
+const concatTypedArray = (a, b) => {
+  const result = new a.constructor(a.length + b.length);
+  result.set(a);
+  result.set(b, a.length);
+  return result;
+};
+const concatTypedArray3 = (a, b, c) => {
+  const result = new a.constructor(a.length + b.length + c.length);
+  result.set(a);
+  result.set(b, a.length);
+  result.set(c, a.length + b.length);
+  return result;
+};
+const decoder = new TextDecoder();
+const getString = buffer => decoder.decode(buffer);
+const getUint = buffer => {
+  if (!buffer) return;
+  const l = buffer.byteLength;
+  const func = l === 4 ? 'getUint32' : l === 2 ? 'getUint16' : 'getUint8';
+  return new DataView(buffer)[func](0);
+};
+const getStruct = (def, buffer) => Object.fromEntries(Array.from(Object.entries(def)).map(([key, [start, len, type]]) => [key, (type === 'string' ? getString : getUint)(buffer.slice(start, start + len))]));
+const getDecoder = x => new TextDecoder(MOBI_ENCODING[x]);
+const getVarLen = (byteArray, i = 0) => {
+  let value = 0,
+    length = 0;
+  for (const byte of byteArray.subarray(i, i + 4)) {
+    value = value << 7 | (byte & 0b111_1111) >>> 0;
+    length++;
+    if (byte & 0b1000_0000) break;
+  }
+  return {
+    value,
+    length
+  };
+};
+
+// variable-length quantity, but read from the end of data
+const getVarLenFromEnd = byteArray => {
+  let value = 0;
+  for (const byte of byteArray.subarray(-4)) {
+    // \`byte & 0b1000_0000\` indicates the start of value
+    if (byte & 0b1000_0000) value = 0;
+    value = value << 7 | byte & 0b111_1111;
+  }
+  return value;
+};
+const countBitsSet = x => {
+  let count = 0;
+  for (; x > 0; x = x >> 1) if ((x & 1) === 1) count++;
+  return count;
+};
+const countUnsetEnd = x => {
+  let count = 0;
+  while ((x & 1) === 0) x = x >> 1, count++;
+  return count;
+};
+const decompressPalmDOC = array => {
+  let output = [];
+  for (let i = 0; i < array.length; i++) {
+    const byte = array[i];
+    if (byte === 0) output.push(0); // uncompressed literal, just copy it
+    else if (byte <= 8)
+      // copy next 1-8 bytes
+      for (const x of array.subarray(i + 1, (i += byte) + 1)) output.push(x);else if (byte <= 0b0111_1111) output.push(byte); // uncompressed literal
+    else if (byte <= 0b1011_1111) {
+      // 1st and 2nd bits are 10, meaning this is a length-distance pair
+      // read next byte and combine it with current byte
+      const bytes = byte << 8 | array[i++ + 1];
+      // the 3rd to 13th bits encode distance
+      const distance = (bytes & 0b0011_1111_1111_1111) >>> 3;
+      // the last 3 bits, plus 3, is the length to copy
+      const length = (bytes & 0b111) + 3;
+      for (let j = 0; j < length; j++) output.push(output[output.length - distance]);
+    }
+    // compressed from space plus char
+    else output.push(32, byte ^ 0b1000_0000);
+  }
+  return Uint8Array.from(output);
+};
+const read32Bits = (byteArray, from) => {
+  const startByte = from >> 3;
+  const end = from + 32;
+  const endByte = end >> 3;
+  let bits = 0n;
+  for (let i = startByte; i <= endByte; i++) bits = bits << 8n | BigInt(byteArray[i] ?? 0);
+  return bits >> 8n - BigInt(end & 7) & 0xffffffffn;
+};
+const huffcdic = async (mobi, loadRecord) => {
+  const huffRecord = await loadRecord(mobi.huffcdic);
+  const {
+    magic,
+    offset1,
+    offset2
+  } = getStruct(HUFF_HEADER, huffRecord);
+  if (magic !== 'HUFF') throw new Error('Invalid HUFF record');
+
+  // table1 is indexed by byte value
+  const table1 = Array.from({
+    length: 256
+  }, (_, i) => offset1 + i * 4).map(offset => getUint(huffRecord.slice(offset, offset + 4))).map(x => [x & 0b1000_0000, x & 0b1_1111, x >>> 8]);
+
+  // table2 is indexed by code length
+  const table2 = [null].concat(Array.from({
+    length: 32
+  }, (_, i) => offset2 + i * 8).map(offset => [getUint(huffRecord.slice(offset, offset + 4)), getUint(huffRecord.slice(offset + 4, offset + 8))]));
+  const dictionary = [];
+  for (let i = 1; i < mobi.numHuffcdic; i++) {
+    const record = await loadRecord(mobi.huffcdic + i);
+    const cdic = getStruct(CDIC_HEADER, record);
+    if (cdic.magic !== 'CDIC') throw new Error('Invalid CDIC record');
+    // \`numEntries\` is the total number of dictionary data across CDIC records
+    // so \`n\` here is the number of entries in *this* record
+    const n = Math.min(1 << cdic.codeLength, cdic.numEntries - dictionary.length);
+    const buffer = record.slice(cdic.length);
+    for (let i = 0; i < n; i++) {
+      const offset = getUint(buffer.slice(i * 2, i * 2 + 2));
+      const x = getUint(buffer.slice(offset, offset + 2));
+      const length = x & 0x7fff;
+      const decompressed = x & 0x8000;
+      const value = new Uint8Array(buffer.slice(offset + 2, offset + 2 + length));
+      dictionary.push([value, decompressed]);
+    }
+  }
+  const decompress = byteArray => {
+    let output = new Uint8Array();
+    const bitLength = byteArray.byteLength * 8;
+    for (let i = 0; i < bitLength;) {
+      const bits = Number(read32Bits(byteArray, i));
+      let [found, codeLength, value] = table1[bits >>> 24];
+      if (!found) {
+        while (bits >>> 32 - codeLength < table2[codeLength][0]) codeLength += 1;
+        value = table2[codeLength][1];
+      }
+      if ((i += codeLength) > bitLength) break;
+      const code = value - (bits >>> 32 - codeLength);
+      let [result, decompressed] = dictionary[code];
+      if (!decompressed) {
+        // the result is itself compressed
+        result = decompress(result);
+        // cache the result for next time
+        dictionary[code] = [result, true];
+      }
+      output = concatTypedArray(output, result);
+    }
+    return output;
+  };
+  return decompress;
+};
+const getIndexData = async (indxIndex, loadRecord) => {
+  const indxRecord = await loadRecord(indxIndex);
+  const indx = getStruct(INDX_HEADER, indxRecord);
+  if (indx.magic !== 'INDX') throw new Error('Invalid INDX record');
+  const decoder = getDecoder(indx.encoding);
+  const tagxBuffer = indxRecord.slice(indx.length);
+  const tagx = getStruct(TAGX_HEADER, tagxBuffer);
+  if (tagx.magic !== 'TAGX') throw new Error('Invalid TAGX section');
+  const numTags = (tagx.length - 12) / 4;
+  const tagTable = Array.from({
+    length: numTags
+  }, (_, i) => new Uint8Array(tagxBuffer.slice(12 + i * 4, 12 + i * 4 + 4)));
+  const cncx = {};
+  let cncxRecordOffset = 0;
+  for (let i = 0; i < indx.numCncx; i++) {
+    const record = await loadRecord(indxIndex + indx.numRecords + i + 1);
+    const array = new Uint8Array(record);
+    for (let pos = 0; pos < array.byteLength;) {
+      const index = pos;
+      const {
+        value,
+        length
+      } = getVarLen(array, pos);
+      pos += length;
+      const result = record.slice(pos, pos + value);
+      pos += value;
+      cncx[cncxRecordOffset + index] = decoder.decode(result);
+    }
+    cncxRecordOffset += 0x10000;
+  }
+  const table = [];
+  for (let i = 0; i < indx.numRecords; i++) {
+    const record = await loadRecord(indxIndex + 1 + i);
+    const array = new Uint8Array(record);
+    const indx = getStruct(INDX_HEADER, record);
+    if (indx.magic !== 'INDX') throw new Error('Invalid INDX record');
+    for (let j = 0; j < indx.numRecords; j++) {
+      const offsetOffset = indx.idxt + 4 + 2 * j;
+      const offset = getUint(record.slice(offsetOffset, offsetOffset + 2));
+      const length = getUint(record.slice(offset, offset + 1));
+      const name = getString(record.slice(offset + 1, offset + 1 + length));
+      const tags = [];
+      const startPos = offset + 1 + length;
+      let controlByteIndex = 0;
+      let pos = startPos + tagx.numControlBytes;
+      for (const [tag, numValues, mask, end] of tagTable) {
+        if (end & 1) {
+          controlByteIndex++;
+          continue;
+        }
+        const offset = startPos + controlByteIndex;
+        const value = getUint(record.slice(offset, offset + 1)) & mask;
+        if (value === mask) {
+          if (countBitsSet(mask) > 1) {
+            const {
+              value,
+              length
+            } = getVarLen(array, pos);
+            tags.push([tag, null, value, numValues]);
+            pos += length;
+          } else tags.push([tag, 1, null, numValues]);
+        } else tags.push([tag, value >> countUnsetEnd(mask), null, numValues]);
+      }
+      const tagMap = {};
+      for (const [tag, valueCount, valueBytes, numValues] of tags) {
+        const values = [];
+        if (valueCount != null) {
+          for (let i = 0; i < valueCount * numValues; i++) {
+            const {
+              value,
+              length
+            } = getVarLen(array, pos);
+            values.push(value);
+            pos += length;
+          }
+        } else {
+          let count = 0;
+          while (count < valueBytes) {
+            const {
+              value,
+              length
+            } = getVarLen(array, pos);
+            values.push(value);
+            pos += length;
+            count += length;
+          }
+        }
+        tagMap[tag] = values;
+      }
+      table.push({
+        name,
+        tagMap
+      });
+    }
+  }
+  return {
+    table,
+    cncx
+  };
+};
+const getNCX = async (indxIndex, loadRecord) => {
+  const {
+    table,
+    cncx
+  } = await getIndexData(indxIndex, loadRecord);
+  const items = table.map(({
+    tagMap
+  }, index) => ({
+    index,
+    offset: tagMap[1]?.[0],
+    size: tagMap[2]?.[0],
+    label: cncx[tagMap[3]] ?? '',
+    headingLevel: tagMap[4]?.[0],
+    pos: tagMap[6],
+    parent: tagMap[21]?.[0],
+    firstChild: tagMap[22]?.[0],
+    lastChild: tagMap[23]?.[0]
+  }));
+  const getChildren = item => {
+    if (item.firstChild == null) return item;
+    item.children = items.filter(x => x.parent === item.index).map(getChildren);
+    return item;
+  };
+  return items.filter(item => item.headingLevel === 0).map(getChildren);
+};
+const getEXTH = (buf, encoding) => {
+  const {
+    magic,
+    count
+  } = getStruct(EXTH_HEADER, buf);
+  if (magic !== 'EXTH') throw new Error('Invalid EXTH header');
+  const decoder = getDecoder(encoding);
+  const results = {};
+  let offset = 12;
+  for (let i = 0; i < count; i++) {
+    const type = getUint(buf.slice(offset, offset + 4));
+    const length = getUint(buf.slice(offset + 4, offset + 8));
+    if (type in EXTH_RECORD_TYPE) {
+      const [name, typ, many] = EXTH_RECORD_TYPE[type];
+      const data = buf.slice(offset + 8, offset + length);
+      const value = typ === 'uint' ? getUint(data) : decoder.decode(data);
+      if (many) {
+        results[name] ??= [];
+        results[name].push(value);
+      } else results[name] = value;
+    }
+    offset += length;
+  }
+  return results;
+};
+const getFont = async (buf, unzlib) => {
+  const {
+    flags,
+    dataStart,
+    keyLength,
+    keyStart
+  } = getStruct(FONT_HEADER, buf);
+  const array = new Uint8Array(buf.slice(dataStart));
+  // deobfuscate font
+  if (flags & 0b10) {
+    const bytes = keyLength === 16 ? 1024 : 1040;
+    const key = new Uint8Array(buf.slice(keyStart, keyStart + keyLength));
+    const length = Math.min(bytes, array.length);
+    for (var i = 0; i < length; i++) array[i] = array[i] ^ key[i % key.length];
+  }
+  // decompress font
+  if (flags & 1) try {
+    return await unzlib(array);
+  } catch (e) {
+    console.warn(e);
+    console.warn('Failed to decompress font');
+  }
+  return array;
+};
+const isMOBI = async file => {
+  const magic = getString(await file.slice(60, 68).arrayBuffer());
+  return magic === 'BOOKMOBI'; // || magic === 'TEXtREAd'
+};
+
+class PDB {
+  #file;
+  #offsets;
+  pdb;
+  async open(file) {
+    this.#file = file;
+    const pdb = getStruct(PDB_HEADER, await file.slice(0, 78).arrayBuffer());
+    this.pdb = pdb;
+    const buffer = await file.slice(78, 78 + pdb.numRecords * 8).arrayBuffer();
+    // get start and end offsets for each record
+    this.#offsets = Array.from({
+      length: pdb.numRecords
+    }, (_, i) => getUint(buffer.slice(i * 8, i * 8 + 4))).map((x, i, a) => [x, a[i + 1]]);
+  }
+  loadRecord(index) {
+    const offsets = this.#offsets[index];
+    if (!offsets) throw new RangeError('Record index out of bounds');
+    return this.#file.slice(...offsets).arrayBuffer();
+  }
+  async loadMagic(index) {
+    const start = this.#offsets[index][0];
+    return getString(await this.#file.slice(start, start + 4).arrayBuffer());
+  }
+}
+class MOBI extends PDB {
+  #start = 0;
+  #resourceStart;
+  #decoder;
+  #encoder;
+  #decompress;
+  #removeTrailingEntries;
+  constructor({
+    unzlib
+  }) {
+    super();
+    this.unzlib = unzlib;
+  }
+  async open(file) {
+    await super.open(file);
+    // TODO: if (this.pdb.type === 'TEXt')
+    this.headers = this.#getHeaders(await super.loadRecord(0));
+    this.#resourceStart = this.headers.mobi.resourceStart;
+    let isKF8 = this.headers.mobi.version >= 8;
+    if (!isKF8) {
+      const boundary = this.headers.exth?.boundary;
+      if (boundary < 0xffffffff) try {
+        // it's a "combo" MOBI/KF8 file; try to open the KF8 part
+        this.headers = this.#getHeaders(await super.loadRecord(boundary));
+        this.#start = boundary;
+        isKF8 = true;
+      } catch (e) {
+        console.warn(e);
+        console.warn('Failed to open KF8; falling back to MOBI');
+      }
+    }
+    await this.#setup();
+    return isKF8 ? new KF8(this).init() : new MOBI6(this).init();
+  }
+  #getHeaders(buf) {
+    const palmdoc = getStruct(PALMDOC_HEADER, buf);
+    const mobi = getStruct(MOBI_HEADER, buf);
+    if (mobi.magic !== 'MOBI') throw new Error('Missing MOBI header');
+    const {
+      titleOffset,
+      titleLength,
+      localeLanguage,
+      localeRegion
+    } = mobi;
+    mobi.title = buf.slice(titleOffset, titleOffset + titleLength);
+    const lang = MOBI_LANG[localeLanguage];
+    mobi.language = lang?.[localeRegion >> 2] ?? lang?.[0];
+    const exth = mobi.exthFlag & 0b100_0000 ? getEXTH(buf.slice(mobi.length + 16), mobi.encoding) : null;
+    const kf8 = mobi.version >= 8 ? getStruct(KF8_HEADER, buf) : null;
+    return {
+      palmdoc,
+      mobi,
+      exth,
+      kf8
+    };
+  }
+  async #setup() {
+    const {
+      palmdoc,
+      mobi
+    } = this.headers;
+    this.#decoder = getDecoder(mobi.encoding);
+    // \`TextEncoder\` only supports UTF-8
+    // we are only encoding ASCII anyway, so I think it's fine
+    this.#encoder = new TextEncoder();
+
+    // set up decompressor
+    const {
+      compression
+    } = palmdoc;
+    this.#decompress = compression === 1 ? f => f : compression === 2 ? decompressPalmDOC : compression === 17480 ? await huffcdic(mobi, this.loadRecord.bind(this)) : null;
+    if (!this.#decompress) throw new Error('Unknown compression type');
+
+    // set up function for removing trailing bytes
+    const {
+      trailingFlags
+    } = mobi;
+    const multibyte = trailingFlags & 1;
+    const numTrailingEntries = countBitsSet(trailingFlags >>> 1);
+    this.#removeTrailingEntries = array => {
+      for (let i = 0; i < numTrailingEntries; i++) {
+        const length = getVarLenFromEnd(array);
+        array = array.subarray(0, -length);
+      }
+      if (multibyte) {
+        const length = (array[array.length - 1] & 0b11) + 1;
+        array = array.subarray(0, -length);
+      }
+      return array;
+    };
+  }
+  decode(...args) {
+    return this.#decoder.decode(...args);
+  }
+  encode(...args) {
+    return this.#encoder.encode(...args);
+  }
+  loadRecord(index) {
+    return super.loadRecord(this.#start + index);
+  }
+  loadMagic(index) {
+    return super.loadMagic(this.#start + index);
+  }
+  loadText(index) {
+    return this.loadRecord(index + 1).then(buf => new Uint8Array(buf)).then(this.#removeTrailingEntries).then(this.#decompress);
+  }
+  async loadResource(index) {
+    const buf = await super.loadRecord(this.#resourceStart + index);
+    const magic = getString(buf.slice(0, 4));
+    if (magic === 'FONT') return getFont(buf, this.unzlib);
+    if (magic === 'VIDE' || magic === 'AUDI') return buf.slice(12);
+    return buf;
+  }
+  getNCX() {
+    const index = this.headers.mobi.indx;
+    if (index < 0xffffffff) return getNCX(index, this.loadRecord.bind(this));
+  }
+  getMetadata() {
+    const {
+      mobi,
+      exth
+    } = this.headers;
+    return {
+      identifier: mobi.uid.toString(),
+      title: unescapeHTML(exth?.title || this.decode(mobi.title)),
+      author: exth?.creator?.map(unescapeHTML),
+      publisher: unescapeHTML(exth?.publisher),
+      language: exth?.language ?? mobi.language,
+      published: exth?.date,
+      description: unescapeHTML(exth?.description),
+      subject: exth?.subject?.map(unescapeHTML),
+      rights: unescapeHTML(exth?.rights)
+    };
+  }
+  async getCover() {
+    const {
+      exth
+    } = this.headers;
+    const offset = exth?.coverOffset < 0xffffffff ? exth?.coverOffset : exth?.thumbnailOffset < 0xffffffff ? exth?.thumbnailOffset : null;
+    if (offset != null) {
+      const buf = await this.loadResource(offset);
+      return new Blob([buf]);
+    }
+  }
+}
+const mbpPagebreakRegex = /<\\s*(?:mbp:)?pagebreak[^>]*>/gi;
+const fileposRegex = /<[^<>]+filepos=['"]{0,1}(\\d+)[^<>]*>/gi;
+const getIndent = el => {
+  let x = 0;
+  while (el) {
+    const parent = el.parentElement;
+    if (parent) {
+      const tag = parent.tagName.toLowerCase();
+      if (tag === 'p') x += 1.5;else if (tag === 'blockquote') x += 2;
+    }
+    el = parent;
+  }
+  return x;
+};
+class MOBI6 {
+  parser = new DOMParser();
+  serializer = new XMLSerializer();
+  #resourceCache = new Map();
+  #textCache = new Map();
+  #cache = new Map();
+  #sections;
+  #fileposList = [];
+  #type = mobi_MIME.HTML;
+  constructor(mobi) {
+    this.mobi = mobi;
+  }
+  async init() {
+    // load all text records in an array
+    let array = new Uint8Array();
+    for (let i = 0; i < this.mobi.headers.palmdoc.numTextRecords; i++) array = concatTypedArray(array, await this.mobi.loadText(i));
+
+    // convert to string so we can use regex
+    // note that \`filepos\` are byte offsets
+    // so it needs to preserve each byte as a separate character
+    // (see https://stackoverflow.com/q/50198017)
+    const str = Array.from(new Uint8Array(array), c => String.fromCharCode(c)).join('');
+
+    // split content into sections at each \`<mbp:pagebreak>\`
+    this.#sections = [0].concat(Array.from(str.matchAll(mbpPagebreakRegex), m => m.index)).map((x, i, a) => str.slice(x, a[i + 1]))
+    // recover the original raw bytes
+    .map(str => Uint8Array.from(str, x => x.charCodeAt(0))).map(raw => ({
+      book: this,
+      raw
+    }))
+    // get start and end filepos for each section
+    .reduce((arr, x) => {
+      const last = arr[arr.length - 1];
+      x.start = last?.end ?? 0;
+      x.end = x.start + x.raw.byteLength;
+      return arr.concat(x);
+    }, []);
+    this.sections = this.#sections.map((section, index) => ({
+      id: index,
+      load: () => this.loadSection(section),
+      createDocument: () => this.createDocument(section),
+      size: section.end - section.start
+    }));
+    try {
+      this.landmarks = await this.getGuide();
+      const tocHref = this.landmarks.find(({
+        type
+      }) => type?.includes('toc'))?.href;
+      if (tocHref) {
+        const {
+          index
+        } = this.resolveHref(tocHref);
+        const doc = await this.sections[index].createDocument();
+        let lastItem;
+        let lastLevel = 0;
+        let lastIndent = 0;
+        const lastLevelOfIndent = new Map();
+        const lastParentOfLevel = new Map();
+        this.toc = Array.from(doc.querySelectorAll('a[filepos]')).reduce((arr, a) => {
+          const indent = getIndent(a);
+          const item = {
+            label: a.innerText?.trim(),
+            href: \`filepos:\${a.getAttribute('filepos')}\`
+          };
+          const level = indent > lastIndent ? lastLevel + 1 : indent === lastIndent ? lastLevel : lastLevelOfIndent.get(indent) ?? Math.max(0, lastLevel - 1);
+          if (level > lastLevel) {
+            if (lastItem) {
+              lastItem.subitems ??= [];
+              lastItem.subitems.push(item);
+              lastParentOfLevel.set(level, lastItem);
+            } else arr.push(item);
+          } else {
+            const parent = lastParentOfLevel.get(level);
+            if (parent) parent.subitems.push(item);else arr.push(item);
+          }
+          lastItem = item;
+          lastLevel = level;
+          lastIndent = indent;
+          lastLevelOfIndent.set(indent, level);
+          return arr;
+        }, []);
+      }
+    } catch (e) {
+      console.warn(e);
+    }
+
+    // get list of all \`filepos\` references in the book,
+    // which will be used to insert anchor elements
+    // because only then can they be referenced in the DOM
+    this.#fileposList = [...new Set(Array.from(str.matchAll(fileposRegex), m => m[1]))].map(filepos => ({
+      filepos,
+      number: Number(filepos)
+    })).sort((a, b) => a.number - b.number);
+    this.metadata = this.mobi.getMetadata();
+    this.getCover = this.mobi.getCover.bind(this.mobi);
+    return this;
+  }
+  async getGuide() {
+    const doc = await this.createDocument(this.#sections[0]);
+    return Array.from(doc.getElementsByTagName('reference'), ref => ({
+      label: ref.getAttribute('title'),
+      type: ref.getAttribute('type')?.split(/\\s/),
+      href: \`filepos:\${ref.getAttribute('filepos')}\`
+    }));
+  }
+  async loadResource(index) {
+    if (this.#resourceCache.has(index)) return this.#resourceCache.get(index);
+    const raw = await this.mobi.loadResource(index);
+    const url = URL.createObjectURL(new Blob([raw]));
+    this.#resourceCache.set(index, url);
+    return url;
+  }
+  async loadRecindex(recindex) {
+    return this.loadResource(Number(recindex) - 1);
+  }
+  async replaceResources(doc) {
+    for (const img of doc.querySelectorAll('img[recindex]')) {
+      const recindex = img.getAttribute('recindex');
+      try {
+        img.src = await this.loadRecindex(recindex);
+      } catch (e) {
+        console.warn(\`Failed to load image \${recindex}\`);
+      }
+    }
+    for (const media of doc.querySelectorAll('[mediarecindex]')) {
+      const mediarecindex = media.getAttribute('mediarecindex');
+      const recindex = media.getAttribute('recindex');
+      try {
+        media.src = await this.loadRecindex(mediarecindex);
+        if (recindex) media.poster = await this.loadRecindex(recindex);
+      } catch (e) {
+        console.warn(\`Failed to load media \${mediarecindex}\`);
+      }
+    }
+    for (const a of doc.querySelectorAll('[filepos]')) {
+      const filepos = a.getAttribute('filepos');
+      a.href = \`filepos:\${filepos}\`;
+    }
+  }
+  async loadText(section) {
+    if (this.#textCache.has(section)) return this.#textCache.get(section);
+    const {
+      raw
+    } = section;
+
+    // insert anchor elements for each \`filepos\`
+    const fileposList = this.#fileposList.filter(({
+      number
+    }) => number >= section.start && number < section.end).map(obj => ({
+      ...obj,
+      offset: obj.number - section.start
+    }));
+    let arr = raw;
+    if (fileposList.length) {
+      arr = raw.subarray(0, fileposList[0].offset);
+      fileposList.forEach(({
+        filepos,
+        offset
+      }, i) => {
+        const next = fileposList[i + 1];
+        const a = this.mobi.encode(\`<a id="filepos\${filepos}"></a>\`);
+        arr = concatTypedArray3(arr, a, raw.subarray(offset, next?.offset));
+      });
+    }
+    const str = this.mobi.decode(arr).replaceAll(mbpPagebreakRegex, '');
+    this.#textCache.set(section, str);
+    return str;
+  }
+  async createDocument(section) {
+    const str = await this.loadText(section);
+    return this.parser.parseFromString(str, this.#type);
+  }
+  async loadSection(section) {
+    if (this.#cache.has(section)) return this.#cache.get(section);
+    const doc = await this.createDocument(section);
+
+    // inject default stylesheet
+    const style = doc.createElement('style');
+    doc.head.append(style);
+    // blockquotes in MOBI seem to have only a small left margin by default
+    // many books seem to rely on this, as it's the only way to set margin
+    // (since there's no CSS)
+    style.append(doc.createTextNode(\`blockquote {
+            margin-block-start: 0;
+            margin-block-end: 0;
+            margin-inline-start: 1em;
+            margin-inline-end: 0;
+        }\`));
+    await this.replaceResources(doc);
+    const result = this.serializer.serializeToString(doc);
+    const url = URL.createObjectURL(new Blob([result], {
+      type: this.#type
+    }));
+    this.#cache.set(section, url);
+    return url;
+  }
+  resolveHref(href) {
+    const filepos = href.match(/filepos:(.*)/)[1];
+    const number = Number(filepos);
+    const index = this.#sections.findIndex(section => section.end > number);
+    const anchor = doc => doc.getElementById(\`filepos\${filepos}\`);
+    return {
+      index,
+      anchor
+    };
+  }
+  splitTOCHref(href) {
+    const filepos = href.match(/filepos:(.*)/)[1];
+    const number = Number(filepos);
+    const index = this.#sections.findIndex(section => section.end > number);
+    return [index, \`filepos\${filepos}\`];
+  }
+  getTOCFragment(doc, id) {
+    return doc.getElementById(id);
+  }
+  isExternal(uri) {
+    return /^(?!blob|filepos)\\w+:/i.test(uri);
+  }
+  destroy() {
+    for (const url of this.#resourceCache.values()) URL.revokeObjectURL(url);
+    for (const url of this.#cache.values()) URL.revokeObjectURL(url);
+  }
+}
+
+// handlers for \`kindle:\` uris
+const kindleResourceRegex = /kindle:(flow|embed):(\\w+)(?:\\?mime=(\\w+\\/[-+.\\w]+))?/;
+const kindlePosRegex = /kindle:pos:fid:(\\w+):off:(\\w+)/;
+const parseResourceURI = str => {
+  const [resourceType, id, type] = str.match(kindleResourceRegex).slice(1);
+  return {
+    resourceType,
+    id: parseInt(id, 32),
+    type
+  };
+};
+const parsePosURI = str => {
+  const [fid, off] = str.match(kindlePosRegex).slice(1);
+  return {
+    fid: parseInt(fid, 32),
+    off: parseInt(off, 32)
+  };
+};
+const makePosURI = (fid = 0, off = 0) => \`kindle:pos:fid:\${fid.toString(32).toUpperCase().padStart(4, '0')}:off:\${off.toString(32).toUpperCase().padStart(10, '0')}\`;
+
+// \`kindle:pos:\` links are originally links that contain fragments identifiers
+// so there should exist an element with \`id\` or \`name\`
+// otherwise try to find one with an \`aid\` attribute
+const getFragmentSelector = str => {
+  const match = str.match(/\\s(id|name|aid)\\s*=\\s*['"]([^'"]*)['"]/i);
+  if (!match) return;
+  const [, attr, value] = match;
+  return \`[\${attr}="\${CSS.escape(value)}"]\`;
+};
+
+// replace asynchronously and sequentially
+const mobi_replaceSeries = async (str, regex, f) => {
+  const matches = [];
+  str.replace(regex, (...args) => (matches.push(args), null));
+  const results = [];
+  for (const args of matches) results.push(await f(...args));
+  return str.replace(regex, () => results.shift());
+};
+const mobi_getPageSpread = properties => {
+  for (const p of properties) {
+    if (p === 'page-spread-left' || p === 'rendition:page-spread-left') return 'left';
+    if (p === 'page-spread-right' || p === 'rendition:page-spread-right') return 'right';
+    if (p === 'rendition:page-spread-center') return 'center';
+  }
+};
+class KF8 {
+  parser = new DOMParser();
+  serializer = new XMLSerializer();
+  #cache = new Map();
+  #fragmentOffsets = new Map();
+  #fragmentSelectors = new Map();
+  #tables = {};
+  #sections;
+  #fullRawLength;
+  #rawHead = new Uint8Array();
+  #rawTail = new Uint8Array();
+  #lastLoadedHead = -1;
+  #lastLoadedTail = -1;
+  #type = mobi_MIME.XHTML;
+  #inlineMap = new Map();
+  constructor(mobi) {
+    this.mobi = mobi;
+  }
+  async init() {
+    const loadRecord = this.mobi.loadRecord.bind(this.mobi);
+    const {
+      kf8
+    } = this.mobi.headers;
+    try {
+      const fdstBuffer = await loadRecord(kf8.fdst);
+      const fdst = getStruct(FDST_HEADER, fdstBuffer);
+      if (fdst.magic !== 'FDST') throw new Error('Missing FDST record');
+      const fdstTable = Array.from({
+        length: fdst.numEntries
+      }, (_, i) => 12 + i * 8).map(offset => [getUint(fdstBuffer.slice(offset, offset + 4)), getUint(fdstBuffer.slice(offset + 4, offset + 8))]);
+      this.#tables.fdstTable = fdstTable;
+      this.#fullRawLength = fdstTable[fdstTable.length - 1][1];
+    } catch {}
+    const skelTable = (await getIndexData(kf8.skel, loadRecord)).table.map(({
+      name,
+      tagMap
+    }, index) => ({
+      index,
+      name,
+      numFrag: tagMap[1][0],
+      offset: tagMap[6][0],
+      length: tagMap[6][1]
+    }));
+    const fragData = await getIndexData(kf8.frag, loadRecord);
+    const fragTable = fragData.table.map(({
+      name,
+      tagMap
+    }) => ({
+      insertOffset: parseInt(name),
+      selector: fragData.cncx[tagMap[2][0]],
+      index: tagMap[4][0],
+      offset: tagMap[6][0],
+      length: tagMap[6][1]
+    }));
+    this.#tables.skelTable = skelTable;
+    this.#tables.fragTable = fragTable;
+    this.#sections = skelTable.reduce((arr, skel) => {
+      const last = arr[arr.length - 1];
+      const fragStart = last?.fragEnd ?? 0,
+        fragEnd = fragStart + skel.numFrag;
+      const frags = fragTable.slice(fragStart, fragEnd);
+      const length = skel.length + frags.map(f => f.length).reduce((a, b) => a + b);
+      const totalLength = (last?.totalLength ?? 0) + length;
+      return arr.concat({
+        skel,
+        frags,
+        fragEnd,
+        length,
+        totalLength
+      });
+    }, []);
+    const resources = await this.getResourcesByMagic(['RESC', 'PAGE']);
+    const pageSpreads = new Map();
+    if (resources.RESC) {
+      const buf = await this.mobi.loadRecord(resources.RESC);
+      const str = this.mobi.decode(buf.slice(16)).replace(/\\0/g, '');
+      // the RESC record lacks the root \`<package>\` element
+      // but seem to be otherwise valid XML
+      const index = str.search(/\\?>/);
+      const xmlStr = \`<package>\${str.slice(index)}</package>\`;
+      const opf = this.parser.parseFromString(xmlStr, mobi_MIME.XML);
+      for (const \$itemref of opf.querySelectorAll('spine > itemref')) {
+        const i = parseInt(\$itemref.getAttribute('skelid'));
+        pageSpreads.set(i, mobi_getPageSpread(\$itemref.getAttribute('properties')?.split(' ') ?? []));
+      }
+    }
+    this.sections = this.#sections.map((section, index) => section.frags.length ? {
+      id: index,
+      load: () => this.loadSection(section),
+      createDocument: () => this.createDocument(section),
+      size: section.length,
+      pageSpread: pageSpreads.get(index)
+    } : {
+      linear: 'no'
+    });
+    try {
+      const ncx = await this.mobi.getNCX();
+      const map = ({
+        label,
+        pos,
+        children
+      }) => {
+        const [fid, off] = pos;
+        const href = makePosURI(fid, off);
+        const arr = this.#fragmentOffsets.get(fid);
+        if (arr) arr.push(off);else this.#fragmentOffsets.set(fid, [off]);
+        return {
+          label: unescapeHTML(label),
+          href,
+          subitems: children?.map(map)
+        };
+      };
+      this.toc = ncx?.map(map);
+      this.landmarks = await this.getGuide();
+    } catch (e) {
+      console.warn(e);
+    }
+    const {
+      exth
+    } = this.mobi.headers;
+    this.dir = exth.pageProgressionDirection;
+    this.rendition = {
+      layout: exth.fixedLayout === 'true' ? 'pre-paginated' : 'reflowable',
+      viewport: Object.fromEntries(exth.originalResolution?.split('x')?.slice(0, 2)?.map((x, i) => [i ? 'height' : 'width', x]) ?? [])
+    };
+    this.metadata = this.mobi.getMetadata();
+    this.getCover = this.mobi.getCover.bind(this.mobi);
+    return this;
+  }
+  // is this really the only way of getting to RESC, PAGE, etc.?
+  async getResourcesByMagic(keys) {
+    const results = {};
+    const start = this.mobi.headers.kf8.resourceStart;
+    const end = this.mobi.pdb.numRecords;
+    for (let i = start; i < end; i++) {
+      try {
+        const magic = await this.mobi.loadMagic(i);
+        const match = keys.find(key => key === magic);
+        if (match) results[match] = i;
+      } catch {}
+    }
+    return results;
+  }
+  async getGuide() {
+    const index = this.mobi.headers.kf8.guide;
+    if (index < 0xffffffff) {
+      const loadRecord = this.mobi.loadRecord.bind(this.mobi);
+      const {
+        table,
+        cncx
+      } = await getIndexData(index, loadRecord);
+      return table.map(({
+        name,
+        tagMap
+      }) => ({
+        label: cncx[tagMap[1][0]] ?? '',
+        type: name?.split(/\\s/),
+        href: makePosURI(tagMap[6]?.[0] ?? tagMap[3]?.[0])
+      }));
+    }
+  }
+  async loadResourceBlob(str) {
+    const {
+      resourceType,
+      id,
+      type
+    } = parseResourceURI(str);
+    const raw = resourceType === 'flow' ? await this.loadFlow(id) : await this.mobi.loadResource(id - 1);
+    const result = [mobi_MIME.XHTML, mobi_MIME.HTML, mobi_MIME.CSS, mobi_MIME.SVG].includes(type) ? await this.replaceResources(this.mobi.decode(raw)) : raw;
+    const doc = type === mobi_MIME.SVG ? this.parser.parseFromString(result, type) : null;
+    return [new Blob([result], {
+      type
+    }),
+    // SVG wrappers need to be inlined
+    // as browsers don't allow external resources when loading SVG as an image
+    doc?.getElementsByTagNameNS('http://www.w3.org/2000/svg', 'image')?.length ? doc.documentElement : null];
+  }
+  async loadResource(str) {
+    if (this.#cache.has(str)) return this.#cache.get(str);
+    const [blob, inline] = await this.loadResourceBlob(str);
+    const url = inline ? str : URL.createObjectURL(blob);
+    if (inline) this.#inlineMap.set(url, inline);
+    this.#cache.set(str, url);
+    return url;
+  }
+  replaceResources(str) {
+    const regex = new RegExp(kindleResourceRegex, 'g');
+    return mobi_replaceSeries(str, regex, this.loadResource.bind(this));
+  }
+  // NOTE: there doesn't seem to be a way to access text randomly?
+  // how to know the decompressed size of the records without decompressing?
+  // 4096 is just the maximum size
+  async loadRaw(start, end) {
+    // here we load either from the front or back until we have reached the
+    // required offsets; at worst you'd have to load half the book at once
+    const distanceHead = end - this.#rawHead.length;
+    const distanceEnd = this.#fullRawLength == null ? Infinity : this.#fullRawLength - this.#rawTail.length - start;
+    // load from the start
+    if (distanceHead < 0 || distanceHead < distanceEnd) {
+      while (this.#rawHead.length < end) {
+        const index = ++this.#lastLoadedHead;
+        const data = await this.mobi.loadText(index);
+        this.#rawHead = concatTypedArray(this.#rawHead, data);
+      }
+      return this.#rawHead.slice(start, end);
+    }
+    // load from the end
+    while (this.#fullRawLength - this.#rawTail.length > start) {
+      const index = this.mobi.headers.palmdoc.numTextRecords - 1 - ++this.#lastLoadedTail;
+      const data = await this.mobi.loadText(index);
+      this.#rawTail = concatTypedArray(data, this.#rawTail);
+    }
+    const rawTailStart = this.#fullRawLength - this.#rawTail.length;
+    return this.#rawTail.slice(start - rawTailStart, end - rawTailStart);
+  }
+  loadFlow(index) {
+    if (index < 0xffffffff) return this.loadRaw(...this.#tables.fdstTable[index]);
+  }
+  async loadText(section) {
+    const {
+      skel,
+      frags,
+      length
+    } = section;
+    const raw = await this.loadRaw(skel.offset, skel.offset + length);
+    let skeleton = raw.slice(0, skel.length);
+    for (const frag of frags) {
+      const insertOffset = frag.insertOffset - skel.offset;
+      const offset = skel.length + frag.offset;
+      const fragRaw = raw.slice(offset, offset + frag.length);
+      skeleton = concatTypedArray3(skeleton.slice(0, insertOffset), fragRaw, skeleton.slice(insertOffset));
+      const offsets = this.#fragmentOffsets.get(frag.index);
+      if (offsets) for (const offset of offsets) {
+        const str = this.mobi.decode(fragRaw).slice(offset);
+        const selector = getFragmentSelector(str);
+        this.#setFragmentSelector(frag.index, offset, selector);
+      }
+    }
+    return this.mobi.decode(skeleton);
+  }
+  async createDocument(section) {
+    const str = await this.loadText(section);
+    return this.parser.parseFromString(str, this.#type);
+  }
+  async loadSection(section) {
+    if (this.#cache.has(section)) return this.#cache.get(section);
+    const str = await this.loadText(section);
+    const replaced = await this.replaceResources(str);
+
+    // by default, type is XHTML; change to HTML if it's not valid XHTML
+    let doc = this.parser.parseFromString(replaced, this.#type);
+    if (doc.querySelector('parsererror')) {
+      this.#type = mobi_MIME.HTML;
+      doc = this.parser.parseFromString(replaced, this.#type);
+    }
+    for (const [url, node] of this.#inlineMap) {
+      for (const el of doc.querySelectorAll(\`img[src="\${url}"]\`)) el.replaceWith(node);
+    }
+    const url = URL.createObjectURL(new Blob([this.serializer.serializeToString(doc)], {
+      type: this.#type
+    }));
+    this.#cache.set(section, url);
+    return url;
+  }
+  getIndexByFID(fid) {
+    return this.#sections.findIndex(section => section.frags.some(frag => frag.index === fid));
+  }
+  #setFragmentSelector(id, offset, selector) {
+    const map = this.#fragmentSelectors.get(id);
+    if (map) map.set(offset, selector);else {
+      const map = new Map();
+      this.#fragmentSelectors.set(id, map);
+      map.set(offset, selector);
+    }
+  }
+  async resolveHref(href) {
+    const {
+      fid,
+      off
+    } = parsePosURI(href);
+    const index = this.getIndexByFID(fid);
+    if (index < 0) return;
+    const saved = this.#fragmentSelectors.get(fid)?.get(off);
+    if (saved) return {
+      index,
+      anchor: doc => doc.querySelector(saved)
+    };
+    const {
+      skel,
+      frags
+    } = this.#sections[index];
+    const frag = frags.find(frag => frag.index === fid);
+    const offset = skel.offset + skel.length + frag.offset;
+    const fragRaw = await this.loadRaw(offset, offset + frag.length);
+    const str = this.mobi.decode(fragRaw).slice(off);
+    const selector = getFragmentSelector(str);
+    this.#setFragmentSelector(fid, off, selector);
+    const anchor = doc => doc.querySelector(selector);
+    return {
+      index,
+      anchor
+    };
+  }
+  splitTOCHref(href) {
+    const pos = parsePosURI(href);
+    const index = this.getIndexByFID(pos.fid);
+    return [index, pos];
+  }
+  getTOCFragment(doc, {
+    fid,
+    off
+  }) {
+    const selector = this.#fragmentSelectors.get(fid)?.get(off);
+    return doc.querySelector(selector);
+  }
+  isExternal(uri) {
+    return /^(?!blob|kindle)\\w+:/i.test(uri);
+  }
+  destroy() {
+    for (const url of this.#cache.values()) URL.revokeObjectURL(url);
+  }
+}
+;// CONCATENATED MODULE: ./foliate-js/request.js
+// const reactMessage = (m) => {
+//   window.ReactNativeWebView.postMessage(
+//     JSON.stringify({ type: "epubjs", message: m })
+//   );
+// };
+
+/**
+ * Parse xml (or html) markup
+ * @param {string} markup
+ * @param {string} mime
+ * @param {boolean} forceXMLDom force using xmlDom to parse instead of native parser
+ * @returns {document} document
+ * @memberof Core
+ */
+function request_parse(markup, mime, forceXMLDom) {
+  var doc;
+  var Parser;
+  if (typeof DOMParser === 'undefined' || forceXMLDom) {
+    Parser = XMLDOMParser;
+  } else {
+    Parser = DOMParser;
+  }
+
+  // Remove byte order mark before parsing
+  // https://www.w3.org/International/questions/qa-byte-order-mark
+  if (markup.charCodeAt(0) === 0xfeff) {
+    markup = markup.slice(1);
+  }
+  doc = new Parser().parseFromString(markup, mime);
+  return doc;
+}
+
+/**
+ * Generates a UUID
+ * based on: http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+ * @returns {string} uuid
+ * @memberof Core
+ */
+function uuid() {
+  var d = new Date().getTime();
+  var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c == 'x' ? r : r & 0x7 | 0x8).toString(16);
+  });
+  return uuid;
+}
+/**
+ * Check if extension is xml
+ * @param {string} ext
+ * @returns {boolean}
+ * @memberof Core
+ */
+function isXml(ext) {
+  return ['xml', 'opf', 'ncx'].indexOf(ext) > -1;
+}
+
+/**
+ * Creates a new pending promise and provides methods to resolve or reject it.
+ * From: https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/Promise.jsm/Deferred#backwards_forwards_compatible
+ * @memberof Core
+ */
+function defer() {
+  /* A method to resolve the associated Promise with the value passed.
+  * If the promise is already settled it does nothing.
+  *
+  * @param {anything} value : This value is used to resolve the promise
+  * If the value is a Promise then the associated promise assumes the state
+  * of Promise passed as value.
+  */
+  this.resolve = null;
+
+  /* A method to reject the associated Promise with the value passed.
+  * If the promise is already settled it does nothing.
+  *
+  * @param {anything} reason: The reason for the rejection of the Promise.
+  * Generally its an Error object. If however a Promise is passed, then the Promise
+  * itself will be the reason for rejection no matter the state of the Promise.
+  */
+  this.reject = null;
+  this.id = uuid();
+
+  /* A newly created Pomise object.
+  * Initially in pending state.
+  */
+  this.promise = new Promise((resolve, reject) => {
+    this.resolve = resolve;
+    this.reject = reject;
+  });
+  Object.freeze(this);
+}
+
+// import path from "path-webpack";
+/**
+ * Creates a Path object for parsing and manipulation of a path strings
+ *
+ * Uses a polyfill for Nodejs path: https://nodejs.org/api/path.html
+ * @param	{string} pathString	a url string (relative or absolute)
+ * @class
+ */
+class Path {
+  constructor(pathString) {
+    var protocol;
+    var parsed;
+    protocol = pathString.indexOf('://');
+    if (protocol > -1) {
+      pathString = new URL(pathString).pathname;
+    }
+    parsed = this.parse(pathString);
+    this.path = pathString;
+    if (this.isDirectory(pathString)) {
+      this.directory = pathString;
+    } else {
+      this.directory = parsed.dir + '/';
+    }
+    this.filename = parsed.base;
+    this.extension = parsed.ext.slice(1);
+  }
+
+  /**
+  * Parse the path: https://nodejs.org/api/path.html#path_path_parse_path
+  * @param	{string} what
+  * @returns {object}
+  */
+  parse(what) {
+    return path.parse(what);
+  }
+
+  /**
+  * @param	{string} what
+  * @returns {boolean}
+  */
+  isAbsolute(what) {
+    return path.isAbsolute(what || this.path);
+  }
+
+  /**
+  * Check if path ends with a directory
+  * @param	{string} what
+  * @returns {boolean}
+  */
+  isDirectory(what) {
+    return what.charAt(what.length - 1) === '/';
+  }
+
+  /**
+  * Resolve a path against the directory of the Path
+  *
+  * https://nodejs.org/api/path.html#path_path_resolve_paths
+  * @param	{string} what
+  * @returns {string} resolved
+  */
+  resolve(what) {
+    return path.resolve(this.directory, what);
+  }
+
+  /**
+  * Resolve a path relative to the directory of the Path
+  *
+  * https://nodejs.org/api/path.html#path_path_relative_from_to
+  * @param	{string} what
+  * @returns {string} relative
+  */
+  relative(what) {
+    var isAbsolute = what && what.indexOf('://') > -1;
+    if (isAbsolute) {
+      return what;
+    }
+    return path.relative(this.directory, what);
+  }
+  splitPath(filename) {
+    return this.splitPathRe.exec(filename).slice(1);
+  }
+
+  /**
+  * Return the path string
+  * @returns {string} path
+  */
+  toString() {
+    return this.path;
+  }
+}
+function request(url, type, withCredentials, headers) {
+  var supportsURL = typeof window != 'undefined' ? window.URL : false; // TODO: fallback for url if window isn't defined
+  var BLOB_RESPONSE = supportsURL ? 'blob' : 'arraybuffer';
+  var deferred = new defer();
+  var xhr = new XMLHttpRequest();
+
+  //-- Check from PDF.js:
+  //   https://github.com/mozilla/pdf.js/blob/master/web/compatibility.js
+  var xhrPrototype = XMLHttpRequest.prototype;
+  var header;
+  if (!('overrideMimeType' in xhrPrototype)) {
+    // IE10 might have response, but not overrideMimeType
+    Object.defineProperty(xhrPrototype, 'overrideMimeType', {
+      value: function xmlHttpRequestOverrideMimeType() {}
+    });
+  }
+  if (withCredentials) {
+    xhr.withCredentials = true;
+  }
+  xhr.onreadystatechange = handler;
+  xhr.onerror = err;
+  xhr.open('GET', url, true);
+
+  // window.ReactNativeWebView.postMessage(
+  //   JSON.stringify({ type: "epubjs", message: "[REQUEST] " + url })
+  // );
+
+  for (header in headers) {
+    xhr.setRequestHeader(header, headers[header]);
+  }
+  if (type == 'json') {
+    xhr.setRequestHeader('Accept', 'application/json');
+  }
+
+  // If type isn"t set, determine it from the file extension
+  if (!type) {
+    type = new Path(url).extension;
+  }
+  if (type == 'blob') {
+    xhr.responseType = BLOB_RESPONSE;
+  }
+  if (isXml(type)) {
+    // xhr.responseType = "document";
+    xhr.overrideMimeType('text/xml'); // for OPF parsing
+  }
+
+  if (type == 'xhtml') {
+    // xhr.responseType = "document";
+  }
+  if (type == 'html' || type == 'htm') {
+    // xhr.responseType = "document";
+  }
+  if (type == 'binary') {
+    xhr.responseType = 'arraybuffer';
+  }
+  xhr.send();
+  function err(e) {
+    deferred.reject(e);
+  }
+  function handler() {
+    if (this.readyState === XMLHttpRequest.DONE) {
+      // reactMessage("[REQUEST_HANDLER] STARTING...");
+      var responseXML = false;
+      if (this.responseType === '' || this.responseType === 'document') {
+        responseXML = this.responseXML;
+      }
+
+      // reactMessage(\`[REQUEST_HANDLER] \${this.responseType} \${this.response}\`);
+
+      if (this.status === 200 || this.status === 0 || responseXML) {
+        //-- Firefox is reporting 0 for blob urls
+        var r;
+        if (!this.response && !responseXML) {
+          deferred.reject({
+            status: this.status,
+            message: 'Empty Response',
+            stack: new Error().stack
+          });
+          return deferred.promise;
+        }
+        if (this.status === 403) {
+          deferred.reject({
+            status: this.status,
+            response: this.response,
+            message: 'Forbidden',
+            stack: new Error().stack
+          });
+          return deferred.promise;
+        }
+        if (responseXML) {
+          r = this.responseXML;
+        } else if (isXml(type)) {
+          // xhr.overrideMimeType("text/xml"); // for OPF parsing
+          // If this.responseXML wasn't set, try to parse using a DOMParser from text
+          r = request_parse(this.response, 'text/xml');
+        } else if (type == 'xhtml') {
+          r = request_parse(this.response, 'application/xhtml+xml');
+        } else if (type == 'html' || type == 'htm') {
+          r = request_parse(this.response, 'text/html');
+        } else if (type == 'json') {
+          r = JSON.parse(this.response);
+        } else if (type == 'blob') {
+          if (supportsURL) {
+            r = this.response;
+          } else {
+            //-- Safari doesn't support responseType blob, so create a blob from arraybuffer
+            r = new Blob([this.response]);
+          }
+        } else {
+          r = this.response;
+        }
+        // reactMessage(\`[REQUEST_HANDLER] END of DEFF \${r}\`);
+
+        deferred.resolve(r);
+      } else {
+        deferred.reject({
+          status: this.status,
+          message: this.response,
+          stack: new Error().stack
+        });
+      }
+    }
+  }
+  return deferred.promise;
+}
+;// CONCATENATED MODULE: ./foliate-js/pdf.js
+/* global pdfjsLib */
+
+
+// https://github.com/mozilla/pdf.js/blob/f04967017f22e46d70d11468dd928b4cdc2f6ea1/web/text_layer_builder.css
+const textLayerBuilderCSS = \`
+/* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+:root {
+  --highlight-bg-color: rgb(180 0 170);
+  --highlight-selected-bg-color: rgb(0 100 0);
+}
+
+@media screen and (forced-colors: active) {
+  :root {
+    --highlight-bg-color: Highlight;
+    --highlight-selected-bg-color: ButtonText;
+  }
+}
+
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.25;
+  line-height: 1;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 2;
+}
+
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+/* Only necessary in Google Chrome, see issue 14205, and most unfortunately
+ * the problem doesn't show up in "text" reference tests. */
+/*#if !MOZCENTRAL*/
+.textLayer span.markedContent {
+  top: 0;
+  height: 0;
+}
+/*#endif*/
+
+.textLayer .highlight {
+  margin: -1px;
+  padding: 1px;
+  background-color: var(--highlight-bg-color);
+  border-radius: 4px;
+}
+
+.textLayer .highlight.appended {
+  position: initial;
+}
+
+.textLayer .highlight.begin {
+  border-radius: 4px 0 0 4px;
+}
+
+.textLayer .highlight.end {
+  border-radius: 0 4px 4px 0;
+}
+
+.textLayer .highlight.middle {
+  border-radius: 0;
+}
+
+.textLayer .highlight.selected {
+  background-color: var(--highlight-selected-bg-color);
+}
+
+.textLayer ::selection {
+  /*#if !MOZCENTRAL*/
+  background: blue;
+  /*#endif*/
+  background: AccentColor; /* stylelint-disable-line declaration-block-no-duplicate-properties */
+}
+
+/* Avoids https://github.com/mozilla/pdf.js/issues/13840 in Chrome */
+/*#if !MOZCENTRAL*/
+.textLayer br::selection {
+  background: transparent;
+}
+/*#endif*/
+
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: -1;
+  cursor: default;
+  user-select: none;
+}
+
+.textLayer .endOfContent.active {
+  top: 0;
+}
+\`;
+
+//https://github.com/mozilla/pdf.js/blob/d64f223d034ad74fb62571c3acff566d25eca413/web/annotation_layer_builder.css
+const annotationLayerBuilderCSS = \`
+/* Copyright 2014 Mozilla Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+:root {
+  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --input-focus-border-color: Highlight;
+  --input-focus-outline: 1px solid Canvas;
+  --input-unfocused-border-color: transparent;
+  --input-disabled-border-color: transparent;
+  --input-hover-border-color: black;
+  --link-outline: none;
+}
+
+@media screen and (forced-colors: active) {
+  :root {
+    --input-focus-border-color: CanvasText;
+    --input-unfocused-border-color: ActiveText;
+    --input-disabled-border-color: GrayText;
+    --input-hover-border-color: Highlight;
+    --link-outline: 1.5px solid LinkText;
+    --hcm-highligh-filter: invert(100%);
+  }
+  .annotationLayer .textWidgetAnnotation :is(input, textarea):required,
+  .annotationLayer .choiceWidgetAnnotation select:required,
+  .annotationLayer
+    .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+    input:required {
+    outline: 1.5px solid selectedItem;
+  }
+
+  .annotationLayer .linkAnnotation:hover {
+    backdrop-filter: var(--hcm-highligh-filter);
+  }
+
+  .annotationLayer .linkAnnotation > a:hover {
+    opacity: 0 !important;
+    background: none !important;
+    box-shadow: none;
+  }
+
+  .annotationLayer .popupAnnotation .popup {
+    outline: calc(1.5px * var(--scale-factor)) solid CanvasText !important;
+    background-color: ButtonFace !important;
+    color: ButtonText !important;
+  }
+
+  .annotationLayer .highlightArea:hover::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: var(--hcm-highligh-filter);
+    content: "";
+    pointer-events: none;
+  }
+
+  .annotationLayer .popupAnnotation.focused .popup {
+    outline: calc(3px * var(--scale-factor)) solid Highlight !important;
+  }
+}
+
+.annotationLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transform-origin: 0 0;
+  z-index: 3;
+}
+
+.annotationLayer[data-main-rotation="90"] .norotate {
+  transform: rotate(270deg) translateX(-100%);
+}
+.annotationLayer[data-main-rotation="180"] .norotate {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+.annotationLayer[data-main-rotation="270"] .norotate {
+  transform: rotate(90deg) translateY(-100%);
+}
+
+.annotationLayer canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.annotationLayer section {
+  position: absolute;
+  text-align: initial;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+}
+
+.annotationLayer .linkAnnotation {
+  outline: var(--link-outline);
+}
+
+.annotationLayer :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton) > a {
+  position: absolute;
+  font-size: 1em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.annotationLayer
+  :is(.linkAnnotation, .buttonWidgetAnnotation.pushButton):not(.hasBorder)
+  > a:hover {
+  opacity: 0.2;
+  background-color: rgb(255 255 0);
+  box-shadow: 0 2px 10px rgb(255 255 0);
+}
+
+.annotationLayer .linkAnnotation.hasBorder:hover {
+  background-color: rgb(255 255 0 / 0.2);
+}
+
+.annotationLayer .hasBorder {
+  background-size: 100% 100%;
+}
+
+.annotationLayer .textAnnotation img {
+  position: absolute;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea),
+.annotationLayer .choiceWidgetAnnotation select,
+.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  background-image: var(--annotation-unfocused-field-background);
+  border: 2px solid var(--input-unfocused-border-color);
+  box-sizing: border-box;
+  font: calc(9px * var(--scale-factor)) sans-serif;
+  height: 100%;
+  margin: 0;
+  vertical-align: top;
+  width: 100%;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea):required,
+.annotationLayer .choiceWidgetAnnotation select:required,
+.annotationLayer
+  .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+  input:required {
+  outline: 1.5px solid red;
+}
+
+.annotationLayer .choiceWidgetAnnotation select option {
+  padding: 0;
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton input {
+  border-radius: 50%;
+}
+
+.annotationLayer .textWidgetAnnotation textarea {
+  resize: none;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea)[disabled],
+.annotationLayer .choiceWidgetAnnotation select[disabled],
+.annotationLayer
+  .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+  input[disabled] {
+  background: none;
+  border: 2px solid var(--input-disabled-border-color);
+  cursor: not-allowed;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea):hover,
+.annotationLayer .choiceWidgetAnnotation select:hover,
+.annotationLayer
+  .buttonWidgetAnnotation:is(.checkBox, .radioButton)
+  input:hover {
+  border: 2px solid var(--input-hover-border-color);
+}
+.annotationLayer .textWidgetAnnotation :is(input, textarea):hover,
+.annotationLayer .choiceWidgetAnnotation select:hover,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:hover {
+  border-radius: 2px;
+}
+
+.annotationLayer .textWidgetAnnotation :is(input, textarea):focus,
+.annotationLayer .choiceWidgetAnnotation select:focus {
+  background: none;
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) :focus {
+  background-image: none;
+  background-color: transparent;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox :focus {
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton :focus {
+  border: 2px solid var(--input-focus-border-color);
+  outline: var(--input-focus-outline);
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after,
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  background-color: CanvasText;
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  height: 80%;
+  left: 45%;
+  width: 1px;
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::before {
+  transform: rotate(45deg);
+}
+
+.annotationLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  transform: rotate(-45deg);
+}
+
+.annotationLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  border-radius: 50%;
+  height: 50%;
+  left: 30%;
+  top: 20%;
+  width: 50%;
+}
+
+.annotationLayer .textWidgetAnnotation input.comb {
+  font-family: monospace;
+  padding-left: 2px;
+  padding-right: 0;
+}
+
+.annotationLayer .textWidgetAnnotation input.comb:focus {
+  /*
+   * Letter spacing is placed on the right side of each character. Hence, the
+   * letter spacing of the last character may be placed outside the visible
+   * area, causing horizontal scrolling. We avoid this by extending the width
+   * when the element has focus and revert this when it loses focus.
+   */
+  width: 103%;
+}
+
+.annotationLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  appearance: none;
+}
+
+.annotationLayer .fileAttachmentAnnotation .popupTriggerArea {
+  height: 100%;
+  width: 100%;
+}
+
+.annotationLayer .popupAnnotation {
+  position: absolute;
+  font-size: calc(9px * var(--scale-factor));
+  pointer-events: none;
+  width: max-content;
+  max-width: 45%;
+  height: auto;
+}
+
+.annotationLayer .popup {
+  background-color: rgb(255 255 153);
+  box-shadow: 0 calc(2px * var(--scale-factor)) calc(5px * var(--scale-factor))
+    rgb(136 136 136);
+  border-radius: calc(2px * var(--scale-factor));
+  outline: 1.5px solid rgb(255 255 74);
+  padding: calc(6px * var(--scale-factor));
+  cursor: pointer;
+  font: message-box;
+  white-space: normal;
+  word-wrap: break-word;
+  pointer-events: auto;
+}
+
+.annotationLayer .popupAnnotation.focused .popup {
+  outline-width: 3px;
+}
+
+.annotationLayer .popup * {
+  font-size: calc(9px * var(--scale-factor));
+}
+
+.annotationLayer .popup > .header {
+  display: inline-block;
+}
+
+.annotationLayer .popup > .header h1 {
+  display: inline;
+}
+
+.annotationLayer .popup > .header .popupDate {
+  display: inline-block;
+  margin-left: calc(5px * var(--scale-factor));
+  width: fit-content;
+}
+
+.annotationLayer .popupContent {
+  border-top: 1px solid rgb(51 51 51);
+  margin-top: calc(2px * var(--scale-factor));
+  padding-top: calc(2px * var(--scale-factor));
+}
+
+.annotationLayer .richText > * {
+  white-space: pre-wrap;
+  font-size: calc(9px * var(--scale-factor));
+}
+
+.annotationLayer .popupTriggerArea {
+  cursor: pointer;
+}
+
+.annotationLayer section svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.annotationLayer .annotationTextContent {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+}
+
+.annotationLayer .annotationTextContent span {
+  width: 100%;
+  display: inline-block;
+}
+
+.annotationLayer svg.quadrilateralsContainer {
+  contain: strict;
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+\`;
+const renderPage = async (page, getImageBlob) => {
+  // debugMessage('[RENDERPAGE]')
+  const scale = devicePixelRatio;
+  const viewport = page.getViewport({
+    scale
+  });
+  const canvas = document.createElement('canvas');
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+  const canvasContext = canvas.getContext('2d');
+  await page.render({
+    canvasContext,
+    viewport
+  }).promise;
+  const blob = await new Promise(resolve => canvas.toBlob(resolve));
+  // debugMessage('[RENDERPAGE] GETTING BLOB...')
+  if (getImageBlob) return blob;
+  // debugMessage('[RENDERPAGE] DONE GETTINGBLOB')
+
+  /*
+  // with the SVG backend
+  const operatorList = await page.getOperatorList()
+  const svgGraphics = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs)
+  const svg = await svgGraphics.getSVG(operatorList, viewport)
+  const str = new XMLSerializer().serializeToString(svg)
+  const blob = new Blob([str], { type: 'image/svg+xml' })
+  */
+
+  const container = document.createElement('div');
+  container.classList.add('textLayer');
+  await pdfjsLib.renderTextLayer({
+    textContentSource: await page.getTextContent(),
+    container,
+    viewport
+  }).promise;
+  const div = document.createElement('div');
+  div.classList.add('annotationLayer');
+  await new pdfjsLib.AnnotationLayer({
+    page,
+    viewport,
+    div
+  }).render({
+    annotations: await page.getAnnotations(),
+    linkService: {
+      getDestinationHash: dest => JSON.stringify(dest),
+      addLinkAttributes: (link, url) => link.href = url
+    }
+  });
+  const src = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(new Blob([\`
+        <!DOCTYPE html>
+        <meta charset="utf-8">
+        <style>
+        :root {
+            --scale-factor: \${scale};
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        \${textLayerBuilderCSS}
+        \${annotationLayerBuilderCSS}
+        </style>
+        <img src="\${src}">
+        \${container.outerHTML}
+        \${div.outerHTML}
+    \`], {
+    type: 'text/html'
+  }));
+  // debugMessage(\`[RENDERPAGE] done getting url \${url}\`)
+  return url;
+};
+const makeTOCItem = item => ({
+  label: item.title,
+  href: JSON.stringify(item.dest),
+  subitems: item.items.length ? item.items.map(makeTOCItem) : null
+});
+const makePDF = async file => {
+  const data = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjsLib.getDocument({
+    data
+  }).promise;
+  const book = {
+    rendition: {
+      layout: 'pre-paginated'
+    }
+  };
+  const info = (await pdf.getMetadata())?.info;
+  book.metadata = {
+    title: info?.Title,
+    author: info?.Author
+  };
+  const outline = await pdf.getOutline();
+  book.toc = outline?.map(makeTOCItem);
+  const cache = new Map();
+  book.sections = Array.from({
+    length: pdf.numPages
+  }).map((_, i) => ({
+    id: i,
+    load: async () => {
+      const cached = cache.get(i);
+      if (cached) return cached;
+      const url = await renderPage(await pdf.getPage(i + 1));
+      cache.set(i, url);
+      return url;
+    },
+    size: 1000
+  }));
+  book.isExternal = uri => /^\\w+:/i.test(uri);
+  book.resolveHref = async href => {
+    const parsed = JSON.parse(href);
+    const dest = typeof parsed === 'string' ? await pdf.getDestination(parsed) : parsed;
+    const index = await pdf.getPageIndex(dest[0]);
+    return {
+      index
+    };
+  };
+  book.splitTOCHref = async href => {
+    const parsed = JSON.parse(href);
+    const dest = typeof parsed === 'string' ? await pdf.getDestination(parsed) : parsed;
+    const index = await pdf.getPageIndex(dest[0]);
+    return [index, null];
+  };
+  book.getTOCFragment = doc => doc.documentElement;
+  book.getCover = async () => renderPage(await pdf.getPage(1), true);
+  return book;
+};
+;// CONCATENATED MODULE: ./foliate-js/vendor/zip.js
+const zip_e = 0,
+  zip_t = 1,
+  zip_n = -2,
+  zip_i = -3,
+  zip_r = -4,
+  zip_a = -5,
+  zip_s = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535],
+  zip_o = 1440,
+  zip_l = [96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8, 48, 0, 9, 192, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 160, 0, 8, 0, 0, 8, 128, 0, 8, 64, 0, 9, 224, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 144, 83, 7, 59, 0, 8, 120, 0, 8, 56, 0, 9, 208, 81, 7, 17, 0, 8, 104, 0, 8, 40, 0, 9, 176, 0, 8, 8, 0, 8, 136, 0, 8, 72, 0, 9, 240, 80, 7, 4, 0, 8, 84, 0, 8, 20, 85, 8, 227, 83, 7, 43, 0, 8, 116, 0, 8, 52, 0, 9, 200, 81, 7, 13, 0, 8, 100, 0, 8, 36, 0, 9, 168, 0, 8, 4, 0, 8, 132, 0, 8, 68, 0, 9, 232, 80, 7, 8, 0, 8, 92, 0, 8, 28, 0, 9, 152, 84, 7, 83, 0, 8, 124, 0, 8, 60, 0, 9, 216, 82, 7, 23, 0, 8, 108, 0, 8, 44, 0, 9, 184, 0, 8, 12, 0, 8, 140, 0, 8, 76, 0, 9, 248, 80, 7, 3, 0, 8, 82, 0, 8, 18, 85, 8, 163, 83, 7, 35, 0, 8, 114, 0, 8, 50, 0, 9, 196, 81, 7, 11, 0, 8, 98, 0, 8, 34, 0, 9, 164, 0, 8, 2, 0, 8, 130, 0, 8, 66, 0, 9, 228, 80, 7, 7, 0, 8, 90, 0, 8, 26, 0, 9, 148, 84, 7, 67, 0, 8, 122, 0, 8, 58, 0, 9, 212, 82, 7, 19, 0, 8, 106, 0, 8, 42, 0, 9, 180, 0, 8, 10, 0, 8, 138, 0, 8, 74, 0, 9, 244, 80, 7, 5, 0, 8, 86, 0, 8, 22, 192, 8, 0, 83, 7, 51, 0, 8, 118, 0, 8, 54, 0, 9, 204, 81, 7, 15, 0, 8, 102, 0, 8, 38, 0, 9, 172, 0, 8, 6, 0, 8, 134, 0, 8, 70, 0, 9, 236, 80, 7, 9, 0, 8, 94, 0, 8, 30, 0, 9, 156, 84, 7, 99, 0, 8, 126, 0, 8, 62, 0, 9, 220, 82, 7, 27, 0, 8, 110, 0, 8, 46, 0, 9, 188, 0, 8, 14, 0, 8, 142, 0, 8, 78, 0, 9, 252, 96, 7, 256, 0, 8, 81, 0, 8, 17, 85, 8, 131, 82, 7, 31, 0, 8, 113, 0, 8, 49, 0, 9, 194, 80, 7, 10, 0, 8, 97, 0, 8, 33, 0, 9, 162, 0, 8, 1, 0, 8, 129, 0, 8, 65, 0, 9, 226, 80, 7, 6, 0, 8, 89, 0, 8, 25, 0, 9, 146, 83, 7, 59, 0, 8, 121, 0, 8, 57, 0, 9, 210, 81, 7, 17, 0, 8, 105, 0, 8, 41, 0, 9, 178, 0, 8, 9, 0, 8, 137, 0, 8, 73, 0, 9, 242, 80, 7, 4, 0, 8, 85, 0, 8, 21, 80, 8, 258, 83, 7, 43, 0, 8, 117, 0, 8, 53, 0, 9, 202, 81, 7, 13, 0, 8, 101, 0, 8, 37, 0, 9, 170, 0, 8, 5, 0, 8, 133, 0, 8, 69, 0, 9, 234, 80, 7, 8, 0, 8, 93, 0, 8, 29, 0, 9, 154, 84, 7, 83, 0, 8, 125, 0, 8, 61, 0, 9, 218, 82, 7, 23, 0, 8, 109, 0, 8, 45, 0, 9, 186, 0, 8, 13, 0, 8, 141, 0, 8, 77, 0, 9, 250, 80, 7, 3, 0, 8, 83, 0, 8, 19, 85, 8, 195, 83, 7, 35, 0, 8, 115, 0, 8, 51, 0, 9, 198, 81, 7, 11, 0, 8, 99, 0, 8, 35, 0, 9, 166, 0, 8, 3, 0, 8, 131, 0, 8, 67, 0, 9, 230, 80, 7, 7, 0, 8, 91, 0, 8, 27, 0, 9, 150, 84, 7, 67, 0, 8, 123, 0, 8, 59, 0, 9, 214, 82, 7, 19, 0, 8, 107, 0, 8, 43, 0, 9, 182, 0, 8, 11, 0, 8, 139, 0, 8, 75, 0, 9, 246, 80, 7, 5, 0, 8, 87, 0, 8, 23, 192, 8, 0, 83, 7, 51, 0, 8, 119, 0, 8, 55, 0, 9, 206, 81, 7, 15, 0, 8, 103, 0, 8, 39, 0, 9, 174, 0, 8, 7, 0, 8, 135, 0, 8, 71, 0, 9, 238, 80, 7, 9, 0, 8, 95, 0, 8, 31, 0, 9, 158, 84, 7, 99, 0, 8, 127, 0, 8, 63, 0, 9, 222, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 190, 0, 8, 15, 0, 8, 143, 0, 8, 79, 0, 9, 254, 96, 7, 256, 0, 8, 80, 0, 8, 16, 84, 8, 115, 82, 7, 31, 0, 8, 112, 0, 8, 48, 0, 9, 193, 80, 7, 10, 0, 8, 96, 0, 8, 32, 0, 9, 161, 0, 8, 0, 0, 8, 128, 0, 8, 64, 0, 9, 225, 80, 7, 6, 0, 8, 88, 0, 8, 24, 0, 9, 145, 83, 7, 59, 0, 8, 120, 0, 8, 56, 0, 9, 209, 81, 7, 17, 0, 8, 104, 0, 8, 40, 0, 9, 177, 0, 8, 8, 0, 8, 136, 0, 8, 72, 0, 9, 241, 80, 7, 4, 0, 8, 84, 0, 8, 20, 85, 8, 227, 83, 7, 43, 0, 8, 116, 0, 8, 52, 0, 9, 201, 81, 7, 13, 0, 8, 100, 0, 8, 36, 0, 9, 169, 0, 8, 4, 0, 8, 132, 0, 8, 68, 0, 9, 233, 80, 7, 8, 0, 8, 92, 0, 8, 28, 0, 9, 153, 84, 7, 83, 0, 8, 124, 0, 8, 60, 0, 9, 217, 82, 7, 23, 0, 8, 108, 0, 8, 44, 0, 9, 185, 0, 8, 12, 0, 8, 140, 0, 8, 76, 0, 9, 249, 80, 7, 3, 0, 8, 82, 0, 8, 18, 85, 8, 163, 83, 7, 35, 0, 8, 114, 0, 8, 50, 0, 9, 197, 81, 7, 11, 0, 8, 98, 0, 8, 34, 0, 9, 165, 0, 8, 2, 0, 8, 130, 0, 8, 66, 0, 9, 229, 80, 7, 7, 0, 8, 90, 0, 8, 26, 0, 9, 149, 84, 7, 67, 0, 8, 122, 0, 8, 58, 0, 9, 213, 82, 7, 19, 0, 8, 106, 0, 8, 42, 0, 9, 181, 0, 8, 10, 0, 8, 138, 0, 8, 74, 0, 9, 245, 80, 7, 5, 0, 8, 86, 0, 8, 22, 192, 8, 0, 83, 7, 51, 0, 8, 118, 0, 8, 54, 0, 9, 205, 81, 7, 15, 0, 8, 102, 0, 8, 38, 0, 9, 173, 0, 8, 6, 0, 8, 134, 0, 8, 70, 0, 9, 237, 80, 7, 9, 0, 8, 94, 0, 8, 30, 0, 9, 157, 84, 7, 99, 0, 8, 126, 0, 8, 62, 0, 9, 221, 82, 7, 27, 0, 8, 110, 0, 8, 46, 0, 9, 189, 0, 8, 14, 0, 8, 142, 0, 8, 78, 0, 9, 253, 96, 7, 256, 0, 8, 81, 0, 8, 17, 85, 8, 131, 82, 7, 31, 0, 8, 113, 0, 8, 49, 0, 9, 195, 80, 7, 10, 0, 8, 97, 0, 8, 33, 0, 9, 163, 0, 8, 1, 0, 8, 129, 0, 8, 65, 0, 9, 227, 80, 7, 6, 0, 8, 89, 0, 8, 25, 0, 9, 147, 83, 7, 59, 0, 8, 121, 0, 8, 57, 0, 9, 211, 81, 7, 17, 0, 8, 105, 0, 8, 41, 0, 9, 179, 0, 8, 9, 0, 8, 137, 0, 8, 73, 0, 9, 243, 80, 7, 4, 0, 8, 85, 0, 8, 21, 80, 8, 258, 83, 7, 43, 0, 8, 117, 0, 8, 53, 0, 9, 203, 81, 7, 13, 0, 8, 101, 0, 8, 37, 0, 9, 171, 0, 8, 5, 0, 8, 133, 0, 8, 69, 0, 9, 235, 80, 7, 8, 0, 8, 93, 0, 8, 29, 0, 9, 155, 84, 7, 83, 0, 8, 125, 0, 8, 61, 0, 9, 219, 82, 7, 23, 0, 8, 109, 0, 8, 45, 0, 9, 187, 0, 8, 13, 0, 8, 141, 0, 8, 77, 0, 9, 251, 80, 7, 3, 0, 8, 83, 0, 8, 19, 85, 8, 195, 83, 7, 35, 0, 8, 115, 0, 8, 51, 0, 9, 199, 81, 7, 11, 0, 8, 99, 0, 8, 35, 0, 9, 167, 0, 8, 3, 0, 8, 131, 0, 8, 67, 0, 9, 231, 80, 7, 7, 0, 8, 91, 0, 8, 27, 0, 9, 151, 84, 7, 67, 0, 8, 123, 0, 8, 59, 0, 9, 215, 82, 7, 19, 0, 8, 107, 0, 8, 43, 0, 9, 183, 0, 8, 11, 0, 8, 139, 0, 8, 75, 0, 9, 247, 80, 7, 5, 0, 8, 87, 0, 8, 23, 192, 8, 0, 83, 7, 51, 0, 8, 119, 0, 8, 55, 0, 9, 207, 81, 7, 15, 0, 8, 103, 0, 8, 39, 0, 9, 175, 0, 8, 7, 0, 8, 135, 0, 8, 71, 0, 9, 239, 80, 7, 9, 0, 8, 95, 0, 8, 31, 0, 9, 159, 84, 7, 99, 0, 8, 127, 0, 8, 63, 0, 9, 223, 82, 7, 27, 0, 8, 111, 0, 8, 47, 0, 9, 191, 0, 8, 15, 0, 8, 143, 0, 8, 79, 0, 9, 255],
+  zip_c = [80, 5, 1, 87, 5, 257, 83, 5, 17, 91, 5, 4097, 81, 5, 5, 89, 5, 1025, 85, 5, 65, 93, 5, 16385, 80, 5, 3, 88, 5, 513, 84, 5, 33, 92, 5, 8193, 82, 5, 9, 90, 5, 2049, 86, 5, 129, 192, 5, 24577, 80, 5, 2, 87, 5, 385, 83, 5, 25, 91, 5, 6145, 81, 5, 7, 89, 5, 1537, 85, 5, 97, 93, 5, 24577, 80, 5, 4, 88, 5, 769, 84, 5, 49, 92, 5, 12289, 82, 5, 13, 90, 5, 3073, 86, 5, 193, 192, 5, 24577],
+  zip_u = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0],
+  zip_d = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 112, 112],
+  zip_f = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577],
+  zip_h = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13],
+  zip_ = 15;
+function zip_w() {
+  let t, n, s, l, c, w;
+  function b(t, n, r, u, d, f, h, b, p, m, g) {
+    let y, x, k, v, S, z, A, U, D, E, F, O, T, W, C;
+    E = 0, S = r;
+    do {
+      s[t[n + E]]++, E++, S--;
+    } while (0 !== S);
+    if (s[0] == r) return h[0] = -1, b[0] = 0, zip_e;
+    for (U = b[0], z = 1; z <= zip_ && 0 === s[z]; z++);
+    for (A = z, U < z && (U = z), S = zip_; 0 !== S && 0 === s[S]; S--);
+    for (k = S, U > S && (U = S), b[0] = U, W = 1 << z; z < S; z++, W <<= 1) if ((W -= s[z]) < 0) return zip_i;
+    if ((W -= s[S]) < 0) return zip_i;
+    for (s[S] += W, w[1] = z = 0, E = 1, T = 2; 0 != --S;) w[T] = z += s[E], T++, E++;
+    S = 0, E = 0;
+    do {
+      0 !== (z = t[n + E]) && (g[w[z]++] = S), E++;
+    } while (++S < r);
+    for (r = w[k], w[0] = S = 0, E = 0, v = -1, O = -U, c[0] = 0, F = 0, C = 0; A <= k; A++) for (y = s[A]; 0 != y--;) {
+      for (; A > O + U;) {
+        if (v++, O += U, C = k - O, C = C > U ? U : C, (x = 1 << (z = A - O)) > y + 1 && (x -= y + 1, T = A, z < C)) for (; ++z < C && !((x <<= 1) <= s[++T]);) x -= s[T];
+        if (C = 1 << z, m[0] + C > zip_o) return zip_i;
+        c[v] = F = m[0], m[0] += C, 0 !== v ? (w[v] = S, l[0] = z, l[1] = U, z = S >>> O - U, l[2] = F - c[v - 1] - z, p.set(l, 3 * (c[v - 1] + z))) : h[0] = F;
+      }
+      for (l[1] = A - O, E >= r ? l[0] = 192 : g[E] < u ? (l[0] = g[E] < 256 ? 0 : 96, l[2] = g[E++]) : (l[0] = f[g[E] - u] + 16 + 64, l[2] = d[g[E++] - u]), x = 1 << A - O, z = S >>> O; z < C; z += x) p.set(l, 3 * (F + z));
+      for (z = 1 << A - 1; 0 != (S & z); z >>>= 1) S ^= z;
+      for (S ^= z, D = (1 << O) - 1; (S & D) != w[v];) v--, O -= U, D = (1 << O) - 1;
+    }
+    return 0 !== W && 1 != k ? zip_a : zip_e;
+  }
+  function p(e) {
+    let i;
+    for (t || (t = [], n = [], s = new Int32Array(zip_ + 1), l = [], c = new Int32Array(zip_), w = new Int32Array(zip_ + 1)), n.length < e && (n = []), i = 0; i < e; i++) n[i] = 0;
+    for (i = 0; i < zip_ + 1; i++) s[i] = 0;
+    for (i = 0; i < 3; i++) l[i] = 0;
+    c.set(s.subarray(0, zip_), 0), w.set(s.subarray(0, zip_ + 1), 0);
+  }
+  this.inflate_trees_bits = function (e, r, s, o, l) {
+    let c;
+    return p(19), t[0] = 0, c = b(e, 0, 19, 19, null, null, s, r, o, t, n), c == zip_i ? l.msg = "oversubscribed dynamic bit lengths tree" : c != zip_a && 0 !== r[0] || (l.msg = "incomplete dynamic bit lengths tree", c = zip_i), c;
+  }, this.inflate_trees_dynamic = function (s, o, l, c, _, w, m, g, y) {
+    let x;
+    return p(288), t[0] = 0, x = b(l, 0, s, 257, zip_u, zip_d, w, c, g, t, n), x != zip_e || 0 === c[0] ? (x == zip_i ? y.msg = "oversubscribed literal/length tree" : x != zip_r && (y.msg = "incomplete literal/length tree", x = zip_i), x) : (p(288), x = b(l, s, o, 0, zip_f, zip_h, m, _, g, t, n), x != zip_e || 0 === _[0] && s > 257 ? (x == zip_i ? y.msg = "oversubscribed distance tree" : x == zip_a ? (y.msg = "incomplete distance tree", x = zip_i) : x != zip_r && (y.msg = "empty distance tree with lengths", x = zip_i), x) : zip_e);
+  };
+}
+zip_w.inflate_trees_fixed = function (t, n, i, r) {
+  return t[0] = 9, n[0] = 5, i[0] = zip_l, r[0] = zip_c, zip_e;
+};
+const zip_b = 0,
+  zip_p = 1,
+  zip_m = 2,
+  zip_g = 3,
+  zip_y = 4,
+  zip_x = 5,
+  zip_k = 6,
+  zip_v = 7,
+  zip_S = 8,
+  z = 9;
+function A() {
+  const r = this;
+  let a,
+    o,
+    l,
+    c,
+    u = 0,
+    d = 0,
+    f = 0,
+    h = 0,
+    _ = 0,
+    w = 0,
+    A = 0,
+    U = 0,
+    D = 0,
+    E = 0;
+  function F(n, r, a, o, l, c, u, d) {
+    let f, h, _, w, b, p, m, g, y, x, k, v, S, z, A, U;
+    m = d.next_in_index, g = d.avail_in, b = u.bitb, p = u.bitk, y = u.write, x = y < u.read ? u.read - y - 1 : u.end - y, k = zip_s[n], v = zip_s[r];
+    do {
+      for (; p < 20;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
+      if (f = b & k, h = a, _ = o, U = 3 * (_ + f), 0 !== (w = h[U])) for (;;) {
+        if (b >>= h[U + 1], p -= h[U + 1], 0 != (16 & w)) {
+          for (w &= 15, S = h[U + 2] + (b & zip_s[w]), b >>= w, p -= w; p < 15;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
+          for (f = b & v, h = l, _ = c, U = 3 * (_ + f), w = h[U];;) {
+            if (b >>= h[U + 1], p -= h[U + 1], 0 != (16 & w)) {
+              for (w &= 15; p < w;) g--, b |= (255 & d.read_byte(m++)) << p, p += 8;
+              if (z = h[U + 2] + (b & zip_s[w]), b >>= w, p -= w, x -= S, y >= z) A = y - z, y - A > 0 && 2 > y - A ? (u.win[y++] = u.win[A++], u.win[y++] = u.win[A++], S -= 2) : (u.win.set(u.win.subarray(A, A + 2), y), y += 2, A += 2, S -= 2);else {
+                A = y - z;
+                do {
+                  A += u.end;
+                } while (A < 0);
+                if (w = u.end - A, S > w) {
+                  if (S -= w, y - A > 0 && w > y - A) do {
+                    u.win[y++] = u.win[A++];
+                  } while (0 != --w);else u.win.set(u.win.subarray(A, A + w), y), y += w, A += w, w = 0;
+                  A = 0;
+                }
+              }
+              if (y - A > 0 && S > y - A) do {
+                u.win[y++] = u.win[A++];
+              } while (0 != --S);else u.win.set(u.win.subarray(A, A + S), y), y += S, A += S, S = 0;
+              break;
+            }
+            if (0 != (64 & w)) return d.msg = "invalid distance code", S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_i;
+            f += h[U + 2], f += b & zip_s[w], U = 3 * (_ + f), w = h[U];
+          }
+          break;
+        }
+        if (0 != (64 & w)) return 0 != (32 & w) ? (S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_t) : (d.msg = "invalid literal/length code", S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_i);
+        if (f += h[U + 2], f += b & zip_s[w], U = 3 * (_ + f), 0 === (w = h[U])) {
+          b >>= h[U + 1], p -= h[U + 1], u.win[y++] = h[U + 2], x--;
+          break;
+        }
+      } else b >>= h[U + 1], p -= h[U + 1], u.win[y++] = h[U + 2], x--;
+    } while (x >= 258 && g >= 10);
+    return S = d.avail_in - g, S = p >> 3 < S ? p >> 3 : S, g += S, m -= S, p -= S << 3, u.bitb = b, u.bitk = p, d.avail_in = g, d.total_in += m - d.next_in_index, d.next_in_index = m, u.write = y, zip_e;
+  }
+  r.init = function (e, t, n, i, r, s) {
+    a = zip_b, A = e, U = t, l = n, D = i, c = r, E = s, o = null;
+  }, r.proc = function (r, O, T) {
+    let W,
+      C,
+      j,
+      M,
+      L,
+      P,
+      R,
+      B = 0,
+      I = 0,
+      N = 0;
+    for (N = O.next_in_index, M = O.avail_in, B = r.bitb, I = r.bitk, L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L;;) switch (a) {
+      case zip_b:
+        if (P >= 258 && M >= 10 && (r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, T = F(A, U, l, D, c, E, r, O), N = O.next_in_index, M = O.avail_in, B = r.bitb, I = r.bitk, L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, T != zip_e)) {
+          a = T == zip_t ? zip_v : z;
+          break;
+        }
+        f = A, o = l, d = D, a = zip_p;
+      case zip_p:
+        for (W = f; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
+        }
+        if (C = 3 * (d + (B & zip_s[W])), B >>>= o[C + 1], I -= o[C + 1], j = o[C], 0 === j) {
+          h = o[C + 2], a = zip_k;
+          break;
+        }
+        if (0 != (16 & j)) {
+          _ = 15 & j, u = o[C + 2], a = zip_m;
+          break;
+        }
+        if (0 == (64 & j)) {
+          f = j, d = C / 3 + o[C + 2];
+          break;
+        }
+        if (0 != (32 & j)) {
+          a = zip_v;
+          break;
+        }
+        return a = z, O.msg = "invalid literal/length code", T = zip_i, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      case zip_m:
+        for (W = _; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
+        }
+        u += B & zip_s[W], B >>= W, I -= W, f = U, o = c, d = E, a = zip_g;
+      case zip_g:
+        for (W = f; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
+        }
+        if (C = 3 * (d + (B & zip_s[W])), B >>= o[C + 1], I -= o[C + 1], j = o[C], 0 != (16 & j)) {
+          _ = 15 & j, w = o[C + 2], a = zip_y;
+          break;
+        }
+        if (0 == (64 & j)) {
+          f = j, d = C / 3 + o[C + 2];
+          break;
+        }
+        return a = z, O.msg = "invalid distance code", T = zip_i, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      case zip_y:
+        for (W = _; I < W;) {
+          if (0 === M) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          T = zip_e, M--, B |= (255 & O.read_byte(N++)) << I, I += 8;
+        }
+        w += B & zip_s[W], B >>= W, I -= W, a = zip_x;
+      case zip_x:
+        for (R = L - w; R < 0;) R += r.end;
+        for (; 0 !== u;) {
+          if (0 === P && (L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P && (r.write = L, T = r.inflate_flush(O, T), L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P))) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+          r.win[L++] = r.win[R++], P--, R == r.end && (R = 0), u--;
+        }
+        a = zip_b;
+        break;
+      case zip_k:
+        if (0 === P && (L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P && (r.write = L, T = r.inflate_flush(O, T), L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, L == r.end && 0 !== r.read && (L = 0, P = L < r.read ? r.read - L - 1 : r.end - L), 0 === P))) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+        T = zip_e, r.win[L++] = h, P--, a = zip_b;
+        break;
+      case zip_v:
+        if (I > 7 && (I -= 8, M++, N--), r.write = L, T = r.inflate_flush(O, T), L = r.write, P = L < r.read ? r.read - L - 1 : r.end - L, r.read != r.write) return r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+        a = zip_S;
+      case zip_S:
+        return T = zip_t, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      case z:
+        return T = zip_i, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+      default:
+        return T = zip_n, r.bitb = B, r.bitk = I, O.avail_in = M, O.total_in += N - O.next_in_index, O.next_in_index = N, r.write = L, r.inflate_flush(O, T);
+    }
+  }, r.free = function () {};
+}
+const zip_U = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15],
+  D = 0,
+  zip_E = 1,
+  F = 2,
+  O = 3,
+  zip_T = 4,
+  W = 5,
+  C = 6,
+  j = 7,
+  M = 8,
+  L = 9;
+function P(r, l) {
+  const c = this;
+  let u,
+    d = D,
+    f = 0,
+    h = 0,
+    _ = 0;
+  const b = [0],
+    p = [0],
+    m = new A();
+  let g = 0,
+    y = new Int32Array(3 * zip_o);
+  const x = new zip_w();
+  c.bitk = 0, c.bitb = 0, c.win = new Uint8Array(l), c.end = l, c.read = 0, c.write = 0, c.reset = function (e, t) {
+    t && (t[0] = 0), d == C && m.free(e), d = D, c.bitk = 0, c.bitb = 0, c.read = c.write = 0;
+  }, c.reset(r, null), c.inflate_flush = function (t, n) {
+    let i, r, s;
+    return r = t.next_out_index, s = c.read, i = (s <= c.write ? c.write : c.end) - s, i > t.avail_out && (i = t.avail_out), 0 !== i && n == zip_a && (n = zip_e), t.avail_out -= i, t.total_out += i, t.next_out.set(c.win.subarray(s, s + i), r), r += i, s += i, s == c.end && (s = 0, c.write == c.end && (c.write = 0), i = c.write - s, i > t.avail_out && (i = t.avail_out), 0 !== i && n == zip_a && (n = zip_e), t.avail_out -= i, t.total_out += i, t.next_out.set(c.win.subarray(s, s + i), r), r += i, s += i), t.next_out_index = r, c.read = s, n;
+  }, c.proc = function (r, a) {
+    let o, l, k, v, S, z, A, P;
+    for (v = r.next_in_index, S = r.avail_in, l = c.bitb, k = c.bitk, z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z;;) {
+      let R, B, I, N, V, q, H, K;
+      switch (d) {
+        case D:
+          for (; k < 3;) {
+            if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+            a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+          }
+          switch (o = 7 & l, g = 1 & o, o >>> 1) {
+            case 0:
+              l >>>= 3, k -= 3, o = 7 & k, l >>>= o, k -= o, d = zip_E;
+              break;
+            case 1:
+              R = [], B = [], I = [[]], N = [[]], zip_w.inflate_trees_fixed(R, B, I, N), m.init(R[0], B[0], I[0], 0, N[0], 0), l >>>= 3, k -= 3, d = C;
+              break;
+            case 2:
+              l >>>= 3, k -= 3, d = O;
+              break;
+            case 3:
+              return l >>>= 3, k -= 3, d = L, r.msg = "invalid block type", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          }
+          break;
+        case zip_E:
+          for (; k < 32;) {
+            if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+            a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+          }
+          if ((~l >>> 16 & 65535) != (65535 & l)) return d = L, r.msg = "invalid stored block lengths", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          f = 65535 & l, l = k = 0, d = 0 !== f ? F : 0 !== g ? j : D;
+          break;
+        case F:
+          if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          if (0 === A && (z == c.end && 0 !== c.read && (z = 0, A = z < c.read ? c.read - z - 1 : c.end - z), 0 === A && (c.write = z, a = c.inflate_flush(r, a), z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, z == c.end && 0 !== c.read && (z = 0, A = z < c.read ? c.read - z - 1 : c.end - z), 0 === A))) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          if (a = zip_e, o = f, o > S && (o = S), o > A && (o = A), c.win.set(r.read_buf(v, o), z), v += o, S -= o, z += o, A -= o, 0 != (f -= o)) break;
+          d = 0 !== g ? j : D;
+          break;
+        case O:
+          for (; k < 14;) {
+            if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+            a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+          }
+          if (h = o = 16383 & l, (31 & o) > 29 || (o >> 5 & 31) > 29) return d = L, r.msg = "too many length or distance symbols", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          if (o = 258 + (31 & o) + (o >> 5 & 31), !u || u.length < o) u = [];else for (P = 0; P < o; P++) u[P] = 0;
+          l >>>= 14, k -= 14, _ = 0, d = zip_T;
+        case zip_T:
+          for (; _ < 4 + (h >>> 10);) {
+            for (; k < 3;) {
+              if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+              a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+            }
+            u[zip_U[_++]] = 7 & l, l >>>= 3, k -= 3;
+          }
+          for (; _ < 19;) u[zip_U[_++]] = 0;
+          if (b[0] = 7, o = x.inflate_trees_bits(u, b, p, y, r), o != zip_e) return (a = o) == zip_i && (u = null, d = L), c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          _ = 0, d = W;
+        case W:
+          for (; o = h, !(_ >= 258 + (31 & o) + (o >> 5 & 31));) {
+            let t, n;
+            for (o = b[0]; k < o;) {
+              if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+              a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+            }
+            if (o = y[3 * (p[0] + (l & zip_s[o])) + 1], n = y[3 * (p[0] + (l & zip_s[o])) + 2], n < 16) l >>>= o, k -= o, u[_++] = n;else {
+              for (P = 18 == n ? 7 : n - 14, t = 18 == n ? 11 : 3; k < o + P;) {
+                if (0 === S) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+                a = zip_e, S--, l |= (255 & r.read_byte(v++)) << k, k += 8;
+              }
+              if (l >>>= o, k -= o, t += l & zip_s[P], l >>>= P, k -= P, P = _, o = h, P + t > 258 + (31 & o) + (o >> 5 & 31) || 16 == n && P < 1) return u = null, d = L, r.msg = "invalid bit length repeat", a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+              n = 16 == n ? u[P - 1] : 0;
+              do {
+                u[P++] = n;
+              } while (0 != --t);
+              _ = P;
+            }
+          }
+          if (p[0] = -1, V = [], q = [], H = [], K = [], V[0] = 9, q[0] = 6, o = h, o = x.inflate_trees_dynamic(257 + (31 & o), 1 + (o >> 5 & 31), u, V, q, H, K, y, r), o != zip_e) return o == zip_i && (u = null, d = L), a = o, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          m.init(V[0], q[0], y, H[0], y, K[0]), d = C;
+        case C:
+          if (c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, (a = m.proc(c, r, a)) != zip_t) return c.inflate_flush(r, a);
+          if (a = zip_e, m.free(r), v = r.next_in_index, S = r.avail_in, l = c.bitb, k = c.bitk, z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, 0 === g) {
+            d = D;
+            break;
+          }
+          d = j;
+        case j:
+          if (c.write = z, a = c.inflate_flush(r, a), z = c.write, A = z < c.read ? c.read - z - 1 : c.end - z, c.read != c.write) return c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+          d = M;
+        case M:
+          return a = zip_t, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+        case L:
+          return a = zip_i, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+        default:
+          return a = zip_n, c.bitb = l, c.bitk = k, r.avail_in = S, r.total_in += v - r.next_in_index, r.next_in_index = v, c.write = z, c.inflate_flush(r, a);
+      }
+    }
+  }, c.free = function (e) {
+    c.reset(e, null), c.win = null, y = null;
+  }, c.set_dictionary = function (e, t, n) {
+    c.win.set(e.subarray(t, t + n), 0), c.read = c.write = n;
+  }, c.sync_point = function () {
+    return d == zip_E ? 1 : 0;
+  };
+}
+const R = 13,
+  B = [0, 0, 255, 255];
+function I() {
+  const r = this;
+  function s(t) {
+    return t && t.istate ? (t.total_in = t.total_out = 0, t.msg = null, t.istate.mode = 7, t.istate.blocks.reset(t, null), zip_e) : zip_n;
+  }
+  r.mode = 0, r.method = 0, r.was = [0], r.need = 0, r.marker = 0, r.wbits = 0, r.inflateEnd = function (t) {
+    return r.blocks && r.blocks.free(t), r.blocks = null, zip_e;
+  }, r.inflateInit = function (t, i) {
+    return t.msg = null, r.blocks = null, i < 8 || i > 15 ? (r.inflateEnd(t), zip_n) : (r.wbits = i, t.istate.blocks = new P(t, 1 << i), s(t), zip_e);
+  }, r.inflate = function (r, s) {
+    let o, l;
+    if (!r || !r.istate || !r.next_in) return zip_n;
+    const c = r.istate;
+    for (s = 4 == s ? zip_a : zip_e, o = zip_a;;) switch (c.mode) {
+      case 0:
+        if (0 === r.avail_in) return o;
+        if (o = s, r.avail_in--, r.total_in++, 8 != (15 & (c.method = r.read_byte(r.next_in_index++)))) {
+          c.mode = R, r.msg = "unknown compression method", c.marker = 5;
+          break;
+        }
+        if (8 + (c.method >> 4) > c.wbits) {
+          c.mode = R, r.msg = "invalid win size", c.marker = 5;
+          break;
+        }
+        c.mode = 1;
+      case 1:
+        if (0 === r.avail_in) return o;
+        if (o = s, r.avail_in--, r.total_in++, l = 255 & r.read_byte(r.next_in_index++), ((c.method << 8) + l) % 31 != 0) {
+          c.mode = R, r.msg = "incorrect header check", c.marker = 5;
+          break;
+        }
+        if (0 == (32 & l)) {
+          c.mode = 7;
+          break;
+        }
+        c.mode = 2;
+      case 2:
+        if (0 === r.avail_in) return o;
+        o = s, r.avail_in--, r.total_in++, c.need = (255 & r.read_byte(r.next_in_index++)) << 24 & 4278190080, c.mode = 3;
+      case 3:
+        if (0 === r.avail_in) return o;
+        o = s, r.avail_in--, r.total_in++, c.need += (255 & r.read_byte(r.next_in_index++)) << 16 & 16711680, c.mode = 4;
+      case 4:
+        if (0 === r.avail_in) return o;
+        o = s, r.avail_in--, r.total_in++, c.need += (255 & r.read_byte(r.next_in_index++)) << 8 & 65280, c.mode = 5;
+      case 5:
+        return 0 === r.avail_in ? o : (o = s, r.avail_in--, r.total_in++, c.need += 255 & r.read_byte(r.next_in_index++), c.mode = 6, 2);
+      case 6:
+        return c.mode = R, r.msg = "need dictionary", c.marker = 0, zip_n;
+      case 7:
+        if (o = c.blocks.proc(r, o), o == zip_i) {
+          c.mode = R, c.marker = 0;
+          break;
+        }
+        if (o == zip_e && (o = s), o != zip_t) return o;
+        o = s, c.blocks.reset(r, c.was), c.mode = 12;
+      case 12:
+        return r.avail_in = 0, zip_t;
+      case R:
+        return zip_i;
+      default:
+        return zip_n;
+    }
+  }, r.inflateSetDictionary = function (t, i, r) {
+    let a = 0,
+      s = r;
+    if (!t || !t.istate || 6 != t.istate.mode) return zip_n;
+    const o = t.istate;
+    return s >= 1 << o.wbits && (s = (1 << o.wbits) - 1, a = r - s), o.blocks.set_dictionary(i, a, s), o.mode = 7, zip_e;
+  }, r.inflateSync = function (t) {
+    let r, o, l, c, u;
+    if (!t || !t.istate) return zip_n;
+    const d = t.istate;
+    if (d.mode != R && (d.mode = R, d.marker = 0), 0 === (r = t.avail_in)) return zip_a;
+    for (o = t.next_in_index, l = d.marker; 0 !== r && l < 4;) t.read_byte(o) == B[l] ? l++ : l = 0 !== t.read_byte(o) ? 0 : 4 - l, o++, r--;
+    return t.total_in += o - t.next_in_index, t.next_in_index = o, t.avail_in = r, d.marker = l, 4 != l ? zip_i : (c = t.total_in, u = t.total_out, s(t), t.total_in = c, t.total_out = u, d.mode = 7, zip_e);
+  }, r.inflateSyncPoint = function (e) {
+    return e && e.istate && e.istate.blocks ? e.istate.blocks.sync_point() : zip_n;
+  };
+}
+function N() {}
+N.prototype = {
+  inflateInit(e) {
+    const t = this;
+    return t.istate = new I(), e || (e = 15), t.istate.inflateInit(t, e);
+  },
+  inflate(e) {
+    const t = this;
+    return t.istate ? t.istate.inflate(t, e) : zip_n;
+  },
+  inflateEnd() {
+    const e = this;
+    if (!e.istate) return zip_n;
+    const t = e.istate.inflateEnd(e);
+    return e.istate = null, t;
+  },
+  inflateSync() {
+    const e = this;
+    return e.istate ? e.istate.inflateSync(e) : zip_n;
+  },
+  inflateSetDictionary(e, t) {
+    const i = this;
+    return i.istate ? i.istate.inflateSetDictionary(i, e, t) : zip_n;
+  },
+  read_byte(e) {
+    return this.next_in[e];
+  },
+  read_buf(e, t) {
+    return this.next_in.subarray(e, e + t);
+  }
+};
+const V = 4294967295,
+  q = 65535,
+  H = 33639248,
+  K = 101075792,
+  Z = 1,
+  G = void 0,
+  J = "undefined",
+  Q = "function";
+class X {
+  constructor(e) {
+    return class extends TransformStream {
+      constructor(t, n) {
+        const i = new e(n);
+        super({
+          transform(e, t) {
+            t.enqueue(i.append(e));
+          },
+          flush(e) {
+            const t = i.flush();
+            t && e.enqueue(t);
+          }
+        });
+      }
+    };
+  }
+}
+let Y = 2;
+try {
+  typeof navigator != J && navigator.hardwareConcurrency && (Y = navigator.hardwareConcurrency);
+} catch (e) {}
+const \$ = {
+    chunkSize: 524288,
+    maxWorkers: Y,
+    terminateWorkerTimeout: 5e3,
+    useWebWorkers: !0,
+    useCompressionStream: !0,
+    workerScripts: G,
+    CompressionStreamNative: typeof CompressionStream != J && CompressionStream,
+    DecompressionStreamNative: typeof DecompressionStream != J && DecompressionStream
+  },
+  ee = Object.assign({}, \$);
+function te(e) {
+  const {
+    baseURL: t,
+    chunkSize: n,
+    maxWorkers: i,
+    terminateWorkerTimeout: r,
+    useCompressionStream: a,
+    useWebWorkers: s,
+    Deflate: o,
+    Inflate: l,
+    CompressionStream: c,
+    DecompressionStream: u,
+    workerScripts: d
+  } = e;
+  if (ne("baseURL", t), ne("chunkSize", n), ne("maxWorkers", i), ne("terminateWorkerTimeout", r), ne("useCompressionStream", a), ne("useWebWorkers", s), o && (ee.CompressionStream = new X(o)), l && (ee.DecompressionStream = new X(l)), ne("CompressionStream", c), ne("DecompressionStream", u), d !== G) {
+    const {
+      deflate: e,
+      inflate: t
+    } = d;
+    if ((e || t) && (ee.workerScripts || (ee.workerScripts = {})), e) {
+      if (!Array.isArray(e)) throw new Error("workerScripts.deflate must be an array");
+      ee.workerScripts.deflate = e;
+    }
+    if (t) {
+      if (!Array.isArray(t)) throw new Error("workerScripts.inflate must be an array");
+      ee.workerScripts.inflate = t;
+    }
+  }
+}
+function ne(e, t) {
+  t !== G && (ee[e] = t);
+}
+const ie = [];
+for (let e = 0; e < 256; e++) {
+  let t = e;
+  for (let e = 0; e < 8; e++) 1 & t ? t = t >>> 1 ^ 3988292384 : t >>>= 1;
+  ie[e] = t;
+}
+class re {
+  constructor(e) {
+    this.crc = e || -1;
+  }
+  append(e) {
+    let t = 0 | this.crc;
+    for (let n = 0, i = 0 | e.length; n < i; n++) t = t >>> 8 ^ ie[255 & (t ^ e[n])];
+    this.crc = t;
+  }
+  get() {
+    return ~this.crc;
+  }
+}
+class ae extends TransformStream {
+  constructor() {
+    let e;
+    const t = new re();
+    super({
+      transform(e, n) {
+        t.append(e), n.enqueue(e);
+      },
+      flush() {
+        const n = new Uint8Array(4);
+        new DataView(n.buffer).setUint32(0, t.get()), e.value = n;
+      }
+    }), e = this;
+  }
+}
+const se = {
+    concat(e, t) {
+      if (0 === e.length || 0 === t.length) return e.concat(t);
+      const n = e[e.length - 1],
+        i = se.getPartial(n);
+      return 32 === i ? e.concat(t) : se._shiftRight(t, i, 0 | n, e.slice(0, e.length - 1));
+    },
+    bitLength(e) {
+      const t = e.length;
+      if (0 === t) return 0;
+      const n = e[t - 1];
+      return 32 * (t - 1) + se.getPartial(n);
+    },
+    clamp(e, t) {
+      if (32 * e.length < t) return e;
+      const n = (e = e.slice(0, Math.ceil(t / 32))).length;
+      return t &= 31, n > 0 && t && (e[n - 1] = se.partial(t, e[n - 1] & 2147483648 >> t - 1, 1)), e;
+    },
+    partial: (e, t, n) => 32 === e ? t : (n ? 0 | t : t << 32 - e) + 1099511627776 * e,
+    getPartial: e => Math.round(e / 1099511627776) || 32,
+    _shiftRight(e, t, n, i) {
+      for (void 0 === i && (i = []); t >= 32; t -= 32) i.push(n), n = 0;
+      if (0 === t) return i.concat(e);
+      for (let r = 0; r < e.length; r++) i.push(n | e[r] >>> t), n = e[r] << 32 - t;
+      const r = e.length ? e[e.length - 1] : 0,
+        a = se.getPartial(r);
+      return i.push(se.partial(t + a & 31, t + a > 32 ? n : i.pop(), 1)), i;
+    }
+  },
+  oe = {
+    bytes: {
+      fromBits(e) {
+        const t = se.bitLength(e) / 8,
+          n = new Uint8Array(t);
+        let i;
+        for (let r = 0; r < t; r++) 0 == (3 & r) && (i = e[r / 4]), n[r] = i >>> 24, i <<= 8;
+        return n;
+      },
+      toBits(e) {
+        const t = [];
+        let n,
+          i = 0;
+        for (n = 0; n < e.length; n++) i = i << 8 | e[n], 3 == (3 & n) && (t.push(i), i = 0);
+        return 3 & n && t.push(se.partial(8 * (3 & n), i)), t;
+      }
+    }
+  },
+  le = {
+    sha1: class {
+      constructor(e) {
+        const t = this;
+        t.blockSize = 512, t._init = [1732584193, 4023233417, 2562383102, 271733878, 3285377520], t._key = [1518500249, 1859775393, 2400959708, 3395469782], e ? (t._h = e._h.slice(0), t._buffer = e._buffer.slice(0), t._length = e._length) : t.reset();
+      }
+      reset() {
+        const e = this;
+        return e._h = e._init.slice(0), e._buffer = [], e._length = 0, e;
+      }
+      update(e) {
+        const t = this;
+        "string" == typeof e && (e = oe.utf8String.toBits(e));
+        const n = t._buffer = se.concat(t._buffer, e),
+          i = t._length,
+          r = t._length = i + se.bitLength(e);
+        if (r > 9007199254740991) throw new Error("Cannot hash more than 2^53 - 1 bits");
+        const a = new Uint32Array(n);
+        let s = 0;
+        for (let e = t.blockSize + i - (t.blockSize + i & t.blockSize - 1); e <= r; e += t.blockSize) t._block(a.subarray(16 * s, 16 * (s + 1))), s += 1;
+        return n.splice(0, 16 * s), t;
+      }
+      finalize() {
+        const e = this;
+        let t = e._buffer;
+        const n = e._h;
+        t = se.concat(t, [se.partial(1, 1)]);
+        for (let e = t.length + 2; 15 & e; e++) t.push(0);
+        for (t.push(Math.floor(e._length / 4294967296)), t.push(0 | e._length); t.length;) e._block(t.splice(0, 16));
+        return e.reset(), n;
+      }
+      _f(e, t, n, i) {
+        return e <= 19 ? t & n | ~t & i : e <= 39 ? t ^ n ^ i : e <= 59 ? t & n | t & i | n & i : e <= 79 ? t ^ n ^ i : void 0;
+      }
+      _S(e, t) {
+        return t << e | t >>> 32 - e;
+      }
+      _block(e) {
+        const t = this,
+          n = t._h,
+          i = Array(80);
+        for (let t = 0; t < 16; t++) i[t] = e[t];
+        let r = n[0],
+          a = n[1],
+          s = n[2],
+          o = n[3],
+          l = n[4];
+        for (let e = 0; e <= 79; e++) {
+          e >= 16 && (i[e] = t._S(1, i[e - 3] ^ i[e - 8] ^ i[e - 14] ^ i[e - 16]));
+          const n = t._S(5, r) + t._f(e, a, s, o) + l + i[e] + t._key[Math.floor(e / 20)] | 0;
+          l = o, o = s, s = t._S(30, a), a = r, r = n;
+        }
+        n[0] = n[0] + r | 0, n[1] = n[1] + a | 0, n[2] = n[2] + s | 0, n[3] = n[3] + o | 0, n[4] = n[4] + l | 0;
+      }
+    }
+  },
+  ce = {
+    aes: class {
+      constructor(e) {
+        const t = this;
+        t._tables = [[[], [], [], [], []], [[], [], [], [], []]], t._tables[0][0][0] || t._precompute();
+        const n = t._tables[0][4],
+          i = t._tables[1],
+          r = e.length;
+        let a,
+          s,
+          o,
+          l = 1;
+        if (4 !== r && 6 !== r && 8 !== r) throw new Error("invalid aes key size");
+        for (t._key = [s = e.slice(0), o = []], a = r; a < 4 * r + 28; a++) {
+          let e = s[a - 1];
+          (a % r == 0 || 8 === r && a % r == 4) && (e = n[e >>> 24] << 24 ^ n[e >> 16 & 255] << 16 ^ n[e >> 8 & 255] << 8 ^ n[255 & e], a % r == 0 && (e = e << 8 ^ e >>> 24 ^ l << 24, l = l << 1 ^ 283 * (l >> 7))), s[a] = s[a - r] ^ e;
+        }
+        for (let e = 0; a; e++, a--) {
+          const t = s[3 & e ? a : a - 4];
+          o[e] = a <= 4 || e < 4 ? t : i[0][n[t >>> 24]] ^ i[1][n[t >> 16 & 255]] ^ i[2][n[t >> 8 & 255]] ^ i[3][n[255 & t]];
+        }
+      }
+      encrypt(e) {
+        return this._crypt(e, 0);
+      }
+      decrypt(e) {
+        return this._crypt(e, 1);
+      }
+      _precompute() {
+        const e = this._tables[0],
+          t = this._tables[1],
+          n = e[4],
+          i = t[4],
+          r = [],
+          a = [];
+        let s, o, l, c;
+        for (let e = 0; e < 256; e++) a[(r[e] = e << 1 ^ 283 * (e >> 7)) ^ e] = e;
+        for (let u = s = 0; !n[u]; u ^= o || 1, s = a[s] || 1) {
+          let a = s ^ s << 1 ^ s << 2 ^ s << 3 ^ s << 4;
+          a = a >> 8 ^ 255 & a ^ 99, n[u] = a, i[a] = u, c = r[l = r[o = r[u]]];
+          let d = 16843009 * c ^ 65537 * l ^ 257 * o ^ 16843008 * u,
+            f = 257 * r[a] ^ 16843008 * a;
+          for (let n = 0; n < 4; n++) e[n][u] = f = f << 24 ^ f >>> 8, t[n][a] = d = d << 24 ^ d >>> 8;
+        }
+        for (let n = 0; n < 5; n++) e[n] = e[n].slice(0), t[n] = t[n].slice(0);
+      }
+      _crypt(e, t) {
+        if (4 !== e.length) throw new Error("invalid aes block size");
+        const n = this._key[t],
+          i = n.length / 4 - 2,
+          r = [0, 0, 0, 0],
+          a = this._tables[t],
+          s = a[0],
+          o = a[1],
+          l = a[2],
+          c = a[3],
+          u = a[4];
+        let d,
+          f,
+          h,
+          _ = e[0] ^ n[0],
+          w = e[t ? 3 : 1] ^ n[1],
+          b = e[2] ^ n[2],
+          p = e[t ? 1 : 3] ^ n[3],
+          m = 4;
+        for (let e = 0; e < i; e++) d = s[_ >>> 24] ^ o[w >> 16 & 255] ^ l[b >> 8 & 255] ^ c[255 & p] ^ n[m], f = s[w >>> 24] ^ o[b >> 16 & 255] ^ l[p >> 8 & 255] ^ c[255 & _] ^ n[m + 1], h = s[b >>> 24] ^ o[p >> 16 & 255] ^ l[_ >> 8 & 255] ^ c[255 & w] ^ n[m + 2], p = s[p >>> 24] ^ o[_ >> 16 & 255] ^ l[w >> 8 & 255] ^ c[255 & b] ^ n[m + 3], m += 4, _ = d, w = f, b = h;
+        for (let e = 0; e < 4; e++) r[t ? 3 & -e : e] = u[_ >>> 24] << 24 ^ u[w >> 16 & 255] << 16 ^ u[b >> 8 & 255] << 8 ^ u[255 & p] ^ n[m++], d = _, _ = w, w = b, b = p, p = d;
+        return r;
+      }
+    }
+  },
+  ue = {
+    getRandomValues(e) {
+      const t = new Uint32Array(e.buffer),
+        n = e => {
+          let t = 987654321;
+          const n = 4294967295;
+          return function () {
+            t = 36969 * (65535 & t) + (t >> 16) & n;
+            return (((t << 16) + (e = 18e3 * (65535 & e) + (e >> 16) & n) & n) / 4294967296 + .5) * (Math.random() > .5 ? 1 : -1);
+          };
+        };
+      for (let i, r = 0; r < e.length; r += 4) {
+        const e = n(4294967296 * (i || Math.random()));
+        i = 987654071 * e(), t[r / 4] = 4294967296 * e() | 0;
+      }
+      return e;
+    }
+  },
+  de = {
+    ctrGladman: class {
+      constructor(e, t) {
+        this._prf = e, this._initIv = t, this._iv = t;
+      }
+      reset() {
+        this._iv = this._initIv;
+      }
+      update(e) {
+        return this.calculate(this._prf, e, this._iv);
+      }
+      incWord(e) {
+        if (255 == (e >> 24 & 255)) {
+          let t = e >> 16 & 255,
+            n = e >> 8 & 255,
+            i = 255 & e;
+          255 === t ? (t = 0, 255 === n ? (n = 0, 255 === i ? i = 0 : ++i) : ++n) : ++t, e = 0, e += t << 16, e += n << 8, e += i;
+        } else e += 1 << 24;
+        return e;
+      }
+      incCounter(e) {
+        0 === (e[0] = this.incWord(e[0])) && (e[1] = this.incWord(e[1]));
+      }
+      calculate(e, t, n) {
+        let i;
+        if (!(i = t.length)) return [];
+        const r = se.bitLength(t);
+        for (let r = 0; r < i; r += 4) {
+          this.incCounter(n);
+          const i = e.encrypt(n);
+          t[r] ^= i[0], t[r + 1] ^= i[1], t[r + 2] ^= i[2], t[r + 3] ^= i[3];
+        }
+        return se.clamp(t, r);
+      }
+    }
+  },
+  fe = {
+    importKey: e => new fe.hmacSha1(oe.bytes.toBits(e)),
+    pbkdf2(e, t, n, i) {
+      if (n = n || 1e4, i < 0 || n < 0) throw new Error("invalid params to pbkdf2");
+      const r = 1 + (i >> 5) << 2;
+      let a, s, o, l, c;
+      const u = new ArrayBuffer(r),
+        d = new DataView(u);
+      let f = 0;
+      const h = se;
+      for (t = oe.bytes.toBits(t), c = 1; f < (r || 1); c++) {
+        for (a = s = e.encrypt(h.concat(t, [c])), o = 1; o < n; o++) for (s = e.encrypt(s), l = 0; l < s.length; l++) a[l] ^= s[l];
+        for (o = 0; f < (r || 1) && o < a.length; o++) d.setInt32(f, a[o]), f += 4;
+      }
+      return u.slice(0, i / 8);
+    },
+    hmacSha1: class {
+      constructor(e) {
+        const t = this,
+          n = t._hash = le.sha1,
+          i = [[], []];
+        t._baseHash = [new n(), new n()];
+        const r = t._baseHash[0].blockSize / 32;
+        e.length > r && (e = new n().update(e).finalize());
+        for (let t = 0; t < r; t++) i[0][t] = 909522486 ^ e[t], i[1][t] = 1549556828 ^ e[t];
+        t._baseHash[0].update(i[0]), t._baseHash[1].update(i[1]), t._resultHash = new n(t._baseHash[0]);
+      }
+      reset() {
+        const e = this;
+        e._resultHash = new e._hash(e._baseHash[0]), e._updated = !1;
+      }
+      update(e) {
+        this._updated = !0, this._resultHash.update(e);
+      }
+      digest() {
+        const e = this,
+          t = e._resultHash.finalize(),
+          n = new e._hash(e._baseHash[1]).update(t).finalize();
+        return e.reset(), n;
+      }
+      encrypt(e) {
+        if (this._updated) throw new Error("encrypt on already updated hmac called!");
+        return this.update(e), this.digest(e);
+      }
+    }
+  },
+  he = "undefined" != typeof crypto && "function" == typeof crypto.getRandomValues,
+  _e = "Invalid password",
+  we = "Invalid signature",
+  be = "zipjs-abort-check-password";
+function pe(e) {
+  return he ? crypto.getRandomValues(e) : ue.getRandomValues(e);
+}
+const me = 16,
+  ge = "raw",
+  ye = {
+    name: "PBKDF2"
+  },
+  xe = Object.assign({
+    hash: {
+      name: "HMAC"
+    }
+  }, ye),
+  ke = Object.assign({
+    iterations: 1e3,
+    hash: {
+      name: "SHA-1"
+    }
+  }, ye),
+  ve = ["deriveBits"],
+  Se = [8, 12, 16],
+  ze = [16, 24, 32],
+  Ae = 10,
+  Ue = [0, 0, 0, 0],
+  De = "undefined",
+  Ee = "function",
+  Fe = typeof crypto != De,
+  Oe = Fe && crypto.subtle,
+  Te = Fe && typeof Oe != De,
+  We = oe.bytes,
+  Ce = ce.aes,
+  je = de.ctrGladman,
+  Me = fe.hmacSha1;
+let Le = Fe && Te && typeof Oe.importKey == Ee,
+  Pe = Fe && Te && typeof Oe.deriveBits == Ee;
+class Re extends TransformStream {
+  constructor({
+    password: e,
+    signed: t,
+    encryptionStrength: n,
+    checkPasswordOnly: i
+  }) {
+    super({
+      start() {
+        Object.assign(this, {
+          ready: new Promise(e => this.resolveReady = e),
+          password: e,
+          signed: t,
+          strength: n - 1,
+          pending: new Uint8Array()
+        });
+      },
+      async transform(e, t) {
+        const n = this,
+          {
+            password: r,
+            strength: a,
+            resolveReady: s,
+            ready: o
+          } = n;
+        r ? (await async function (e, t, n, i) {
+          const r = await Ne(e, t, n, qe(i, 0, Se[t])),
+            a = qe(i, Se[t]);
+          if (r[0] != a[0] || r[1] != a[1]) throw new Error(_e);
+        }(n, a, r, qe(e, 0, Se[a] + 2)), e = qe(e, Se[a] + 2), i ? t.error(new Error(be)) : s()) : await o;
+        const l = new Uint8Array(e.length - Ae - (e.length - Ae) % me);
+        t.enqueue(Ie(n, e, l, 0, Ae, !0));
+      },
+      async flush(e) {
+        const {
+          signed: t,
+          ctr: n,
+          hmac: i,
+          pending: r,
+          ready: a
+        } = this;
+        if (i && n) {
+          await a;
+          const s = qe(r, 0, r.length - Ae),
+            o = qe(r, r.length - Ae);
+          let l = new Uint8Array();
+          if (s.length) {
+            const e = Ke(We, s);
+            i.update(e);
+            const t = n.update(e);
+            l = He(We, t);
+          }
+          if (t) {
+            const e = qe(He(We, i.digest()), 0, Ae);
+            for (let t = 0; t < Ae; t++) if (e[t] != o[t]) throw new Error(we);
+          }
+          e.enqueue(l);
+        }
+      }
+    });
+  }
+}
+class Be extends TransformStream {
+  constructor({
+    password: e,
+    encryptionStrength: t
+  }) {
+    let n;
+    super({
+      start() {
+        Object.assign(this, {
+          ready: new Promise(e => this.resolveReady = e),
+          password: e,
+          strength: t - 1,
+          pending: new Uint8Array()
+        });
+      },
+      async transform(e, t) {
+        const n = this,
+          {
+            password: i,
+            strength: r,
+            resolveReady: a,
+            ready: s
+          } = n;
+        let o = new Uint8Array();
+        i ? (o = await async function (e, t, n) {
+          const i = pe(new Uint8Array(Se[t])),
+            r = await Ne(e, t, n, i);
+          return Ve(i, r);
+        }(n, r, i), a()) : await s;
+        const l = new Uint8Array(o.length + e.length - e.length % me);
+        l.set(o, 0), t.enqueue(Ie(n, e, l, o.length, 0));
+      },
+      async flush(e) {
+        const {
+          ctr: t,
+          hmac: i,
+          pending: r,
+          ready: a
+        } = this;
+        if (i && t) {
+          await a;
+          let s = new Uint8Array();
+          if (r.length) {
+            const e = t.update(Ke(We, r));
+            i.update(e), s = He(We, e);
+          }
+          n.signature = He(We, i.digest()).slice(0, Ae), e.enqueue(Ve(s, n.signature));
+        }
+      }
+    }), n = this;
+  }
+}
+function Ie(e, t, n, i, r, a) {
+  const {
+      ctr: s,
+      hmac: o,
+      pending: l
+    } = e,
+    c = t.length - r;
+  let u;
+  for (l.length && (t = Ve(l, t), n = function (e, t) {
+    if (t && t > e.length) {
+      const n = e;
+      (e = new Uint8Array(t)).set(n, 0);
+    }
+    return e;
+  }(n, c - c % me)), u = 0; u <= c - me; u += me) {
+    const e = Ke(We, qe(t, u, u + me));
+    a && o.update(e);
+    const r = s.update(e);
+    a || o.update(r), n.set(He(We, r), u + i);
+  }
+  return e.pending = qe(t, u), n;
+}
+async function Ne(e, t, n, i) {
+  e.password = null;
+  const r = function (e) {
+      if ("undefined" == typeof TextEncoder) {
+        e = unescape(encodeURIComponent(e));
+        const t = new Uint8Array(e.length);
+        for (let n = 0; n < t.length; n++) t[n] = e.charCodeAt(n);
+        return t;
+      }
+      return new TextEncoder().encode(e);
+    }(n),
+    a = await async function (e, t, n, i, r) {
+      if (!Le) return fe.importKey(t);
+      try {
+        return await Oe.importKey(e, t, n, i, r);
+      } catch (e) {
+        return Le = !1, fe.importKey(t);
+      }
+    }(ge, r, xe, !1, ve),
+    s = await async function (e, t, n) {
+      if (!Pe) return fe.pbkdf2(t, e.salt, ke.iterations, n);
+      try {
+        return await Oe.deriveBits(e, t, n);
+      } catch (i) {
+        return Pe = !1, fe.pbkdf2(t, e.salt, ke.iterations, n);
+      }
+    }(Object.assign({
+      salt: i
+    }, ke), a, 8 * (2 * ze[t] + 2)),
+    o = new Uint8Array(s),
+    l = Ke(We, qe(o, 0, ze[t])),
+    c = Ke(We, qe(o, ze[t], 2 * ze[t])),
+    u = qe(o, 2 * ze[t]);
+  return Object.assign(e, {
+    keys: {
+      key: l,
+      authentication: c,
+      passwordVerification: u
+    },
+    ctr: new je(new Ce(l), Array.from(Ue)),
+    hmac: new Me(c)
+  }), u;
+}
+function Ve(e, t) {
+  let n = e;
+  return e.length + t.length && (n = new Uint8Array(e.length + t.length), n.set(e, 0), n.set(t, e.length)), n;
+}
+function qe(e, t, n) {
+  return e.subarray(t, n);
+}
+function He(e, t) {
+  return e.fromBits(t);
+}
+function Ke(e, t) {
+  return e.toBits(t);
+}
+const Ze = 12;
+class Ge extends TransformStream {
+  constructor({
+    password: e,
+    passwordVerification: t,
+    checkPasswordOnly: n
+  }) {
+    super({
+      start() {
+        Object.assign(this, {
+          password: e,
+          passwordVerification: t
+        }), Ye(this, e);
+      },
+      transform(e, t) {
+        const i = this;
+        if (i.password) {
+          const t = Qe(i, e.subarray(0, Ze));
+          if (i.password = null, t[11] != i.passwordVerification) throw new Error(_e);
+          e = e.subarray(Ze);
+        }
+        n ? t.error(new Error(be)) : t.enqueue(Qe(i, e));
+      }
+    });
+  }
+}
+class Je extends TransformStream {
+  constructor({
+    password: e,
+    passwordVerification: t
+  }) {
+    super({
+      start() {
+        Object.assign(this, {
+          password: e,
+          passwordVerification: t
+        }), Ye(this, e);
+      },
+      transform(e, t) {
+        const n = this;
+        let i, r;
+        if (n.password) {
+          n.password = null;
+          const t = pe(new Uint8Array(Ze));
+          t[11] = n.passwordVerification, i = new Uint8Array(e.length + t.length), i.set(Xe(n, t), 0), r = Ze;
+        } else i = new Uint8Array(e.length), r = 0;
+        i.set(Xe(n, e), r), t.enqueue(i);
+      }
+    });
+  }
+}
+function Qe(e, t) {
+  const n = new Uint8Array(t.length);
+  for (let i = 0; i < t.length; i++) n[i] = et(e) ^ t[i], \$e(e, n[i]);
+  return n;
+}
+function Xe(e, t) {
+  const n = new Uint8Array(t.length);
+  for (let i = 0; i < t.length; i++) n[i] = et(e) ^ t[i], \$e(e, t[i]);
+  return n;
+}
+function Ye(e, t) {
+  const n = [305419896, 591751049, 878082192];
+  Object.assign(e, {
+    keys: n,
+    crcKey0: new re(n[0]),
+    crcKey2: new re(n[2])
+  });
+  for (let n = 0; n < t.length; n++) \$e(e, t.charCodeAt(n));
+}
+function \$e(e, t) {
+  let [n, i, r] = e.keys;
+  e.crcKey0.append([t]), n = ~e.crcKey0.get(), i = nt(Math.imul(nt(i + tt(n)), 134775813) + 1), e.crcKey2.append([i >>> 24]), r = ~e.crcKey2.get(), e.keys = [n, i, r];
+}
+function et(e) {
+  const t = 2 | e.keys[2];
+  return tt(Math.imul(t, 1 ^ t) >>> 8);
+}
+function tt(e) {
+  return 255 & e;
+}
+function nt(e) {
+  return 4294967295 & e;
+}
+const it = "deflate-raw";
+class rt extends TransformStream {
+  constructor(e, {
+    chunkSize: t,
+    CompressionStream: n,
+    CompressionStreamNative: i
+  }) {
+    super({});
+    const {
+        compressed: r,
+        encrypted: a,
+        useCompressionStream: s,
+        zipCrypto: o,
+        signed: l,
+        level: c
+      } = e,
+      u = this;
+    let d,
+      f,
+      h = st(super.readable);
+    a && !o || !l || (d = new ae(), h = ct(h, d)), r && (h = lt(h, s, {
+      level: c,
+      chunkSize: t
+    }, i, n)), a && (o ? h = ct(h, new Je(e)) : (f = new Be(e), h = ct(h, f))), ot(u, h, () => {
+      let e;
+      a && !o && (e = f.signature), a && !o || !l || (e = new DataView(d.value.buffer).getUint32(0)), u.signature = e;
+    });
+  }
+}
+class at extends TransformStream {
+  constructor(e, {
+    chunkSize: t,
+    DecompressionStream: n,
+    DecompressionStreamNative: i
+  }) {
+    super({});
+    const {
+      zipCrypto: r,
+      encrypted: a,
+      signed: s,
+      signature: o,
+      compressed: l,
+      useCompressionStream: c
+    } = e;
+    let u,
+      d,
+      f = st(super.readable);
+    a && (r ? f = ct(f, new Ge(e)) : (d = new Re(e), f = ct(f, d))), l && (f = lt(f, c, {
+      chunkSize: t
+    }, i, n)), a && !r || !s || (u = new ae(), f = ct(f, u)), ot(this, f, () => {
+      if ((!a || r) && s) {
+        const e = new DataView(u.value.buffer);
+        if (o != e.getUint32(0, !1)) throw new Error(we);
+      }
+    });
+  }
+}
+function st(e) {
+  return ct(e, new TransformStream({
+    transform(e, t) {
+      e && e.length && t.enqueue(e);
+    }
+  }));
+}
+function ot(e, t, n) {
+  t = ct(t, new TransformStream({
+    flush: n
+  })), Object.defineProperty(e, "readable", {
+    get: () => t
+  });
+}
+function lt(e, t, n, i, r) {
+  try {
+    e = ct(e, new (t && i ? i : r)(it, n));
+  } catch (i) {
+    if (!t) throw i;
+    e = ct(e, new r(it, n));
+  }
+  return e;
+}
+function ct(e, t) {
+  return e.pipeThrough(t);
+}
+const ut = "message",
+  dt = "start",
+  ft = "pull",
+  ht = "data",
+  _t = "ack",
+  wt = "close",
+  bt = "inflate";
+class pt extends TransformStream {
+  constructor(e, t) {
+    super({});
+    const n = this,
+      {
+        codecType: i
+      } = e;
+    let r;
+    i.startsWith("deflate") ? r = rt : i.startsWith(bt) && (r = at);
+    let a = 0;
+    const s = new r(e, t),
+      o = super.readable,
+      l = new TransformStream({
+        transform(e, t) {
+          e && e.length && (a += e.length, t.enqueue(e));
+        },
+        flush() {
+          const {
+            signature: e
+          } = s;
+          Object.assign(n, {
+            signature: e,
+            size: a
+          });
+        }
+      });
+    Object.defineProperty(n, "readable", {
+      get: () => o.pipeThrough(s).pipeThrough(l)
+    });
+  }
+}
+const mt = typeof Worker != J;
+class gt {
+  constructor(e, {
+    readable: t,
+    writable: n
+  }, {
+    options: i,
+    config: r,
+    streamOptions: a,
+    useWebWorkers: s,
+    transferStreams: o,
+    scripts: l
+  }, c) {
+    const {
+      signal: u
+    } = a;
+    return Object.assign(e, {
+      busy: !0,
+      readable: t.pipeThrough(new yt(t, a, r), {
+        signal: u
+      }),
+      writable: n,
+      options: Object.assign({}, i),
+      scripts: l,
+      transferStreams: o,
+      terminate() {
+        const {
+          worker: t,
+          busy: n
+        } = e;
+        t && !n && (t.terminate(), e.interface = null);
+      },
+      onTaskFinished() {
+        e.busy = !1, c(e);
+      }
+    }), (s && mt ? vt : kt)(e, r);
+  }
+}
+class yt extends TransformStream {
+  constructor(e, {
+    onstart: t,
+    onprogress: n,
+    size: i,
+    onend: r
+  }, {
+    chunkSize: a
+  }) {
+    let s = 0;
+    super({
+      start() {
+        t && xt(t, i);
+      },
+      async transform(e, t) {
+        s += e.length, n && (await xt(n, s, i)), t.enqueue(e);
+      },
+      flush() {
+        e.size = s, r && xt(r, s);
+      }
+    }, {
+      highWaterMark: 1,
+      size: () => a
+    });
+  }
+}
+async function xt(e, ...t) {
+  try {
+    await e(...t);
+  } catch (e) {}
+}
+function kt(e, t) {
+  return {
+    run: () => async function ({
+      options: e,
+      readable: t,
+      writable: n,
+      onTaskFinished: i
+    }, r) {
+      const a = new pt(e, r);
+      try {
+        await t.pipeThrough(a).pipeTo(n, {
+          preventClose: !0,
+          preventAbort: !0
+        });
+        const {
+          signature: e,
+          size: i
+        } = a;
+        return {
+          signature: e,
+          size: i
+        };
+      } finally {
+        i();
+      }
+    }(e, t)
+  };
+}
+function vt(e, {
+  baseURL: t,
+  chunkSize: n
+}) {
+  return e.interface || Object.assign(e, {
+    worker: At(e.scripts[0], t, e),
+    interface: {
+      run: () => async function (e, t) {
+        let n, i;
+        const r = new Promise((e, t) => {
+          n = e, i = t;
+        });
+        Object.assign(e, {
+          reader: null,
+          writer: null,
+          resolveResult: n,
+          rejectResult: i,
+          result: r
+        });
+        const {
+            readable: a,
+            options: s,
+            scripts: o
+          } = e,
+          {
+            writable: l,
+            closed: c
+          } = function (e) {
+            const t = e.getWriter();
+            let n;
+            const i = new Promise(e => n = e),
+              r = new WritableStream({
+                async write(e) {
+                  await t.ready, await t.write(e);
+                },
+                close() {
+                  t.releaseLock(), n();
+                },
+                abort: e => t.abort(e)
+              });
+            return {
+              writable: r,
+              closed: i
+            };
+          }(e.writable),
+          u = Ut({
+            type: dt,
+            scripts: o.slice(1),
+            options: s,
+            config: t,
+            readable: a,
+            writable: l
+          }, e);
+        u || Object.assign(e, {
+          reader: a.getReader(),
+          writer: l.getWriter()
+        });
+        const d = await r;
+        try {
+          await l.getWriter().close();
+        } catch (e) {}
+        return await c, d;
+      }(e, {
+        chunkSize: n
+      })
+    }
+  }), e.interface;
+}
+let St = !0,
+  zt = !0;
+function At(e, t, n) {
+  const i = {
+    type: "module"
+  };
+  let r, a;
+  typeof e == Q && (e = e());
+  try {
+    r = new URL(e, t);
+  } catch (t) {
+    r = e;
+  }
+  if (St) try {
+    a = new Worker(r);
+  } catch (e) {
+    St = !1, a = new Worker(r, i);
+  } else a = new Worker(r, i);
+  return a.addEventListener(ut, e => async function ({
+    data: e
+  }, t) {
+    const {
+        type: n,
+        value: i,
+        messageId: r,
+        result: a,
+        error: s
+      } = e,
+      {
+        reader: o,
+        writer: l,
+        resolveResult: c,
+        rejectResult: u,
+        onTaskFinished: d
+      } = t;
+    try {
+      if (s) {
+        const {
+            message: e,
+            stack: t,
+            code: n,
+            name: i
+          } = s,
+          r = new Error(e);
+        Object.assign(r, {
+          stack: t,
+          code: n,
+          name: i
+        }), f(r);
+      } else {
+        if (n == ft) {
+          const {
+            value: e,
+            done: n
+          } = await o.read();
+          Ut({
+            type: ht,
+            value: e,
+            done: n,
+            messageId: r
+          }, t);
+        }
+        n == ht && (await l.ready, await l.write(new Uint8Array(i)), Ut({
+          type: _t,
+          messageId: r
+        }, t)), n == wt && f(null, a);
+      }
+    } catch (s) {
+      f(s);
+    }
+    function f(e, t) {
+      e ? u(e) : c(t), l && l.releaseLock(), d();
+    }
+  }(e, n)), a;
+}
+function Ut(e, {
+  worker: t,
+  writer: n,
+  onTaskFinished: i,
+  transferStreams: r
+}) {
+  try {
+    let {
+      value: n,
+      readable: i,
+      writable: a
+    } = e;
+    const s = [];
+    if (n && (e.value = n.buffer, s.push(e.value)), r && zt ? (i && s.push(i), a && s.push(a)) : e.readable = e.writable = null, s.length) try {
+      return t.postMessage(e, s), !0;
+    } catch (n) {
+      zt = !1, e.readable = e.writable = null, t.postMessage(e);
+    } else t.postMessage(e);
+  } catch (e) {
+    throw n && n.releaseLock(), i(), e;
+  }
+}
+let Dt = [];
+const Et = [];
+let Ft = 0;
+function Ot(e) {
+  const {
+    terminateTimeout: t
+  } = e;
+  t && (clearTimeout(t), e.terminateTimeout = null);
+}
+const Tt = 65536,
+  Wt = "writable";
+class Ct {
+  constructor() {
+    this.size = 0;
+  }
+  init() {
+    this.initialized = !0;
+  }
+}
+class jt extends Ct {
+  get readable() {
+    const e = this,
+      {
+        chunkSize: t = Tt
+      } = e,
+      n = new ReadableStream({
+        start() {
+          this.chunkOffset = 0;
+        },
+        async pull(i) {
+          const {
+              offset: r = 0,
+              size: a,
+              diskNumberStart: s
+            } = n,
+            {
+              chunkOffset: o
+            } = this;
+          i.enqueue(await Vt(e, r + o, Math.min(t, a - o), s)), o + t > a ? i.close() : this.chunkOffset += t;
+        }
+      });
+    return n;
+  }
+}
+class Mt extends jt {
+  constructor(e) {
+    super(), Object.assign(this, {
+      blob: e,
+      size: e.size
+    });
+  }
+  async readUint8Array(e, t) {
+    const n = this,
+      i = e + t,
+      r = e || i < n.size ? n.blob.slice(e, i) : n.blob;
+    let a = await r.arrayBuffer();
+    return a.byteLength > t && (a = a.slice(e, i)), new Uint8Array(a);
+  }
+}
+class Lt extends Ct {
+  constructor(e) {
+    super();
+    const t = new TransformStream(),
+      n = [];
+    e && n.push(["Content-Type", e]), Object.defineProperty(this, Wt, {
+      get: () => t.writable
+    }), this.blob = new Response(t.readable, {
+      headers: n
+    }).blob();
+  }
+  getData() {
+    return this.blob;
+  }
+}
+class Pt extends Lt {
+  constructor(e) {
+    super(e), Object.assign(this, {
+      encoding: e,
+      utf8: !e || "utf-8" == e.toLowerCase()
+    });
+  }
+  async getData() {
+    const {
+        encoding: e,
+        utf8: t
+      } = this,
+      n = await super.getData();
+    if (n.text && t) return n.text();
+    {
+      const t = new FileReader();
+      return new Promise((i, r) => {
+        Object.assign(t, {
+          onload: ({
+            target: e
+          }) => i(e.result),
+          onerror: () => r(t.error)
+        }), t.readAsText(n, e);
+      });
+    }
+  }
+}
+class Rt extends jt {
+  constructor(e) {
+    super(), this.readers = e;
+  }
+  async init() {
+    const e = this,
+      {
+        readers: t
+      } = e;
+    e.lastDiskNumber = 0, e.lastDiskOffset = 0, await Promise.all(t.map(async (n, i) => {
+      await n.init(), i != t.length - 1 && (e.lastDiskOffset += n.size), e.size += n.size;
+    })), super.init();
+  }
+  async readUint8Array(e, t, n = 0) {
+    const i = this,
+      {
+        readers: r
+      } = this;
+    let a,
+      s = n;
+    -1 == s && (s = r.length - 1);
+    let o = e;
+    for (; o >= r[s].size;) o -= r[s].size, s++;
+    const l = r[s],
+      c = l.size;
+    if (o + t <= c) a = await Vt(l, o, t);else {
+      const r = c - o;
+      a = new Uint8Array(t), a.set(await Vt(l, o, r)), a.set(await i.readUint8Array(e + r, t - r, n), r);
+    }
+    return i.lastDiskNumber = Math.max(s, i.lastDiskNumber), a;
+  }
+}
+class Bt extends Ct {
+  constructor(e, t = 4294967295) {
+    super();
+    const n = this;
+    let i, r, a;
+    Object.assign(n, {
+      diskNumber: 0,
+      diskOffset: 0,
+      size: 0,
+      maxSize: t,
+      availableSize: t
+    });
+    const s = new WritableStream({
+      async write(t) {
+        const {
+          availableSize: s
+        } = n;
+        if (a) t.length >= s ? (await o(t.slice(0, s)), await l(), n.diskOffset += i.size, n.diskNumber++, a = null, await this.write(t.slice(s))) : await o(t);else {
+          const {
+            value: s,
+            done: o
+          } = await e.next();
+          if (o && !s) throw new Error("Writer iterator completed too soon");
+          i = s, i.size = 0, i.maxSize && (n.maxSize = i.maxSize), n.availableSize = n.maxSize, await It(i), r = s.writable, a = r.getWriter(), await this.write(t);
+        }
+      },
+      async close() {
+        await a.ready, await l();
+      }
+    });
+    async function o(e) {
+      const t = e.length;
+      t && (await a.ready, await a.write(e), i.size += t, n.size += t, n.availableSize -= t);
+    }
+    async function l() {
+      r.size = i.size, await a.close();
+    }
+    Object.defineProperty(n, Wt, {
+      get: () => s
+    });
+  }
+}
+async function It(e, t) {
+  e.init && !e.initialized && (await e.init(t));
+}
+function Nt(e) {
+  return Array.isArray(e) && (e = new Rt(e)), e instanceof ReadableStream && (e = {
+    readable: e
+  }), e;
+}
+function Vt(e, t, n, i) {
+  return e.readUint8Array(t, n, i);
+}
+const qt = "\\0☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\\"#\$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_\`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ".split(""),
+  Ht = 256 == qt.length;
+function Kt(e, t) {
+  return t && "cp437" == t.trim().toLowerCase() ? function (e) {
+    if (Ht) {
+      let t = "";
+      for (let n = 0; n < e.length; n++) t += qt[e[n]];
+      return t;
+    }
+    return new TextDecoder().decode(e);
+  }(e) : new TextDecoder(t).decode(e);
+}
+const Zt = "filename",
+  Gt = "rawFilename",
+  Jt = "comment",
+  Qt = "rawComment",
+  Xt = "uncompressedSize",
+  Yt = "compressedSize",
+  \$t = "offset",
+  en = "diskNumberStart",
+  tn = "lastModDate",
+  nn = "rawLastModDate",
+  rn = "lastAccessDate",
+  an = "rawLastAccessDate",
+  sn = "creationDate",
+  on = "rawCreationDate",
+  ln = [Zt, Gt, Yt, Xt, tn, nn, Jt, Qt, rn, sn, \$t, en, en, "internalFileAttribute", "externalFileAttribute", "msDosCompatible", "zip64", "directory", "bitFlag", "encrypted", "signature", "filenameUTF8", "commentUTF8", "compressionMethod", "version", "versionMadeBy", "extraField", "rawExtraField", "extraFieldZip64", "extraFieldUnicodePath", "extraFieldUnicodeComment", "extraFieldAES", "extraFieldNTFS", "extraFieldExtendedTimestamp"];
+class cn {
+  constructor(e) {
+    ln.forEach(t => this[t] = e[t]);
+  }
+}
+const un = "File format is not recognized",
+  dn = "Zip64 extra field not found",
+  fn = "Compression method not supported",
+  hn = "Split zip file",
+  _n = "utf-8",
+  wn = "cp437",
+  bn = [[Xt, V], [Yt, V], [\$t, V], [en, q]],
+  pn = {
+    [q]: {
+      getValue: Dn,
+      bytes: 4
+    },
+    [V]: {
+      getValue: En,
+      bytes: 8
+    }
+  };
+class mn {
+  constructor(e, t = {}) {
+    Object.assign(this, {
+      reader: Nt(e),
+      options: t,
+      config: ee
+    });
+  }
+  async *getEntriesGenerator(e = {}) {
+    const t = this;
+    let {
+      reader: n
+    } = t;
+    const {
+      config: i
+    } = t;
+    if (await It(n), n.size !== G && n.readUint8Array || (n = new Mt(await new Response(n.readable).blob()), await It(n)), n.size < 22) throw new Error(un);
+    n.chunkSize = function (e) {
+      return Math.max(e.chunkSize, 64);
+    }(i);
+    const r = await async function (e, t, n, i, r) {
+      const a = new Uint8Array(4);
+      !function (e, t, n) {
+        e.setUint32(t, n, !0);
+      }(Fn(a), 0, t);
+      const s = i + r;
+      return (await o(i)) || (await o(Math.min(s, n)));
+      async function o(t) {
+        const r = n - t,
+          s = await Vt(e, r, t);
+        for (let e = s.length - i; e >= 0; e--) if (s[e] == a[0] && s[e + 1] == a[1] && s[e + 2] == a[2] && s[e + 3] == a[3]) return {
+          offset: r + e,
+          buffer: s.slice(e, e + i).buffer
+        };
+      }
+    }(n, 101010256, n.size, 22, 1048560);
+    if (!r) {
+      throw 134695760 == Dn(Fn(await Vt(n, 0, 4))) ? new Error(hn) : new Error("End of central directory not found");
+    }
+    const a = Fn(r);
+    let s = Dn(a, 12),
+      o = Dn(a, 16);
+    const l = r.offset,
+      c = Un(a, 20),
+      u = l + 22 + c;
+    let d = Un(a, 4);
+    const f = n.lastDiskNumber || 0;
+    let h = Un(a, 6),
+      _ = Un(a, 8),
+      w = 0,
+      b = 0;
+    if (o == V || s == V || _ == q || h == q) {
+      const e = Fn(await Vt(n, r.offset - 20, 20));
+      if (117853008 != Dn(e, 0)) throw new Error("End of Zip64 central directory not found");
+      o = En(e, 8);
+      let t = await Vt(n, o, 56, -1),
+        i = Fn(t);
+      const a = r.offset - 20 - 56;
+      if (Dn(i, 0) != K && o != a) {
+        const e = o;
+        o = a, w = o - e, t = await Vt(n, o, 56, -1), i = Fn(t);
+      }
+      if (Dn(i, 0) != K) throw new Error("End of Zip64 central directory locator not found");
+      d == q && (d = Dn(i, 16)), h == q && (h = Dn(i, 20)), _ == q && (_ = En(i, 32)), s == V && (s = En(i, 40)), o -= s;
+    }
+    if (f != d) throw new Error(hn);
+    if (o < 0 || o >= n.size) throw new Error(un);
+    let p = 0,
+      m = await Vt(n, o, s, h),
+      g = Fn(m);
+    if (s) {
+      const e = r.offset - s;
+      if (Dn(g, p) != H && o != e) {
+        const t = o;
+        o = e, w = o - t, m = await Vt(n, o, s, h), g = Fn(m);
+      }
+    }
+    const y = r.offset - o - (n.lastDiskOffset || 0);
+    if (s != y && y >= 0 && (s = y, m = await Vt(n, o, s, h), g = Fn(m)), o < 0 || o >= n.size) throw new Error(un);
+    const x = vn(t, e, "filenameEncoding"),
+      k = vn(t, e, "commentEncoding");
+    for (let r = 0; r < _; r++) {
+      const a = new gn(n, i, t.options);
+      if (Dn(g, p) != H) throw new Error("Central directory header not found");
+      yn(a, g, p + 6);
+      const s = Boolean(a.bitFlag.languageEncodingFlag),
+        o = p + 46,
+        l = o + a.filenameLength,
+        c = l + a.extraFieldLength,
+        u = Un(g, p + 4),
+        d = 0 == (0 & u),
+        f = m.subarray(o, l),
+        h = Un(g, p + 32),
+        y = c + h,
+        v = m.subarray(c, y),
+        S = s,
+        z = s,
+        A = d && 16 == (16 & An(g, p + 38)),
+        U = Dn(g, p + 42) + w;
+      Object.assign(a, {
+        versionMadeBy: u,
+        msDosCompatible: d,
+        compressedSize: 0,
+        uncompressedSize: 0,
+        commentLength: h,
+        directory: A,
+        offset: U,
+        diskNumberStart: Un(g, p + 34),
+        internalFileAttribute: Un(g, p + 36),
+        externalFileAttribute: Dn(g, p + 38),
+        rawFilename: f,
+        filenameUTF8: S,
+        commentUTF8: z,
+        rawExtraField: m.subarray(l, c)
+      });
+      const [D, E] = await Promise.all([Kt(f, S ? _n : x || wn), Kt(v, z ? _n : k || wn)]);
+      Object.assign(a, {
+        rawComment: v,
+        filename: D,
+        comment: E,
+        directory: A || D.endsWith("/")
+      }), b = Math.max(U, b), await xn(a, a, g, p + 6);
+      const F = new cn(a);
+      F.getData = (e, t) => a.getData(e, F, t), p = y;
+      const {
+        onprogress: O
+      } = e;
+      if (O) try {
+        await O(r + 1, _, new cn(a));
+      } catch (e) {}
+      yield F;
+    }
+    const v = vn(t, e, "extractPrependedData"),
+      S = vn(t, e, "extractAppendedData");
+    return v && (t.prependedData = b > 0 ? await Vt(n, 0, b) : new Uint8Array()), t.comment = c ? await Vt(n, l + 22, c) : new Uint8Array(), S && (t.appendedData = u < n.size ? await Vt(n, u, n.size - u) : new Uint8Array()), !0;
+  }
+  async getEntries(e = {}) {
+    const t = [];
+    for await (const n of this.getEntriesGenerator(e)) t.push(n);
+    return t;
+  }
+  async close() {}
+}
+class gn {
+  constructor(e, t, n) {
+    Object.assign(this, {
+      reader: e,
+      config: t,
+      options: n
+    });
+  }
+  async getData(e, t, n = {}) {
+    const i = this,
+      {
+        reader: r,
+        offset: a,
+        diskNumberStart: s,
+        extraFieldAES: o,
+        compressionMethod: l,
+        config: c,
+        bitFlag: u,
+        signature: d,
+        rawLastModDate: f,
+        uncompressedSize: h,
+        compressedSize: _
+      } = i,
+      w = t.localDirectory = {},
+      b = Fn(await Vt(r, a, 30, s));
+    let p = vn(i, n, "password");
+    if (p = p && p.length && p, o && 99 != o.originalCompressionMethod) throw new Error(fn);
+    if (0 != l && 8 != l) throw new Error(fn);
+    if (67324752 != Dn(b, 0)) throw new Error("Local file header not found");
+    yn(w, b, 4), w.rawExtraField = w.extraFieldLength ? await Vt(r, a + 30 + w.filenameLength, w.extraFieldLength, s) : new Uint8Array(), await xn(i, w, b, 4, !0), Object.assign(t, {
+      lastAccessDate: w.lastAccessDate,
+      creationDate: w.creationDate
+    });
+    const m = i.encrypted && w.encrypted,
+      g = m && !o;
+    if (m) {
+      if (!g && o.strength === G) throw new Error("Encryption method not supported");
+      if (!p) throw new Error("File contains encrypted entry");
+    }
+    const y = a + 30 + w.filenameLength + w.extraFieldLength,
+      x = _,
+      k = r.readable;
+    Object.assign(k, {
+      diskNumberStart: s,
+      offset: y,
+      size: x
+    });
+    const v = vn(i, n, "signal"),
+      S = vn(i, n, "checkPasswordOnly");
+    S && (e = new WritableStream()), e = function (e) {
+      e.writable === G && typeof e.next == Q && (e = new Bt(e)), e instanceof WritableStream && (e = {
+        writable: e
+      });
+      const {
+        writable: t
+      } = e;
+      return t.size === G && (t.size = 0), e instanceof Bt || Object.assign(e, {
+        diskNumber: 0,
+        diskOffset: 0,
+        availableSize: 1 / 0,
+        maxSize: 1 / 0
+      }), e;
+    }(e), await It(e, h);
+    const {
+        writable: z
+      } = e,
+      {
+        onstart: A,
+        onprogress: U,
+        onend: D
+      } = n,
+      E = {
+        options: {
+          codecType: bt,
+          password: p,
+          zipCrypto: g,
+          encryptionStrength: o && o.strength,
+          signed: vn(i, n, "checkSignature"),
+          passwordVerification: g && (u.dataDescriptor ? f >>> 8 & 255 : d >>> 24 & 255),
+          signature: d,
+          compressed: 0 != l,
+          encrypted: m,
+          useWebWorkers: vn(i, n, "useWebWorkers"),
+          useCompressionStream: vn(i, n, "useCompressionStream"),
+          transferStreams: vn(i, n, "transferStreams"),
+          checkPasswordOnly: S
+        },
+        config: c,
+        streamOptions: {
+          signal: v,
+          size: x,
+          onstart: A,
+          onprogress: U,
+          onend: D
+        }
+      };
+    let F = 0;
+    try {
+      ({
+        outputSize: F
+      } = await async function (e, t) {
+        const {
+            options: n,
+            config: i
+          } = t,
+          {
+            transferStreams: r,
+            useWebWorkers: a,
+            useCompressionStream: s,
+            codecType: o,
+            compressed: l,
+            signed: c,
+            encrypted: u
+          } = n,
+          {
+            workerScripts: d,
+            maxWorkers: f,
+            terminateWorkerTimeout: h
+          } = i;
+        t.transferStreams = r || r === G;
+        const _ = !(l || c || u || t.transferStreams);
+        let w;
+        t.useWebWorkers = !_ && (a || a === G && i.useWebWorkers), t.scripts = t.useWebWorkers && d ? d[o] : [], n.useCompressionStream = s || s === G && i.useCompressionStream;
+        const b = Dt.find(e => !e.busy);
+        if (b) Ot(b), w = new gt(b, e, t, p);else if (Dt.length < f) {
+          const n = {
+            indexWorker: Ft
+          };
+          Ft++, Dt.push(n), w = new gt(n, e, t, p);
+        } else w = await new Promise(n => Et.push({
+          resolve: n,
+          stream: e,
+          workerOptions: t
+        }));
+        return w.run();
+        function p(e) {
+          if (Et.length) {
+            const [{
+              resolve: t,
+              stream: n,
+              workerOptions: i
+            }] = Et.splice(0, 1);
+            t(new gt(e, n, i, p));
+          } else e.worker ? (Ot(e), Number.isFinite(h) && h >= 0 && (e.terminateTimeout = setTimeout(() => {
+            Dt = Dt.filter(t => t != e), e.terminate();
+          }, h))) : Dt = Dt.filter(t => t != e);
+        }
+      }({
+        readable: k,
+        writable: z
+      }, E));
+    } catch (e) {
+      if (!S || e.message != be) throw e;
+    } finally {
+      const e = vn(i, n, "preventClose");
+      z.size += F, e || z.locked || (await z.getWriter().close());
+    }
+    return S ? void 0 : e.getData ? e.getData() : z;
+  }
+}
+function yn(e, t, n) {
+  const i = e.rawBitFlag = Un(t, n + 2),
+    r = 1 == (1 & i),
+    a = Dn(t, n + 6);
+  Object.assign(e, {
+    encrypted: r,
+    version: Un(t, n),
+    bitFlag: {
+      level: (6 & i) >> 1,
+      dataDescriptor: 8 == (8 & i),
+      languageEncodingFlag: 2048 == (2048 & i)
+    },
+    rawLastModDate: a,
+    lastModDate: Sn(a),
+    filenameLength: Un(t, n + 22),
+    extraFieldLength: Un(t, n + 24)
+  });
+}
+async function xn(e, t, n, i, r) {
+  const {
+      rawExtraField: a
+    } = t,
+    s = t.extraField = new Map(),
+    o = Fn(new Uint8Array(a));
+  let l = 0;
+  try {
+    for (; l < a.length;) {
+      const e = Un(o, l),
+        t = Un(o, l + 2);
+      s.set(e, {
+        type: e,
+        data: a.slice(l + 4, l + 4 + t)
+      }), l += 4 + t;
+    }
+  } catch (e) {}
+  const c = Un(n, i + 4);
+  Object.assign(t, {
+    signature: Dn(n, i + 10),
+    uncompressedSize: Dn(n, i + 18),
+    compressedSize: Dn(n, i + 14)
+  });
+  const u = s.get(1);
+  u && (!function (e, t) {
+    t.zip64 = !0;
+    const n = Fn(e.data),
+      i = bn.filter(([e, n]) => t[e] == n);
+    for (let r = 0, a = 0; r < i.length; r++) {
+      const [s, o] = i[r];
+      if (t[s] == o) {
+        const i = pn[o];
+        t[s] = e[s] = i.getValue(n, a), a += i.bytes;
+      } else if (e[s]) throw new Error(dn);
+    }
+  }(u, t), t.extraFieldZip64 = u);
+  const d = s.get(28789);
+  d && (await kn(d, Zt, Gt, t, e), t.extraFieldUnicodePath = d);
+  const f = s.get(25461);
+  f && (await kn(f, Jt, Qt, t, e), t.extraFieldUnicodeComment = f);
+  const h = s.get(39169);
+  h ? (!function (e, t, n) {
+    const i = Fn(e.data),
+      r = An(i, 4);
+    Object.assign(e, {
+      vendorVersion: An(i, 0),
+      vendorId: An(i, 2),
+      strength: r,
+      originalCompressionMethod: n,
+      compressionMethod: Un(i, 5)
+    }), t.compressionMethod = e.compressionMethod;
+  }(h, t, c), t.extraFieldAES = h) : t.compressionMethod = c;
+  const _ = s.get(10);
+  _ && (!function (e, t) {
+    const n = Fn(e.data);
+    let i,
+      r = 4;
+    try {
+      for (; r < e.data.length && !i;) {
+        const t = Un(n, r),
+          a = Un(n, r + 2);
+        t == Z && (i = e.data.slice(r + 4, r + 4 + a)), r += 4 + a;
+      }
+    } catch (e) {}
+    try {
+      if (i && 24 == i.length) {
+        const n = Fn(i),
+          r = n.getBigUint64(0, !0),
+          a = n.getBigUint64(8, !0),
+          s = n.getBigUint64(16, !0);
+        Object.assign(e, {
+          rawLastModDate: r,
+          rawLastAccessDate: a,
+          rawCreationDate: s
+        });
+        const o = zn(r),
+          l = zn(a),
+          c = {
+            lastModDate: o,
+            lastAccessDate: l,
+            creationDate: zn(s)
+          };
+        Object.assign(e, c), Object.assign(t, c);
+      }
+    } catch (e) {}
+  }(_, t), t.extraFieldNTFS = _);
+  const w = s.get(21589);
+  w && (!function (e, t, n) {
+    const i = Fn(e.data),
+      r = An(i, 0),
+      a = [],
+      s = [];
+    n ? (1 == (1 & r) && (a.push(tn), s.push(nn)), 2 == (2 & r) && (a.push(rn), s.push(an)), 4 == (4 & r) && (a.push(sn), s.push(on))) : e.data.length >= 5 && (a.push(tn), s.push(nn));
+    let o = 1;
+    a.forEach((n, r) => {
+      if (e.data.length >= o + 4) {
+        const a = Dn(i, o);
+        t[n] = e[n] = new Date(1e3 * a);
+        const l = s[r];
+        e[l] = a;
+      }
+      o += 4;
+    });
+  }(w, t, r), t.extraFieldExtendedTimestamp = w);
+  const b = s.get(6534);
+  b && (t.extraFieldUSDZ = b);
+}
+async function kn(e, t, n, i, r) {
+  const a = Fn(e.data),
+    s = new re();
+  s.append(r[n]);
+  const o = Fn(new Uint8Array(4));
+  o.setUint32(0, s.get(), !0);
+  const l = Dn(a, 1);
+  Object.assign(e, {
+    version: An(a, 0),
+    [t]: Kt(e.data.subarray(5)),
+    valid: !r.bitFlag.languageEncodingFlag && l == Dn(o, 0)
+  }), e.valid && (i[t] = e[t], i[t + "UTF8"] = !0);
+}
+function vn(e, t, n) {
+  return t[n] === G ? e.options[n] : t[n];
+}
+function Sn(e) {
+  const t = (4294901760 & e) >> 16,
+    n = 65535 & e;
+  try {
+    return new Date(1980 + ((65024 & t) >> 9), ((480 & t) >> 5) - 1, 31 & t, (63488 & n) >> 11, (2016 & n) >> 5, 2 * (31 & n), 0);
+  } catch (e) {}
+}
+function zn(e) {
+  return new Date(Number(e / BigInt(1e4) - BigInt(116444736e5)));
+}
+function An(e, t) {
+  return e.getUint8(t);
+}
+function Un(e, t) {
+  return e.getUint16(t, !0);
+}
+function Dn(e, t) {
+  return e.getUint32(t, !0);
+}
+function En(e, t) {
+  return Number(e.getBigUint64(t, !0));
+}
+function Fn(e) {
+  return new DataView(e.buffer);
+}
+te({
+  Inflate: function (n) {
+    const i = new N(),
+      r = n && n.chunkSize ? Math.floor(2 * n.chunkSize) : 131072,
+      s = new Uint8Array(r);
+    let o = !1;
+    i.inflateInit(), i.next_out = s, this.append = function (n, l) {
+      const c = [];
+      let u,
+        d,
+        f = 0,
+        h = 0,
+        _ = 0;
+      if (0 !== n.length) {
+        i.next_in_index = 0, i.next_in = n, i.avail_in = n.length;
+        do {
+          if (i.next_out_index = 0, i.avail_out = r, 0 !== i.avail_in || o || (i.next_in_index = 0, o = !0), u = i.inflate(0), o && u === zip_a) {
+            if (0 !== i.avail_in) throw new Error("inflating: bad input");
+          } else if (u !== zip_e && u !== zip_t) throw new Error("inflating: " + i.msg);
+          if ((o || u === zip_t) && i.avail_in === n.length) throw new Error("inflating: bad input");
+          i.next_out_index && (i.next_out_index === r ? c.push(new Uint8Array(s)) : c.push(s.subarray(0, i.next_out_index))), _ += i.next_out_index, l && i.next_in_index > 0 && i.next_in_index != f && (l(i.next_in_index), f = i.next_in_index);
+        } while (i.avail_in > 0 || 0 === i.avail_out);
+        return c.length > 1 ? (d = new Uint8Array(_), c.forEach(function (e) {
+          d.set(e, h), h += e.length;
+        })) : d = c[0] ? new Uint8Array(c[0]) : new Uint8Array(), d;
+      }
+    }, this.flush = function () {
+      i.inflateEnd();
+    };
+  }
+});
+
+;// CONCATENATED MODULE: ./main.js
+
+
+
+
+
+
+
+
+
+
+
+const format = {};
+format.loc = (a, b) => \`\${a} of \${b}\`;
+format.page = (a, b) => b ? \`Page \${a} of \${b}\` : \`Page \${a}\`;
+const emit = e => {
+  window.ReactNativeWebView.postMessage(JSON.stringify(e));
+};
+const main_debounce = (f, wait, immediate) => {
+  let timeout;
+  return (...args) => {
+    const later = () => {
+      timeout = null;
+      if (!immediate) f(...args);
+    };
+    const callNow = immediate && !timeout;
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) f(...args);
+  };
+};
+const makeZipLoader = async file => {
+  try {
+    te({
+      useWebWorkers: false
+    });
+    const reader = new mn(new Mt(file));
+    const entries = await reader.getEntries();
+    const map = new Map(entries.map(entry => [entry.filename, entry]));
+    const load = f => (name, ...args) => map.has(name) ? f(map.get(name), ...args) : null;
+    const loadText = load(entry => entry.getData(new Pt()));
+    const loadBlob = load((entry, type) => entry.getData(new Lt(type)));
+    const getSize = name => map.get(name)?.uncompressedSize ?? 0;
+    return {
+      entries,
+      loadText,
+      loadBlob,
+      getSize
+    };
+  } catch (err) {
+    debug("[makeZipLoader] " + err);
+  }
+};
+const blobToBase64 = blob => new Promise(resolve => {
+  const reader = new FileReader();
+  reader.readAsDataURL(blob);
+  reader.onloadend = () => resolve(reader.result.split(",")[1]);
+});
+const getCSS = ({
+  lineHeight,
+  justify,
+  hyphenate,
+  theme,
+  fontSize
+}) => \`
+@namespace epub "http://www.idpf.org/2007/ops";
+@media print {
+    html {
+        column-width: auto !important;
+        height: auto !important;
+        width: auto !important;
+    }
+}
+html, body {
+  background: none !important;
+  color: \${theme.fg};
+  font-size: \${fontSize}%;
+}
+body *{
+  background-color: \${theme.bg} !important;
+  color: inherit !important;
+}
+html, body, p, li, blockquote, dd {
+    line-height: \${lineHeight};
+    text-align: \${justify ? "justify" : "start"};
+    -webkit-hyphens: \${hyphenate ? "auto" : "manual"};
+    hyphens: \${hyphenate ? "auto" : "manual"};
+    -webkit-hyphenate-limit-before: 3;
+    -webkit-hyphenate-limit-after: 2;
+    -webkit-hyphenate-limit-lines: 2;
+    hanging-punctuation: allow-end last;
+    widows: 2;
+}
+/* prevent the above from overriding the align attribute */
+[align="left"] { text-align: left; }
+[align="right"] { text-align: right; }
+[align="center"] { text-align: center; }
+[align="justify"] { text-align: justify; }
+
+pre {
+    white-space: pre-wrap !important;
+}
+aside[epub|type~="endnote"],
+aside[epub|type~="footnote"],
+aside[epub|type~="note"],
+aside[epub|type~="rearnote"] {
+    display: none;
+}
+\`;
+/**
+ *
+ * @param {Blob} file
+ * @returns {boolean}
+ */
+const isZip = async file => {
+  const arr = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  return arr[0] === 0x50 && arr[1] === 0x4b && arr[2] === 0x03 && arr[3] === 0x04;
+};
+const isPDF = async file => {
+  const arr = new Uint8Array(await file.slice(0, 5).arrayBuffer());
+  return arr[0] === 0x25 && arr[1] === 0x50 && arr[2] === 0x44 && arr[3] === 0x46 && arr[4] === 0x2d;
+};
+const isCBZ = ({
+  name,
+  type
+}) => type === "application/vnd.comicbook+zip" || name.endsWith(".cbz");
+const isFB2 = ({
+  name,
+  type
+}) => type === "application/x-fictionbook+xml" || name.endsWith(".fb2");
+const isFBZ = ({
+  name,
+  type
+}) => type === "application/x-zip-compressed-fb2" || name.endsWith(".fb2.zip") || name.endsWith(".fbz");
+const getBook = async file => {
+  if (!file.size) {
+    emit({
+      type: "onDisplayError",
+      reason: "book-error-not-found"
+    });
+    debug("GETVIEW ERROR not founds");
+    return;
+  }
+  let book;
+  if (await isZip(file)) {
+    const loader = await makeZipLoader(file);
+    if (isCBZ(file)) {
+      debug("[GETVIEW] Making cbz");
+      book = makeComicBook(loader, file);
+    } else if (isFBZ(file)) {
+      debug("[GETVIEW] Making fbz");
+      const {
+        entries
+      } = loader;
+      const entry = entries.find(entry => entry.filename.endsWith(".fb2"));
+      const blob = await loader.loadBlob((entry ?? entries[0]).filename);
+      book = await makeFB2(blob);
+    } else {
+      debug("[GETVIEW] Making epub");
+      book = await new EPUB(loader).init();
+    }
+  } else if (await isPDF(file)) {
+    book = await makePDF(file);
+  } else {
+    if (await isMOBI(file)) {
+      debug("[GETVIEW] Making mobi");
+      book = await new MOBI({
+        unzlib: U
+      }).open(file);
+      debug("[GETVIEW] DONE MAKING MOBI");
+    } else if (isFB2(file)) {
+      debug("[GETVIEW] Making fb2");
+      book = await makeFB2(file);
+    }
+  }
+  if (!book) {
+    emit({
+      type: "onDisplayError",
+      reason: "unsupported-type"
+    });
+    debug("GETVIEW ERROR");
+    return;
+  }
+  return book;
+};
+const getSelectionRange = doc => {
+  const sel = doc.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  if (range.collapsed) return;
+  return range;
+};
+const frameRect = (frame, rect, sx = 1, sy = 1) => {
+  const left = sx * rect.left + frame.left;
+  const right = sx * rect.right + frame.left;
+  const top = sy * rect.top + frame.top;
+  const bottom = sy * rect.bottom + frame.top;
+  return {
+    left,
+    right,
+    top,
+    bottom
+  };
+};
+const pointIsInView = ({
+  x,
+  y
+}) => x > 0 && y > 0 && x < window.innerWidth && y < window.innerHeight;
+const getPosition = target => {
+  // TODO: vertical text
+  const frameElement = (target.getRootNode?.() ?? target?.endContainer?.getRootNode?.())?.defaultView?.frameElement;
+  const transform = frameElement ? getComputedStyle(frameElement).transform : "";
+  const match = transform.match(/matrix\\((.+)\\)/);
+  const [sx,,, sy] = match?.[1]?.split(/\\s*,\\s*/)?.map(x => parseFloat(x)) ?? [];
+  const frame = frameElement?.getBoundingClientRect() ?? {
+    top: 0,
+    left: 0
+  };
+  const rects = Array.from(target.getClientRects());
+  const first = frameRect(frame, rects[0], sx, sy);
+  const last = frameRect(frame, rects.at(-1), sx, sy);
+  const start = {
+    point: {
+      x: (first.left + first.right) / 2,
+      y: first.top
+    },
+    dir: "up"
+  };
+  const end = {
+    point: {
+      x: (last.left + last.right) / 2,
+      y: last.bottom
+    },
+    dir: "down"
+  };
+  const startInView = pointIsInView(start.point);
+  const endInView = pointIsInView(end.point);
+  if (!startInView && !endInView) return {
+    point: {
+      x: 0,
+      y: 0
+    }
+  };
+  if (!startInView) return end;
+  if (!endInView) return start;
+  return start.point.y > window.innerHeight - end.point.y ? start : end;
+};
+const main_getLang = el => {
+  const lang = el.lang || el?.getAttributeNS?.("http://www.w3.org/XML/1998/namespace", "lang");
+  if (lang) return lang;
+  if (el.parentElement) return main_getLang(el.parentElement);
+};
+
+/**
+ * playing state 
+ * location change 
+ * stop scrolling every word scroll only when at the end
+ * 
+ * 
+ */
+
+class Reader {
+  annotations = new Map();
+  annotationsByValue = new Map();
+  style = {};
+  isPdf;
+  isCBZ;
+  highlight_color = "yellow";
+  #prevLocation;
+  constructor(bookPath, initLocation) {
+    this.initLocation = initLocation;
+    this.path = bookPath
+    if (bookPath) {
+      this.getBookBlob(bookPath).catch(error => {
+        var err = new Error("Cannot load book at " + bookPath);
+        debug(\`[READER] ERROR \${JSON.stringify(err)} or \${error}\`);
+      });
+    }
+  }
+  init = async () => {
+    this.view = document.createElement("foliate-view");
+    this.pageTotal = this.book.pageList;
+    await this.view.open(this.book);
+    document.body.append(this.view);
+    this.#handleEvents();
+
+
+    if (!this.isPdf && !this.isCBZ) {
+      this.initLocation ? await this.view.goTo(this.initLocation) : this.view.renderer.next();
+    } else {
+      this.initLocation ? await this.view.goTo(Number(this.initLocation)) : this.view.renderer.next();
+    }
+    this.sectionFractions = this.view.getSectionFractions();
+    await this.getCover();
+    const onReadyPayload = {
+      metadata: this.book.metadata,
+      toc: this.book.toc,
+      sectionFractions: this.view.getSectionFractions()
+    };
+    emit({
+      type: "onReady",
+      book: onReadyPayload
+    });
+  };
+  setTheme = ({
+    style,
+    layout
+  }) => {
+    Object.assign(this.style, style);
+    const {
+      theme
+    } = style;
+    const \$style = document.documentElement.style;
+    \$style.setProperty("--bg", theme.bg);
+    \$style.setProperty("--fg", theme.fg);
+    const renderer = this.view?.renderer;
+    if (renderer) {
+      renderer.setAttribute("flow", layout.flow ? "scrolled" : "paginated");
+      renderer.setAttribute("gap", layout.gap * 100 + "%");
+      renderer.setAttribute("max-inline-size", layout.maxInlineSize + "px");
+      renderer.setAttribute("max-block-size", layout.maxBlockSize + "px");
+      renderer.setAttribute("max-column-count", layout.maxColumnCount);
+      renderer.setStyles?.(getCSS(this.style));
+    }
+    if (theme.name !== "light") {
+      \$style.setProperty("--mode", "screen");
+    } else {
+      \$style.setProperty("--mode", "multiply");
+    }
+  };
+  #handleEvents = () => {
+    this.view.addEventListener("relocate", e => {
+      if (this.#prevLocation === e.detail.fraction) return;
+      const {
+        heads,
+        feet
+      } = this.view.renderer;
+      if (heads) {
+        const {
+          tocItem
+        } = e.detail;
+        heads.at(-1).innerText = tocItem?.label ?? "";
+        if (heads.length > 1) heads[0].innerText = this.book.metadata.title;
+      }
+      if (feet) {
+        const {
+          pageItem,
+          location: {
+            current,
+            next,
+            total
+          }
+        } = e.detail;
+        if (pageItem) {
+          // only show page number at the end
+          // because we only have visible range for the spread,
+          // not each column
+          feet.at(-1).innerText = format.page(pageItem.label, this.pageTotal);
+          if (feet.length > 1) feet[0].innerText = format.loc(current + 1, total);
+        } else {
+          feet[0].innerText = format.loc(current + 1, total);
+          if (feet.length > 1) {
+            const r = 1 - 1 / feet.length;
+            const end = Math.floor((1 - r) * current + r * next);
+            feet.at(-1).innerText = format.loc(end + 1, total);
+          }
+        }
+      }
+      emit({
+        type: "onLocationChange",
+        ...e.detail
+      });
+      this.#prevLocation = e.detail.fraction;
+    });
+    this.view.addEventListener("create-overlay", e => {
+      const {
+        index
+      } = e.detail;
+      const list = this.annotations.get(index);
+      if (list) for (const annotation of list) this.view.addAnnotation(annotation);
+    });
+    this.view.addEventListener("show-annotation", e => {
+      const {
+        value,
+        index,
+        range
+      } = e.detail;
+      const pos = getPosition(range);
+      const ann = this.annotationsByValue.get(value);
+      if (ann) {
+        ann.range = range;
+        this.currentlySelected = ann;
+        emit({
+          type: "annotationClick",
+          index,
+          range,
+          value,
+          pos
+        });
+      }
+    });
+    this.view.addEventListener("draw-annotation", e => {
+      const {
+        draw,
+        annotation,
+        doc,
+        range
+      } = e.detail;
+      const {
+        color
+      } = annotation;
+      if (["underline", "squiggly", "strikethrough"].includes(color)) {
+        const {
+          defaultView
+        } = doc;
+        const node = range.startContainer;
+        const el = node.nodeType === 1 ? node : node.parentElement;
+        const {
+          writingMode
+        } = defaultView.getComputedStyle(el);
+        draw(Overlayer[color], {
+          writingMode,
+          color: this.highlight_color
+        });
+      } else {
+        draw(Overlayer.highlight, {
+          color: this.highlight_color
+        });
+      }
+    });
+    this.view.addEventListener("external-link", e => {
+      e.preventDefault();
+    });
+    this.view.addEventListener("load", e => this.#onLoad(e));
+
+    // if (!this.isPdf) {
+    //   this.view.renderer.addEventListener("next", this.showNext, {
+    //     passive: false,
+    //   });
+    //   this.view.renderer.addEventListener("previous", this.showPrevious, {
+    //     passive: false,
+    //   });
+    // }
+  };
+
+  /**
+   *
+   *
+   * @param {Object} e - The event object.
+   * @param {Object} e.detail - Details of the event.
+   * @param {Document} e.detail.doc - The document object.
+   * @param {number} e.detail.index - The index value.
+   */
+  #onLoad = e => {
+    const {
+      doc,
+      index
+    } = e.detail;
+    let isSelecting = false;
+    let startTime;
+    let touchStart;
+    doc.addEventListener("selectionchange", () => {
+      const range = getSelectionRange(doc);
+      if (!range) return;
+      isSelecting = true;
+      this.view.renderer.pause = true;
+      const pos = getPosition(range);
+      const value = this.view.getCFI(index, range);
+      const lang = main_getLang(range.commonAncestorContainer);
+      this.doc = doc;
+      this.currentlySelected = {
+        index,
+        range,
+        lang,
+        value,
+        pos,
+        created: new Date().toISOString(),
+        text: range.toString()
+      };
+    });
+    doc.addEventListener("touchstart", ev => {
+      startTime = new Date().getTime();
+      touchStart = {
+        x: ev.touches[0].screenX,
+        y: ev.touches[0].screenY
+      };
+      ev.preventDefault();
+    });
+    doc.addEventListener("touchend", ev => {
+      var duration = new Date().getTime() - startTime;
+      if (!isSelecting) {
+        emit({
+          type: "pressEvent",
+          touch: JSON.stringify({
+            x: ev.changedTouches[0].screenX,
+            y: ev.changedTouches[0].screenY
+          }),
+          isSelecting,
+          duration,
+          touchStart
+        });
+      }
+      this.view.renderer.pause = false;
+      isSelecting = false;
+      const range = getSelectionRange(doc);
+      if (!range) return;
+      const pos = getPosition(range);
+      const value = this.view.getCFI(index, range);
+      const lang = main_getLang(range.commonAncestorContainer);
+      this.doc = doc;
+      this.currentlySelected = {
+        index,
+        range,
+        lang,
+        value,
+        pos,
+        created: new Date().toISOString(),
+        text: range.toString()
+      };
+    });
+  };
+  onSelectedResponse = ({
+    action
+  }) => {
+    switch (action) {
+      case "highlight":
+      case "strikethrough":
+      case "squiggly":
+      case "underline":
+        this.addAnnotation(action);
+        break;
+      case "copy":
+        const value = this.currentlySelected.range.toString();
+        emit({
+          type: "copyAction",
+          value
+        });
+        break;
+      default:
+        break;
+    }
+  };
+  addAnnotation = method => {
+    if (!this.currentlySelected) return;
+    this.view.addAnnotation({
+      value: this.currentlySelected.value,
+      color: method ? method : this.highlight_color
+    }, false);
+    this.currentlySelected.color = method ? method : this.highlight_color;
+    this.annotationsByValue.set(this.currentlySelected.value, this.currentlySelected);
+    emit({
+      type: "newAnnotation",
+      annotation: this.currentlySelected
+    });
+    this.currentlySelected = null;
+    this.doc?.getSelection().removeAllRanges();
+    return true;
+  };
+  setAnnotations = annotations => {
+    annotations.forEach(ann => {
+      this.view.addAnnotation(ann);
+      const list = this.annotations.get(ann.index);
+      if (list) list.push(ann);else this.annotations.set(ann.index, [ann]);
+      this.annotationsByValue.set(ann.value, ann);
+    });
+  };
+  speakFromHere = () => {};
+  startTTS = () => {};
+  resumeTTS = () => {};
+  nextTTS = () => {};
+  showNext = ev => {
+    const nextLabel = null;
+    emit({
+      type: "showNext",
+      show: ev.detail.show,
+      label: nextLabel
+    });
+  };
+  showPrevious = ev => {
+    const prevLabel = null;
+    emit({
+      type: "showPrevious",
+      show: ev.detail.show,
+      label: prevLabel
+    });
+  };
+  async getCover() {
+    try {
+      const blob = await this.book.getCover?.();
+      const base64Image = blob ? await blobToBase64(blob) : null;
+      emit({
+        type: "cover",
+        cover: base64Image
+      });
+    } catch (e) {
+      console.warn(e);
+      console.warn("Failed to load cover");
+      return null;
+    }
+  }
+  getBookBlob = input => {
+    var opening;
+    opening = request(input, "binary").then(this.openEpub.bind(this));
+    return opening;
+  };
+
+  /**
+   * Open an archived epub
+   * @private
+   * @param  {binary} data
+   * @param  {string} [encoding]
+   * @return {Promise}
+   */
+  openEpub = async (data, encoding) => {
+
+    var blobData = new Blob([data]);
+    var file = new File([blobData], this.path);
+    this.isPdf = await isPDF(file);
+    this.isCBZ = isCBZ(file)
+    this.book = await getBook(file);
+    await this.init();
+  };
+}
+/* harmony default export */ const main = (Reader);
+__webpack_exports__ = __webpack_exports__["default"];
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});
+//# sourceMappingURL=foliate.js.map
 `;

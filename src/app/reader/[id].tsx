@@ -14,6 +14,7 @@ import {
   currentItemAtom,
   epubReaderCurrentLocationAtom,
   epubReaderSectionFractionsAtom,
+  epubReaderTocAtom,
   mediaProgressAtom,
   serverAddressAtom,
   userAtom,
@@ -29,6 +30,7 @@ const ReaderPage = () => {
   const mediaProgres = useAtomValue(mediaProgressAtom);
   const ebookSettings = useAtomValue(ebookSettignsAtom);
 
+  const setEpubReadeToc = useSetAtom(epubReaderTocAtom);
   const setEpubReaderSectionFractionsAtom = useSetAtom(
     epubReaderSectionFractionsAtom
   );
@@ -96,6 +98,7 @@ const ReaderPage = () => {
 
   useEffect(() => {
     return () => {
+      setEpubReadeToc(null);
       setEpubReaderSectionFractionsAtom(null);
       setEpubReaderCurrentLocation(null);
     };
