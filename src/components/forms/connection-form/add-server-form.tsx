@@ -43,8 +43,8 @@ const AddServerForm = ({
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      serverAddress: "http://192.168.1.158:54932", // TODO REMOVE
-      username: "owner_ismael", // TODO REMOVE
+      serverAddress: "", // TODO REMOVE
+      username: "", // TODO REMOVE
       password: "", // TODO REMOVE
     },
   });
