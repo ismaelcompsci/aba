@@ -9917,7 +9917,6 @@ class Reader {
       const ann = this.annotationsByValue.get(value);
       if (ann) {
         ann.range = range;
-        emit({type: "epubjs", message: "HELLO"})
         this.currentlySelected = ann;
         emit({
           type: "annotationClick",
