@@ -18,6 +18,7 @@ import {
   serverAddressAtom,
   userAtom,
 } from "../../state/app-state";
+import { ebookSettignsAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 
 const ReaderPage = () => {
@@ -26,6 +27,7 @@ const ReaderPage = () => {
   const [currentItem, setCurrentItem] = useAtom(currentItemAtom);
   const user = useAtomValue(userAtom);
   const mediaProgres = useAtomValue(mediaProgressAtom);
+  const ebookSettings = useAtomValue(ebookSettignsAtom);
 
   const setEpubReaderSectionFractionsAtom = useSetAtom(
     epubReaderSectionFractionsAtom
@@ -87,6 +89,7 @@ const ReaderPage = () => {
       userId: user?.id,
       userToken: user?.token,
       initialLocation: getInitialLocation(),
+      ebookSettings,
     }),
     [currentItem]
   );
@@ -127,6 +130,7 @@ const ReaderPage = () => {
           userId={props.userId}
           userToken={props.userToken}
           bookPath={bookPath}
+          ebookSettings={props.ebookSettings}
           serverAddress={serverAddress}
           initialLocation={props.initialLocation}
         />

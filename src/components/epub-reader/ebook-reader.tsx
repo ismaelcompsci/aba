@@ -4,7 +4,7 @@ import { useFileSystem } from "@epubjs-react-native/expo-file-system";
 import axios from "axios";
 import * as Burnt from "burnt";
 import { router } from "expo-router";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 
 import { epubReaderMenuInlineSizeAtom } from "../../app/reader/_layout";
 import { IS_ANDROID } from "../../constants/consts";
@@ -15,10 +15,7 @@ import {
   epubReaderShowMenuAtom,
   epubReaderTocAtom,
 } from "../../state/app-state";
-import {
-  bookAnnotationsAtom,
-  ebookSettignsAtom,
-} from "../../state/local-state";
+import { bookAnnotationsAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
 
@@ -31,6 +28,7 @@ import {
   Reader,
   ReaderBook,
   ShowAnnotation,
+  Theme,
   useReader,
 } from "./rn-epub-reader";
 
@@ -41,6 +39,7 @@ interface EBookReaderProps {
   userToken: string;
   userId: string;
   initialLocation: string | undefined;
+  ebookSettings: Theme;
 }
 
 const MENU_ITEMS = [
@@ -76,13 +75,14 @@ const EBookReader = ({
   initialLocation,
   userId,
   userToken,
+  ebookSettings,
 }: EBookReaderProps) => {
   const { width, height } = useWindowDimensions();
 
   const [bookAnnotations, setBookAnnotations] = useAtom(bookAnnotationsAtom);
   const setEpubReaderLoading = useSetAtom(epubReaderLoadingAtom);
   const setEpubReaderToc = useSetAtom(epubReaderTocAtom);
-  const ebookSettings = useAtomValue(ebookSettignsAtom);
+
   const setEpubReaderShowMenu = useSetAtom(epubReaderShowMenuAtom);
   const setCurrentLocation = useSetAtom(epubReaderCurrentLocationAtom);
   const setEpubReaderSectionFractions = useSetAtom(
@@ -96,8 +96,6 @@ const EBookReader = ({
   const isPdf = useMemo(() => bookPath.endsWith(".pdf"), [bookPath]);
 
   const annotationKey = `${book.id}-${userId}`;
-
-  const defaultTheme = useMemo(() => ebookSettings, []);
 
   const onReady = async (readyBook: ReaderBook) => {
     const annotations = bookAnnotations[annotationKey];
@@ -253,7 +251,7 @@ const EBookReader = ({
         fileSystem={useFileSystem}
         onPress={onPress}
         initialLocation={initialLocation}
-        defaultTheme={defaultTheme}
+        defaultTheme={ebookSettings}
         onLocationChange={onLocationChange}
         onStarted={() =>
           setEpubReaderLoading({ loading: true, part: "Opening Book..." })
