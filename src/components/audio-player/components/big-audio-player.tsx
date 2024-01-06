@@ -21,8 +21,8 @@ import { bookmarksModalAtom, showPlayerAtom } from "../../../state/app-state";
 import { appThemeAtom } from "../../../state/local-state";
 import { AnimatedFlex, Flex } from "../../layout/flex";
 import AudioPlayerMore from "../../menus/audio-player-more";
-import { playlistModalAtom } from "../../modals/app-modals";
 import { chaptersModalAtom } from "../../modals/chapter-modal";
+import { playlistModalAtom } from "../../modals/playlist-modal";
 import { TouchableArea } from "../../touchable/touchable-area";
 
 import BigAudioPlayerControls from "./big-audio-player-controls";

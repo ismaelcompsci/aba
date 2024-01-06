@@ -20,7 +20,7 @@ const PlaybackSpeedControls = () => {
           unstyled
           borderRadius={"$12"}
           padding={"$0"}
-          width={"$5"}
+          width={"$6"}
           height={"$4"}
           alignItems={"center"}
           justifyContent={"center"}
