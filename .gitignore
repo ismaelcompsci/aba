@@ -25,4 +25,4 @@ eas.json
 
 app-release/
 app-release*
-build*
+*.aab
