@@ -2,6 +2,7 @@
 [Audiobookshelf](https://github.com/advplyr/audiobookshelf) react native client
 
 
+
 <p float="left">
   <img src="screenshots/book.png" width="120" />
   <img src="screenshots/home-audiobooks.png" width="120" />
@@ -18,7 +19,7 @@
 ### Todo's
 - [ ] Offline mode
 - [ ] better playlist implementation
-- [ ] better error handleing for requests
+- [ ] better error handling for requests
     - [ ] show toast on error for all request
 
 
@@ -28,5 +29,5 @@
 - **react-native-webview**
     - custom webview patch that opens a UIMenuController on ios and a ActionMode on android
 
-
-
+---
+app is still under development
