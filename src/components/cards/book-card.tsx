@@ -83,7 +83,12 @@ const BookCard = ({
 
   return (
     <TapGestureHandler onGestureEvent={onGestureEvent}>
-      <AnimatedFlex style={animatedStyle}>
+      <AnimatedFlex
+        style={[
+          animatedStyle,
+          { flex: 1, justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         {!isPodcast || recentEpisode ? (
           <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
             <ItemProgress
