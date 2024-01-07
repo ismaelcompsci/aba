@@ -175,7 +175,6 @@ export default function IndexPage() {
   };
 
   useEffect(() => {
-    // setIsMounted(true);
     if (!deviceData.lastServerConnectionConfigId) {
       setAttemptingConnection(false);
       return;
@@ -189,17 +188,6 @@ export default function IndexPage() {
 
     connectToServer(config);
   }, []);
-
-  // useEffect(() => {
-  //   if (
-  //     (!user && isMounted && !attemptingConnection) ||
-  //     (isMounted &&
-  //       !deviceData.lastServerConnectionConfigId &&
-  //       !deviceData.serverConnectionConfigs.length)
-  //   ) {
-  //     router.replace("/server-connect/");
-  //   }
-  // }, [user, isMounted, attemptingConnection, deviceData]);
 
   return (
     <Screen centered pb={headerHeight}>

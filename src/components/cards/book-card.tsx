@@ -17,7 +17,6 @@ import { getItemCoverSrc } from "../../utils/api";
 import { BookCover } from "../covers/book-cover";
 import ItemProgress from "../item-progress";
 import { AnimatedFlex, Flex, FlexProps } from "../layout/flex";
-import { TouchableArea, TouchableAreaProps } from "../touchable/touchable-area";
 
 import { pulseAnimation } from "./genre-card";
 
@@ -33,8 +32,7 @@ const BookCard = ({
   token,
   serverAddress,
   isCoverSquareAspectRatio,
-  ...rest
-}: BookCardProps & TouchableAreaProps) => {
+}: BookCardProps) => {
   const coverUrl = getItemCoverSrc(item, null, token, serverAddress);
 
   const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
@@ -83,73 +81,58 @@ const BookCard = ({
       },
     });
 
-  // useEffect(() => {
-  //   setError(false);
-  // }, [isCoverSquareAspectRatio]);
-
   return (
-    <TouchableArea
-      hapticFeedback
-      width={bookWidth + 3}
-      animation="bouncy"
-      alignItems="center"
-      justifyContent="center"
-      onPress={handlePress}
-      flex={1}
-      {...rest}
-    >
-      <TapGestureHandler onGestureEvent={onGestureEvent}>
-        <AnimatedFlex style={animatedStyle}>
-          {!isPodcast || recentEpisode ? (
-            <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
-              <ItemProgress
-                episodeId={recentEpisode?.id}
-                id={item.id}
-                radius={10}
-                activeStrokeWidth={3}
-                inActiveStrokeWidth={3}
-                withText={false}
-                showOnlyBase={false}
-                checkMarkSize={18}
-              />
-            </Flex>
-          ) : null}
-          <BookCover
-            bookHeight={bookHeight}
-            bookWidth={bookWidth}
-            coverUrl={coverUrl}
-            fastImageProps={{
-              resizeMode: "cover",
-            }}
-          />
-          <Flex w={bookWidth}>
-            <Text numberOfLines={1} fontWeight="$10" pt="$2">
-              {item.recentEpisode
-                ? item.recentEpisode.title
-                : item.media?.metadata?.title}
-            </Text>
-            <Text fontSize="$1" color="$gray10" numberOfLines={1}>
-              {"authorName" in item.media.metadata
-                ? item.media.metadata.authorName
-                : item.media.metadata.author}
-            </Text>
-          </Flex>
-          {recentEpisodeNumber !== null ? (
-            <HoverLabel
-              label={`Episode ${
-                recentEpisodeNumber && "#"
-              }${recentEpisodeNumber}`}
+    <TapGestureHandler onGestureEvent={onGestureEvent}>
+      <AnimatedFlex style={animatedStyle}>
+        {!isPodcast || recentEpisode ? (
+          <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
+            <ItemProgress
+              episodeId={recentEpisode?.id}
+              id={item.id}
+              radius={10}
+              activeStrokeWidth={3}
+              inActiveStrokeWidth={3}
+              withText={false}
+              showOnlyBase={false}
+              checkMarkSize={18}
             />
-          ) : null}
-          {numEpisodesIncomplete ? (
-            <HoverLabel label={`${numEpisodesIncomplete}`} />
-          ) : null}
-          {numEpisodes && !numEpisodesIncomplete ? (
-            <HoverLabel label={`${numEpisodesIncomplete}`} />
-          ) : null}
-        </AnimatedFlex>
-      </TapGestureHandler>
-    </TouchableArea>
+          </Flex>
+        ) : null}
+        <BookCover
+          bookHeight={bookHeight}
+          bookWidth={bookWidth}
+          coverUrl={coverUrl}
+          fastImageProps={{
+            resizeMode: "cover",
+          }}
+        />
+        <Flex w={bookWidth}>
+          <Text numberOfLines={1} fontWeight="$10" pt="$2">
+            {item.recentEpisode
+              ? item.recentEpisode.title
+              : item.media?.metadata?.title}
+          </Text>
+          <Text fontSize="$1" color="$gray10" numberOfLines={1}>
+            {"authorName" in item.media.metadata
+              ? item.media.metadata.authorName
+              : item.media.metadata.author}
+          </Text>
+        </Flex>
+        {recentEpisodeNumber !== null ? (
+          <HoverLabel
+            label={`Episode ${
+              recentEpisodeNumber && "#"
+            }${recentEpisodeNumber}`}
+          />
+        ) : null}
+        {numEpisodesIncomplete ? (
+          <HoverLabel label={`${numEpisodesIncomplete}`} />
+        ) : null}
+        {numEpisodes && !numEpisodesIncomplete ? (
+          <HoverLabel label={`${numEpisodesIncomplete}`} />
+        ) : null}
+      </AnimatedFlex>
+    </TapGestureHandler>
   );
 };
 

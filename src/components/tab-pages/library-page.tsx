@@ -143,7 +143,6 @@ const LibraryPage = ({
         isCoverSquareAspectRatio={isCoverSquareAspectRatio}
         token={userToken}
         item={item}
-        p="$2"
       />
     );
   };
@@ -207,6 +206,7 @@ const LibraryPage = ({
             renderItem={handleRenderItem}
             scrollEventThrottle={16}
             estimatedItemSize={211}
+            ItemSeparatorComponent={() => <Flex w={0} h={12} />}
             contentContainerStyle={
               IS_ANDROID
                 ? {

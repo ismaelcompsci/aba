@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FlatList } from "react-native";
-import { SlideInUp, useSharedValue, withSpring } from "react-native-reanimated";
+import { SlideInUp } from "react-native-reanimated";
 import { useAtomValue } from "jotai";
 
 import {
@@ -19,19 +19,13 @@ export const ContinueListeningShelf = ({
   const requestInfo = useAtomValue(requestInfoAtom);
   const isCoverSquareAspectRatio = useAtomValue(isCoverSquareAspectRatioAtom);
 
-  const height = useSharedValue(0);
-
-  useEffect(() => {
-    height.value = withSpring(324 + 20, { damping: 16 });
-  }, []);
-
   if (!shelf.entities.length) return null;
 
   return (
     <AnimatedFlex
       entering={SlideInUp}
       style={{
-        height,
+        height: 324 + 20,
       }}
     >
       <FlatList

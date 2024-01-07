@@ -1,9 +1,9 @@
 import { memo } from "react";
-import { FadeInRight } from "react-native-reanimated";
+import { FadeIn, FadeInRight } from "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { ScrollView, Separator, Text } from "tamagui";
+import { Separator, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
@@ -87,13 +87,7 @@ const PersonalizedPage = ({
             {isEmpty ? <Text>EMPTY :/</Text> : <Loaders.Main />}
           </Flex>
         ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            bg={"$background"}
-            h={"100%"}
-            space={"$3"}
-            pt={"$3"}
-          >
+          <AnimatedFlex entering={FadeIn} space={"$3"} pt={"$3"}>
             {personalizedLibraryShelfs?.map((library: PersonalizedView) => {
               return (
                 <AnimatedFlex
@@ -110,7 +104,7 @@ const PersonalizedPage = ({
               );
             })}
             <Separator w={0} pb={24} />
-          </ScrollView>
+          </AnimatedFlex>
         )}
       </VirtualizedList>
     </Screen>
