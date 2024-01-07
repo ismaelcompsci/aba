@@ -42,7 +42,6 @@ const BookShelf = ({
       case "book":
         return (
           <BookCard
-            pt={"$2"}
             isCoverSquareAspectRatio={isCoverSquareAspectRatio}
             serverAddress={serverAddress}
             item={item}
@@ -65,6 +64,9 @@ const BookShelf = ({
         showsHorizontalScrollIndicator={false}
         style={{
           backgroundColor: bg,
+        }}
+        contentContainerStyle={{
+          paddingVertical: 6,
         }}
         renderItem={({ item, index }) => (
           <Flex

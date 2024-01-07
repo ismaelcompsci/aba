@@ -1,11 +1,11 @@
 import { useMemo } from "react";
-import { useWindowDimensions } from "react-native";
+import { FlatList, useWindowDimensions } from "react-native";
 import { FadeInRight } from "react-native-reanimated";
 import { Maximize2 } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
-import { ScrollView, Text } from "tamagui";
+import { Text } from "tamagui";
 
 import { LibraryFilterData } from "../../types/aba";
 import { randomIntFromInterval } from "../../utils/utils";
@@ -81,18 +81,17 @@ export const GenreCardList = ({
         </TouchableArea>
       </Flex>
       {showGenres.length ? (
-        <ScrollView
-          showsHorizontalScrollIndicator={false}
+        <FlatList
+          data={showGenres}
           horizontal
-          space="$4"
-          pb="$2"
-        >
-          {showGenres.map((genre, index) => (
+          showsHorizontalScrollIndicator={false}
+          ItemSeparatorComponent={() => <Flex w={15} />}
+          renderItem={({ item, index }) => (
             <Flex pl={index === 0 ? "$4" : null} key={index}>
-              <GenreCard genre={genre} />
+              <GenreCard genre={item} />
             </Flex>
-          ))}
-        </ScrollView>
+          )}
+        />
       ) : null}
     </AnimatedFlex>
   );

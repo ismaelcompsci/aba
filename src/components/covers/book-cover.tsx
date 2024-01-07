@@ -21,7 +21,14 @@ export const BookCover = ({
 
   if (!coverUrl || error) {
     return (
-      <Flex width={bookWidth} height={bookHeight} centered>
+      <Flex
+        width={bookWidth}
+        height={bookHeight}
+        centered
+        borderWidth={1}
+        borderColor={"#282828"}
+        borderRadius={8}
+      >
         <BookX size="$10" />
       </Flex>
     );
@@ -44,6 +51,8 @@ export const BookCover = ({
             height: bookHeight,
             alignSelf: "center",
             justifyContent: "center",
+            borderWidth: 1,
+            borderColor: "#282828",
           },
           style,
         ]}
