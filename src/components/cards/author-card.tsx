@@ -42,6 +42,17 @@ const AuthorCard = ({
       shadowRadius={6.68}
       onPress={authorPress}
     >
+      <Flex
+        pos={"absolute"}
+        top={4}
+        left={4}
+        px={8}
+        py={5}
+        bg="$background"
+        borderRadius={89}
+      >
+        <Text fontSize={10}>{author.numBooks}</Text>
+      </Flex>
       <AuthorImage
         author={author}
         serverAddress={serverAddress}
