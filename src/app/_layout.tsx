@@ -9,6 +9,7 @@ import {
   Cloud,
   CloudCog,
   CloudOff,
+  DownloadCloud,
   Library,
   MoreVertical,
   Search,
@@ -21,7 +22,7 @@ import { useFonts } from "expo-font";
 import { router, SplashScreen, Stack } from "expo-router";
 import * as SystemUI from "expo-system-ui";
 import { useAtomValue, useSetAtom } from "jotai";
-import { ColorTokens, TamaguiProvider, Theme, useTheme } from "tamagui";
+import { ColorTokens, TamaguiProvider, Text, Theme, useTheme } from "tamagui";
 
 import appConfig from "../../tamagui.config";
 import { Dot } from "../components/dot";
@@ -157,6 +158,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   const setRoute = useSetAtom(routeAtom);
   const { headerHeight, top, left } = useAppSafeAreas();
   const color = useTheme();
+  const netInfo = useNetInfo();
   const { name } = route;
 
   const showLogo =
@@ -167,6 +169,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
   // const isIndex = name === "index";
   const showServerSwitch = name === "library/index";
   const showSettings = name === "library/index";
+  const isOffline = !netInfo.isConnected;
 
   const handleBack = () => {
     router.back();
@@ -225,6 +228,33 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
           {showServerSwitch && <ServerSelect placement="bottom" />}
           <NetworkIndicator />
         </Flex>
+        {!isOffline ? (
+          <Flex>
+            <TouchableArea
+              minWidth={80}
+              alignItems="center"
+              gap="$2"
+              borderWidth="$1"
+              borderColor="$borderColor"
+              justifyContent="center"
+              borderRadius="$2"
+              px="$2"
+              py="$1.5"
+              flexDirection="row"
+              // onPress={() => router.push("")}
+            >
+              <DownloadCloud size={14} />
+              <Text
+                color={"$colorPress"}
+                fontWeight={"$7"}
+                numberOfLines={1}
+                textAlign="center"
+              >
+                Offline mode
+              </Text>
+            </TouchableArea>
+          </Flex>
+        ) : null}
         <Flex row alignItems="center" gap={16}>
           {showSearch ? (
             <TouchableArea
