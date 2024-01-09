@@ -56,7 +56,7 @@ const Annotations = () => {
                       {cleanString(ann.text, 350)}
                     </Text>
                   ) : null}
-                  {ann.color === "yellow" ? (
+                  {ann.color === "yellow" || ann.color === "highlight" ? (
                     <Text
                       key={ann.value}
                       backgroundColor={"rgba(255, 255, 0, 0.4)"}
