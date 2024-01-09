@@ -79,7 +79,7 @@ const HomePage = () => {
 
   const [userHasPlaylists, setUserHasPlaylists] = useState(false);
 
-  useQuery({
+  const { data: _ } = useQuery({
     queryKey: ["has-playlists", currentLibraryId],
     queryFn: async () => {
       try {
@@ -232,6 +232,7 @@ const HomePage = () => {
           />
         );
       default:
+        console.log(`[HOME_PAGE] rendering no scene`);
         return null;
     }
   };
@@ -299,13 +300,9 @@ const HomePage = () => {
     <Screen>
       <LibraryItemAddedNotification />
 
-      {!userToken || !routes ? (
-        <NoServer />
-      ) : changingLibrary ? (
-        <Flex fill pb={44} pt={44}>
-          <Loaders.Main />
-        </Flex>
-      ) : (
+      {!userToken || !routes ? <NoServer /> : null}
+
+      {routes && userToken ? (
         <TabView
           lazy
           navigationState={{ index, routes }}
@@ -316,7 +313,7 @@ const HomePage = () => {
           initialLayout={{ width: layout.width, height: layout.height }}
           style={{ width: layout.width, height: layout.height }}
         />
-      )}
+      ) : null}
     </Screen>
   );
 };

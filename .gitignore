@@ -26,3 +26,4 @@ eas.json
 app-release/
 app-release*
 *.aab
+*.apk

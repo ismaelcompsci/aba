@@ -30,6 +30,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
   const onValueChange = async (value: string) => {
     const updatedLib = libraries.find((lib) => lib.name === value);
     if (updatedLib?.id === currentLibraryId) return;
+    setOpen(false);
     setChangingLibrary(true);
 
     if (!updatedLib) {
@@ -39,7 +40,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
 
     setCurrentLibraryId(updatedLib?.id);
     setLastLibraryId(updatedLib.id);
-    await awaitTimeout(30);
+    await awaitTimeout(800);
     setChangingLibrary(false);
   };
 
