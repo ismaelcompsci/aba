@@ -6,7 +6,7 @@ import TrackPlayer, {
   State,
   usePlaybackState,
 } from "react-native-track-player";
-import { BookOpen, Pause, Play } from "@tamagui/lucide-icons";
+import { Book, Pause, Play } from "@tamagui/lucide-icons";
 import { format } from "date-fns";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -229,7 +229,7 @@ export const ShelfCard = ({
                     px={3}
                     onPress={read}
                   >
-                    <BookOpen size={12} color={"$background"} />
+                    <Book size={12} color={"$background"} />
                     <MiniProgressBar
                       itemId={item.id}
                       episodeId={item.recentEpisode?.id}
