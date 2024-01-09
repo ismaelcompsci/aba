@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Image } from "react-native";
 import FastImage from "react-native-fast-image";
-import { SlideInUp } from "react-native-reanimated";
+import { FadeIn } from "react-native-reanimated";
 import TrackPlayer, {
   State,
   usePlaybackState,
@@ -107,7 +107,7 @@ export const ShelfCard = ({
   } else
     return (
       <AnimatedCard
-        entering={SlideInUp.duration(600)}
+        entering={FadeIn.duration(500)}
         bordered
         h={cardHeight}
         w={cardWidth}

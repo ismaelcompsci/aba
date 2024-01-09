@@ -1,6 +1,5 @@
 import React from "react";
 import { FlatList } from "react-native";
-import { SlideInUp } from "react-native-reanimated";
 import { useAtomValue } from "jotai";
 
 import {
@@ -9,7 +8,7 @@ import {
 } from "../../state/app-state";
 import { PersonalizedView } from "../../types/types";
 import { ShelfCard } from "../cards/shelf-card";
-import { AnimatedFlex, Flex } from "../layout/flex";
+import { Flex } from "../layout/flex";
 
 export const ContinueListeningShelf = ({
   shelf,
@@ -22,8 +21,7 @@ export const ContinueListeningShelf = ({
   if (!shelf.entities.length) return null;
 
   return (
-    <AnimatedFlex
-      entering={SlideInUp}
+    <Flex
       style={{
         height: 324 + 20,
       }}
@@ -53,6 +51,6 @@ export const ContinueListeningShelf = ({
           );
         }}
       />
-    </AnimatedFlex>
+    </Flex>
   );
 };

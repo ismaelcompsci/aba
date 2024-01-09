@@ -173,6 +173,8 @@ const BottomEbookReaderMenu = () => {
       pb={safeAreas.bottom + (IS_ANDROID ? 10 : 0)}
     >
       <Slider
+        id="SLIDER_MENU"
+        name="SLIDER-MENU"
         flexGrow={1}
         size="$1"
         value={[
@@ -189,11 +191,13 @@ const BottomEbookReaderMenu = () => {
         themeInverse
       >
         <Slider.Track
+          id="SLIDER_MENU-TRACK"
           $theme-oled={{
             bg: "$gray10",
           }}
         >
           <Slider.TrackActive
+            id="SLIDER_MENU-1"
             $theme-oled={{
               bg: "$gray5",
             }}
