@@ -12,6 +12,7 @@ import {
 } from "../../../../state/app-state";
 import { Flex } from "../../../layout/flex";
 import { TocItem, useReader } from "../../rn-epub-reader";
+import { IS_ANDROID } from "../../../../constants/consts";
 
 type NewTocItem = {
   href: string;
@@ -130,14 +131,7 @@ export const Content = () => {
   };
 
   return (
-    <Flex
-      flex={1}
-      bg="$background"
-      paddingHorizontal={"$4"}
-      $platform-android={{
-        paddingTop: "$10",
-      }}
-    >
+    <Flex flex={1} bg="$background" paddingHorizontal={"$4"}>
       {newToc.length ? (
         <FlashList
           ref={listRef}

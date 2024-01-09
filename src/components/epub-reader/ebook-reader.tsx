@@ -19,7 +19,6 @@ import { bookAnnotationsAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
 
-import { BookChapterModal } from "./components/book-modal";
 import {
   Annotation,
   BookAnnotations,
@@ -266,7 +265,6 @@ const EBookReader = ({
         menuItems={MENU_ITEMS}
         onCustomMenuSelection={onCustomMenuSelection}
       />
-      <BookChapterModal />
     </>
   );
 };

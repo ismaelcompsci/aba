@@ -33,9 +33,6 @@ const Annotations = () => {
   return (
     <Screen
       padding={"$4"}
-      $platform-android={{
-        paddingTop: "$10",
-      }}
       centered
       pb={!annotations?.length ? headerHeight : undefined}
     >

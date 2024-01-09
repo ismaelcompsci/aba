@@ -106,6 +106,7 @@ export const AppBottomSheetModal = forwardRef<BottomSheet, Props>(
         handleComponent={renderHandleBar}
         topInset={renderBehindTopInset ? 0 : insets.top}
         enablePanDownToClose
+        activeOffsetY={[-40, 40]}
         enableHandlePanningGesture
         enableContentPanningGesture
         snapPoints={["100%"]}
