@@ -11,8 +11,8 @@ import {
   epubReaderTocAtom,
 } from "../../../../state/app-state";
 import { Flex } from "../../../layout/flex";
+import { Screen } from "../../../layout/screen";
 import { TocItem, useReader } from "../../rn-epub-reader";
-import { IS_ANDROID } from "../../../../constants/consts";
 
 type NewTocItem = {
   href: string;
@@ -55,7 +55,7 @@ const TocItemView = ({
         paddingLeft={item.depth * 10}
       >
         {currentLocation?.tocItem?.id === item.id ? (
-          <Bar
+          <Flex
             bg={"$blue10"}
             br={"$8"}
             t={0}
@@ -131,7 +131,7 @@ export const Content = () => {
   };
 
   return (
-    <Flex flex={1} bg="$background" paddingHorizontal={"$4"}>
+    <Screen paddingHorizontal={"$4"}>
       {newToc.length ? (
         <FlashList
           ref={listRef}
@@ -141,12 +141,11 @@ export const Content = () => {
           estimatedItemSize={37}
           keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
-          // initialScrollIndex={epubReaderCurrentLocation?.tocItem.id}
           contentContainerStyle={{
             paddingBottom: bottom,
           }}
         />
       ) : null}
-    </Flex>
+    </Screen>
   );
 };
