@@ -21,6 +21,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { focusAtom } from "jotai-optics";
 import { Button, H6, Slider, Text } from "tamagui";
 
+import { BookInfoModal } from "../../components/epub-reader/components/book-modal";
 import { themes } from "../../components/epub-reader/components/themes";
 import {
   ReaderProvider,
@@ -48,6 +49,7 @@ const layout = () => {
         }}
       />
       <Menu />
+      <BookInfoModal />
       <ThemeUpdater />
     </ReaderProvider>
   );
@@ -81,7 +83,6 @@ const Menu = () => {
         top={0}
         left={0}
         right={0}
-        zIndex={9999}
         entering={FadeInUp}
         exiting={FadeOutUp}
         alignItems="center"
@@ -237,7 +238,7 @@ const FONT_STEP = 5;
 const GAPSTEP = 0.01;
 const LINESTEP = 0.1;
 
-const SCROLL_ENABLED = false;
+// const SCROLL_ENABLED = false;
 
 export const epubReaderMenuThemeAtom = focusAtom(ebookSettignsAtom, (optic) =>
   optic.prop("theme")
@@ -298,19 +299,19 @@ const EbookSettingsMenu = ({
   const { width } = useWindowDimensions();
   const { isPdf } = useReader();
 
-  const setReaderSettigns = useSetAtom(ebookSettignsAtom);
+  // const setReaderSettigns = useSetAtom(ebookSettignsAtom);
   const setEpubReaderMenuInlineSize = useSetAtom(epubReaderMenuInlineSizeAtom);
 
   // const [voicesModalOpen, setVoicesModalOpen] = useState(false);
 
-  const onScrollViewChange = (checked: boolean) => {
-    // if (checked === readerSettings.scrolled) return;
+  // const onScrollViewChange = (checked: boolean) => {
+  //   // if (checked === readerSettings.scrolled) return;
 
-    setReaderSettigns((readerSettings) => ({
-      ...readerSettings,
-      scrolled: checked,
-    }));
-  };
+  //   setReaderSettigns((readerSettings) => ({
+  //     ...readerSettings,
+  //     scrolled: checked,
+  //   }));
+  // };
 
   useEffect(() => {
     setEpubReaderMenuInlineSize(width);
