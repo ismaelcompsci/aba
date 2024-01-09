@@ -89,28 +89,30 @@ const BookCard = ({
           { flex: 1, justifyContent: "center", alignItems: "center" },
         ]}
       >
-        {!isPodcast || recentEpisode ? (
-          <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
-            <ItemProgress
-              episodeId={recentEpisode?.id}
-              id={item.id}
-              radius={10}
-              activeStrokeWidth={3}
-              inActiveStrokeWidth={3}
-              withText={false}
-              showOnlyBase={false}
-              checkMarkSize={18}
-            />
-          </Flex>
-        ) : null}
-        <BookCover
-          bookHeight={bookHeight}
-          bookWidth={bookWidth}
-          coverUrl={coverUrl}
-          fastImageProps={{
-            resizeMode: "cover",
-          }}
-        />
+        <Flex>
+          {!isPodcast || recentEpisode ? (
+            <Flex pos={"absolute"} zIndex={"$5"} t={-5} r={-5}>
+              <ItemProgress
+                episodeId={recentEpisode?.id}
+                id={item.id}
+                radius={10}
+                activeStrokeWidth={3}
+                inActiveStrokeWidth={3}
+                withText={false}
+                showOnlyBase={false}
+                checkMarkSize={18}
+              />
+            </Flex>
+          ) : null}
+          <BookCover
+            bookHeight={bookHeight}
+            bookWidth={bookWidth}
+            coverUrl={coverUrl}
+            fastImageProps={{
+              resizeMode: "cover",
+            }}
+          />
+        </Flex>
         <Flex w={bookWidth}>
           <Text numberOfLines={1} fontWeight="$10" pt="$2">
             {item.recentEpisode
