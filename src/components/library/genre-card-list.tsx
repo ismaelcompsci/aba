@@ -11,6 +11,7 @@ import { LibraryFilterData } from "../../types/aba";
 import { randomIntFromInterval } from "../../utils/utils";
 import GenreCard from "../cards/genre-card";
 import { AnimatedFlex, Flex } from "../layout/flex";
+import { Skeleton } from "../skeleton";
 import { TouchableArea } from "../touchable/touchable-area";
 
 export const GenreCardList = ({
@@ -66,10 +67,6 @@ export const GenreCardList = ({
     return showGenreCards;
   }, [width, genreLength, currentLibraryId]);
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <AnimatedFlex space="$2" entering={FadeInRight}>
       <Flex centered row px="$4" py="$2" jc="space-between" alignItems="center">
@@ -80,7 +77,7 @@ export const GenreCardList = ({
           <Maximize2 size={"$1"} />
         </TouchableArea>
       </Flex>
-      {showGenres.length ? (
+      {showGenres.length && !isLoading ? (
         <FlatList
           data={showGenres}
           horizontal
@@ -92,7 +89,38 @@ export const GenreCardList = ({
             </Flex>
           )}
         />
-      ) : null}
+      ) : (
+        <Flex pl="$4" row space={"$4"}>
+          <Skeleton
+            w={124}
+            h={"$8"}
+            bg={"$backgroundPress"}
+            opacity={1}
+            borderRadius={8}
+          />
+          <Skeleton
+            w={124}
+            h={"$8"}
+            bg={"$backgroundPress"}
+            opacity={1}
+            borderRadius={8}
+          />
+          <Skeleton
+            w={124}
+            h={"$8"}
+            bg={"$backgroundPress"}
+            opacity={1}
+            borderRadius={8}
+          />
+          <Skeleton
+            w={124}
+            h={"$8"}
+            bg={"$backgroundPress"}
+            opacity={1}
+            borderRadius={8}
+          />
+        </Flex>
+      )}
     </AnimatedFlex>
   );
 };

@@ -1,19 +1,18 @@
 import { memo } from "react";
-import { FadeIn, FadeInRight, FadeOut } from "react-native-reanimated";
+import { FadeIn, FadeInRight } from "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { Separator, Text } from "tamagui";
+import { ScrollView, Separator, Text } from "tamagui";
 
 import BookShelf from "../../components/library/bookshelf";
 import { changingLibraryAtom } from "../../state/app-state";
 import { PersonalizedView } from "../../types/types";
-import { VirtualizedList } from "../custom-components/virtual-scroll-view";
-import { AnimatedFlex } from "../layout/flex";
+import { AnimatedFlex, Flex } from "../layout/flex";
 import { Screen } from "../layout/screen";
 import { ContinueListeningShelf } from "../library/continue-listening-shelf";
 import { GenreCardList } from "../library/genre-card-list";
-import { Loaders } from "../loader";
+import { Skeleton } from "../skeleton";
 
 interface PersonalizedPageProps {
   currentLibraryId: string | null;
@@ -63,6 +62,8 @@ const PersonalizedPage = ({
   );
 
   const continueListeningShelf = personalizedLibrary?.[0];
+  const bookWidth = isCoverSquareAspectRatio ? 100 * 1.6 : 100;
+  const bookHeight = isCoverSquareAspectRatio ? bookWidth : bookWidth * 1.6;
 
   return (
     <Screen
@@ -73,19 +74,80 @@ const PersonalizedPage = ({
           : false
       }
     >
-      <VirtualizedList>
-        {continueListeningShelf ? (
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {!isLoading && continueListeningShelf ? (
           <ContinueListeningShelf shelf={continueListeningShelf} />
-        ) : null}
+        ) : (
+          <Flex
+            row
+            space={"$4"}
+            style={{
+              paddingHorizontal: 18,
+              paddingTop: 12,
+              paddingBottom: 12,
+            }}
+            height={324 + 20}
+          >
+            <Skeleton>
+              <Flex
+                bg="$backgroundPress"
+                height={324}
+                width={248}
+                borderRadius={8}
+              />
+            </Skeleton>
+            <Skeleton>
+              <Flex
+                bg="$backgroundPress"
+                height={324}
+                width={248}
+                borderRadius={8}
+              />
+            </Skeleton>
+          </Flex>
+        )}
         <GenreCardList
           currentLibraryId={currentLibraryId}
           serverAddress={serverAddress}
           userToken={userToken}
         />
         {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
-          <AnimatedFlex pt={44} exiting={FadeOut}>
-            {isEmpty ? <Text>EMPTY :/</Text> : <Loaders.Main />}
-          </AnimatedFlex>
+          isEmpty ? (
+            <Text>EMPTY :/</Text>
+          ) : (
+            <Flex row pt={"$3"} pl={"$4"}>
+              <Flex gap="$4">
+                <Skeleton
+                  h="$1"
+                  bg="$backgroundPress"
+                  w="$8"
+                  borderRadius={8}
+                />
+
+                <Flex row space="$4">
+                  <Skeleton
+                    borderRadius={8}
+                    h={bookHeight}
+                    w={bookWidth}
+                    bg="$backgroundPress"
+                  />
+                  <Skeleton
+                    borderRadius={8}
+                    h={bookHeight}
+                    w={bookWidth}
+                    bg="$backgroundPress"
+                  />
+
+                  <Skeleton
+                    borderRadius={8}
+                    h={bookHeight}
+                    w={bookWidth}
+                    bg="$backgroundPress"
+                  />
+                </Flex>
+              </Flex>
+            </Flex>
+          )
         ) : (
           <AnimatedFlex entering={FadeIn} space={"$3"} pt={"$3"}>
             {personalizedLibraryShelfs?.map((library: PersonalizedView) => {
@@ -106,7 +168,7 @@ const PersonalizedPage = ({
             <Separator w={0} pb={24} />
           </AnimatedFlex>
         )}
-      </VirtualizedList>
+      </ScrollView>
     </Screen>
   );
 };
