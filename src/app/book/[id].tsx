@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { Animated, useWindowDimensions } from "react-native";
+import FastImage from "react-native-fast-image";
 import ViewMoreText from "react-native-view-more-text";
 import { BookX } from "@tamagui/lucide-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -93,6 +94,7 @@ const BookPage = () => {
           ]}
         />
         <BackHeader
+          color="$blue9"
           alignment="center"
           mx={16}
           pt={top + 16}
@@ -355,7 +357,7 @@ const BookParallaxHeader = ({
           <BookX size="$19" />
         </Flex>
       ) : (
-        <Animated.Image
+        <FastImage
           resizeMode="contain"
           style={{
             position: "absolute",
@@ -364,10 +366,10 @@ const BookParallaxHeader = ({
             bottom: 0,
             left: isCoverSquareAspectRatio ? width / 2 - imageWidth! / 2 : 0,
             right: 0,
+            width: imageWidth,
           }}
           source={{
             uri: cover || "",
-            width: imageWidth,
           }}
         />
       )}

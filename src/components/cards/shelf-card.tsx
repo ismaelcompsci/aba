@@ -12,6 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useAtom } from "jotai";
 import { Card, Text, useTheme } from "tamagui";
+import tinycolor from "tinycolor2";
 
 import { IS_IOS } from "../../constants/consts";
 import { useImageColors } from "../../hooks/use-image-colors";
@@ -56,8 +57,9 @@ export const ShelfCard = ({
 
   const gColors = getGradient(gradientColor);
 
-  // const ebookFormat =
-  //   "ebookFormat" in item.media ? item.media.ebookFormat ?? "" : "";
+  const isColorTooBrightForBackground =
+    tinycolor(gradientColor).getBrightness() > 170;
+
   const numTracks = "numTracks" in item.media ? !!item.media.numTracks : false;
   const isPodcast = item.mediaType === "podcast";
 
@@ -183,7 +185,10 @@ export const ShelfCard = ({
           >
             <Flex px="$3.5" width={cardWidth} marginTop={-30} grow>
               <Flex>
-                <Text color={"$gray10"} fontSize={10}>
+                <Text
+                  color={isColorTooBrightForBackground ? "black" : "$gray10"}
+                  fontSize={10}
+                >
                   {isAudio
                     ? isPodcast
                       ? `RESUME${
@@ -194,12 +199,20 @@ export const ShelfCard = ({
                       : "RESUME"
                     : "READ"}
                 </Text>
-                <Text numberOfLines={1} fontWeight={"700"}>
+                <Text
+                  numberOfLines={1}
+                  fontWeight={"700"}
+                  color={isColorTooBrightForBackground ? "black" : "white"}
+                >
                   {item.recentEpisode?.title
                     ? item.recentEpisode?.title
                     : item.media.metadata.title}
                 </Text>
-                <Text fontFamily="heading" color={"$gray11"} numberOfLines={3}>
+                <Text
+                  fontFamily="heading"
+                  color={isColorTooBrightForBackground ? "black" : "gray"}
+                  numberOfLines={3}
+                >
                   {cleanedDescription}
                 </Text>
               </Flex>
@@ -213,7 +226,7 @@ export const ShelfCard = ({
               alignItems="center"
             >
               <Flex
-                backgroundColor={"$color"}
+                backgroundColor={"$gray12"}
                 borderRadius={"$6"}
                 py={3}
                 px="$1.5"

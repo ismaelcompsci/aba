@@ -15,6 +15,10 @@ export const Skeleton = ({
 
   useEffect(() => {
     opacity.value = withRepeat(withTiming(0.1, { duration: 1000 }), -1, true);
+
+    return () => {
+      opacity.value = 1;
+    };
   }, []);
 
   return (

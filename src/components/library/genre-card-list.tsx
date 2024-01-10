@@ -81,6 +81,9 @@ export const GenreCardList = ({
         <FlatList
           data={showGenres}
           horizontal
+          contentContainerStyle={{
+            paddingBottom: 6,
+          }}
           showsHorizontalScrollIndicator={false}
           ItemSeparatorComponent={() => <Flex w={15} />}
           renderItem={({ item, index }) => (

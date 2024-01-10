@@ -23,7 +23,7 @@ export const MiniProgressBar = ({
       <Flex
         w={seenWidth}
         h={5}
-        bg={"black"}
+        bg={"$background"}
         borderRadius={"$5"}
         pos={"absolute"}
       />

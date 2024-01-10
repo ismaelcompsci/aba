@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getColors } from "react-native-image-colors";
-import { useTheme } from "tamagui";
 
 const initialState = {
   colorOne: { value: "", name: "" },
@@ -13,13 +12,12 @@ const initialState = {
 export const useImageColors = (url?: string | null) => {
   const [gradientColors, setColors] = useState(initialState);
   const [loading, setLoading] = useState(false);
-  const colors = useTheme();
 
   const getImageColors = async () => {
     try {
       setLoading(true);
       const result = await getColors(url || "", {
-        fallback: colors.backgroundPress.get(),
+        fallback: "#ffffff",
         cache: true,
         quality: "lowest",
         key: url || "image-colors-key",

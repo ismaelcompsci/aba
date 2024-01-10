@@ -35,7 +35,7 @@ export const BackButton = ({
     >
       <Flex row alignItems="center" gap={8}>
         <ChevronLeft color={color} size={size} />
-        {showButtonLabel && <Text>Back</Text>}
+        {showButtonLabel && <Text color={color}>Back</Text>}
       </Flex>
     </TouchableArea>
   );
@@ -46,6 +46,7 @@ type BackHeaderProps = {
   endAdornment?: JSX.Element;
   showButtonLabel?: boolean;
   onPressBack?: () => void;
+  color?: ColorTokens;
 } & FlexProps;
 
 const BACK_BUTTON_SIZE = 24;
@@ -56,6 +57,7 @@ const BackHeader = ({
   onPressBack,
   showButtonLabel,
   children,
+  color,
   ...rest
 }: PropsWithChildren<BackHeaderProps>) => {
   return (
@@ -67,6 +69,7 @@ const BackHeader = ({
     >
       <BackButton
         size={BACK_BUTTON_SIZE}
+        color={color}
         onPressBack={onPressBack}
         showButtonLabel={showButtonLabel}
       />

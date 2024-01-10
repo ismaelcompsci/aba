@@ -147,7 +147,7 @@ function BookMoreMenu({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <TouchableArea hapticFeedback onPress={() => {}} px="$2">
-          {vertical ? <MoreVertical /> : <MoreHorizontal />}
+          {vertical ? <MoreVertical /> : <MoreHorizontal color={"$gray12"} />}
         </TouchableArea>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
