@@ -79,7 +79,7 @@ const HomePage = () => {
 
   const [userHasPlaylists, setUserHasPlaylists] = useState(false);
 
-  const { data: _ } = useQuery({
+  const { data } = useQuery({
     queryKey: ["has-playlists", currentLibraryId],
     queryFn: async () => {
       try {
@@ -158,7 +158,7 @@ const HomePage = () => {
 
   useEffect(() => {
     setIndex(0);
-  }, [currentLibraryId]);
+  }, [currentLibraryId, userHasPlaylists]);
 
   const renderScene = ({
     route,

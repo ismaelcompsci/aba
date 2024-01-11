@@ -77,7 +77,7 @@ const AudioPlayerContainer = () => {
         ? tracks[playFromChapterIndex]
         : tracks[currentTrackIndex];
 
-      console.log(`[AUDIOPLAYER] LOADING TRACK ${currentTrack.title}`);
+      console.log(`[AUDIOPLAYER] LOADING TRACK ${currentTrack?.title}`);
 
       await TrackPlayer.reset();
       await TrackPlayer.add(tracks);

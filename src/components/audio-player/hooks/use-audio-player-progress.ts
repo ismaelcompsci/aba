@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import TrackPlayer, {
   Event,
   useProgress,
@@ -18,6 +18,7 @@ export const useAudioPlayerProgress = () => {
   const { position } = useProgress();
 
   const [isFinished, setIsFinished] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentTrackOffset = currentTrack ? currentTrack.startOffset : 0;
   const currentPosition = currentTrackOffset + position;
@@ -108,17 +109,16 @@ export const useAudioPlayerProgress = () => {
 
       const initialPosition = value - audioTracks[trackIndex].startOffset;
 
-      await TrackPlayer.pause();
-      await TrackPlayer.skip(trackIndex);
-      await TrackPlayer.seekTo(initialPosition);
+      await TrackPlayer.skip(trackIndex, initialPosition);
     }
+
+    timerRef.current && clearTimeout(timerRef.current);
     /**
      * stops the slider from bouncing because it takes a second to update progress from TrackPlayer
      */
     if (timeToCall && cb) {
       TrackPlayer.play().then(() => {
-        setTimeout(() => {
-          // setIsSeeking(false);
+        timerRef.current = setTimeout(() => {
           cb();
         }, timeToCall);
       });

@@ -69,7 +69,7 @@ export const ProgressSlider = ({
           playing: true,
           playlist: updatedPlaylist,
           libraryItemId: nextItem.libraryItemId,
-          episodeId: nextItem.episodeId,
+          episodeId: nextItem.episodeId ?? undefined,
         });
     }
   }, [isFinished]);
@@ -98,7 +98,7 @@ export const ProgressSlider = ({
   });
 
   const handleSliderEnd = async (value: number) => {
-    seekTo(value, 1450, () => {
+    seekTo(value, 1100, () => {
       setIsSeeking(false);
     });
   };
@@ -177,7 +177,11 @@ export const ProgressSlider = ({
         value={isSeeking ? seek : overallCurrentTime}
         minimumValue={0}
         step={1}
-        onSlidingStart={() => setIsSeeking(true)}
+        onSlidingStart={() => {
+          if (!isSeeking) {
+            setIsSeeking(true);
+          }
+        }}
         onValueChange={setSeek}
         onSlidingComplete={() => handleSliderEnd(seek)}
         maximumValue={duration ? Math.floor(duration) : 99999}

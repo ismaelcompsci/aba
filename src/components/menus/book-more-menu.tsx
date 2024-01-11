@@ -79,6 +79,7 @@ function BookMoreMenu({
           },
         }
       );
+      await invalidateQueries();
     } catch (error) {
       console.log("[APPDIALOG] clear progress error", error);
     } finally {
