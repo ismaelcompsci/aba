@@ -143,6 +143,7 @@ const AddServerForm = ({
               opacity={loading ? 0.5 : 1}
               disabled={loading}
               onChangeText={field.onChange}
+              autoCapitalize="none"
             />
             {!!fieldState.error?.message && (
               <ErrorMessage>{fieldState.error?.message}</ErrorMessage>

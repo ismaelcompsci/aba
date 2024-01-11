@@ -4,7 +4,7 @@ import { SceneMap, TabBar, TabView } from "react-native-tab-view";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useTheme } from "tamagui";
 
-import { epubReaderOverviewModalAtom } from "../../../state/app-state";
+import { epubReaderOverviewModalAtom } from "../../../state/epub-reader-state";
 import {
   AppBottomSheetModal,
   HandleBar,

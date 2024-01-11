@@ -6,15 +6,15 @@ import * as Burnt from "burnt";
 import { router } from "expo-router";
 import { useAtom, useSetAtom } from "jotai";
 
-import { epubReaderMenuInlineSizeAtom } from "../../app/reader/_layout";
 import { IS_ANDROID } from "../../constants/consts";
 import {
   epubReaderCurrentLocationAtom,
   epubReaderLoadingAtom,
+  epubReaderMenuInlineSizeAtom,
   epubReaderSectionFractionsAtom,
   epubReaderShowMenuAtom,
   epubReaderTocAtom,
-} from "../../state/app-state";
+} from "../../state/epub-reader-state";
 import { bookAnnotationsAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";

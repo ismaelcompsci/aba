@@ -4,10 +4,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { Button, ScrollView, Separator, Text } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
-import {
-  epubReaderOverviewModalAtom,
-  userAtom,
-} from "../../../../state/app-state";
+import { userAtom } from "../../../../state/app-state";
+import { epubReaderOverviewModalAtom } from "../../../../state/epub-reader-state";
 import { bookAnnotationsAtom } from "../../../../state/local-state";
 import { cleanString } from "../../../../utils/utils";
 import { Flex } from "../../../layout/flex";

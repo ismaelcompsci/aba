@@ -12,13 +12,15 @@ import { Screen } from "../../components/layout/screen";
 import LoadingBook from "../../components/loading-book";
 import {
   currentItemAtom,
-  epubReaderCurrentLocationAtom,
-  epubReaderSectionFractionsAtom,
-  epubReaderTocAtom,
   mediaProgressAtom,
   serverAddressAtom,
   userAtom,
 } from "../../state/app-state";
+import {
+  epubReaderCurrentLocationAtom,
+  epubReaderSectionFractionsAtom,
+  epubReaderTocAtom,
+} from "../../state/epub-reader-state";
 import { ebookSettignsAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 

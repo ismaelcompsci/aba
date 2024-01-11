@@ -9,7 +9,7 @@ import {
   epubReaderCurrentLocationAtom,
   epubReaderOverviewModalAtom,
   epubReaderTocAtom,
-} from "../../../../state/app-state";
+} from "../../../../state/epub-reader-state";
 import { Flex } from "../../../layout/flex";
 import { Screen } from "../../../layout/screen";
 import { TocItem, useReader } from "../../rn-epub-reader";

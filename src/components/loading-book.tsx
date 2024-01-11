@@ -4,7 +4,7 @@ import RNFetchBlob from "rn-fetch-blob";
 import { Progress, Text, useTheme } from "tamagui";
 
 import { epubDir } from "../constants/consts";
-import { epubReaderLoadingAtom } from "../state/app-state";
+import { epubReaderLoadingAtom } from "../state/epub-reader-state";
 import { cachedBookFilePathsAtom } from "../state/local-state";
 import {
   EbookFile,

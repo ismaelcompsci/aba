@@ -3,10 +3,6 @@ import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
 
 import {
-  LocationChange,
-  TocItem,
-} from "../components/epub-reader/rn-epub-reader";
-import {
   Library,
   LibraryItemExpanded,
   MediaProgress,
@@ -16,7 +12,6 @@ import {
 import {
   BookmarksModalAtom,
   CreatePlaylistModalAtom,
-  EpubReaderLoading,
   PlayingState,
 } from "../types/types";
 
@@ -41,18 +36,6 @@ export const createPlaylistModalAtom = atom<CreatePlaylistModalAtom>({
 });
 export const bookmarksModalAtom = atom<BookmarksModalAtom>({
   open: false,
-});
-
-/* epub reader atoms */
-export const epubReaderOverviewModalAtom = atom(false);
-export const epubReaderShowMenuAtom = atom(false);
-export const epubReaderTocAtom = atom<TocItem[] | null>(null);
-export const epubReaderCurrentLocationAtom = atom<LocationChange | null>(null);
-export const epubReaderSectionFractionsAtom = atom<number[] | null>(null);
-export const epubReaderLoadingAtom = atom<EpubReaderLoading>({
-  loading: false,
-  part: "",
-  percent: undefined,
 });
 
 /**

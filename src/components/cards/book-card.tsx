@@ -104,6 +104,7 @@ const BookCard = ({
               />
             </Flex>
           ) : null}
+
           <BookCover
             bookHeight={bookHeight}
             bookWidth={bookWidth}
@@ -112,6 +113,19 @@ const BookCard = ({
               resizeMode: "cover",
             }}
           />
+          {recentEpisodeNumber !== null ? (
+            <HoverLabel
+              label={`Episode ${
+                recentEpisodeNumber && "#"
+              }${recentEpisodeNumber}`}
+            />
+          ) : null}
+          {numEpisodesIncomplete ? (
+            <HoverLabel label={`${numEpisodesIncomplete}`} />
+          ) : null}
+          {numEpisodes && !numEpisodesIncomplete ? (
+            <HoverLabel label={`${numEpisodesIncomplete}`} />
+          ) : null}
         </Flex>
         <Flex w={bookWidth}>
           <Text numberOfLines={1} fontWeight="$10" pt="$2">
@@ -125,19 +139,6 @@ const BookCard = ({
               : item.media.metadata.author}
           </Text>
         </Flex>
-        {recentEpisodeNumber !== null ? (
-          <HoverLabel
-            label={`Episode ${
-              recentEpisodeNumber && "#"
-            }${recentEpisodeNumber}`}
-          />
-        ) : null}
-        {numEpisodesIncomplete ? (
-          <HoverLabel label={`${numEpisodesIncomplete}`} />
-        ) : null}
-        {numEpisodes && !numEpisodesIncomplete ? (
-          <HoverLabel label={`${numEpisodesIncomplete}`} />
-        ) : null}
       </AnimatedFlex>
     </TapGestureHandler>
   );
