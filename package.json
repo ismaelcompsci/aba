@@ -1,6 +1,6 @@
 {
   "name": "aba",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "android": "TAMAGUI_TARGET=native expo run:android",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",

@@ -2,7 +2,7 @@
   "expo": {
     "name": "aba",
     "slug": "aba",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scheme": "aba",
     "web": {
       "bundler": "metro",

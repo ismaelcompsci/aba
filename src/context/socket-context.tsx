@@ -45,13 +45,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     const onUserUpdated = debounce((user: User) => {
       console.debug("[SOCKET] User updated", user.username);
-      // setUser((prev) => {
-      //   if (prev && prev.id == user.id) {
-      //     return user;
-      //   }
-      //   return prev;
-      // });
-
       setMediaProgress((prev) => {
         if (user.mediaProgress.length > prev.length) {
           return [
