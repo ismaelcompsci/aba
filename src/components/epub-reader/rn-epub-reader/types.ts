@@ -9,6 +9,7 @@ export type ShowAnnotation = {
   index: number;
   pos: { dir: string; point: { x: number; y: number } };
   value: string;
+  isNew?: boolean;
 };
 
 export type MenuActions =
@@ -17,6 +18,7 @@ export type MenuActions =
   | { action: "underline"; color: string }
   | { action: "strikethrough"; color: string }
   | { action: "squiggly"; color: string }
+  | { action: "delete"; color?: string }
   | { action: "speak_from_here"; color?: string };
 
 export type MenuSelectionEvent = {
@@ -258,4 +260,5 @@ export interface ReaderProps {
   onCustomMenuSelection?: ((event: MenuSelectionEvent) => void) | undefined;
   onNewAnnotation?: (annotation: Annotation) => void;
   onAnnotationClick?: ({ index, pos, value }: ShowAnnotation) => void;
+  onDeleteAnnotation?: (annotation: Annotation) => void;
 }

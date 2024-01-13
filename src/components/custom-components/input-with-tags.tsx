@@ -20,6 +20,11 @@ const SELECTED_TAG_DEFAULT = {
   y: 0,
 };
 
+/**
+ * TODO close popover without force umount
+ * may cause other popovers to not work
+ */
+
 type InputWithTagsProps = {
   defaultTags?: string[];
   tags: string[];

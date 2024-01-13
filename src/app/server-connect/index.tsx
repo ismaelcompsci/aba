@@ -91,7 +91,6 @@ const ServerConnectPage = () => {
     );
 
     if (duplicateConfig) {
-      // TODO
       Burnt.toast({
         title: "Duplicate login",
         message: "username and address already exist",

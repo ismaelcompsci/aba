@@ -35,8 +35,7 @@ export function View({
   width,
   height,
   defaultTheme,
-  menuItems,
-  onCustomMenuSelection = () => {},
+  onDeleteAnnotation = () => {},
   onNewAnnotation = () => {},
   onAnnotationClick = () => {},
 }: ViewProps) {
@@ -133,15 +132,6 @@ export function View({
     if (type === "onLocationChange") {
       const { cfi, fraction, location, tocItem, pageItem, section, time } =
         parsedEvent;
-      // setCurrentLocation({
-      //   cfi,
-      //   fraction,
-      //   location,
-      //   tocItem,
-      //   pageItem,
-      //   section,
-      //   time,
-      // });
       onLocationChange({
         cfi,
         fraction,
@@ -164,14 +154,14 @@ export function View({
     }
 
     if (type === "annotationClick") {
-      const { index, value, pos } = parsedEvent;
-      onAnnotationClick({ index, value, pos });
+      const { index, value, pos, isNew } = parsedEvent;
+      onAnnotationClick({ index, value, pos, isNew });
     }
 
-    // if (type === "tts") {
-    //   const { ssml, action } = parsedEvent;
-    //   DeviceEventEmitter.emit("TTS.ssml", { ssml, action });
-    // }
+    if (type === "deleteAnnotation") {
+      const { annotation } = parsedEvent;
+      onDeleteAnnotation(annotation);
+    }
   };
 
   useEffect(() => {
@@ -242,8 +232,9 @@ export function View({
           automaticallyAdjustContentInsets={false}
           allowsLinkPreview={false}
           startInLoadingState={true}
-          menuItems={menuItems}
-          onCustomMenuSelection={onCustomMenuSelection}
+          // menuItems={menuItems}
+          // onCustomMenuSelection={onCustomMenuSelection}
+
           style={{
             width,
             overflow: "hidden",

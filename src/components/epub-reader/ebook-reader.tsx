@@ -19,11 +19,11 @@ import { bookAnnotationsAtom } from "../../state/local-state";
 import { LibraryItemExpanded } from "../../types/aba";
 import { awaitTimeout } from "../../utils/utils";
 
+import { readerPopoverMenuAtom } from "./components/reader-popover-menu";
 import {
   Annotation,
   BookAnnotations,
   LocationChange,
-  MenuSelectionEvent,
   Reader,
   ReaderBook,
   ShowAnnotation,
@@ -87,10 +87,11 @@ const EBookReader = ({
   const setEpubReaderSectionFractions = useSetAtom(
     epubReaderSectionFractionsAtom
   );
+  const setReaderPopoverMenu = useSetAtom(readerPopoverMenuAtom);
   const setEpubReaderMenuInlineSize = useSetAtom(epubReaderMenuInlineSizeAtom);
   const [ready, setReady] = useState(false);
 
-  const { setIsPdf, useMenuAction, setAnnotations, openMenu } = useReader();
+  const { setIsPdf, setAnnotations } = useReader();
 
   const isPdf = useMemo(
     () => bookPath.endsWith(".pdf") || bookPath.endsWith("cbz"),
@@ -146,31 +147,6 @@ const EBookReader = ({
     updateProgress(payload);
   };
 
-  const onCustomMenuSelection = (event: MenuSelectionEvent) => {
-    switch (event.nativeEvent.key) {
-      case "copy":
-        useMenuAction({ action: "copy" });
-        break;
-      case "highlight":
-        useMenuAction({ action: "highlight", color: "yellow" });
-        break;
-      case "strikethrough":
-        useMenuAction({ action: "strikethrough", color: "strikethrough" });
-        break;
-      case "squiggly":
-        useMenuAction({ action: "squiggly", color: "squiggly" });
-        break;
-      case "underline":
-        useMenuAction({ action: "underline", color: "underline" });
-        break;
-      case "speak_from_here":
-        useMenuAction({ action: "speak_from_here" });
-        break;
-      default:
-        break;
-    }
-  };
-
   const onNewAnnotation = (annotation: Annotation) => {
     // @ts-ignore
     if (annotation.pos) delete annotation.pos;
@@ -196,22 +172,26 @@ const EBookReader = ({
     });
   };
 
-  const onAnnotationClick = ({ pos }: ShowAnnotation) => {
-    openMenu({ x: pos.point.x, y: pos.point.y });
+  const onDeleteAnnotation = (annotation: Annotation) => {
+    setBookAnnotations((prev) => {
+      const newAnnotations = { ...prev };
+      const filteredAnnotations = newAnnotations[annotationKey]?.filter(
+        (anns) => anns.value !== annotation.value
+      );
+
+      if (filteredAnnotations && newAnnotations[annotationKey]?.length >= 0) {
+        newAnnotations[annotationKey] = filteredAnnotations;
+      } else {
+        newAnnotations[annotationKey] = [];
+      }
+
+      return newAnnotations;
+    });
   };
 
-  // const annotationAction = (action: string) => {
-  //   if (action === "delete") {
-  //     const filteredAnnotations = bookAnnotations[book.id].filter(
-  //       (an) => an.value !== annotaionOpen.value
-  //     );
-  //     setBookAnnotations((prev: BookAnnotations) => {
-  //       const newAnnotaions = { ...prev };
-  //       newAnnotaions[book.id] = filteredAnnotations;
-  //       return newAnnotaions;
-  //     });
-  //   }
-  // };
+  const onAnnotationClick = ({ pos, isNew }: ShowAnnotation) => {
+    setReaderPopoverMenu({ open: true, ...pos.point, isNew });
+  };
 
   const updateProgress = async (payload: {
     ebookLocation: string;
@@ -231,7 +211,6 @@ const EBookReader = ({
   };
 
   useEffect(() => {
-    // StatusBar.setHidden(!hide);
     return () => StatusBar.setHidden(false);
   }, []);
 
@@ -262,8 +241,7 @@ const EBookReader = ({
         onDisplayError={onDisplayError}
         onNewAnnotation={onNewAnnotation}
         onAnnotationClick={onAnnotationClick}
-        menuItems={MENU_ITEMS}
-        onCustomMenuSelection={onCustomMenuSelection}
+        onDeleteAnnotation={onDeleteAnnotation}
       />
     </>
   );

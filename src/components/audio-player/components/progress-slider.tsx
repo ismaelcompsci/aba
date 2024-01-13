@@ -185,7 +185,7 @@ export const ProgressSlider = ({
         onValueChange={setSeek}
         onSlidingComplete={() => handleSliderEnd(seek)}
         maximumValue={duration ? Math.floor(duration) : 99999}
-        tapToSeek
+        tapToSeek={IS_ANDROID}
       />
       <Flex
         row

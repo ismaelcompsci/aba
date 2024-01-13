@@ -11,7 +11,8 @@
     "xcode": "xed ./ios",
     "prod": "TAMAGUI_TARGET=native npx expo start --no-dev --minify",
     "postinstall": "patch-package",
-    "apk": "eas build --profile production --platform android --local"
+    "apk": "eas build --profile production --platform android --local",
+    "ios-simulator": "open -a Simulator --args -CurrentDeviceUDID DF023E73-0ACF-495C-84FF-4752BC4ED9ED"
   },
   "dependencies": {
     "@epubjs-react-native/expo-file-system": "^1.0.0",

@@ -5,6 +5,7 @@ import { useAtomValue } from "jotai";
 
 import { BookInfoModal } from "../../components/epub-reader/components/book-modal";
 import { Menu } from "../../components/epub-reader/components/menu/menu";
+import { ReaderPopoverMenu } from "../../components/epub-reader/components/reader-popover-menu";
 import {
   ReaderProvider,
   useReader,
@@ -22,6 +23,7 @@ const layout = () => {
       />
       <Menu />
       <BookInfoModal />
+      <ReaderPopoverMenu />
       <ThemeUpdater />
     </ReaderProvider>
   );

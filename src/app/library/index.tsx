@@ -376,7 +376,6 @@ const LibraryItemAddedNotification = () => {
       timer && clearTimeout(timer);
       timer = null;
 
-      // TODO new item into setQuery data
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ["personalized-library-view"],
