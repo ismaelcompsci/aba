@@ -325,7 +325,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
   // @ts-ignore
   const useMenuAction = useCallback(({ action, value }: MenuActions) => {
     if (value) {
-      console.log(value);
       book.current?.injectJavaScript(`
       reader.onSelectedResponse({ action: '${action}', value: '${value}' });
       `);

@@ -22,7 +22,7 @@ const Annotations = () => {
   const annotationKey = `${id}-${user?.id}`;
   const annotations = bookAnnotations[annotationKey];
 
-  const { headerHeight } = useAppSafeAreas();
+  const { bottom } = useAppSafeAreas();
 
   const handleAnnotationPress = (value: string) => {
     goToLocation(value);
@@ -49,11 +49,7 @@ const Annotations = () => {
   };
 
   return (
-    <Screen
-      padding={"$4"}
-      centered
-      pb={!annotations?.length ? headerHeight : undefined}
-    >
+    <Screen padding={"$4"} centered pb={bottom + 40}>
       {annotations?.length ? (
         <ScrollView
           space

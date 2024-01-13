@@ -140,6 +140,7 @@ export const ReaderPopoverMenu = () => {
                 <TouchableArea
                   key={item}
                   onPress={() => onCustomMenuSelection(item)}
+                  hitSlop={12}
                 >
                   <Icon
                     size={22}

@@ -1,7 +1,7 @@
 import React from "react";
 import { useWindowDimensions } from "react-native";
 import RenderHtml from "react-native-render-html";
-import { H3, Image, Text, useTheme } from "tamagui";
+import { H3, Image, ScrollView, Text, useTheme } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
 import { Flex } from "../../../layout/flex";
@@ -45,7 +45,7 @@ export const Overview = () => {
   ).toDateString();
 
   return (
-    <Flex flex={1} bg="$background" padding="$2" width={width} space>
+    <ScrollView flex={1} bg="$background" padding="$2" width={width} space>
       <Flex pb={bottom}>
         <Flex row>
           {cover ? (
@@ -81,6 +81,6 @@ export const Overview = () => {
           />
         ) : null}
       </Flex>
-    </Flex>
+    </ScrollView>
   );
 };
