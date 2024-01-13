@@ -18,7 +18,7 @@ export type MenuActions =
   | { action: "underline"; color: string }
   | { action: "strikethrough"; color: string }
   | { action: "squiggly"; color: string }
-  | { action: "delete"; color?: string }
+  | { action: "delete"; value?: string }
   | { action: "speak_from_here"; color?: string };
 
 export type MenuSelectionEvent = {

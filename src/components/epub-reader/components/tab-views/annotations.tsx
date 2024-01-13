@@ -1,6 +1,6 @@
-import { ArrowUp } from "@tamagui/lucide-icons";
+import { ArrowUp, Trash2 } from "@tamagui/lucide-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Button, ScrollView, Separator, Text } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
@@ -14,10 +14,11 @@ import { useReader } from "../../rn-epub-reader";
 
 const Annotations = () => {
   const user = useAtomValue(userAtom);
-  const { goToLocation } = useReader();
+  const { goToLocation, useMenuAction } = useReader();
   const { id } = useLocalSearchParams();
-  const bookAnnotations = useAtomValue(bookAnnotationsAtom);
+  const [bookAnnotations, setBookAnnotations] = useAtom(bookAnnotationsAtom);
   const setEpubReaderOverviewModal = useSetAtom(epubReaderOverviewModalAtom);
+
   const annotationKey = `${id}-${user?.id}`;
   const annotations = bookAnnotations[annotationKey];
 
@@ -26,6 +27,25 @@ const Annotations = () => {
   const handleAnnotationPress = (value: string) => {
     goToLocation(value);
     setEpubReaderOverviewModal(false);
+  };
+
+  const deleteAnnotation = (value: string) => {
+    setBookAnnotations((prev) => {
+      const newAnnotations = { ...prev };
+      const filteredAnnotations = newAnnotations[annotationKey]?.filter(
+        (anns) => anns.value !== value
+      );
+
+      if (filteredAnnotations && newAnnotations[annotationKey]?.length >= 0) {
+        newAnnotations[annotationKey] = filteredAnnotations;
+      } else {
+        newAnnotations[annotationKey] = [];
+      }
+
+      return newAnnotations;
+    });
+
+    useMenuAction({ action: "delete", value });
   };
 
   return (
@@ -85,12 +105,21 @@ const Annotations = () => {
                   <Text color={"$gray11"} fontSize={"$1"}>
                     {date.toLocaleString()}
                   </Text>
-                  <Button
-                    circular
-                    size={"$1.5"}
-                    icon={ArrowUp}
-                    onPress={() => handleAnnotationPress(ann.value)}
-                  />
+                  <Flex row space="$4">
+                    <Button
+                      circular
+                      size={"$1.5"}
+                      icon={ArrowUp}
+                      onPress={() => handleAnnotationPress(ann.value)}
+                    />
+                    <Button
+                      circular
+                      size={"$1.5"}
+                      icon={Trash2}
+                      theme={"red"}
+                      onPress={() => deleteAnnotation(ann.value)}
+                    />
+                  </Flex>
                 </Flex>
                 <Separator />
               </Flex>

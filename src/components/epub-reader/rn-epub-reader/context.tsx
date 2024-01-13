@@ -322,10 +322,18 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
 
   const getMeta = useCallback(() => state.meta, [state.meta]);
 
-  const useMenuAction = useCallback(({ action }: MenuActions) => {
-    book.current?.injectJavaScript(`
-    reader.onSelectedResponse({ action: '${action}' });
-    `);
+  // @ts-ignore
+  const useMenuAction = useCallback(({ action, value }: MenuActions) => {
+    if (value) {
+      console.log(value);
+      book.current?.injectJavaScript(`
+      reader.onSelectedResponse({ action: '${action}', value: '${value}' });
+      `);
+    } else {
+      book.current?.injectJavaScript(`
+      reader.onSelectedResponse({ action: '${action}' });
+      `);
+    }
   }, []);
 
   const setAnnotations = useCallback((annotations: Annotation[]) => {
