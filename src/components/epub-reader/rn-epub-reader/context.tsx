@@ -10,13 +10,7 @@ import type WebView from "react-native-webview";
 
 import { themes } from "../components/themes";
 
-import type {
-  Annotation,
-  ePubCfi,
-  MenuActions,
-  ReaderBookMetadata,
-  Theme,
-} from "./types";
+import type { Annotation, ePubCfi, MenuActions, Theme } from "./types";
 
 type ActionMap<M extends { [index: string]: unknown }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -45,7 +39,6 @@ enum Types {
 type BookPayload = {
   [Types.CHANGE_THEME]: Theme;
   [Types.SET_KEY]: string;
-  [Types.SET_META]: ReaderBookMetadata;
   [Types.SET_LOCATIONS]: ePubCfi[];
   [Types.SET_IS_LOADING]: boolean;
   [Types.SET_IS_RENDERING]: boolean;
@@ -58,12 +51,10 @@ type BookActions = ActionMap<BookPayload>[keyof ActionMap<BookPayload>];
 type InitialState = {
   theme: Theme;
   key: string;
-  meta: ReaderBookMetadata;
   isLoading: boolean;
   isRendering: boolean;
   isPdf: boolean;
   cover: string;
-  progress: number;
 };
 
 const w = Dimensions.get("window").width;
@@ -84,14 +75,6 @@ export const defaultTheme: Theme = {
 const initialState: InitialState = {
   theme: defaultTheme,
   key: "",
-  meta: {
-    author: "",
-    title: "",
-    description: "",
-    language: "",
-    publisher: "",
-  },
-  progress: 0,
   isLoading: true,
   isRendering: true,
   isPdf: false,
@@ -100,20 +83,10 @@ const initialState: InitialState = {
 
 function bookReducer(state: InitialState, action: BookActions): InitialState {
   switch (action.type) {
-    case Types.CHANGE_THEME:
-      return {
-        ...state,
-        theme: action.payload,
-      };
     case Types.SET_KEY:
       return {
         ...state,
         key: action.payload,
-      };
-    case Types.SET_META:
-      return {
-        ...state,
-        meta: action.payload,
       };
     case Types.SET_IS_LOADING:
       return {
@@ -145,7 +118,6 @@ export interface ReaderContextProps {
   setAnnotations: (annotations: Annotation[]) => void;
   useMenuAction: (action: MenuActions) => void;
   registerBook: (bookRef: WebView) => void;
-  setMeta: (meta: ReaderBookMetadata) => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsRendering: (isRendering: boolean) => void;
   setIsPdf: (isPdf: boolean) => void;
@@ -162,12 +134,6 @@ export interface ReaderContextProps {
   //  */
   goNext: () => void;
 
-  /**
-   * Returns an object containing the book's metadata
-   * @returns {ReaderBookMetadata}
-   */
-  getMeta: () => ReaderBookMetadata;
-
   // /**
   //  * @param theme {@link Theme}
   //  * @description Theme object.
@@ -182,11 +148,6 @@ export interface ReaderContextProps {
   //  * A theme object.
   //  */
   theme: Theme;
-
-  /**
-   * An object containing the book's metadata
-   */
-  meta: ReaderBookMetadata;
 
   /**
    * Indicates if the book is loading
@@ -212,31 +173,15 @@ const ReaderContext = createContext<ReaderContextProps>({
   openMenu: () => {},
   useMenuAction: () => {},
   registerBook: () => {},
-  setMeta: () => {},
   setIsLoading: () => {},
   setIsRendering: () => {},
   setIsPdf: () => {},
   goToLocation: () => {},
   goPrevious: () => {},
   goNext: () => {},
-  getMeta: () => ({
-    author: "",
-    title: "",
-    description: "",
-    language: "",
-    publisher: "",
-  }),
   setCover: () => {},
-
   changeTheme: () => {},
   theme: defaultTheme,
-  meta: {
-    author: "",
-    title: "",
-    description: "",
-    language: "",
-    publisher: "",
-  },
   isLoading: true,
   isRendering: true,
   isPdf: false,
@@ -279,10 +224,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     `);
   }, []);
 
-  const setMeta = useCallback((meta: ReaderBookMetadata) => {
-    dispatch({ type: Types.SET_META, payload: meta });
-  }, []);
-
   const setIsLoading = useCallback((isLoading: boolean) => {
     dispatch({ type: Types.SET_IS_LOADING, payload: isLoading });
   }, []);
@@ -320,8 +261,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: Types.SET_COVER, payload: cover });
   }, []);
 
-  const getMeta = useCallback(() => state.meta, [state.meta]);
-
   // @ts-ignore
   const useMenuAction = useCallback(({ action, value }: MenuActions) => {
     if (value) {
@@ -341,9 +280,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
     `);
   }, []);
 
-  // TODO
-  // const deleteAnnotation = useCallback(() => {}, []);
-
   const setIsPdf = useCallback((isPdf: boolean) => {
     dispatch({ type: Types.SET_IS_PDF, payload: isPdf });
   }, []);
@@ -358,7 +294,6 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       setAnnotations,
       useMenuAction,
       registerBook,
-      setMeta,
       setIsLoading,
       setIsRendering,
       setIsPdf,
@@ -367,14 +302,10 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       goToLocation,
       goPrevious,
       goNext,
-      getMeta,
       setKey,
       changeTheme,
       key: state.key,
       theme: state.theme,
-
-      meta: state.meta,
-      progress: state.progress,
       isLoading: state.isLoading,
       isRendering: state.isRendering,
       isPdf: state.isPdf,
@@ -385,22 +316,18 @@ function ReaderProvider({ children }: { children: React.ReactNode }) {
       useMenuAction,
       setAnnotations,
       changeTheme,
-      getMeta,
       goNext,
       goPrevious,
       goToLocation,
       registerBook,
-      setMeta,
       setIsLoading,
       setIsRendering,
       setIsPdf,
       setKey,
       setCover,
-      state.meta,
       state.isLoading,
       state.isRendering,
       state.key,
-      state.progress,
       state.theme,
       state.isPdf,
       state.cover,

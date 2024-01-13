@@ -15,7 +15,7 @@ import { deviceIdAtom } from "../../state/local-state";
 import { PlaybackSessionExpanded } from "../../types/aba";
 import { AudioPlayerTrack, AudioPlayerTrackExtra } from "../../types/types";
 import { getItemCoverSrc } from "../../utils/api";
-import { awaitTimeout, generateUUID } from "../../utils/utils";
+import { generateUUID } from "../../utils/utils";
 import { Flex } from "../layout/flex";
 
 import { sliderLoadingAtom } from "./components/progress-slider";
@@ -120,7 +120,6 @@ const AudioPlayerContainer = () => {
       startTime - (currentTrack.startOffset || 0)
     );
     await TrackPlayer.skip(trackIndex, trackPosition);
-    await awaitTimeout(100);
     setSliderLoadingAtom(false);
   };
 

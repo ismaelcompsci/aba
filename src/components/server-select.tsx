@@ -10,7 +10,6 @@ import {
   librariesAtom,
 } from "../state/app-state";
 import { lastLibraryIdAtom } from "../state/local-state";
-import { awaitTimeout } from "../utils/utils";
 
 import { Flex } from "./layout/flex";
 import { TouchableArea } from "./touchable/touchable-area";
@@ -30,7 +29,6 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
   const onValueChange = async (value: string) => {
     const updatedLib = libraries.find((lib) => lib.name === value);
     if (updatedLib?.id === currentLibraryId) return;
-    setOpen(false);
     setChangingLibrary(true);
 
     if (!updatedLib) {
@@ -40,7 +38,6 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
 
     setCurrentLibraryId(updatedLib?.id);
     setLastLibraryId(updatedLib.id);
-    await awaitTimeout(800);
     setChangingLibrary(false);
   };
 

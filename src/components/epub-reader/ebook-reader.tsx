@@ -8,6 +8,7 @@ import { useAtom, useSetAtom } from "jotai";
 
 import { IS_ANDROID } from "../../constants/consts";
 import {
+  epubReaderBookMetadataAtom,
   epubReaderCurrentLocationAtom,
   epubReaderLoadingAtom,
   epubReaderMenuInlineSizeAtom,
@@ -87,6 +88,7 @@ const EBookReader = ({
   const setEpubReaderSectionFractions = useSetAtom(
     epubReaderSectionFractionsAtom
   );
+  const setEpubReaderBookMetadata = useSetAtom(epubReaderBookMetadataAtom);
   const setReaderPopoverMenu = useSetAtom(readerPopoverMenuAtom);
   const setEpubReaderMenuInlineSize = useSetAtom(epubReaderMenuInlineSizeAtom);
   const [ready, setReady] = useState(false);
@@ -111,6 +113,7 @@ const EBookReader = ({
       part: "Opening Book...",
       percent: 1,
     });
+    setEpubReaderBookMetadata(readyBook.metadata);
     await awaitTimeout(100);
     setEpubReaderLoading({ loading: false });
     setReady(true);

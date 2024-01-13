@@ -3,6 +3,7 @@ import { focusAtom } from "jotai-optics";
 
 import {
   LocationChange,
+  ReaderBookMetadata,
   TocItem,
 } from "../components/epub-reader/rn-epub-reader";
 import { EpubReaderLoading } from "../types/types";
@@ -13,6 +14,7 @@ import { ebookSettignsAtom } from "./local-state";
 export const epubReaderOverviewModalAtom = atom(false);
 export const epubReaderShowMenuAtom = atom(false);
 export const epubReaderTocAtom = atom<TocItem[] | null>(null);
+export const epubReaderBookMetadataAtom = atom<ReaderBookMetadata | null>(null);
 export const epubReaderCurrentLocationAtom = atom<LocationChange | null>(null);
 export const epubReaderSectionFractionsAtom = atom<number[] | null>(null);
 export const epubReaderLoadingAtom = atom<EpubReaderLoading>({

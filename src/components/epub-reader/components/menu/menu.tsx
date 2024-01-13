@@ -12,13 +12,13 @@ import { H6 } from "tamagui";
 
 import { useAppSafeAreas } from "../../../../hooks/use-app-safe-areas";
 import {
+  epubReaderBookMetadataAtom,
   epubReaderOverviewModalAtom,
   epubReaderShowMenuAtom,
 } from "../../../../state/epub-reader-state";
 import { BackButton } from "../../../layout/back-header";
 import { AnimatedFlex, Flex } from "../../../layout/flex";
 import { TouchableArea } from "../../../touchable/touchable-area";
-import { useReader } from "../../rn-epub-reader";
 
 import { BottomMenu } from "./bottom-menu";
 import { EbookSettingsMenu } from "./ebook-settings-menu";
@@ -109,12 +109,11 @@ export const Menu = () => {
 };
 
 const ItemTitle = () => {
-  const { getMeta } = useReader();
-  const metadata = getMeta();
+  const metadata = useAtomValue(epubReaderBookMetadataAtom);
 
   return (
     <H6 numberOfLines={1} maxWidth={"75%"}>
-      {metadata.title}
+      {metadata?.title ?? ""}
     </H6>
   );
 };

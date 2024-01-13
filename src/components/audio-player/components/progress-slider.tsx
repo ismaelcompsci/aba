@@ -9,7 +9,7 @@ import axios from "axios";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { Text } from "tamagui";
 
-import { IS_ANDROID } from "../../../constants/consts";
+import { IS_ANDROID, IS_IOS } from "../../../constants/consts";
 import {
   playbackSessionAtom,
   serverAddressAtom,
@@ -185,7 +185,7 @@ export const ProgressSlider = ({
         onValueChange={setSeek}
         onSlidingComplete={() => handleSliderEnd(seek)}
         maximumValue={duration ? Math.floor(duration) : 99999}
-        tapToSeek={IS_ANDROID}
+        tapToSeek={IS_IOS}
       />
       <Flex
         row

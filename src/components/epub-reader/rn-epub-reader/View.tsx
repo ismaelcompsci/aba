@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { I18nManager, useWindowDimensions, View as RNView } from "react-native";
 import {
   Directions,
@@ -10,8 +10,6 @@ import { runOnJS } from "react-native-reanimated";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import Clipboard from "@react-native-clipboard/clipboard";
 import RNFetchBlob from "rn-fetch-blob";
-
-import { themes } from "../components/themes";
 
 import { ReaderContext } from "./context";
 import type { ReaderProps } from "./types";
@@ -46,9 +44,7 @@ export function View({
     goPrevious,
     changeTheme,
     setCover,
-    setMeta,
     isPdf,
-    theme,
   } = useContext(ReaderContext);
   const book = useRef<WebView>(null);
   const { width: SCREEN_WIDTH } = useWindowDimensions();
@@ -109,7 +105,6 @@ export function View({
       if (defaultTheme) {
         changeTheme(defaultTheme);
       }
-      setMeta(book.metadata);
       setIsRendering(false);
       onReady(book);
     }
@@ -190,12 +185,6 @@ export function View({
     }, 130);
   };
 
-  const _theme = useCallback(
-    () => themes.find((th) => th.name === theme.theme),
-    []
-  );
-  const t = _theme();
-
   return (
     <PDFGestureDetector
       isPdf={isPdf}
@@ -206,7 +195,6 @@ export function View({
           height: height,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: t?.bg,
           width: width,
         }}
       >
@@ -240,7 +228,6 @@ export function View({
             overflow: "hidden",
             height,
             flex: 1,
-            backgroundColor: t?.bg,
           }}
         />
       </RNView>

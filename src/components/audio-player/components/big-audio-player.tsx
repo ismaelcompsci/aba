@@ -24,6 +24,7 @@ import AudioPlayerMore from "../../menus/audio-player-more";
 import { chaptersModalAtom } from "../../modals/chapter-modal";
 import { playlistModalAtom } from "../../modals/playlist-modal";
 import { TouchableArea } from "../../touchable/touchable-area";
+import { chaptersAtom } from "../hooks/use-tracks";
 
 import BigAudioPlayerControls from "./big-audio-player-controls";
 import PlaybackSpeedControls from "./playback-speed-controls";
@@ -196,6 +197,9 @@ const ShowBookmarksButton = ({ libraryItemId }: { libraryItemId: string }) => {
 
 const ShowChaptersButton = () => {
   const setChaptersModal = useSetAtom(chaptersModalAtom);
+  const chapters = useAtomValue(chaptersAtom);
+
+  const disable = !chapters?.length;
 
   return (
     <TouchableArea
@@ -205,6 +209,8 @@ const ShowChaptersButton = () => {
       alignItems={"center"}
       justifyContent={"center"}
       onPress={() => setChaptersModal({ open: true })}
+      disabled={disable}
+      opacity={disable ? 0.5 : 1}
     >
       <ListOrdered />
     </TouchableArea>

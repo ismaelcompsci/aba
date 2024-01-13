@@ -11,8 +11,6 @@ export function useReader() {
     goToLocation,
     goPrevious,
     goNext,
-    getMeta,
-    theme,
     isLoading,
     isRendering,
     setIsPdf,
@@ -28,8 +26,6 @@ export function useReader() {
     goToLocation,
     goPrevious,
     goNext,
-    getMeta,
-    theme,
     isRendering,
     isLoading,
     isPdf,
@@ -41,8 +37,6 @@ export function useReader() {
     | "goToLocation"
     | "goPrevious"
     | "goNext"
-    | "getMeta"
-    | "theme"
     | "isLoading"
     | "isRendering"
     | "setIsPdf"
