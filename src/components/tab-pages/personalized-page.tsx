@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { FadeIn, FadeInRight } from "react-native-reanimated";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -57,8 +57,12 @@ const PersonalizedPage = ({
 
   const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
 
-  const personalizedLibraryShelfs = personalizedLibrary?.filter(
-    (shelf) => shelf?.label !== "Continue Listening"
+  const personalizedLibraryShelfs = useMemo(
+    () =>
+      personalizedLibrary?.filter(
+        (shelf) => shelf?.label !== "Continue Listening"
+      ),
+    [currentLibraryId, isLoading]
   );
 
   const continueListeningShelf = personalizedLibrary?.[0];

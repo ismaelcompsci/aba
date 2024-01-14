@@ -1,7 +1,9 @@
 import React from "react";
 import { FlatList } from "react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useAtomValue } from "jotai";
 
+import { IS_IOS } from "../../constants/consts";
 import {
   isCoverSquareAspectRatioAtom,
   requestInfoAtom,
@@ -26,31 +28,59 @@ export const ContinueListeningShelf = ({
         height: 324 + 20,
       }}
     >
-      <FlatList
-        horizontal
-        ItemSeparatorComponent={() => <Flex w={10} />}
-        showsHorizontalScrollIndicator={false}
-        data={shelf.entities}
-        contentContainerStyle={{
-          paddingHorizontal: 18,
-          paddingTop: 12,
-          paddingBottom: 12,
-          columnGap: 12,
-        }}
-        keyExtractor={(item) =>
-          (item.recentEpisode ? item.recentEpisode.id : item.id) + "home-"
-        }
-        renderItem={({ item }) => {
-          return (
-            <ShelfCard
-              item={item}
-              serverAddress={requestInfo.serverAddress}
-              token={requestInfo.token}
-              isCoverSquareAspectRatio={isCoverSquareAspectRatio}
-            />
-          );
-        }}
-      />
+      {IS_IOS ? (
+        <FlashList
+          horizontal
+          ItemSeparatorComponent={() => <Flex w={10} />}
+          showsHorizontalScrollIndicator={false}
+          data={shelf.entities}
+          contentContainerStyle={{
+            paddingHorizontal: 18,
+            paddingTop: 12,
+            paddingBottom: 12,
+          }}
+          estimatedItemSize={258}
+          keyExtractor={(item) =>
+            (item.recentEpisode ? item.recentEpisode.id : item.id) + "home-"
+          }
+          renderItem={({ item }) => {
+            return (
+              <ShelfCard
+                item={item}
+                serverAddress={requestInfo.serverAddress}
+                token={requestInfo.token}
+                isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+              />
+            );
+          }}
+        />
+      ) : (
+        <FlatList
+          horizontal
+          ItemSeparatorComponent={() => <Flex w={10} />}
+          showsHorizontalScrollIndicator={false}
+          data={shelf.entities}
+          contentContainerStyle={{
+            paddingHorizontal: 18,
+            paddingTop: 12,
+            paddingBottom: 12,
+            columnGap: 12,
+          }}
+          keyExtractor={(item) =>
+            (item.recentEpisode ? item.recentEpisode.id : item.id) + "home-"
+          }
+          renderItem={({ item }) => {
+            return (
+              <ShelfCard
+                item={item}
+                serverAddress={requestInfo.serverAddress}
+                token={requestInfo.token}
+                isCoverSquareAspectRatio={isCoverSquareAspectRatio}
+              />
+            );
+          }}
+        />
+      )}
     </Flex>
   );
 };
