@@ -33,6 +33,7 @@ const PersonalizedPage = ({
     data: personalizedLibrary,
     isLoading,
     isInitialLoading,
+    isFetching,
   } = useQuery(
     ["personalized-library-view", currentLibraryId, userToken, serverAddress],
     {
@@ -51,12 +52,11 @@ const PersonalizedPage = ({
           }
         }
       },
-      staleTime: 1000 * 60 * 60,
+      staleTime: 1000 * 20,
     }
   );
 
   const isEmpty = personalizedLibrary?.length === 0 && !isLoading;
-
   const personalizedLibraryShelfs = useMemo(
     () =>
       personalizedLibrary?.filter(
@@ -79,7 +79,7 @@ const PersonalizedPage = ({
       }
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        {!isLoading && continueListeningShelf ? (
+        {!isLoading && continueListeningShelf && !isFetching ? (
           <ContinueListeningShelf shelf={continueListeningShelf} />
         ) : (
           <Flex
@@ -115,7 +115,11 @@ const PersonalizedPage = ({
           serverAddress={serverAddress}
           userToken={userToken}
         />
-        {isInitialLoading || isLoading || changingLibrary || isEmpty ? (
+        {isInitialLoading ||
+        isLoading ||
+        changingLibrary ||
+        isEmpty ||
+        isFetching ? (
           isEmpty ? (
             <Text>EMPTY :/</Text>
           ) : (

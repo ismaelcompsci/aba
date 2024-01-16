@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useWindowDimensions } from "react-native";
+import { StatusBar, useWindowDimensions } from "react-native";
 import {
   FadeInDown,
   FadeInUp,
@@ -34,6 +34,9 @@ export const Menu = () => {
   useEffect(() => {
     if (!show) {
       setOpenSettings(false);
+      StatusBar.setHidden(true);
+    } else {
+      StatusBar.setHidden(false);
     }
   }, [show]);
 

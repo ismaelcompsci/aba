@@ -27,6 +27,7 @@ const AuthorCard = ({
     router.push(`/library/authors/${encode(author.id)}?name=${author.name}`);
   };
 
+  console.log(author);
   return (
     <TouchableArea
       w={width}
@@ -41,6 +42,11 @@ const AuthorCard = ({
       shadowOpacity={0.36}
       shadowRadius={6.68}
       onPress={authorPress}
+      accessible
+      accessibilityLabel={`${author.name}, has ${
+        author.numBooks == 1 ? "1 book" : `${author.numBooks} books`
+      }`}
+      accessibilityHint="Go to list of books by author"
     >
       <Flex
         pos={"absolute"}
@@ -50,6 +56,7 @@ const AuthorCard = ({
         py={5}
         bg="$background"
         borderRadius={89}
+        zIndex={100000}
       >
         <Text fontSize={10}>{author.numBooks}</Text>
       </Flex>

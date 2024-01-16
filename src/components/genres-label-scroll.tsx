@@ -1,7 +1,9 @@
 import { router } from "expo-router";
-import { Button, ScrollView, ScrollViewProps, Text } from "tamagui";
+import { ScrollView, ScrollViewProps, Text } from "tamagui";
 
 import { encode } from "../utils/utils";
+
+import { TouchableArea } from "./touchable/touchable-area";
 
 const GenresLabelScroll = ({
   genres,
@@ -14,19 +16,24 @@ const GenresLabelScroll = ({
   return (
     <ScrollView {...rest}>
       {genres.map((gen) => (
-        <Button
+        <TouchableArea
           h="$2"
           br="$10"
-          noTextWrap
+          px="$4"
+          alignItems="center"
+          justifyContent="center"
           key={gen}
-          bordered
-          transparent
+          borderWidth={2}
+          borderColor={"$borderColor"}
           onPress={() => handleGenrePress(gen)}
+          accessible
+          accessibilityLabel={`${gen} label`}
+          accessibilityHint={`Go to list of books with genre ${gen}`}
         >
           <Text numberOfLines={1} maxWidth={200}>
             {gen}
           </Text>
-        </Button>
+        </TouchableArea>
       ))}
     </ScrollView>
   );

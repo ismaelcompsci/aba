@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Popover, PopoverProps, Text, useTheme } from "tamagui";
+import { Popover, PopoverProps, ScrollView, Text, useTheme } from "tamagui";
 
 import { IS_ANDROID } from "../constants/consts";
 import {
@@ -53,7 +53,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
       open={open}
       onOpenChange={setOpen}
     >
-      <Popover.Trigger>
+      <Popover.Trigger accessible accessibilityLabel="Library select">
         <TouchableArea
           minWidth={80}
           alignItems="center"
@@ -97,8 +97,8 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
       >
         <Popover.Arrow borderWidth={1} borderColor="$borderColor" />
 
-        <Flex space>
-          {libraries.map((lib) => {
+        <ScrollView space maxHeight={400} bounces={false}>
+          {libraries.map((lib, index) => {
             const Icon = lib?.icon ? iconMap[lib.icon] : iconMap["database"];
 
             return (
@@ -109,6 +109,8 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
                 justifyContent="space-between"
                 onPress={() => onValueChange(lib.name)}
                 opacity={currentLibraryId === lib.id ? 0.2 : 1}
+                accessible
+                accessibilityLabel={`Library ${lib.name}`}
               >
                 <Text fontWeight="$7">{lib.name}</Text>
                 <Flex minWidth={"$4"} />
@@ -116,7 +118,7 @@ const ServerSelect = ({ ...props }: PopoverProps) => {
               </TouchableArea>
             );
           })}
-        </Flex>
+        </ScrollView>
       </Popover.Content>
     </Popover>
   );

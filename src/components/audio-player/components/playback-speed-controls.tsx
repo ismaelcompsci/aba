@@ -27,6 +27,9 @@ const PlaybackSpeedControls = () => {
           pressStyle={{
             opacity: 0.8,
           }}
+          accessible
+          accessibilityLabel="Speed control"
+          accessibilityRole="button"
         >
           <Text
             fontSize={"$6"}

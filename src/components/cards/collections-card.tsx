@@ -39,6 +39,8 @@ const CollectionCard = ({
       pressStyle={{ scale: 0.875 }}
       animation="bouncy"
       onPress={handlePress}
+      accessible
+      accessibilityLabel={`${item.name} collection`}
     >
       <Flex w="100%" h="100%" overflow="hidden">
         <CollectionCover

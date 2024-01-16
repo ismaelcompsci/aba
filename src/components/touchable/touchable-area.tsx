@@ -1,8 +1,8 @@
 /**
  * https://github.com/Uniswap/wallet/tree/0339c44a5eb3fe23aeb423186c5de54a6f3cf720/packages/ui
  */
-import { useCallback, useMemo, useRef } from "react";
-import { GestureResponderEvent } from "react-native";
+import { forwardRef, useCallback, useMemo, useRef } from "react";
+import { GestureResponderEvent, TouchableOpacity } from "react-native";
 import {
   Easing,
   useAnimatedStyle,
@@ -34,102 +34,116 @@ export type TouchableAreaProps = TouchableBoxProps & {
  *  - clickable icons (different from an icon button which has a bg color, border radius, and a border)
  *  - custom elements that are clickable (e.g. rows, cards, headers)
  */
-export function TouchableArea({
-  hapticFeedback = false,
-  ignoreDragEvents = false,
-  hapticStyle,
-  scaleTo,
-  onPress,
-  children,
-  testID,
-  activeOpacity = 0.75,
-  hitSlop,
-  disabled,
-  ...propsIn
-}: TouchableAreaProps): JSX.Element {
-  const [rest, style] = usePropsAndStyle(propsIn);
-
-  const touchActivationPositionRef = useRef<Pick<
-    GestureResponderEvent["nativeEvent"],
-    "pageX" | "pageY"
-  > | null>(null);
-
-  const scale = useSharedValue(1);
-
-  const onPressHandler = useCallback(
-    async (event: GestureResponderEvent) => {
-      if (!onPress) return;
-
-      if (!ignoreDragEvents) {
-        const { pageX, pageY } = event.nativeEvent;
-
-        const isDragEvent =
-          touchActivationPositionRef.current &&
-          isDrag(
-            touchActivationPositionRef.current.pageX,
-            touchActivationPositionRef.current.pageY,
-            pageX,
-            pageY
-          );
-
-        if (isDragEvent) {
-          return;
-        }
-      }
-
-      onPress(event);
-
-      if (hapticFeedback) {
-        await impactAsync(hapticStyle);
-      }
+export const TouchableArea = forwardRef<TouchableOpacity, TouchableAreaProps>(
+  (
+    {
+      hapticFeedback = false,
+      ignoreDragEvents = false,
+      hapticStyle,
+      scaleTo,
+      onPress,
+      children,
+      testID,
+      activeOpacity = 0.75,
+      hitSlop,
+      disabled,
+      accessible,
+      accessibilityLabel,
+      accessibilityHint,
+      ...propsIn
     },
-    [onPress, ignoreDragEvents, hapticFeedback, hapticStyle]
-  );
+    ref
+  ) => {
+    const [rest, style] = usePropsAndStyle(propsIn);
 
-  const onPressInHandler = useMemo(() => {
-    return ({ nativeEvent: { pageX, pageY } }: GestureResponderEvent) => {
-      touchActivationPositionRef.current = { pageX, pageY };
+    const touchActivationPositionRef = useRef<Pick<
+      GestureResponderEvent["nativeEvent"],
+      "pageX" | "pageY"
+    > | null>(null);
 
+    const scale = useSharedValue(1);
+
+    const onPressHandler = useCallback(
+      async (event: GestureResponderEvent) => {
+        if (!onPress) return;
+
+        if (!ignoreDragEvents) {
+          const { pageX, pageY } = event.nativeEvent;
+
+          const isDragEvent =
+            touchActivationPositionRef.current &&
+            isDrag(
+              touchActivationPositionRef.current.pageX,
+              touchActivationPositionRef.current.pageY,
+              pageX,
+              pageY
+            );
+
+          if (isDragEvent) {
+            return;
+          }
+        }
+
+        onPress(event);
+
+        if (hapticFeedback) {
+          await impactAsync(hapticStyle);
+        }
+      },
+      [onPress, ignoreDragEvents, hapticFeedback, hapticStyle]
+    );
+
+    const onPressInHandler = useMemo(() => {
+      return ({ nativeEvent: { pageX, pageY } }: GestureResponderEvent) => {
+        touchActivationPositionRef.current = { pageX, pageY };
+
+        if (!scaleTo) return;
+        scale.value = withTiming(scaleTo, ScaleTimingConfigIn);
+      };
+    }, [scale, scaleTo]);
+
+    const onPressOutHandler = useMemo(() => {
       if (!scaleTo) return;
-      scale.value = withTiming(scaleTo, ScaleTimingConfigIn);
+      return () => {
+        scale.value = withDelay(50, withTiming(1, ScaleTimingConfigOut));
+      };
+    }, [scale, scaleTo]);
+
+    const { onLongPress, ...restStyles } = rest;
+
+    const baseProps: TouchableBoxProps = {
+      onPress: onPressHandler,
+      onPressIn: onPressInHandler,
+      onPressOut: onPressOutHandler,
+      onLongPress,
+      activeOpacity,
+      hitSlop: hitSlop || 5,
+      testID,
     };
-  }, [scale, scaleTo]);
 
-  const onPressOutHandler = useMemo(() => {
-    if (!scaleTo) return;
-    return () => {
-      scale.value = withDelay(50, withTiming(1, ScaleTimingConfigOut));
-    };
-  }, [scale, scaleTo]);
+    const animatedStyle = useAnimatedStyle(() => {
+      return {
+        transform: [{ scale: scale.value }],
+      };
+    });
 
-  const { onLongPress, ...restStyles } = rest;
-
-  const baseProps: TouchableBoxProps = {
-    onPress: onPressHandler,
-    onPressIn: onPressInHandler,
-    onPressOut: onPressOutHandler,
-    onLongPress,
-    activeOpacity,
-    hitSlop: hitSlop || 5,
-    testID,
-  };
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-    };
-  });
-
-  return (
-    <AnimatedTouchableBox
-      {...baseProps}
-      disabled={disabled}
-      style={[scaleTo ? animatedStyle : null, style, restStyles]}
-    >
-      {children}
-    </AnimatedTouchableBox>
-  );
-}
+    return (
+      <AnimatedTouchableBox
+        // {...propsIn}
+        {...baseProps}
+        disabled={disabled}
+        accessible={accessible}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        style={[scaleTo ? animatedStyle : null, style, restStyles]}
+        ref={ref}
+      >
+        {children}
+      </AnimatedTouchableBox>
+    );
+  }
+);
+TouchableArea.displayName = "TouchableArea";
 
 export const AnimatedTouchableArea = withAnimated(TouchableArea);
 

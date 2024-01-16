@@ -33,6 +33,9 @@ export const PlaylistsCard = ({
       animation="bouncy"
       onPress={handlePress}
       bg={"$background"}
+      accessible
+      accessibilityLabel={`${item.name} playlist`}
+      accessibilityHint={"Go to playlist page"}
     >
       {/* PHOTOS */}
       <Flex height={bookHeight} width={bookWidth}>

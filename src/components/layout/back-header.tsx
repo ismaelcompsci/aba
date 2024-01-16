@@ -31,6 +31,9 @@ export const BackButton = ({
       alignItems="center"
       hitSlop={24}
       onPress={goBack}
+      accessible
+      accessibilityLabel="Back button"
+      accessibilityHint="Go to previous page"
       {...rest}
     >
       <Flex row alignItems="center" gap={8}>

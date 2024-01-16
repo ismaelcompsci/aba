@@ -74,6 +74,8 @@ const BigAudioPlayer = ({
               justifyContent={"center"}
               bg="$background"
               onPress={() => closePlayer && closePlayer()}
+              accessible
+              accessibilityLabel="Collapse player"
             >
               <ChevronDown />
             </TouchableArea>

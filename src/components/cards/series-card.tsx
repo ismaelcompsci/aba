@@ -86,6 +86,8 @@ const SeriesCard = ({
       animation="bouncy"
       onPress={handlePress}
       bg={"$background"}
+      accessible
+      accessibilityLabel={`${item.name} series`}
     >
       {bgImg ? (
         <Image

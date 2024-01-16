@@ -104,6 +104,11 @@ export const ShelfCard = ({
       w={cardWidth}
       overflow="hidden"
       onPress={onPress}
+      accessible
+      accessibilityLabel={`${item.media.metadata.title} card`}
+      accessibilityValue={{
+        text: item.media.metadata.description ?? "Unkown book",
+      }}
     >
       {/* IMAGE */}
       <Flex top={0} jc={"center"} alignItems="center">

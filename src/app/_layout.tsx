@@ -209,7 +209,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
       >
         <Flex row flex={1} gap="$4" ai={"center"}>
           {showLogo ? (
-            <TouchableArea>
+            <TouchableArea accessible={false}>
               <Library />
             </TouchableArea>
           ) : (
@@ -232,6 +232,10 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hitSlop={10}
               // onPress={() => router.push("/test-page")}
               onPress={() => router.push("/search/")}
+              accessibilityLabel="Search"
+              accessibilityHint="Go to search page"
+              accessibilityRole="button"
+              accessible
             >
               <Search color={color.color.get()} />
             </TouchableArea>
@@ -242,6 +246,10 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               hitSlop={10}
               onPress={() => router.push("/settings/settings-and-more")}
               jc="center"
+              accessibilityLabel="Settings"
+              accessibilityHint="Go to settings page"
+              accessibilityRole="button"
+              accessible
             >
               <MoreVertical size={24} />
             </TouchableArea>
@@ -282,7 +290,13 @@ const NetworkIndicator = () => {
     color = "$green10";
   }
   return (
-    <TouchableArea flexDirection="row" gap="$2" alignItems="center">
+    <TouchableArea
+      flexDirection="row"
+      gap="$2"
+      alignItems="center"
+      accessible
+      accessibilityLabel="Network Indicator"
+    >
       <Dot bg={color} />
       <Icon size="$1" color={color} />
     </TouchableArea>

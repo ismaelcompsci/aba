@@ -38,6 +38,25 @@ export const Player = ({
           px="$2.5"
           onPress={() => playerRef.current?.expand()}
         >
+          <Flex
+            h={1}
+            w={1}
+            accessible
+            accessibilityLabel="Expand Player Button"
+            accessibilityHint="Expand player for more info"
+            accessibilityActions={[
+              { name: "expand_player", label: "Expand Player" },
+            ]}
+            onAccessibilityAction={(event) => {
+              switch (event.nativeEvent.actionName) {
+                case "expand_player":
+                  playerRef.current?.expand();
+                  break;
+                default:
+                  break;
+              }
+            }}
+          />
           <AudioPlayerInfo color="white" audiobookInfo={audiobookInfo} />
         </Flex>
       }

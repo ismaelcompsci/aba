@@ -214,7 +214,10 @@ const EBookReader = ({
   };
 
   useEffect(() => {
-    return () => StatusBar.setHidden(false);
+    return () => {
+      setEpubReaderShowMenu(false);
+      StatusBar.setHidden(false);
+    };
   }, []);
 
   useEffect(() => {

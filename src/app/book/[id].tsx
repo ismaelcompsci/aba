@@ -249,6 +249,8 @@ const BookPage = () => {
                     color="$gray10"
                     textDecorationLine={isPodcast ? "none" : "underline"}
                     onPress={handleAuthorPress}
+                    accessible
+                    accessibilityRole="link"
                   >
                     {author}
                   </Text>

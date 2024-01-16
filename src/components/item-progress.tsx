@@ -38,7 +38,12 @@ const ItemProgress = ({
 
   if (withText) {
     return (
-      <>
+      <Flex
+        accessible
+        accessibilityLabel={`Progress indicator at ${Math.floor(
+          userProgressPercent * 100
+        )}%`}
+      >
         {userProgressPercent < 1 ? (
           <CircularProgress
             value={userProgressPercent * 100}
@@ -52,7 +57,7 @@ const ItemProgress = ({
         ) : showOnlyBase ? null : (
           <CheckCircle size={checkMarkSize} color="#2ecc71" />
         )}
-      </>
+      </Flex>
     );
   } else
     return (

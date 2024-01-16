@@ -81,6 +81,14 @@ const BookCard = ({
       },
     });
 
+  const title = item.recentEpisode
+    ? item.recentEpisode.title
+    : item.media?.metadata?.title;
+  const author =
+    "authorName" in item.media.metadata
+      ? item.media.metadata.authorName
+      : item.media.metadata.author;
+
   return (
     <TapGestureHandler onGestureEvent={onGestureEvent}>
       <AnimatedFlex
@@ -88,6 +96,8 @@ const BookCard = ({
           animatedStyle,
           { flex: 1, justifyContent: "center", alignItems: "center" },
         ]}
+        accessible
+        accessibilityLabel={`${title} by ${author}` ?? "Unknown book"}
       >
         <Flex>
           {!isPodcast || recentEpisode ? (
@@ -129,14 +139,10 @@ const BookCard = ({
         </Flex>
         <Flex w={bookWidth}>
           <Text numberOfLines={1} fontWeight="$10" pt="$2">
-            {item.recentEpisode
-              ? item.recentEpisode.title
-              : item.media?.metadata?.title}
+            {title}
           </Text>
           <Text fontSize="$1" color="$gray10" numberOfLines={1}>
-            {"authorName" in item.media.metadata
-              ? item.media.metadata.authorName
-              : item.media.metadata.author}
+            {author}
           </Text>
         </Flex>
       </AnimatedFlex>

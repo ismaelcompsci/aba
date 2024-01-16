@@ -42,6 +42,8 @@ export function SortSelect({ ...props }: PopoverProps) {
           height={"$4"}
           width={"$4"}
           mr="$2"
+          accessible
+          accessibilityLabel="Sort"
         >
           <ArrowDownWideNarrow />
         </Button>

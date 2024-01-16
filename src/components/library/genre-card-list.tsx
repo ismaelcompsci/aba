@@ -34,7 +34,7 @@ export const GenreCardList = ({
 
       return data;
     },
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 20,
   });
 
   const genres = filterData?.genres || [];
@@ -73,7 +73,13 @@ export const GenreCardList = ({
         <Text fontSize="$6" bg="$background">
           Genres
         </Text>
-        <TouchableArea hapticFeedback onPress={() => router.push("/genres/")}>
+        <TouchableArea
+          hapticFeedback
+          onPress={() => router.push("/genres/")}
+          accessible
+          accessibilityLabel="Expand Genres"
+          accessibilityHint="Go to list of all genres"
+        >
           <Maximize2 size={"$1"} />
         </TouchableArea>
       </Flex>
@@ -87,7 +93,12 @@ export const GenreCardList = ({
           showsHorizontalScrollIndicator={false}
           ItemSeparatorComponent={() => <Flex w={15} />}
           renderItem={({ item, index }) => (
-            <Flex pl={index === 0 ? "$4" : null} key={index}>
+            <Flex
+              pl={index === 0 ? "$4" : null}
+              key={index}
+              accessible
+              accessibilityLabel={item}
+            >
               <GenreCard genre={item} />
             </Flex>
           )}
