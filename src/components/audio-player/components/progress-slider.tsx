@@ -98,7 +98,7 @@ export const ProgressSlider = ({
   });
 
   const handleSliderEnd = async (value: number) => {
-    seekTo(value, 1100, () => {
+    seekTo(value, 1600, () => {
       setIsSeeking(false);
     });
   };
@@ -167,6 +167,7 @@ export const ProgressSlider = ({
       console.log("[PROGRESS_SLIDER] updateProgress error", error);
     }
   };
+  console.log({ isSeeking });
 
   return (
     <Flex alignItems="center" justifyContent="space-between" mt={4}>

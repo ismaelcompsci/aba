@@ -1,13 +1,14 @@
-import React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
-import type { ReaderProps } from 'src/types';
+import React from "react";
+import { ActivityIndicator, Text, View } from "react-native";
 
-import { styles } from './styles';
+import { ReaderProps } from "../../types";
+
+import { styles } from "./styles";
 
 export function OpeningBook({
   width,
   height,
-}: Pick<ReaderProps, 'width' | 'height'>) {
+}: Pick<ReaderProps, "width" | "height">) {
   return (
     <View style={[styles.container, { width, height }]}>
       <ActivityIndicator size="large" />
