@@ -167,7 +167,6 @@ export const ProgressSlider = ({
       console.log("[PROGRESS_SLIDER] updateProgress error", error);
     }
   };
-  console.log({ isSeeking });
 
   return (
     <Flex alignItems="center" justifyContent="space-between" mt={4}>

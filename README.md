@@ -21,6 +21,9 @@
 - [ ] better playlist implementation
 - [ ] better error handling for requests
     - [ ] show toast on error for all request
+- [ ] **Safari 15 on iOS 15 is required for ebook reader to work**
+    - [ ] get rid of private methods and properties in ebook reader javascript
+
 
 
 ### Patches
@@ -31,3 +34,5 @@
 
 ---
 app is still under development
+
+Safari 15 on iOS 15 is required for ebook reader to work

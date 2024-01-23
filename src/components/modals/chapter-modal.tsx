@@ -97,7 +97,9 @@ const Chapters = () => {
           estimatedItemSize={44}
           renderItem={({ item }) => {
             const start = (
-              "startOffset" in item ? item.startOffset : (item.start as number)
+              "startOffset" in item
+                ? item.startOffset
+                : (item.start as unknown as number)
             ) as number;
             const isPodcastChapter = !("startOffset" in item);
 

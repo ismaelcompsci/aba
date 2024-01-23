@@ -49,6 +49,7 @@ export const BookInfo = () => {
       <HandleBar />
 
       <TabView
+        lazy
         navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}

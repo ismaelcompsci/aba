@@ -211,7 +211,7 @@ export function View({
           scrollEnabled={false}
           mixedContentMode="compatibility"
           onMessage={onMessage}
-          allowingReadAccessToURL={`${allowedUris},${RNFetchBlob.fs.dirs.DocumentDir}`}
+          allowingReadAccessToURL={RNFetchBlob.fs.dirs.DocumentDir}
           allowUniversalAccessFromFileURLs={true}
           allowFileAccessFromFileURLs={true}
           allowFileAccess={true}
