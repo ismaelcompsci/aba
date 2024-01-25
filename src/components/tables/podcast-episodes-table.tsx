@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Alert, FlatList } from "react-native";
+import Popover from "react-native-popover-view";
+import { Placement } from "react-native-popover-view/dist/Types";
 import { ZoomIn, ZoomOut } from "react-native-reanimated";
 import {
   ArrowDown,
@@ -12,7 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import * as Burnt from "burnt";
 import { useAtomValue, useSetAtom } from "jotai";
-import { Button, Popover, Separator, Spinner, Text, useTheme } from "tamagui";
+import { Button, Separator, Spinner, Text, useTheme } from "tamagui";
 
 import { useAudioBookShelfSocket } from "../../context/socket-context";
 import { isAdminOrUpAtom, requestInfoAtom } from "../../state/app-state";
@@ -86,8 +88,6 @@ const PodcastEpisodesTable = ({
     [sortKey, descending, episodes]
   );
 
-  const colors = useTheme();
-
   const renderItem = ({ item }: { item: PodcastEpisodeExpanded }) => {
     return <EpisodeTableRow item={item} podcastId={podcastId} />;
   };
@@ -113,64 +113,12 @@ const PodcastEpisodesTable = ({
             <Search size={"$1"} />
           </TouchableArea>
         ) : null}
-        <Popover placement="left">
-          <Popover.Trigger asChild>
-            <Button
-              unstyled
-              pressStyle={{
-                opacity: 0.8,
-              }}
-            >
-              <ArrowDownWideNarrow />
-            </Button>
-          </Popover.Trigger>
-          <Popover.Content
-            bg={colors.backgroundPress.get()}
-            enterStyle={{ y: -10, opacity: 0 }}
-            exitStyle={{ y: -10, opacity: 0 }}
-            animation={[
-              "quick",
-              {
-                opacity: {
-                  overshootClamping: true,
-                },
-              },
-            ]}
-            p="$3"
-            elevate
-            justifyContent="flex-start"
-            borderWidth={1}
-            borderColor="$borderColor"
-          >
-            <Flex space fill w={"$10"}>
-              {episodeSorts.map((sort) => {
-                return (
-                  <TouchableArea
-                    key={sort.value}
-                    flexDirection="row"
-                    alignItems="center"
-                    gap="$2"
-                    onPress={() => {
-                      setSortKey(sort.value as SortKey);
-                      if (sort.value === sortKey) {
-                        setDescending((prev) => !prev);
-                      }
-                    }}
-                  >
-                    <Text>{sort.text}</Text>
-                    {sortKey === sort.value ? (
-                      descending ? (
-                        <ArrowUp size={"$0.75"} />
-                      ) : (
-                        <ArrowDown size={"$0.75"} />
-                      )
-                    ) : null}
-                  </TouchableArea>
-                );
-              })}
-            </Flex>
-          </Popover.Content>
-        </Popover>
+        <EpisodeTableSort
+          setDescending={setDescending}
+          setSortKey={setSortKey}
+          sortKey={sortKey}
+          descending={descending}
+        />
       </Flex>
       <Separator pt="$1.5" />
       <FlatList
@@ -181,6 +129,136 @@ const PodcastEpisodesTable = ({
       />
       <Separator pt="$1.5" />
     </Flex>
+  );
+};
+
+const EpisodeTableSort = ({
+  setSortKey,
+  setDescending,
+  sortKey,
+  descending,
+}: {
+  setSortKey: (key: SortKey) => void;
+  setDescending: (descending: boolean) => void;
+  sortKey: string;
+  descending: boolean;
+}) => {
+  const colors = useTheme();
+
+  return (
+    <Popover
+      arrowSize={{ width: 10, height: 4 }}
+      placement={Placement.LEFT}
+      popoverStyle={{
+        backgroundColor: colors.backgroundPress.get(),
+      }}
+      from={
+        <Button
+          unstyled
+          pressStyle={{
+            opacity: 0.8,
+          }}
+        >
+          <ArrowDownWideNarrow />
+        </Button>
+      }
+    >
+      <Flex
+        space
+        fill
+        w={"$10"}
+        p="$3"
+        justifyContent="flex-start"
+        borderWidth={1}
+        borderColor="$borderColor"
+      >
+        {episodeSorts.map((sort) => {
+          return (
+            <TouchableArea
+              key={sort.value}
+              flexDirection="row"
+              alignItems="center"
+              gap="$2"
+              onPress={() => {
+                setSortKey(sort.value as SortKey);
+                if (sort.value === sortKey) {
+                  // @ts-ignore
+                  setDescending((prev) => !prev);
+                }
+              }}
+            >
+              <Text>{sort.text}</Text>
+              {sortKey === sort.value ? (
+                descending ? (
+                  <ArrowUp size={"$0.75"} />
+                ) : (
+                  <ArrowDown size={"$0.75"} />
+                )
+              ) : null}
+            </TouchableArea>
+          );
+        })}
+      </Flex>
+    </Popover>
+    // <Popover placement="left">
+    //   <Popover.Trigger asChild>
+    // <Button
+    //   unstyled
+    //   pressStyle={{
+    //     opacity: 0.8,
+    //   }}
+    // >
+    //   <ArrowDownWideNarrow />
+    // </Button>
+    //   </Popover.Trigger>
+    //   <Popover.Content
+    //     bg={colors.backgroundPress.get()}
+    //     enterStyle={{ y: -10, opacity: 0 }}
+    //     exitStyle={{ y: -10, opacity: 0 }}
+    //     animation={[
+    //       "quick",
+    //       {
+    //         opacity: {
+    //           overshootClamping: true,
+    //         },
+    //       },
+    //     ]}
+    //     p="$3"
+    //     elevate
+    //     justifyContent="flex-start"
+    //     borderWidth={1}
+    //     borderColor="$borderColor"
+    //   >
+    // <Flex space fill w={"$10"}>
+    //   {episodeSorts.map((sort) => {
+    //     return (
+    //       <TouchableArea
+    //         key={sort.value}
+    //         flexDirection="row"
+    //         alignItems="center"
+    //         gap="$2"
+    //         onPress={() => {
+    //           setSortKey(sort.value as SortKey);
+    //           if (sort.value === sortKey) {
+    //             // @ts-ignore
+    //             setDescending((prev) => !prev);
+    //           }
+    //         }}
+    //       >
+    //         <Text>{sort.text}</Text>
+    //         {sortKey === sort.value ? (
+    //           descending ? (
+    //             <ArrowUp size={"$0.75"} />
+    //           ) : (
+    //             <ArrowDown size={"$0.75"} />
+    //           )
+    //         ) : null}
+    //       </TouchableArea>
+    //     );
+    //   })}
+    // </Flex>
+    //   </Popover.Content>
+    // </Popover>
   );
 };
 

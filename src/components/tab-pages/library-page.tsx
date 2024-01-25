@@ -186,7 +186,7 @@ const LibraryPage = ({
             {seriesName}
           </Text>
         ) : null}
-        <SortSelect placement="bottom-end" />
+        <SortSelect />
       </Flex>
       {/* items */}
       {isInitialLoading || changingLibrary || isEmpty ? (

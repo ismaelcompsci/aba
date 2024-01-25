@@ -127,6 +127,7 @@ export const InputWithTags = ({
           mode={Mode.RN_MODAL}
           placement={Placement.TOP}
           isVisible={showPopover}
+          offset={10}
           onRequestClose={() => {
             setSelectedTag(SELECTED_TAG_DEFAULT);
             setShowPopover(false);
@@ -136,16 +137,16 @@ export const InputWithTags = ({
             opacity: 0.1,
           }}
           popoverStyle={{
-            backgroundColor: colors.background.get(),
+            backgroundColor: colors.backgroundPress.get(),
           }}
         >
-          <Flex px="$4" py="$2" row space>
+          <Flex px="$4" py="$2" row space bg="$backgroundPress">
             <TouchableArea onPress={editTag}>
-              <Pen size={14} />
+              <Pen size={17} />
             </TouchableArea>
             <Separator vertical />
             <TouchableArea onPress={removeTag}>
-              <Trash size={14} color={colors.red11.get()} />
+              <Trash size={17} color={colors.red11.get()} />
             </TouchableArea>
           </Flex>
         </Popover>

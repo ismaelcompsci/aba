@@ -222,7 +222,7 @@ const Header = ({ navigation, route }: NativeStackHeaderProps) => {
               <ChevronLeft />
             </TouchableArea>
           )}
-          {showServerSwitch && <ServerSelect placement="bottom" />}
+          {showServerSwitch && <ServerSelect />}
           <NetworkIndicator />
         </Flex>
         <Flex row alignItems="center" gap={16}>

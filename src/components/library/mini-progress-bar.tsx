@@ -4,15 +4,17 @@ import { Flex } from "../layout/flex";
 export const MiniProgressBar = ({
   itemId,
   episodeId,
+  progressBarWidth = 24,
 }: {
   itemId: string;
   episodeId?: string;
+  progressBarWidth?: number;
 }) => {
   const { userProgressPercent } = useUserMediaProgress({
     libraryItemId: itemId,
     episodeId: episodeId,
   });
-  const barWidth = 24;
+  const barWidth = progressBarWidth;
   const seenWidth = barWidth * userProgressPercent;
 
   if (!userProgressPercent) return null;
